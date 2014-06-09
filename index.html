@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="description" content="A Pok&eacute;mon Damage Calculator for all generations of Pok&eacute;mon games. The most accurate calculator to date!" />
+        <meta name="keywords" content="damage,pokemon,calculator,sulcata" />
+        <title>Sulcata's Damage Calculator</title>
+        <link rel="stylesheet" type="text/css" href="reset.css" />
+        <link rel="stylesheet" type="text/css" href="calctheme.css" />
+        <script type="text/javascript" src="calculator.js"></script>
+        <script type="text/javascript" src="ui.js"></script>
+    </head>
+    <body>
+        <div id="menu">
+            <div id="selectorPanel">
+                <div class="selectGen" id="cgen6">XY</div>
+                <div class="selectGen" id="cgen5">B2W2</div>
+                <div class="selectGen" id="cgen4">HGSS</div>
+                <div class="selectGen" id="cgen3">ADV</div>
+                <div class="selectGen" id="cgen2">GSC</div>
+                <div class="selectGen" id="cgen1">RBY</div>
+                <div class="clear"></div>
+            </div>
+            <div id="moreOptions" class="togglebox">More Options</div>
+            <div id="swap">Swap Pok&eacute;mon</div>
+        </div>
+        <div id="calculator">
+            <div id="attacker">
+                <div class="pokeContainer">
+                    <div class="sprite">
+                        <span class="helper"></span>
+                        <img id="attackerSprite" src="sprites/XY/0.png" />
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Pok&eacute;mon</div>
+                        <select id="attackerPoke" class="largeSelect"></select>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_3456">Nature</div>
+                        <select id="attackerNature" class="largeSelect G_3456"></select>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_3456">Ability</div>
+                        <select id="attackerAbility" class="largeSelect G_3456"></select>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_23456">Item</div>
+                        <select id="attackerItem" class="largeSelect G_23456"></select>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Level</div>
+                        <input type="text" value="100" id="attackerLevel" /><div class="levelButton" id="attackerLevel5">5</div><div class="levelButton" id="attackerLevel50">50</div><div class="levelButton" id="attackerLevel100">100</div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Health</div>
+                        <input type="text" value="0" id="attackerHpEv" /><input type="text" value="0" id="attackerHpIv" /><select id="attackerHpBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="attackerHpStat" class="stat"></div>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel">Attack</div>
+                        <input type="text" value="0" id="attackerAtkEv" /><input type="text" value="0" id="attackerAtkIv" /><select id="attackerAtkBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="attackerAtkStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Defense</div>
+                        <input type="text" value="0" id="attackerDefEv" /><input type="text" value="0" id="attackerDefIv" /><select id="attackerDefBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="attackerDefStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear G_23456">
+                        <div class="textLabel">Sp. Attack</div>
+                        <input type="text" value="0" id="attackerSatkEv" /><input type="text" value="0" id="attackerSatkIv" /><select id="attackerSatkBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="attackerSatkStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear G_23456">
+                        <div class="textLabel">Sp. Defense</div>
+                        <input type="text" value="0" id="attackerSdefEv" /><input type="text" value="0" id="attackerSdefIv" /><select id="attackerSdefBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="attackerSdefStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear G_1">
+                        <div class="textLabel">Special</div>
+                        <input type="text" value="255" id="attackerSpcEv" /><input type="text" value="15" id="attackerSpcIv" /><select id="attackerSpcBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="attackerSpcStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Speed</div>
+                        <input type="text" value="0" id="attackerSpdEv" /><input type="text" value="0" id="attackerSpdIv" /><select id="attackerSpdBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="attackerSpdStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Current HP</div>
+                        <input type="text" id="attackerHP" />/<span id="attackerTotalHP">???</span>
+                        (<input type="text" id="attackerHPp" />%)
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Status</div>
+                        <select id="attackerStatus">
+                            <option value="0">(No Status)</option>
+                            <option value="1">Poisoned</option>
+                            <option value="2">Badly Poisoned</option>
+                            <option value="3">Burned</option>
+                            <option value="4">Paralyzed</option>
+                            <option value="5">Asleep</option>
+                            <option value="6">Frozen</option>
+                        </select>
+                    </div>
+                    <div class="morePokeOptions">
+                        <div class="clear G_56">
+                            <div class="textLabel">Gender</div>
+                            <select id="attackerGender">
+                                <option value="0">Neutral</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="textLabel">Types</div>
+                            <select id="attackerType1" class="typeList"></select>
+                            <select id="attackerType2" class="typeList"></select>
+                        </div>
+                        <div class="clear G_6">
+                            <div class="textLabel">Type Effects</div>
+                            <select id="attackerTypeAdded">
+                                <option value="18">(None)</option>
+                                <option value="7">Trick-or-Treat</option>
+                                <option value="11">Forest's Curse</option>
+                            </select>
+                        </div>
+                        <div class="G_456">
+                            <label><input type="checkbox" id="attackerGrounded" />Grounded</label>
+                        </div>
+                        <div class="clear G_456">
+                            <label><input type="checkbox" id="attackerTailwind" />Tailwind</label>
+                        </div>
+                        <div class="clear G_456">
+                            <label><input type="checkbox" id="attackerUnburden" />Unburden</label>
+                        </div>
+                        <div class="clear G_56">
+                            <label><input type="checkbox" id="attackerAutotomize" />Autotomize</label>
+                        </div>
+                        <div class="clear G_456">
+                            <label><input type="checkbox" id="attackerFlowerGift" />Flower Gift</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="defender">
+                <div class="pokeContainer">
+                    <div class="sprite">
+                        <span class="helper"></span>
+                        <img id="defenderSprite" src="sprites/XY/0.png" />
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Pok&eacute;mon</div>
+                        <select id="defenderPoke" class="largeSelect"></select>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_3456">Nature</div>
+                        <select id="defenderNature" class="largeSelect G_3456"></select>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_3456">Ability</div>
+                        <select id="defenderAbility" class="largeSelect G_3456"></select>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_23456">Item</div>
+                        <select id="defenderItem" class="largeSelect G_23456"></select>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Level</div>
+                        <input type="text" value="100" id="defenderLevel" /><div class="levelButton" id="defenderLevel5">5</div><div class="levelButton" id="defenderLevel50">50</div><div class="levelButton" id="defenderLevel100">100</div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Health</div>
+                        <input type="text" value="0" id="defenderHpEv" /><input type="text" value="0" id="defenderHpIv" /><select id="defenderHpBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="defenderHpStat" class="stat"></div>
+                    </div>
+                
+                    <div class="clear">
+                        <div class="textLabel">Attack</div>
+                        <input type="text" value="0" id="defenderAtkEv" /><input type="text" value="0" id="defenderAtkIv" /><select id="defenderAtkBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="defenderAtkStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Defense</div>
+                        <input type="text" value="0" id="defenderDefEv" /><input type="text" value="0" id="defenderDefIv" /><select id="defenderDefBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="defenderDefStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear G_23456">
+                        <div class="textLabel">Sp. Attack</div>
+                        <input type="text" value="0" id="defenderSatkEv" /><input type="text" value="0" id="defenderSatkIv" /><select id="defenderSatkBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="defenderSatkStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear G_23456">
+                        <div class="textLabel">Sp. Defense</div>
+                        <input type="text" value="0" id="defenderSdefEv" /><input type="text" value="0" id="defenderSdefIv" /><select id="defenderSdefBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="defenderSdefStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear G_1">
+                        <div class="textLabel">Special</div>
+                        <input type="text" value="255" id="defenderSpcEv" /><input type="text" value="15" id="defenderSpcIv" /><select id="defenderSpcBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="defenderSpcStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Speed</div>
+                        <input type="text" value="0" id="defenderSpdEv" /><input type="text" value="0" id="defenderSpdIv" /><select id="defenderSpdBoost">
+                            <option value="6">+6</option>
+                            <option value="5">+5</option>
+                            <option value="4">+4</option>
+                            <option value="3">+3</option>
+                            <option value="2">+2</option>
+                            <option value="1">+1</option>
+                            <option value="0" selected>--</option>
+                            <option value="-1">-1</option>
+                            <option value="-2">-2</option>
+                            <option value="-3">-3</option>
+                            <option value="-4">-4</option>
+                            <option value="-5">-5</option>
+                            <option value="-6">-6</option>
+                        </select><div id="defenderSpdStat" class="stat"></div>
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Current HP</div>
+                        <input type="text" id="defenderHP" />/<span id="defenderTotalHP">???</span>
+                        (<input type="text" id="defenderHPp" />%)
+                    </div>
+
+                    <div class="clear">
+                        <div class="textLabel">Status</div>
+                        <select id="defenderStatus">
+                            <option value="0">(No Status)</option>
+                            <option value="1">Poisoned</option>
+                            <option value="2">Badly Poisoned</option>
+                            <option value="3">Burned</option>
+                            <option value="4">Paralyzed</option>
+                            <option value="5">Asleep</option>
+                            <option value="6">Frozen</option>
+                        </select>
+                    </div>
+                    <div class="morePokeOptions">
+                        <div class="clear G_56">
+                            <div class="textLabel">Gender</div>
+                            <select id="defenderGender">
+                                <option value="0">Neutral</option>
+                            </select>
+                        </div>
+                        <div class="clear">
+                            <div class="textLabel">Types</div>
+                            <select id="defenderType1" class="typeList"></select>
+                            <select id="defenderType2" class="typeList"></select>
+                        </div>
+                        <div class="clear G_6">
+                            <div class="textLabel">Type Effects</div>
+                            <select id="defenderTypeAdded">
+                                <option value="18">(None)</option>
+                                <option value="7">Trick-or-Treat</option>
+                                <option value="11">Forest's Curse</option>
+                            </select>
+                        </div>
+                        <div class="clear G_456">
+                            <label><input type="checkbox" id="defenderGrounded" />Grounded</label>
+                        </div>
+                        <div class="clear G_456">
+                            <label><input type="checkbox" id="defenderTailwind" />Tailwind</label>
+                        </div>
+                        <div class="clear G_456">
+                            <label><input type="checkbox" id="defenderUnburden" />Unburden</label>
+                        </div>
+                        <div class="clear G_56">
+                            <label><input type="checkbox" id="defenderAutotomize" />Autotomize</label>
+                        </div>
+                        <div class="clear G_456">
+                            <label><input type="checkbox" id="defenderFlowerGift" />Flower Gift</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="battleOptions">
+                <div class="move">Attack: <select id="move"></select></div>
+                <div class="M_MULTIHIT"><select id="multiHits"></select></div>
+                <div class="M_FURYCUTTER"><select id="furyCutter"></select></div>
+                <div class="M_MINIMIZE"><input type="checkbox" id="minimize" />Minimized</div>
+                <div class="M_DIG"><input type="checkbox" id="dig" />Dig</div>
+                <div class="M_DIVE"><input type="checkbox" id="dive" />Dive</div>
+                <div class="M_ECHOEDVOICE"><select id="echoedVoice">
+                    <option value="0">0 previous uses (40 BP)</option>
+                    <option value="1">1 previous uses (80 BP)</option>
+                    <option value="2">2 previous uses (120 BP)</option>
+                    <option value="3">3 previous uses (160 BP)</option>
+                    <option value="4">4+ previous uses (200 BP)</option>
+                </select></div>
+                <div class="M_TRUMPCARD"><select id="trumpCardPP">
+                    <option value="4">4+ PP left (40 BP)</option>
+                    <option value="3">3 PP left (50 BP)</option>
+                    <option value="2">2 PP left (60 BP)</option>
+                    <option value="1">1 PP left (80 BP)</option>
+                    <option value="0">0 PP left (200 BP)</option>
+                </select></div>
+                <div class="M_ROUND"><input type="checkbox" id="round" />Another Pok&eacute;mon used Round</div>
+                <div class="M_FLY"><input type="checkbox" id="fly" />Fly</div>
+                <div class="clear M_BEATUP">
+                    <div id="beatUpStatLabel">Stat</div><div id="beatUpLevelLabel">Level</div>
+                    <input type="text" id="beatUpStat0" /><input type="text" id="beatUpLevel0" />
+                    <input type="text" id="beatUpStat1" /><input type="text" id="beatUpLevel1" />
+                    <input type="text" id="beatUpStat2" /><input type="text" id="beatUpLevel2" />
+                    <input type="text" id="beatUpStat3" /><input type="text" id="beatUpLevel3" />
+                    <input type="text" id="beatUpStat4" /><input type="text" id="beatUpLevel4" />
+                    <input type="text" id="beatUpStat5" /><input type="text" id="beatUpLevel5" />
+                </div>
+                <div class="M_SPITUP"><select id="stockpile">
+                    <option value="0">Stockpile 0</option>
+                    <option value="1">Stockpile 1</option>
+                    <option value="2">Stockpile 2</option>
+                    <option value="3">Stockpile 3</option>
+                </select></div>
+                <div class="M_PURSUIT"><input type="checkbox" id="switchOut" />Opponent switched out</div>
+                <div class="M_PRESENT"><select id="present">
+                    <option value="40">40 BP</option>
+                    <option value="80">80 BP</option>
+                    <option value="120">120 BP</option>
+                </select></div>
+                <div class="M_MAGNITUDE"><select id="magnitude">
+                    <option value="4">Level 4 (10 BP)</option>
+                    <option value="5">Level 5 (30 BP)</option>
+                    <option value="6">Level 6 (50 BP)</option>
+                    <option value="7">Level 7 (70 BP)</option>
+                    <option value="8">Level 8 (90 BP)</option>
+                    <option value="9">Level 9 (110 BP)</option>
+                    <option value="10">Level 10 (150 BP)</option>
+                </select></div>
+                <div class="M_ROLLOUT"><select id="rollout">
+                    <option value="0">0 previous hits (20 BP)</option>
+                    <option value="1">1 previous hits (40 BP)</option>
+                    <option value="2">2 previous hits (80 BP)</option>
+                    <option value="3">3 previous hits (160 BP)</option>
+                    <option value="4">4+ previous hits (320 BP)</option>
+                </select></div>
+                <div class="M_ROLLOUT"><input type="checkbox" id="defenseCurl" />Defense Curl</div>
+                <div class="M_RETALIATE"><input type="checkbox" id="previouslyFainted" />Partner Fainted</div>
+                <div class="M_FUSIONFLARE"><input type="checkbox" id="fusionBolt" />Fusion Bolt was previously used</div>
+                <div class="M_FUSIONBOLT"><input type="checkbox" id="fusionFlare" />Fusion Flare was previously used</div>
+                <div class="M_MOVED"><input type="checkbox" id="moved" />Opponent moved first</div>
+                <div class="M_DAMAGED"><input type="checkbox" id="damaged" />Received damage</div>
+                <div class="M_PLEDGE"><input type="checkbox" id="pledge" />Pledge was previously used</div>
+                <div class="M_HAPPINESS">Happiness: <input type="text" id="happiness" /></div>
+                <div class="weather G_23456">Weather: <select id="weather">
+                    <option value="0">(No Weather)</option>
+                    <option value="4">Sun</option>
+                    <option value="2">Rain</option>
+                    <option value="3">Sand</option>
+                    <option value="1">Hail</option>
+                </select></div>
+                <div class="clear I_METRONOME">Metronome: <select id="metronome"></select></div>
+                <div class="clear"></div>
+                <div class="col1">
+                    <label><input type="checkbox" id="critical" />Critical Hit</label>
+                    <label><input type="checkbox" id="screens" />Light Screen/Reflect</label>
+                    <label class="G_3456"><input type="checkbox" id="helpingHand" />Helping Hand</label>
+                    <label class="G_3456"><input type="checkbox" id="charge" />Charge</label>
+                    <label class="G_3456"><input type="checkbox" id="multiBattle" />Doubles/Triples Battle</label>
+                    <label class="G_3456"><input type="checkbox" id="waterSport" />Water Sport</label>
+                    <label class="G_3456"><input type="checkbox" id="mudSport" />Mud Sport</label>
+                </div>
+                <div class="col2">
+                    <label class="G_456"><input type="checkbox" id="meFirst" />Me First</label>
+                    <label class="G_56"><input type="checkbox" id="friendGuard" />Friend Guard</label>
+                    <label class="G_56"><input type="checkbox" id="magicRoom" />Magic Room</label>
+                    <label class="G_56"><input type="checkbox" id="wonderRoom" />Wonder Room</label>
+                    <label class="G_6"><input type="checkbox" id="grassyTerrain" />Grassy Terrain</label>
+                    <label class="G_6"><input type="checkbox" id="mistyTerrain" />Misty Terrain</label>
+                    <label class="G_6"><input type="checkbox" id="electricTerrain" />Electric Terrain</label>
+                </div>
+                <div class="col3">
+                    <label class="G_6"><input type="checkbox" id="invertedBattle" />Inverted Battle</label>
+                    <label class="G_6"><input type="checkbox" id="fairyAura" />Fairy Aura</label>
+                    <label class="G_6"><input type="checkbox" id="darkAura" />Dark Aura</label>
+                    <label class="G_6"><input type="checkbox" id="auraBreak" />Aura Break</label>
+                    <label class="G_6"><input type="checkbox" id="electrify" />Electrify</label>
+                    <label class="G_6"><input type="checkbox" id="ionDeluge" />Ion Deluge</label>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+        <div id="calc">Calculate</div>
+        <div id="hpDisplay">
+            <div id="minDamageBar"></div>
+            <div id="maxDamageBar"></div>
+            <div id="blankBar"></div>
+        </div>
+        <div id="results"></div>
+    </body>
+</html>
