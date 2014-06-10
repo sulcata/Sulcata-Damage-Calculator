@@ -386,6 +386,20 @@ function changeGen(n) {
         document.getElementById("cgen" + i).className = (gen === i) ? "selectGen selectedGen" : "selectGen";
     }
     
+    
+    var g = document.getElementsByTagName("*");
+    for (var i = 0; i < g.length; i++) {
+        if (g[i].className) {
+            if (g[i].className.indexOf("G_") > -1) {
+                if (g[i].className.substr(g[i].className.indexOf("G_") + 2).indexOf(gen + "") > -1) {
+                    g[i].style.display = "";
+                } else {
+                    g[i].style.display = "none";
+                }
+            }
+        }
+    }
+    
     updateFormatting();
 }
 
