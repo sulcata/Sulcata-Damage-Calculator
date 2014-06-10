@@ -162,6 +162,7 @@ function Pokemon() {
     this.tailwind = false;
     this.grounded = false;
     this.flowerGift = false;
+    this.powerTrick = false;
     this.gender = Genders.NOGENDER; // NOGENDER, MALE, FEMALE
     this.addedType = Types.CURSE; // GHOST:Trick or Treat, GRASS:Forest's Curse, CURSE:Nothing; They can't exist simultaneously
     this.overrideTypes = [Types.CURSE, Types.CURSE]; // curse should be used for "no type"
@@ -209,6 +210,11 @@ function Pokemon() {
         // as a simplification to the gen 1/2 stat calculation I enter the EVs as /255 rather than /65535
         // the stats are exactly the same (can't get higher/lower or somewhere impossibly inbetween)
         // this makes it much easier for the user to enter them, as well as the programmer.
+        if (this.powerTrick && s === Stats.ATK) {// power trick for calming karppu's tits
+            s = Stats.DEF;
+        } else if (this.powerTrick && s === Stats.DEF) {
+            s = Stats.ATK;
+        }
         var ev, iv;
         if (gen <= 2 && s === Stats.HP) {
             iv = (this.ivs[Stats.ATK] & 1) << 3 | (this.ivs[Stats.DEF] & 1) << 2 | (this.ivs[Stats.SPC] & 1) << 1 | (this.ivs[Stats.SPD] & 1);
@@ -233,7 +239,7 @@ function Pokemon() {
             // (iv+2*base+ev/4+100)*level/100+10
             return Math.floor((iv + 2 * base + (ev >> 2) + 100) * this.level / 100) + 10;
         }
-        if (gen<=2) {
+        if (gen <= 2) {
             return Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + 5;
         }
         // [(iv+2*base+ev/4)*level/100+5]*nature

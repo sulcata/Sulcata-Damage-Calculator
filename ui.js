@@ -74,6 +74,12 @@ function updateFormatting() {
         originalDisplay[i] = toggleElements[i].style.display;
         toggleElements[i].style.display = "";
     }
+    var speedElements = document.getElementsByClassName("M_SPEED"),
+        speedDisplay = [];
+    for (var i = 0; i < speedElements.length; i++) {
+        speedDisplay[i] = speedElements[i].style.display;
+        speedElements[i].style.display = "";
+    }
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
         var e = document.getElementById("attacker" + strs[i] + "Stat");
@@ -116,6 +122,9 @@ function updateFormatting() {
     for (var i = 0; i < toggleElements.length; i++) {
         toggleElements[i].style.display = originalDisplay[i];
     }
+    for (var i = 0; i < speedElements.length; i++) {
+        speedElements[i].style.display = speedDisplay[i];
+    }
 }
 
 function changeGen(n) {
@@ -140,6 +149,7 @@ function changeGen(n) {
     document.getElementById("attackerUnburden").checked = false;
     document.getElementById("attackerAutotomize").checked = false;
     document.getElementById("attackerFlowerGift").checked = false;
+    document.getElementById("attackerPowerTrick").checked = false;
     document.getElementById("defenderPoke").selectedIndex = 0;
     changeSprite("defenderSprite", "0:0");
     document.getElementById("defenderNature").selectedIndex = 0;
@@ -158,6 +168,7 @@ function changeGen(n) {
     document.getElementById("defenderUnburden").checked = false;
     document.getElementById("defenderAutotomize").checked = false;
     document.getElementById("defenderFlowerGift").checked = false;
+    document.getElementById("defenderPowerTrick").checked = false;
     document.getElementById("screens").checked = false;
     document.getElementById("friendGuard").checked = false;
     document.getElementById("critical").checked = false;
@@ -756,7 +767,7 @@ function toggleAttackerAbilityOptions() {
 }
 
 function toggleMoveOptions() {
-    var a = document.getElementById("battleOptions").getElementsByTagName("div");
+    var a = document.getElementsByTagName("div");
     var m = "";
     var move = db.moves[this.value];
     for (var i = 0; i < a.length; i++) {
@@ -834,6 +845,8 @@ function toggleMoveOptions() {
                 } else if (m === "HAPPINESS" && move === "Frustration") {
                     a[i].style.display = "";
                     document.getElementById("happiness").value = 0;
+                } else if (m === "SPEED" && (move === "Gyro Ball" || move === "Electro Ball")) {
+                    a[i].style.display = "";
                 } else {
                     a[i].style.display = "none";
                 }
@@ -1052,6 +1065,7 @@ window.onload = function() {
         c.attacker.unburden = document.getElementById("attackerUnburden").checked;
         c.attacker.autotomize = document.getElementById("attackerAutotomize").checked;
         c.attacker.flowerGift = document.getElementById("attackerFlowerGift").checked;
+        c.attacker.powerTrick = document.getElementById("attackerPowerTrick").checked;
         
         c.defender.id = document.getElementById("defenderPoke").value;
         c.defender.evs = getEvs("defender");
@@ -1077,6 +1091,7 @@ window.onload = function() {
         c.defender.unburden = document.getElementById("defenderUnburden").checked;
         c.defender.autotomize = document.getElementById("defenderAutotomize").checked;
         c.defender.flowerGift = document.getElementById("defenderFlowerGift").checked;
+        c.defender.powerTrick = document.getElementById("defenderPowerTrick").checked;
         
         c.move.id = document.getElementById("move").value;
 
