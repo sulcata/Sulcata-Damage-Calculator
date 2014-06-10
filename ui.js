@@ -67,6 +67,13 @@ function setSelectByText(e, text) {
 
 function updateFormatting() {
     // valign labels next to the inputs because doing it with pure HTML/CSS is hard
+    // make sure everything is displaying
+    var toggleElements = document.getElementsByClassName("morePokeOptions"),
+        originalDisplay = [];
+    for (var i = 0; i < toggleElements.length; i++) {
+        originalDisplay[i] = toggleElements[i].style.display;
+        toggleElements[i].style.display = "";
+    }
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
         var e = document.getElementById("attacker" + strs[i] + "Stat");
@@ -105,6 +112,10 @@ function updateFormatting() {
     document.getElementById("maxDamageBar").style.width = "0";
     document.getElementById("blankBar").style.width = "0";
     document.getElementById("calc").style.width = w + "px";
+    // possibly rehide
+    for (var i = 0; i < toggleElements.length; i++) {
+        toggleElements[i].style.display = originalDisplay[i];
+    }
 }
 
 function changeGen(n) {
