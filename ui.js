@@ -889,7 +889,7 @@ function toggleOptions (p) {
                       "493:16" : "Dread Plate",
                       "493:17" : "Pixie Plate"};
     if (pokeToItem[pokeId]) {
-        setSelectByValue(document.getElementById(p + "Item"), pokeToItem[pokeId]);
+        setSelectByText(document.getElementById(p + "Item"), pokeToItem[pokeId]);
     }
 }
 
