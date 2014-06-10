@@ -171,7 +171,7 @@
                         </select><div id="attackerSpcStat" class="stat"></div>
                     </div>
 
-                    <div class="clear M_SPEED">
+                    <div class="clear">
                         <div class="textLabel">Speed</div>
                         <input type="text" value="0" id="attackerSpdEv" /><input type="text" value="0" id="attackerSpdIv" /><select id="attackerSpdBoost">
                             <option value="6">+6</option>
@@ -235,7 +235,7 @@
                             <label><input type="checkbox" id="attackerGrounded" />Grounded</label>
                         </div>
                         <div class="clear G_456">
-                            <label><input type="checkbox" id="attackerPowerTrick" />Grounded</label>
+                            <label><input type="checkbox" id="attackerPowerTrick" />Power Trick</label>
                         </div>
                         <div class="clear G_456">
                             <label><input type="checkbox" id="attackerTailwind" />Tailwind</label>
@@ -395,7 +395,7 @@
                         </select><div id="defenderSpcStat" class="stat"></div>
                     </div>
 
-                    <div class="clear M_SPEED">
+                    <div class="clear">
                         <div class="textLabel">Speed</div>
                         <input type="text" value="0" id="defenderSpdEv" /><input type="text" value="0" id="defenderSpdIv" /><select id="defenderSpdBoost">
                             <option value="6">+6</option>
@@ -459,7 +459,7 @@
                             <label><input type="checkbox" id="defenderGrounded" />Grounded</label>
                         </div>
                         <div class="clear G_456">
-                            <label><input type="checkbox" id="defenderPowerTrick" />Grounded</label>
+                            <label><input type="checkbox" id="defenderPowerTrick" />Power Trick</label>
                         </div>
                         <div class="clear G_456">
                             <label><input type="checkbox" id="defenderTailwind" />Tailwind</label>
@@ -541,6 +541,29 @@
                 <div class="M_DAMAGED"><input type="checkbox" id="damaged" />Received damage</div>
                 <div class="M_PLEDGE"><input type="checkbox" id="pledge" />Pledge was previously used</div>
                 <div class="M_HAPPINESS">Happiness: <input type="text" id="happiness" /></div>
+                <div class="M_HIDDENPOWER">
+                    <select id="hiddenPowerType">
+                        <option value="1">Fighting</option>
+                        <option value="2">Flying</option>
+                        <option value="3">Poison</option>
+                        <option value="4">Ground</option>
+                        <option value="5">Rock</option>
+                        <option value="6">Bug</option>
+                        <option value="7">Ghost</option>
+                        <option value="8">Steel</option>
+                        <option value="9">Fire</option>
+                        <option value="10">Water</option>
+                        <option value="11">Grass</option>
+                        <option value="12">Electric</option>
+                        <option value="13">Psychic</option>
+                        <option value="14">Ice</option>
+                        <option value="15">Dragon</option>
+                        <option value="16" selected>Dark</option>
+                    </select>
+                    <select id="hiddenPowerIvs">
+                        <option value="0">31-31-31-31-31-31</option>
+                    </select>
+                </div>
                 <div class="weather G_23456">Weather: <select id="weather">
                     <option value="0">(No Weather)</option>
                     <option value="4">Sun</option>
