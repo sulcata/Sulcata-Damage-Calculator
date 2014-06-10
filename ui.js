@@ -842,6 +842,57 @@ function toggleMoveOptions() {
     }
 }
 
+function toggleOptions (p) {
+    // 649:1 Genesect-D       -> 227 : Douse Drive
+    // 649:2 Genesect-S       -> 228 : Shock Drive
+    // 649:3 Genesect-B       -> 229 : Burn Drive
+    // 649:4 Genesect-C       -> 230 : Chill Drive
+    // 487:1 Giratina-O       -> 213 : Griseous Orb
+    // 493:1 Arceus-Fighting  -> 188 : Fist Plate
+    // 493:2 Arceus-Flying    -> 196 : Sky Plate
+    // 493:3 Arceus-Poison    -> 201 : Toxic Plate
+    // 493:4 Arceus-Ground    -> 187 : Earth Plate
+    // 493:5 Arceus-Rock      -> 199 : Stone Plate
+    // 493:6 Arceus-Bug       -> 192 : Insect Plate
+    // 493:7 Arceus-Ghost     -> 198 : Spooky Plate
+    // 493:8 Arceus-Steel     -> 193 : Iron Plate
+    // 493:9 Arceus-Fire      -> 189 : Flame Plate
+    // 493:10 Arceus-Water    -> 197 : Splash Plate
+    // 493:11 Arceus-Grass    -> 194 : Meadow Plate
+    // 493:12 Arceus-Electric -> 202 : Zap Plate
+    // 493:13 Arceus-Psychic  -> 195 : Mind Plate
+    // 493:14 Arceus-Ice      -> 191 : Icicle Plate
+    // 493:15 Arceus-Dragon   -> 185 : Draco Plate
+    // 493:16 Arceus-Dark     -> 186 : Dread Plate
+    // 493:17 Arceus-Fairy    -> 330 : Pixie Plate
+    var pokeId = document.getElementById(p + "Poke").value;
+    var pokeToItem = {"649:1" : "Douse Drive",
+                      "649:2" : "Shock Drive",
+                      "649:3" : "Burn Drive",
+                      "649:4" : "Chill Drive",
+                      "487:1" : "Griseous Orb",
+                      "493:1" : "Fist Plate",
+                      "493:2" : "Sky Plate",
+                      "493:3" : "Toxic Plate",
+                      "493:4" : "Earth Plate",
+                      "493:5" : "Stone Plate",
+                      "493:6" : "Insect Plate",
+                      "493:7" : "Spooky Plate",
+                      "493:8" : "Iron Plate",
+                      "493:9" : "Flame Plate",
+                      "493:10" : "Splash Plate",
+                      "493:11" : "Meadow Plate",
+                      "493:12" : "Zap Plate",
+                      "493:13" : "Mind Plate",
+                      "493:14" : "Icicle Plate",
+                      "493:15" : "Draco Plate",
+                      "493:16" : "Dread Plate",
+                      "493:17" : "Pixie Plate"};
+    if (pokeToItem[pokeId]) {
+        setSelectByValue(document.getElementById(p + "Item"), pokeToItem[pokeId]);
+    }
+}
+
 function importableToPokemon (importText) {
     var poke = new Sulcalc.Pokemon();
     var lines = importText.split("\n");
@@ -893,8 +944,14 @@ window.onload = function() {
     document.getElementById("attackerItem").onchange = toggleAttackerItemOptions;
     document.getElementById("attackerAbility").onchange = toggleAttackerAbilityOptions;
     document.getElementById("move").onchange = toggleMoveOptions;
-    document.getElementById("attackerPoke").onchange = function() {updatePoke("attacker");};
-    document.getElementById("defenderPoke").onchange = function() {updatePoke("defender");};
+    document.getElementById("attackerPoke").onchange = function() {
+        updatePoke("attacker");
+        toggleOptions("attacker");
+    };
+    document.getElementById("defenderPoke").onchange = function() {
+        updatePoke("defender");
+        toggleOptions("defender");
+    };
     document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
     document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
     document.getElementById("defenderHP").onchange = function() {updateHpPercent("defender");};

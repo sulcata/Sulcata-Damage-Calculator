@@ -639,7 +639,7 @@ function Calculator() {
         return 2;
     }
 
-    this.invertedEffective = function (aTypes, dTypes) { // foresight has no effect, freeze dry still works
+    this.invertedEffective = function (aTypes, dTypes, freezeDry) { // foresight has no effect, freeze dry still works
         var e = 1;
         for (d in dTypes) {
             for (a in aTypes) {
@@ -1326,7 +1326,7 @@ function Calculator() {
         if (this.field.invertedBattle) {
             eff = this.invertedEffective(attackTypes,
                                          [this.defender.type1(), this.defender.type2(), this.defender.addedType],
-                                         this.field.foresight || attackerAbility.name() === "Scrappy");
+                                         this.move.name() === "Freeze-Dry");
         } else {
             eff = this.effective(attackTypes,
                                  [this.defender.type1(), this.defender.type2(), this.defender.addedType],
