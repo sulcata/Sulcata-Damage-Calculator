@@ -51,6 +51,23 @@ function Database() {
     this.releasedBerries = this.getJSON("db/releasedBerries.json");
     this.genders = this.getJSON("db/gender.json");
     this.types = this.getJSON("db/types.json");
+    this.hiddenPowers = this.getJSON("db/hiddenPowers.json");
+    this.hiddenPowersGen2 = {"1" : [[3, 12, 12, 15, 15, 15]],
+                             "2" : [[7, 12, 13, 15, 15, 15]],
+                             "3" : [[3, 12, 14, 15, 15, 15]],
+                             "4" : [[7, 12, 15, 15, 15, 15]],
+                             "5" : [[11, 13, 12, 15, 15, 15]],
+                             "6" : [[15, 13, 13, 15, 15, 15]],
+                             "7" : [[11, 13, 14, 15, 15, 15]],
+                             "8" : [[15, 13, 15, 15, 15, 15]],
+                             "9" : [[3, 14, 12, 15, 15, 15]],
+                             "10" : [[7, 14, 13, 15, 15, 15]],
+                             "11" : [[3, 14, 14, 15, 15, 15]],
+                             "12" : [[7, 14, 15, 15, 15, 15]],
+                             "13" : [[11, 15, 12, 15, 15, 15]],
+                             "14" : [[15, 15, 13, 15, 15, 15]],
+                             "15" : [[11, 15, 14, 15, 15, 15]],
+                             "16" : [[15, 15, 15, 15, 15, 15]]};
 };
 
 Database.prototype.getJSON = function (file) {
@@ -217,7 +234,7 @@ function Pokemon() {
         }
         var ev, iv;
         if (gen <= 2 && s === Stats.HP) {
-            iv = (this.ivs[Stats.ATK] & 1) << 3 | (this.ivs[Stats.DEF] & 1) << 2 | (this.ivs[Stats.SPC] & 1) << 1 | (this.ivs[Stats.SPD] & 1);
+            iv = (this.ivs[Stats.ATK] & 1) << 3 | (this.ivs[Stats.DEF] & 1) << 2 | (this.ivs[Stats.SPD] & 1) << 1 | (this.ivs[Stats.SPC] & 1);
             ev = this.evs[Stats.HP];
         } else if (gen === 2 && (s === Stats.SDEF || s === Stats.SATK)) {
             iv = this.ivs[Stats.SPC];
@@ -608,6 +625,39 @@ function Field() {
     this.pledgeBoost = false;
     this.parentalBond = false; // do not touch
 }
+    
+function hiddenPowerP (ivs) {
+    return Math.floor(((ivs[Stats.HP] & 2)
+                        | ((ivs[Stats.ATK] & 2) << 1)
+                        | ((ivs[Stats.DEF] & 2) << 2)
+                        | ((ivs[Stats.SPD] & 2) << 3)
+                        | ((ivs[Stats.SATK] & 2) << 4)
+                        | ((ivs[Stats.SDEF] & 2) << 5)
+                      ) * 40 / 63 + 30);
+}
+    
+function hiddenPowerT (ivs) {
+    return 1 + Math.floor(((ivs[Stats.HP] & 1)
+                            | ((ivs[Stats.ATK] & 1) << 1)
+                            | ((ivs[Stats.DEF] & 1) << 2)
+                            | ((ivs[Stats.SPD] & 1) << 3)
+                            | ((ivs[Stats.SATK] & 1) << 4)
+                            | ((ivs[Stats.SDEF] & 1) << 5)
+                          ) * 15 / 63);
+}
+
+function hiddenPowerP2 (ivs) {
+    return 31 + ((5 * ((ivs[3] >> 3)
+                       | ((ivs[5] >> 2) & 2)
+                       | ((ivs[2] >> 1) & 4)
+                       | (ivs[1] & 8))
+                      + (ivs[3] & 3)
+                 ) >> 1);
+}
+    
+function hiddenPowerT2 (ivs) {
+    return 1 + (((ivs[1] & 3) << 2) | (ivs[2] & 3));
+}
 
 function Calculator() {
     this.move = new Move();
@@ -694,26 +744,6 @@ function Calculator() {
             return 40;
         }
         return 20;
-    }
-    
-    this.hiddenPowerP = function (ivs) {
-        return Math.floor(((ivs[Stats.HP] & 2)
-                            | ((ivs[Stats.ATK] & 2) << 1)
-                            | ((ivs[Stats.DEF] & 2) << 2)
-                            | ((ivs[Stats.SPD] & 2) << 3)
-                            | ((ivs[Stats.SATK] & 2) << 4)
-                            | ((ivs[Stats.SDEF] & 2) << 5)
-                          ) * 40 / 63 + 30);
-    }
-    
-    this.hiddenPowerT = function (ivs) {
-        return 1 + Math.floor(((ivs[Stats.HP] & 1)
-                                | ((ivs[Stats.ATK] & 1) << 1)
-                                | ((ivs[Stats.DEF] & 1) << 2)
-                                | ((ivs[Stats.SPD] & 1) << 3)
-                                | ((ivs[Stats.SATK] & 1) << 4)
-                                | ((ivs[Stats.SDEF] & 1) << 5)
-                              ) * 15 / 63);
     }
     
     this.magnitudePower = function (m) {
@@ -989,7 +1019,7 @@ function Calculator() {
         } else if (this.move.name() === "Beat Up") {
             movePower = Math.floor(this.field.beatUpStats[this.field.beatUpHit]/10)+5;
         } else if (this.move.name() === "Hidden Power") {
-            moveType = this.hiddenPowerT(this.attacker.ivs);
+            moveType = hiddenPowerT(this.attacker.ivs);
         } else if (this.move.name() === "Spit Up") {
             movePower = 100*this.field.stockpile;
         } else if (this.move.name() === "Pursuit" && this.field.switchOut) {
@@ -1016,6 +1046,8 @@ function Calculator() {
             movePower = 10 * this.field.tripleKickCount;
         } else if ((this.move.name() === "Self-Destruct" || this.move.name() === "Explosion") && defenderAbility.name() === "Damp") {
             return [0];
+        } else if (this.move.name() === "Final Gambit") {
+            return [this.attacker.currentHP];
         }
         var gemBoost;
         if (moveType === attackerItem.gemType()) {
@@ -1507,14 +1539,8 @@ function Calculator() {
         var movePower = this.move.power();
         
         if (this.move.name() === "Hidden Power") {
-            moveType = 1 + (((this.attacker.ivs[Stats.ATK] & 3) << 2) | (this.attacker.ivs[Stats.DEF] & 3));
-            movePower = 31 + ((5 * ((this.attacker.ivs[Stats.SPC] >> 3)
-                                     | ((this.attacker.ivs[Stats.SPD] >> 2) & 2)
-                                     | ((this.attacker.ivs[Stats.DEF] >> 1) & 4)
-                                     | (this.attacker.ivs[Stats.ATK] & 8)
-                                   ) + (this.attacker.ivs[Stats.SPC] & 3)
-                              ) >> 1
-                             );
+            moveType = hiddenPowerT2(this.attacker.ivs);
+            movePower = hiddenPowerP2(this.attacker.ivs);
         } else if (this.move.name() === "Reversal" || this.move.name() === "Flail") {
             movePower = this.flail(this.attacker.currentHP, this.attacker.stat(Stats.HP));
         } else if (this.move.name() === "Frustration") {
@@ -1673,8 +1699,8 @@ function Calculator() {
         defenderItem.id = this.defender.item.id;
         var weather = airLock ? Weathers.CLEAR : this.field.weather;
         if (this.move.name() === "Hidden Power") {
-            movePower = this.hiddenPowerP(this.attacker.ivs);
-            moveType = this.hiddenPowerT(this.attacker.ivs);
+            movePower = hiddenPowerP(this.attacker.ivs);
+            moveType = hiddenPowerT(this.attacker.ivs);
         } else if (this.move.name() === "Reversal" || this.move.name() === "Flail") {
             movePower = this.flail(this.attacker.currentHP, this.attacker.stat(Stats.HP));
         } else if (this.move.name() === "Frustration") {
@@ -1998,8 +2024,8 @@ function Calculator() {
         }
         
         if (this.move.name() === "Hidden Power") {
-            movePower = this.hiddenPowerP(this.attacker.ivs);
-            moveType = this.hiddenPowerT(this.attacker.ivs);
+            movePower = hiddenPowerP(this.attacker.ivs);
+            moveType = hiddenPowerT(this.attacker.ivs);
         } else if (this.move.name() === "Reversal" || this.move.name() === "Flail") {
             var n = Math.floor(this.attacker.currentHP * 64 / this.attacker.stat(Stats.HP));
             if (n < 2) {
@@ -2550,8 +2576,8 @@ function Calculator() {
         } else if (this.move.name() === "Beat Up") {
             movePower = Math.floor(this.field.beatUpStats[this.field.beatUpHit] / 10) + 5;
         } else if (this.move.name() === "Hidden Power") {
-            movePower = this.hiddenPowerP(this.attacker.ivs);
-            moveType = this.hiddenPowerT(this.attacker.ivs);
+            movePower = hiddenPowerP(this.attacker.ivs);
+            moveType = hiddenPowerT(this.attacker.ivs);
         } else if (this.move.name() === "Spit Up") {
             movePower = 100 * this.field.stockpile;
             if (movePower === 0) {
@@ -2576,6 +2602,8 @@ function Calculator() {
             movePower = 10 * this.field.tripleKickCount;
         } else if ((this.move.name() === "Self-Destruct" || this.move.name() === "Explosion") && defenderAbility.name() === "Damp") {
             return [0];
+        } else if (this.move.name() === "Final Gambit") {
+            return [this.attacker.currentHP];
         }
         var gemBoost;
         if (moveType === attackerItem.gemType()) {
@@ -3050,6 +3078,10 @@ Sulcalc = { Database : Database,
             Ability : Ability,
             Item : Item,
             Field : Field,
-            Calculator : Calculator
+            Calculator : Calculator,
+            hiddenPowerP : hiddenPowerP,
+            hiddenPowerT : hiddenPowerT,
+            hiddenPowerP2 : hiddenPowerP2,
+            hiddenPowerT2 : hiddenPowerT2
           };
 }());

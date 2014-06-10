@@ -80,6 +80,12 @@ function updateFormatting() {
         speedDisplay[i] = speedElements[i].style.display;
         speedElements[i].style.display = "";
     }
+    var healthElements = document.getElementsByClassName("M_HEALTH"),
+        healthDisplay = [];
+    for (var i = 0; i < healthElements.length; i++) {
+        healthDisplay[i] = healthElements[i].style.display;
+        healthElements[i].style.display = "";
+    }
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
         var e = document.getElementById("attacker" + strs[i] + "Stat");
@@ -125,6 +131,9 @@ function updateFormatting() {
     for (var i = 0; i < speedElements.length; i++) {
         speedElements[i].style.display = speedDisplay[i];
     }
+    for (var i = 0; i < healthElements.length; i++) {
+        healthElements[i].style.display = healthDisplay[i];
+    }
 }
 
 function changeGen(n) {
@@ -136,6 +145,7 @@ function changeGen(n) {
     document.getElementById("attackerNature").selectedIndex = 0;
     document.getElementById("attackerAbility").selectedIndex = 0;
     document.getElementById("attackerItem").selectedIndex = 0;
+    updateAttackerItemOptions();
     document.getElementById("attackerLevel").value = 100;
     document.getElementById("attackerHP").value = "";
     document.getElementById("attackerHPp").value = "";
@@ -212,6 +222,7 @@ function changeGen(n) {
     document.getElementById("invertedBattle").checked = false;
     document.getElementById("weather").selectedIndex = 0;
     document.getElementById("move").selectedIndex = 0;
+    updateMoveOptions();
     document.getElementById("pledge").checked = false;
 
     if (gen >= 3) {
@@ -221,6 +232,7 @@ function changeGen(n) {
         document.getElementById("defenderSdefIv").disabled = false;
         document.getElementById("defenderSdefEv").disabled = false;
         document.getElementById("defenderHpIv").disabled = false;
+        document.getElementById("hiddenPowerIvs").innerHTML = "<option value='0'>31-31-31-31-31-31</option>";
     } else if (gen === 2) {
         document.getElementById("attackerSdefIv").disabled = true;
         document.getElementById("attackerSdefEv").disabled = true;
@@ -228,12 +240,13 @@ function changeGen(n) {
         document.getElementById("defenderSdefIv").disabled = true;
         document.getElementById("defenderSdefEv").disabled = true;
         document.getElementById("defenderHpIv").disabled = true;
+        document.getElementById("hiddenPowerIvs").innerHTML = "<option value='0'>15-15-15-15-15-15</option>";
     } else {
         document.getElementById("attackerHpIv").disabled = true;
         document.getElementById("defenderHpIv").disabled = true;
     }
-
-
+    setSelectByText(document.getElementById("hiddenPowerType"), "Dark");
+    
     var ops = "";
     var end = gen < 5 ? 10 : 5;
     for (var i = 0; i <= end; i++) {
@@ -265,20 +278,6 @@ function changeGen(n) {
             setText(strs[0][i] + strs[1][j] + "Stat", "");
             if (strs[1][j] !== "Hp") {
                 document.getElementById(strs[0][i] + strs[1][j] + "Boost").selectedIndex = 6;
-            }
-        }
-    }
-    var a = document.getElementsByTagName("*");
-    for (var i=0; i<a.length; i++) {
-        if (a[i].className) {
-            if (a[i].className.indexOf("G_") !== -1) {
-                if (a[i].className.substr(a[i].className.indexOf("G_")).indexOf(gen + "") === -1) {
-                    a[i].style.display = "none";
-                } else {
-                    a[i].style.display = "";
-                }
-            } else if (a[i].className.indexOf("M_") !== -1 || a[i].className.indexOf("I_") !== -1) {
-                a[i].style.display = "none";
             }
         }
     }
@@ -457,8 +456,7 @@ function getEvs (p) {
              parseInt(document.getElementById(p + "DefEv").value, 10),
              gen > 1 ? parseInt(document.getElementById(p + "SatkEv").value, 10) : parseInt(document.getElementById(p + "SpcEv").value, 10),
              gen > 1 ? parseInt(document.getElementById(p + "SdefEv").value, 10) : parseInt(document.getElementById(p + "SpcEv").value, 10),
-             parseInt(document.getElementById(p + "SpdEv").value, 10)
-           ];
+             parseInt(document.getElementById(p + "SpdEv").value, 10)];
 }
 
 function getIvs (p) {
@@ -467,8 +465,7 @@ function getIvs (p) {
              parseInt(document.getElementById(p + "DefIv").value, 10),
              gen > 1 ? parseInt(document.getElementById(p + "SatkIv").value, 10) : parseInt(document.getElementById(p + "SpcIv").value, 10),
              gen > 1 ? parseInt(document.getElementById(p + "SdefIv").value, 10) : parseInt(document.getElementById(p + "SpcIv").value, 10),
-             parseInt(document.getElementById(p + "SpdIv").value, 10)
-           ];
+             parseInt(document.getElementById(p + "SpdIv").value, 10)];
 }
 
 function getBoosts (p) {
@@ -479,8 +476,7 @@ function getBoosts (p) {
              gen > 1 ? parseInt(document.getElementById(p + "SdefBoost").value, 10) : parseInt(document.getElementById(p + "SpcBoost").value, 10),
              parseInt(document.getElementById(p + "SpdBoost").value, 10),
              0,
-             0
-           ];
+             0];
 }
     
 function setEvs (p, e) {
@@ -494,7 +490,7 @@ function setEvs (p, e) {
 }
 
 function setIvs (p, i) {
-    document.getElementById(p + "HpIv").value = (gen > 2) ? i[Sulcalc.Stats.HP] : (i[1] & 1) << 3 | (i[2] & 1) << 2 | (i[3] & 1) << 1 | (i[5] & 1);
+    document.getElementById(p + "HpIv").value = (gen > 2) ? i[Sulcalc.Stats.HP] : (i[1] & 1) << 3 | (i[2] & 1) << 2 | (i[5] & 1) << 1 | (i[3] & 1);
     document.getElementById(p + "AtkIv").value = i[Sulcalc.Stats.ATK];
     document.getElementById(p + "DefIv").value = i[Sulcalc.Stats.DEF];
     document.getElementById(p + "SatkIv").value = i[Sulcalc.Stats.SATK];
@@ -591,8 +587,8 @@ function updateStats (p) {
     if (gen <= 2) {
         document.getElementById(p + "HpIv").value = (parseInt(document.getElementById(p + "AtkIv").value, 10) & 1) << 3
                                                     | (parseInt(document.getElementById(p + "DefIv").value, 10) & 1) << 2
-                                                    | (parseInt(document.getElementById(p + "SpcIv").value, 10) & 1) << 1
-                                                    | (parseInt(document.getElementById(p + "SpdIv").value, 10) & 1);
+                                                    | (parseInt(document.getElementById(p + "SpdIv").value, 10) & 1) << 1
+                                                    | (parseInt(document.getElementById(p + "SpcIv").value, 10) & 1);
     }
     // update the /??? for the HP and reset percentage to 100%
     var poke = new Sulcalc.Pokemon();
@@ -626,6 +622,45 @@ function updateStats (p) {
     for (var i = 0; i < strs.length; i++) {
         setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
     }
+}
+
+function updateHiddenPowerType() {
+    var ivs = getIvs("attacker");
+    var t;
+    if (gen > 2) {
+        t = Sulcalc.hiddenPowerT(ivs);
+    } else {
+        t = Sulcalc.hiddenPowerT2(ivs);
+    }
+    setSelectByValue(document.getElementById("hiddenPowerType"), t + "");
+    updatePossibleHiddenPowers();
+}
+
+function updatePossibleHiddenPowers() {
+    var p = [];
+    var hpType = document.getElementById("hiddenPowerType").value;
+    if (gen > 2) {
+        p = db.hiddenPowers[hpType];
+    } else {
+        p = db.hiddenPowersGen2[hpType];
+    }
+    var acc = "";
+    for (var i = 0; i < p.length; i++) {
+        acc += "<option value='" + i + "'";
+        if (this.value === "14" && i === 1) {
+            acc += "selected";
+        }
+        acc += ">";
+        for (var j = 0; j < p[i].length; j++) {
+            acc += p[i][j];
+            if (j + 1 !== p[i].length) {
+                acc += "-"
+            }
+        }
+        acc += "</option>";
+    }
+    var hiddenPowerIvs = document.getElementById("hiddenPowerIvs");
+    hiddenPowerIvs.innerHTML = acc;
 }
 
 function getBeatUpStats() {
@@ -733,9 +768,10 @@ function swapPokemon() {
         setText(a, getText(d));
         setText(d, tempText);
     }
+    updateHiddenPowerType();
 }
 
-function toggleAttackerItemOptions() {
+function updateAttackerItemOptions() {
     var e = document.getElementById("battleOptions").getElementsByTagName("div");
     var i = "";
     var item = db.items[this.value];
@@ -755,7 +791,7 @@ function toggleAttackerItemOptions() {
 }
 
 
-function toggleAttackerAbilityOptions() {
+function autofillAttackerAbilityOptions() {
     var ability = db.abilities[this.value];
     if (ability === "Toxic Boost") {
         var aStatus = document.getElementById("attackerStatus");
@@ -766,7 +802,7 @@ function toggleAttackerAbilityOptions() {
     }
 }
 
-function toggleMoveOptions() {
+function updateMoveOptions() {
     var a = document.getElementsByTagName("div");
     var m = "";
     var move = db.moves[this.value];
@@ -847,6 +883,10 @@ function toggleMoveOptions() {
                     document.getElementById("happiness").value = 0;
                 } else if (m === "SPEED" && (move === "Gyro Ball" || move === "Electro Ball")) {
                     a[i].style.display = "";
+                } else if (m === "HEALTH" && (move === "Eruption" || move === "Water Spout" || move === "Endeavor" || move === "Final Gambit")) {
+                    a[i].style.display = "";
+                } else if (m === "HIDDENPOWER" && move === "Hidden Power") {
+                    a[i].style.display = "";
                 } else {
                     a[i].style.display = "none";
                 }
@@ -855,7 +895,7 @@ function toggleMoveOptions() {
     }
 }
 
-function toggleOptions (p) {
+function autofillPokeOptions (p) {
     // 649:1 Genesect-D       -> 227 : Douse Drive
     // 649:2 Genesect-S       -> 228 : Shock Drive
     // 649:3 Genesect-B       -> 229 : Burn Drive
@@ -954,16 +994,17 @@ window.onload = function() {
         }(i));
     };
     
-    document.getElementById("attackerItem").onchange = toggleAttackerItemOptions;
-    document.getElementById("attackerAbility").onchange = toggleAttackerAbilityOptions;
-    document.getElementById("move").onchange = toggleMoveOptions;
+    document.getElementById("attackerItem").onchange = updateAttackerItemOptions;
+    document.getElementById("attackerAbility").onchange = autofillAttackerAbilityOptions;
+    document.getElementById("move").onchange = updateMoveOptions;
     document.getElementById("attackerPoke").onchange = function() {
         updatePoke("attacker");
-        toggleOptions("attacker");
+        autofillPokeOptions("attacker");
+        updateHiddenPowerType();
     };
     document.getElementById("defenderPoke").onchange = function() {
         updatePoke("defender");
-        toggleOptions("defender");
+        autofillPokeOptions("defender");
     };
     document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
     document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
@@ -986,9 +1027,21 @@ window.onload = function() {
     var strs = [["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"], ["Ev", "Iv", "Boost"]];
     for (var i = 0; i < strs[0].length; i++) {
         for (var j = 0; j < strs[1].length; j++) {
-            if (strs[0][i] !== "Hp" || strs[1][j] !== "Boost") {
-                document.getElementById("attacker" + strs[0][i] + strs[1][j]).onchange = function() {updateStats("attacker");};
-                document.getElementById("defender" + strs[0][i] + strs[1][j]).onchange = function() {updateStats("defender");};
+            if (strs[1][j] === "Iv") {
+                document.getElementById("attacker" + strs[0][i] + "Iv").onchange = function() {
+                    updateStats("attacker");
+                    updateHiddenPowerType();
+                };
+                document.getElementById("defender" + strs[0][i] + "Iv").onchange = function() {
+                    updateStats("defender");
+                };
+            } else if (strs[0][i] !== "Hp" || strs[1][j] !== "Boost") {
+                document.getElementById("attacker" + strs[0][i] + strs[1][j]).onchange = function() {
+                    updateStats("attacker");
+                };
+                document.getElementById("defender" + strs[0][i] + strs[1][j]).onchange = function() {
+                    updateStats("defender");
+                };
             }
         }
     }
@@ -1030,6 +1083,26 @@ window.onload = function() {
                 }
             });
         }(i));
+    }
+    
+    document.getElementById("hiddenPowerType").onchange = function() {
+        updatePossibleHiddenPowers();
+        if (gen > 2) {
+            setIvs("attacker", db.hiddenPowers[this.value][hiddenPowerIvs.value]);
+        } else {
+            setIvs("attacker", db.hiddenPowersGen2[this.value][hiddenPowerIvs.value]);
+        }
+        updateStats("attacker");
+    }
+    
+    document.getElementById("hiddenPowerIvs").onchange = function() {
+        var hiddenPowerType = document.getElementById("hiddenPowerType");
+        if (gen > 2) {
+            setIvs("attacker", db.hiddenPowers[hiddenPowerType.value][parseInt(this.value, 10)]);
+        } else {
+            setIvs("attacker", db.hiddenPowersGen2[hiddenPowerType.value][parseInt(this.value, 10)]);
+        }
+        updateStats("attacker");
     }
     
     changeGen(6);
