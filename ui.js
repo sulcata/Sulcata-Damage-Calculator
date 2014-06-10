@@ -724,6 +724,157 @@ function swapPokemon() {
     }
 }
 
+function toggleAttackerItemOptions() {
+    var e = document.getElementById("battleOptions").getElementsByTagName("div");
+    var i = "";
+    var item = db.items[this.value];
+    for (var j = 0; j < e.length; j++) {
+        if (e[j].className) {
+            if (e[j].className.indexOf("I_") !== -1) {
+                i = e[j].className.substr(e[j].className.indexOf("I_") + 2);
+                if (i === "METRONOME" && item === "Metronome") {
+                    e[j].style.display = "block";
+                    document.getElementById("metronome").selectedIndex = 0;
+                } else {
+                    e[j].style.display = "none";
+                }
+            }
+        }
+    }
+}
+
+
+function toggleAttackerAbilityOptions() {
+    var ability = db.abilities[this.value];
+    if (ability === "Toxic Boost") {
+        var aStatus = document.getElementById("attackerStatus");
+        setSelectByText(aStatus, "Poisoned");
+    } else if (ability === "Flare Boost" || ability === "Guts") {
+        var aStatus = document.getElementById("attackerStatus");
+        setSelectByText(aStatus, "Burned");
+    }
+}
+
+function toggleMoveOptions() {
+    var a = document.getElementById("battleOptions").getElementsByTagName("div");
+    var m = "";
+    var move = db.moves[this.value];
+    for (var i = 0; i < a.length; i++) {
+        if (a[i].className) {
+            if (a[i].className.indexOf("M_") !== -1) {
+                m = a[i].className.substr(a[i].className.indexOf("M_") + 2);
+                if (m === "FURYCUTTER" && move === "Fury Cutter") {
+                    a[i].style.display = "";
+                } else if (m === "MINIMIZE"
+                           && (move === "Stomp"
+                               || move === "Steamroller"
+                               || move === "Phantom Force"
+                               || move === "Flying Press"
+                               || (gen === 3 && (move === "Extrasensory"
+                                                 || move === "Astonish"
+                                                 || move === "Needle Arm")))
+                           && gen !== 1) {
+                    a[i].style.display = "";
+                } else if (m === "DIG" && (move === "Earthquake" || move === "Magnitude") && gen > 1) {
+                    a[i].style.display = "";
+                } else if (m === "DIVE" && (move === "Surf" || move === "Whirlpool") && gen >= 3) {
+                    a[i].style.display = "";
+                } else if (m === "ECHOEDVOICE" && move === "Echoed Voice") {
+                    a[i].style.display = "";
+                } else if (m === "TRUMPCARD" && move === "Trump Card") {
+                    a[i].style.display = "";
+                } else if (m === "ROUND" && move === "Round") {
+                    a[i].style.display = "";
+                } else if (m === "FLY" && (move === "Twister" || move === "Gust") && gen > 1) {
+                    a[i].style.display = "";
+                } else if (m === "BEATUP" && move === "Beat Up") {
+                    resetBeatUp();
+                    a[i].style.display = "";
+                    document.getElementById("beatUpStatLabel").style.width = document.getElementById("beatUpStat0").offsetWidth + "px";
+                    document.getElementById("beatUpLevelLabel").style.width = document.getElementById("beatUpLevel0").offsetWidth + "px";
+                    for (var n = 0; n < 6; n++) {
+                        document.getElementById("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
+                    }
+                    document.getElementById("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
+                } else if (m === "SPITUP" && move === "Spit Up") {
+                    a[i].style.display = "";
+                } else if (m === "PURSUIT" && move === "Pursuit") {
+                    a[i].style.display = "";
+                } else if (m === "PRESENT" && move === "Present") {
+                    a[i].style.display = "";
+                } else if (m === "MAGNITUDE" && move === "Magnitude") {
+                    a[i].style.display = "";
+                } else if (m === "ROLLOUT" && (move === "Rollout" || move === "Ice Ball")) {
+                    a[i].style.display = "";
+                } else if (m === "RETALIATE" && move === "Retaliate") {
+                    a[i].style.display = "";
+                } else if (m === "FUSIONFLARE" && move === "Fusion Flare") {
+                    a[i].style.display = "";
+                } else if (m === "FUSIONBOLT" && move === "Fusion Bolt") {
+                    a[i].style.display = "";
+                } else if (m === "MOVED" && move === "Payback") {
+                    a[i].style.display = "";
+                } else if (m === "DAMAGED" && (move === "Assurance" || move === "Revenge" || move === "Avalanche")) {
+                    a[i].style.display = "";
+                } else if (m === "MULTIHIT" && (this.value in db.minMaxHits[gen]) && move !== "(No Move)" && move !== "Beat Up") {
+                    a[i].style.display = "";
+                    var moveInfo = new Sulcalc.Move(),
+                        multiOps = "";
+                    moveInfo.id = this.value;
+                    for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
+                        multiOps += "<option value='" + h + "'>" + h + " hits</option>";
+                    }
+                    document.getElementById("multiHits").innerHTML = multiOps;
+                    document.getElementById("multiHits").selectedIndex = 0;
+                } else if (m === "PLEDGE" && (move === "Fire Pledge" || move === "Water Pledge" || move === "Grass Pledge")) {
+                    a[i].style.display = "";
+                } else if (m === "HAPPINESS" && move === "Return") {
+                    a[i].style.display = "";
+                    document.getElementById("happiness").value = 255;
+                } else if (m === "HAPPINESS" && move === "Frustration") {
+                    a[i].style.display = "";
+                    document.getElementById("happiness").value = 0;
+                } else {
+                    a[i].style.display = "none";
+                }
+            }
+        }
+    }
+}
+
+function importableToPokemon (importText) {
+    var poke = new Sulcalc.Pokemon();
+    var lines = importText.split("\n");
+    var speciesName = lines[0].substr(0, lines[0].indexOf(" "));
+    var genderLetter = lines[0].indexOf(" ") === lines[0].indexOf(" @ ") ? "(N)"
+                                                                         : lines[0].substr(lines[0].indexOf(" ") + 1,
+                                                                                           lines[0].indexOf(" @ "));
+    var itemName = lines[0].substr(lines[0].indexOf(" @ ") + 3);
+    var abilityName = lines[1].substr(lines[1].indexOf(" ") + 1);
+    var evStringList = lines[2].substr(lines[2].indexOf(" ") + 1).split(" / ");
+    var stats = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
+    for (var i = 0; i < evStringList.length; i++) {
+        var n = parseInt(evStringList[i].substr(0, evStringList[i].indexOf(" ")), 10);
+        var s = evStringList[i].substr(evStringList[i].indexOf(" ") + 1);
+        poke.evs[stats.indexOf(s)] = isNaN(n) ? 0 : n;
+    }
+    var natureName = lines[3].substr(0, lines[3].indexOf(" "));
+    
+    poke.setName(speciesName);
+    poke.gender = ["(N)", "(M)", "(F)"].indexOf(genderLetter);
+    poke.item.setName(itemName);
+    poke.ability.setName(abilityName);
+    poke.setNatureName(natureName);
+    return poke;
+}
+
+/*var p = importableToPokemon("Sylveon (M) @ Leftovers\nTrait: Pixilate\nEVs: 248 HP / 252 Def / 8 SDef\nBold Nature (+Def, -Atk)\n- Wish\n- Protect\n- Hyper Voice\n- Heal Bell");
+alert(p.id);
+alert(p.evs);
+alert(p.nature);
+alert(p.ability.id);
+alert(p.item.id);*/
+
 window.onload = function() {    
     var str = options(db.natures);
     document.getElementById("attackerNature").innerHTML = str;
@@ -739,122 +890,19 @@ window.onload = function() {
         }(i));
     };
     
-    document.getElementById("attackerItem").onchange = function() {
-        var e = document.getElementById("battleOptions").getElementsByTagName("div");
-        var i = "";
-        var item = db.items[this.value];
-        for (var j = 0; j < e.length; j++) {
-            if (e[j].className) {
-                if (e[j].className.indexOf("I_") !== -1) {
-                    i = e[j].className.substr(e[j].className.indexOf("I_") + 2);
-                    if (i === "METRONOME" && item === "Metronome") {
-                        e[j].style.display = "block";
-                        document.getElementById("metronome").selectedIndex = 0;
-                    } else {
-                        e[j].style.display = "none";
-                    }
-                }
-            }
-        }
-    };
-    
-    document.getElementById("attackerAbility").onchange = function() {
-        var ability = db.abilities[this.value];
-        if (ability === "Toxic Boost") {
-            var aStatus = document.getElementById("attackerStatus");
-            setSelectByText(aStatus, "Poisoned");
-        } else if (ability === "Flare Boost" || ability === "Guts") {
-            var aStatus = document.getElementById("attackerStatus");
-            setSelectByText(aStatus, "Burned");
-        }
-    };
-    
-    document.getElementById("move").onchange = function() {
-        var a = document.getElementById("battleOptions").getElementsByTagName("div");
-        var m = "";
-        var move = db.moves[this.value];
-        for (var i = 0; i < a.length; i++) {
-            if (a[i].className) {
-                if (a[i].className.indexOf("M_") !== -1) {
-                    m = a[i].className.substr(a[i].className.indexOf("M_") + 2);
-                    if (m === "FURYCUTTER" && move === "Fury Cutter") {
-                        a[i].style.display = "";
-                    } else if (m === "MINIMIZE"
-                               && (move === "Stomp"
-                                   || move === "Steamroller"
-                                   || move === "Phantom Force"
-                                   || move === "Flying Press"
-                                   || (gen === 3 && (move === "Extrasensory"
-                                                     || move === "Astonish"
-                                                     || move === "Needle Arm")))
-                               && gen !== 1) {
-                        a[i].style.display = "";
-                    } else if (m === "DIG" && (move === "Earthquake" || move === "Magnitude") && gen > 1) {
-                        a[i].style.display = "";
-                    } else if (m === "DIVE" && (move === "Surf" || move === "Whirlpool") && gen >= 3) {
-                        a[i].style.display = "";
-                    } else if (m === "ECHOEDVOICE" && move === "Echoed Voice") {
-                        a[i].style.display = "";
-                    } else if (m === "TRUMPCARD" && move === "Trump Card") {
-                        a[i].style.display = "";
-                    } else if (m === "ROUND" && move === "Round") {
-                        a[i].style.display = "";
-                    } else if (m === "FLY" && (move === "Twister" || move === "Gust") && gen > 1) {
-                        a[i].style.display = "";
-                    } else if (m === "BEATUP" && move === "Beat Up") {
-                        resetBeatUp();
-                        a[i].style.display = "";
-                        document.getElementById("beatUpStatLabel").style.width = document.getElementById("beatUpStat0").offsetWidth + "px";
-                        document.getElementById("beatUpLevelLabel").style.width = document.getElementById("beatUpLevel0").offsetWidth + "px";
-                        for (var n = 0; n < 6; n++) {
-                            document.getElementById("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
-                        }
-                        document.getElementById("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
-                    } else if (m === "SPITUP" && move === "Spit Up") {
-                        a[i].style.display = "";
-                    } else if (m === "PURSUIT" && move === "Pursuit") {
-                        a[i].style.display = "";
-                    } else if (m === "PRESENT" && move === "Present") {
-                        a[i].style.display = "";
-                    } else if (m === "MAGNITUDE" && move === "Magnitude") {
-                        a[i].style.display = "";
-                    } else if (m === "ROLLOUT" && (move === "Rollout" || move === "Ice Ball")) {
-                        a[i].style.display = "";
-                    } else if (m === "RETALIATE" && move === "Retaliate") {
-                        a[i].style.display = "";
-                    } else if (m === "FUSIONFLARE" && move === "Fusion Flare") {
-                        a[i].style.display = "";
-                    } else if (m === "FUSIONBOLT" && move === "Fusion Bolt") {
-                        a[i].style.display = "";
-                    } else if (m === "MOVED" && move === "Payback") {
-                        a[i].style.display = "";
-                    } else if (m === "DAMAGED" && (move === "Assurance" || move === "Revenge" || move === "Avalanche")) {
-                        a[i].style.display = "";
-                    } else if (m === "MULTIHIT" && (this.value in db.minMaxHits[gen]) && move !== "(No Move)" && move !== "Beat Up") {
-                        a[i].style.display = "";
-                        var moveInfo = new Sulcalc.Move(),
-                            multiOps = "";
-                        moveInfo.id = this.value;
-                        for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
-                            multiOps += "<option value='" + h + "'>" + h + " hits</option>";
-                        }
-                        document.getElementById("multiHits").innerHTML = multiOps;
-                        document.getElementById("multiHits").selectedIndex = 0;
-                    } else if (m === "PLEDGE" && (move === "Fire Pledge" || move === "Water Pledge" || move === "Grass Pledge")) {
-                        a[i].style.display = "";
-                    } else if (m === "HAPPINESS" && move === "Return") {
-                        a[i].style.display = "";
-                        document.getElementById("happiness").value = 255;
-                    } else if (m === "HAPPINESS" && move === "Frustration") {
-                        a[i].style.display = "";
-                        document.getElementById("happiness").value = 0;
-                    } else {
-                        a[i].style.display = "none";
-                    }
-                }
-            }
-        }
-    };
+    document.getElementById("attackerItem").onchange = toggleAttackerItemOptions;
+    document.getElementById("attackerAbility").onchange = toggleAttackerAbilityOptions;
+    document.getElementById("move").onchange = toggleMoveOptions;
+    document.getElementById("attackerPoke").onchange = function() {updatePoke("attacker");};
+    document.getElementById("defenderPoke").onchange = function() {updatePoke("defender");};
+    document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
+    document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
+    document.getElementById("defenderHP").onchange = function() {updateHpPercent("defender");};
+    document.getElementById("defenderHPp").onchange = function() {updateHpPoints("defender");};
+    document.getElementById("attackerNature").onchange = document.getElementById("attackerLevel").onchange = function() {updateStats("attacker");};
+    document.getElementById("defenderNature").onchange = document.getElementById("defenderLevel").onchange = function() {updateStats("defender");};
+    document.getElementById("moreOptions").onclick = toggleOptions;
+    document.getElementById("swap").onclick = swapPokemon;
     
     document.getElementById("happiness").onchange = function() {
         // "216":"Return"
@@ -864,17 +912,6 @@ window.onload = function() {
             this.value = Math.max(0, Math.min(255, parseInt(this.value)));
         }
     };
-    
-    document.getElementById("attackerPoke").onchange = function() {updatePoke("attacker");};
-
-    document.getElementById("defenderPoke").onchange = function() {updatePoke("defender");};
-
-    document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
-    document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
-    document.getElementById("defenderHP").onchange = function() {updateHpPercent("defender");};
-    document.getElementById("defenderHPp").onchange = function() {updateHpPoints("defender");};
-    document.getElementById("attackerNature").onchange = document.getElementById("attackerLevel").onchange = function() {updateStats("attacker");};
-    document.getElementById("defenderNature").onchange = document.getElementById("defenderLevel").onchange = function() {updateStats("defender");};
     
     var strs = [["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"], ["Ev", "Iv", "Boost"]];
     for (var i = 0; i < strs[0].length; i++) {
@@ -924,9 +961,6 @@ window.onload = function() {
             });
         }(i));
     }
-    
-    document.getElementById("moreOptions").onclick = toggleOptions;
-    document.getElementById("swap").onclick = swapPokemon;
     
     changeGen(6);
     

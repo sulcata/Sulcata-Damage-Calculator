@@ -170,7 +170,7 @@ function Pokemon() {
     this.setNatureName = function (n) {
         for (nat in db.natures) {
             if (db.natures[nat] === n) {
-                this.ability = nat;
+                this.nature = parseInt(nat, 10);
                 return;
             }
         }
