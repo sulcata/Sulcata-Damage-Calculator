@@ -570,6 +570,11 @@ function Item() {
     this.megaPoke = function() {
         return this.flagToValue("66");
     }
+    
+    this.plateType = function() {
+        var v = this.flagToValue("29");
+        return v !== null ? parseInt(v, 10) : -1;
+    }
 }
 
 function Field() {
@@ -1052,6 +1057,8 @@ function Calculator() {
             return [0];
         } else if (this.move.name() === "Final Gambit") {
             return [this.attacker.currentHP];
+        } else if (this.move.name() === "Judgment" && this.attacker.item.plateType() !== -1) {
+            moveType = this.attacker.item.plateType();
         }
         var gemBoost;
         if (moveType === attackerItem.gemType()) {
@@ -2122,6 +2129,8 @@ function Calculator() {
             movePower = (attackerItem.id in db.flingPower) ? db.flingPower[attackerItem.id] : 10;
         } else if (this.move.name() === "Beat Up") {
             moveType = Types.CURSE;
+        } else if (this.move.name() === "Judgment" && this.attacker.item.plateType() !== -1) {
+            moveType = this.attacker.item.plateType();
         }
         if ((this.move.name() === "Surf" || this.move.name() === "Whirlpool") && this.field.dive) {
             movePower *= 2;
@@ -2608,6 +2617,8 @@ function Calculator() {
             return [0];
         } else if (this.move.name() === "Final Gambit") {
             return [this.attacker.currentHP];
+        } else if (this.move.name() === "Judgment" && this.attacker.item.plateType() !== -1) {
+            moveType = this.attacker.item.plateType();
         }
         var gemBoost;
         if (moveType === attackerItem.gemType()) {
