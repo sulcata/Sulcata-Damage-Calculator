@@ -1,7 +1,6 @@
 /** to-do
  * make calculations less slow (timeouts?)
- * proper beat up input
- * after turn effects
+ * quench karppu's autism
  */
 
 db = new Database();
@@ -993,10 +992,34 @@ alert(p.nature);
 alert(p.ability.id);
 alert(p.item.id);*/
 
+function natureOptions() {
+    var stat2 = [0, 1, 2, 4, 5, 3];
+    var statToName = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
+    var acc = "";
+    for (var n=0; n<25; n++) {
+        var inc = -1, dec = -1;
+        for (var i=1; i<6; i++) {
+            var boost = ((Math.floor(n/5) === stat2[i]-1)?1:0) - ((n%5 === stat2[i]-1)?1:0);
+            if (boost > 0) {
+                inc = i;
+            } else if (boost < 0) {
+                dec = i;
+            }
+        }
+        acc += "<option value='"+n+"'>" + db.natures[n];
+        if (inc !== -1) {
+            acc += " (+" + statToName[inc] + ", -" + statToName[dec] + ")";
+        }
+        acc += "</option>";
+    }
+    return acc;
+}
+
 window.onload = function() {    
-    var str = options(db.natures);
+    /*var str = options(db.natures);
     document.getElementById("attackerNature").innerHTML = str;
-    document.getElementById("defenderNature").innerHTML = str;
+    document.getElementById("defenderNature").innerHTML = str;*/
+    document.getElementById("attackerNature").innerHTML = document.getElementById("defenderNature").innerHTML = natureOptions();
     
     for (var i = 1; i <= 6; i++) {
         document.getElementById("cgen" + i).onclick = (function (n) {
@@ -1664,5 +1687,17 @@ window.onload = function() {
         document.getElementById("maxDamageBar").style.width = maxWidth + "px";
         document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
         var maxPercent = Math.round(dmg.warray[dmg.warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
+    };
+    
+    document.getElementById("calc").onclick = function() {
+        var minStats = ["0:0", "0:0", "0:0", "0:0", "0:0", "0:0"];
+        for (var p in db.stats[2]) {
+            for (var i=0; i<6; i++) {
+                if (db.stats[2][p][i] < db.stats[2][minStats[i]][i]) {
+                    minStats[i] = p;
+                }
+            }
+        }
+        alert(minStats);
     };
 };

@@ -30,18 +30,18 @@ function Database() {
     this.typesTable = [];
     this.minMaxHits = [];
     this.ranges = [];
-    for (var i = 1; i < this.gens.length; i++) {
-        this.stats[i] = this.getJSON(this.gens[i] + "stats.json");
-        this.movePowers[i] = this.getJSON(this.gens[i] + "power.json");
-        this.moveTypes[i] = this.getJSON(this.gens[i] + "moveTypes.json");
-        this.pokeType1[i] = this.getJSON(this.gens[i] + "pokeType1.json");
-        this.pokeType2[i] = this.getJSON(this.gens[i] + "pokeType2.json");
-        this.typesTable[i] = this.getJSON(this.gens[i] + "typesTable.json");
-        this.minMaxHits[i] = this.getJSON(this.gens[i] + "minMaxHits.json");
-        if (i === 1) {
+    for (var i = 1; i<this.gens.length; i++) {
+        this.stats[i] = this.getJSON(this.gens[i]+"stats.json");
+        this.movePowers[i] = this.getJSON(this.gens[i]+"power.json");
+        this.moveTypes[i] = this.getJSON(this.gens[i]+"moveTypes.json");
+        this.pokeType1[i] = this.getJSON(this.gens[i]+"pokeType1.json");
+        this.pokeType2[i] = this.getJSON(this.gens[i]+"pokeType2.json");
+        this.typesTable[i] = this.getJSON(this.gens[i]+"typesTable.json");
+        this.minMaxHits[i] = this.getJSON(this.gens[i]+"minMaxHits.json");
+        if (i===1) {
             this.ranges[i] = null;
         } else {
-            this.ranges[i] = this.getJSON(this.gens[i] + "range.json");
+            this.ranges[i] = this.getJSON(this.gens[i]+"range.json");
         }
     }
     // the rest is unneeded for calculations
@@ -52,18 +52,18 @@ function Database() {
     this.genders = this.getJSON("db/gender.json");
     this.types = this.getJSON("db/types.json");
     this.hiddenPowers = this.getJSON("db/hiddenPowers.json");
-    this.hiddenPowersGen2 = {"1" : [[3, 12, 12, 15, 15, 15]],
-                             "2" : [[7, 12, 13, 15, 15, 15]],
-                             "3" : [[3, 12, 14, 15, 15, 15]],
-                             "4" : [[7, 12, 15, 15, 15, 15]],
-                             "5" : [[11, 13, 12, 15, 15, 15]],
-                             "6" : [[15, 13, 13, 15, 15, 15]],
-                             "7" : [[11, 13, 14, 15, 15, 15]],
-                             "8" : [[15, 13, 15, 15, 15, 15]],
-                             "9" : [[3, 14, 12, 15, 15, 15]],
-                             "10" : [[7, 14, 13, 15, 15, 15]],
-                             "11" : [[3, 14, 14, 15, 15, 15]],
-                             "12" : [[7, 14, 15, 15, 15, 15]],
+    this.hiddenPowersGen2 = {"1"  : [[3,  12, 12, 15, 15, 15]],
+                             "2"  : [[7,  12, 13, 15, 15, 15]],
+                             "3"  : [[3,  12, 14, 15, 15, 15]],
+                             "4"  : [[7,  12, 15, 15, 15, 15]],
+                             "5"  : [[11, 13, 12, 15, 15, 15]],
+                             "6"  : [[15, 13, 13, 15, 15, 15]],
+                             "7"  : [[11, 13, 14, 15, 15, 15]],
+                             "8"  : [[15, 13, 15, 15, 15, 15]],
+                             "9"  : [[3,  14, 12, 15, 15, 15]],
+                             "10" : [[7,  14, 13, 15, 15, 15]],
+                             "11" : [[3,  14, 14, 15, 15, 15]],
+                             "12" : [[7,  14, 15, 15, 15, 15]],
                              "13" : [[11, 15, 12, 15, 15, 15]],
                              "14" : [[15, 15, 13, 15, 15, 15]],
                              "15" : [[11, 15, 14, 15, 15, 15]],
@@ -92,30 +92,31 @@ Database.prototype.getJSON = function (file) {
 
 (function() {
 
-function WeightedArray(a) {
+function WeightedArray (a) {
     // a is a non-empty array with numeric values
-    // we will store the weighted array as [value, count]
+    // 1, 3, 4, 2, 1, 3, 3 -> 1, 1, 2, 3, 3, 3, 4 -> (1:2), (2:1), (3:3), (4:1)
+    // (number:occurances)
     this.warray = [];
     if (a.length !== 0) {
-        a = a.sort(function(a, b) {return a-b;});
+        a = a.sort(function (a, b) {return a-b;});
         var temp = [a[0], 0];
-        for (var i = 0; i < a.length; i++) {
+        for (var i=0; i<a.length; i++) {
             if (a[i] !== temp[0]) {
                 this.warray.push(temp);
                 temp = [a[i], 1];
             } else {
-                temp[1] += 1;
+                temp[1]++;
             }
         }
         this.warray.push(temp);
     }
 
     this.add = function(val, inc) {
-        for (var i = 0; i < this.warray.length; i++) {
+        for (var i=0; i<this.warray.length; i++) {
             if (val === this.warray[i][0]) {
                 this.warray[i][1] += inc;
                 return;
-            } else if (val < this.warray[i][0]) {
+            } else if (val<this.warray[i][0]) {
                 this.warray.splice(i, [val, inc]);
                 return;
             }
@@ -125,8 +126,8 @@ function WeightedArray(a) {
            
     this.combine = function(w) {
         var temp = new WeightedArray([]);
-        for (var i = 0; i < this.warray.length; i++) {
-            for (var j = 0; j < w.warray.length; j++) {
+        for (var i=0; i<this.warray.length; i++) {
+            for (var j=0; j<w.warray.length; j++) {
                 temp.add(this.warray[i][0] + w.warray[j][0],
                          this.warray[i][1] * w.warray[j][1]);
             }
@@ -136,7 +137,7 @@ function WeightedArray(a) {
     
     this.total = function() {
         var t = 0;
-        for (var i = 0; i < this.warray.length; i++) {
+        for (var i=0; i<this.warray.length; i++) {
             t += this.warray[i][1];
         }
         return t;
@@ -144,28 +145,28 @@ function WeightedArray(a) {
             
     this.print = function() {
         var accstr = "";
-        for(var i = 0; i < this.warray.length; i++) {
-            accstr += this.warray[i][0] + ":" + this.warray[i][1] + ", ";
+        for(var i=0; i<this.warray.length; i++) {
+            accstr += this.warray[i][0]+":"+this.warray[i][1]+", ";
         }
         alert(accstr);
     }
 }
 
-var Stats = {HP : 0, ATK : 1, DEF : 2, SATK : 3, SDEF : 4, SPD : 5, ACC : 6, EVA : 7, SPC : 3};
-var Genders = {NOGENDER : 0, MALE : 1, FEMALE : 2};
-var DamageClasses = {OTHER : 0, PHYSICAL : 1, SPECIAL : 2};
-var Weathers = {CLEAR : 0, SUN : 4, RAIN : 2, SAND : 3, HAIL : 1};
-var Statuses = {NOSTATUS : 0, POISONED : 1, BADLYPOISONED : 2, BURNED : 3, PARALYZED : 4, ASLEEP : 5, FROZEN : 6};
-var Types = {NORMAL : 0, FIGHTING : 1, FLYING : 2, POISON : 3, GROUND : 4, ROCK : 5, BUG : 6,
-             GHOST : 7, STEEL : 8, FIRE : 9, WATER : 10, GRASS : 11, ELECTRIC : 12,
-             PSYCHIC : 13, ICE : 14, DRAGON : 15, DARK : 16, FAIRY : 17, CURSE : 18};
+var Stats = {HP:0, ATK:1, DEF:2, SATK:3, SDEF:4, SPD:5, ACC:6, EVA:7, SPC:3};
+var Genders = {NOGENDER:0, MALE:1, FEMALE:2};
+var DamageClasses = {OTHER:0, PHYSICAL:1, SPECIAL:2};
+var Weathers = {CLEAR:0, SUN:4, RAIN:2, SAND:3, HAIL:1};
+var Statuses = {NOSTATUS:0, POISONED:1, BADLYPOISONED:2, BURNED:3, PARALYZED:4, ASLEEP:5, FROZEN:6};
+var Types = {NORMAL:0, FIGHTING:1, FLYING:2, POISON:3, GROUND:4, ROCK:5, BUG:6,
+             GHOST:7, STEEL:8, FIRE:9, WATER:10, GRASS:11, ELECTRIC:12,
+             PSYCHIC:13, ICE:14, DRAGON:15, DARK:16, FAIRY:17, CURSE:18};
 
 function Pokemon() {
     this.id = "0:0";
-    this.evs = gen <= 2 ? [255, 255, 255, 255, 255, 255]
-                        : [0, 0, 0, 0, 0, 0];
-    this.ivs = gen <= 2 ? [15, 15, 15, 15, 15, 15]
-                        : [31, 31, 31, 31, 31, 31];
+    this.evs = gen<=2 ? [255, 255, 255, 255, 255, 255]
+                      : [0, 0, 0, 0, 0, 0];
+    this.ivs = gen<=2 ? [15, 15, 15, 15, 15, 15]
+                      : [31, 31, 31, 31, 31, 31];
     this.boosts = [0, 0, 0, 0, 0, 0, 0, 0]; // "HP Boost" is just there to keep arrays in order, make sure you have a 0/ even though it isn't used!
     this.level = 100;
     this.nature = 0;
@@ -209,9 +210,9 @@ function Pokemon() {
     
     this.form = function() {
         if (this.id.indexOf(":") !== this.id.lastIndexOf(":")) {
-            return this.id.substring(this.id.indexOf(":") + 1, this.id.lastIndexOf(":"));
+            return this.id.substring(this.id.indexOf(":")+1, this.id.lastIndexOf(":"));
         }
-        return this.id.substring(this.id.indexOf(":") + 1);
+        return this.id.substring(this.id.indexOf(":")+1);
     }
     
     this.species = function() {
@@ -220,23 +221,23 @@ function Pokemon() {
     
     this.natureMultiplier = function (s) { // -1,0,1
         var stat2 = [0, 1, 2, 4, 5, 3];
-        return ((Math.floor(this.nature / 5) === stat2[s] - 1) ? 1 : 0) - ((this.nature % 5 === stat2[s] - 1) ? 1 : 0);
+        return ((Math.floor(this.nature/5) === stat2[s]-1)?1:0) - ((this.nature%5 === stat2[s]-1)?1:0);
     }
     
     this.stat = function (s) {
         // as a simplification to the gen 1/2 stat calculation I enter the EVs as /255 rather than /65535
         // the stats are exactly the same (can't get higher/lower or somewhere impossibly inbetween)
         // this makes it much easier for the user to enter them, as well as the programmer.
-        if (this.powerTrick && s === Stats.ATK) {// power trick for calming karppu's tits
+        if (this.powerTrick && s===Stats.ATK) {// power trick for calming karppu's tits
             s = Stats.DEF;
-        } else if (this.powerTrick && s === Stats.DEF) {
+        } else if (this.powerTrick && s===Stats.DEF) {
             s = Stats.ATK;
         }
         var ev, iv;
-        if (gen <= 2 && s === Stats.HP) {
-            iv = (this.ivs[Stats.ATK] & 1) << 3 | (this.ivs[Stats.DEF] & 1) << 2 | (this.ivs[Stats.SPD] & 1) << 1 | (this.ivs[Stats.SPC] & 1);
+        if (gen<=2 && s===Stats.HP) {
+            iv = (this.ivs[Stats.ATK]&1)<<3 | (this.ivs[Stats.DEF]&1)<<2 | (this.ivs[Stats.SPD]&1)<<1 | (this.ivs[Stats.SPC]&1);
             ev = this.evs[Stats.HP];
-        } else if (gen === 2 && (s === Stats.SDEF || s === Stats.SATK)) {
+        } else if (gen===2 && (s===Stats.SDEF || s===Stats.SATK)) {
             iv = this.ivs[Stats.SPC];
             ev = this.evs[Stats.SPC];
         } else {
@@ -248,19 +249,19 @@ function Pokemon() {
         // now that we're neat and tidy with ev, iv, base, and n
         if (s === Stats.HP) {
             if (gen <= 2) {
-                return Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + this.level + 10;
+                return Math.floor(((iv+base)*2 + (ev>>2))*this.level/100)+this.level+10;
             }
             if (this.id === "292:0") { // shedinja
                 return 1;
             }
             // (iv+2*base+ev/4+100)*level/100+10
-            return Math.floor((iv + 2 * base + (ev >> 2) + 100) * this.level / 100) + 10;
+            return Math.floor((iv + 2*base + (ev>>2) + 100)*this.level/100)+10;
         }
         if (gen <= 2) {
-            return Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + 5;
+            return Math.floor(((iv+base)*2 + (ev>>2))*this.level/100)+5;
         }
         // [(iv+2*base+ev/4)*level/100+5]*nature
-        return Math.floor((Math.floor((iv + 2 * base + (ev >> 2)) * this.level / 100) + 5) * (10 + n) / 10);
+        return Math.floor((Math.floor((iv + 2*base + (ev>>2))*this.level/100) + 5) * (10+n) / 10);
     }
     
     this.boost = function (s) {
@@ -268,7 +269,7 @@ function Pokemon() {
     }
     
     this.boostedStat = function (s) {
-        var boost = this.boosts[s];
+        var boost = this.boost(s);
         var num = 2;
         var den = 2;
         if (boost >= 0) {
@@ -294,9 +295,9 @@ function Pokemon() {
     this.baseStat = function (s) {
         var temp = this.species() + ":" + this.form(); // ignores any :H or :whatever stuff
         if (temp in db.stats[gen]) {
-            return parseInt(db.stats[gen][temp].split(" ")[s], 10);
+            return db.stats[gen][temp][s];
         }
-        return parseInt(db.stats[gen][this.species() + ":0"].split(" ")[s], 10); // this is for keldeo and friends
+        return db.stats[gen][this.species() + ":0"][s]; // this is for keldeo and friends
     }
     
     this.type1 = function() {
@@ -667,14 +668,14 @@ function Calculator() {
     
     this.typeEffectiveness = function (aType, dType) {
         // 0:immune, 1:resisted, 2:neutral, 4:super effective
-        return parseInt(db.typesTable[gen][aType].split(" ")[dType], 10);
+        return db.typesTable[gen][aType][dType];
     }
     
     this.effective = function (aTypes, dTypes, foresight, freezeDry) {
         var e = 1;
             for (d in dTypes) {
                 for (a in aTypes) {
-                    if (foresight && (aTypes[a] === Types.FIGHTING || aTypes[a] === Types.NORMAL) && dTypes[d] === Types.GHOST) {
+                    if (foresight && (aTypes[a]===Types.FIGHTING || aTypes[a]===Types.NORMAL) && dTypes[d]===Types.GHOST) {
                         e *= 2;
                     } else if (freezeDry && dTypes[d] === Types.WATER) {
                         e *= 4;
