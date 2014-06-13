@@ -1271,8 +1271,8 @@ window.onload = function() {
         var type = c.move.type();
         var power = c.move.power();
         if (c.move.name() === "Hidden Power") {
-            type = c.hiddenPowerT(c.attacker.ivs);
-            power = c.hiddenPowerP(c.attacker.ivs);
+            type = Sulcalc.hiddenPowerT(c.attacker.ivs);
+            power = Sulcalc.hiddenPowerP(c.attacker.ivs);
         }
         if (gen <= 3) {
             dclass = db.typeDamageClass[c.move.type()];
