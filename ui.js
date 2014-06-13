@@ -1688,16 +1688,4 @@ window.onload = function() {
         document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
         var maxPercent = Math.round(dmg.warray[dmg.warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
     };
-    
-    document.getElementById("calc").onclick = function() {
-        var minStats = ["0:0", "0:0", "0:0", "0:0", "0:0", "0:0"];
-        for (var p in db.stats[2]) {
-            for (var i=0; i<6; i++) {
-                if (db.stats[2][p][i] < db.stats[2][minStats[i]][i]) {
-                    minStats[i] = p;
-                }
-            }
-        }
-        alert(minStats);
-    };
 };
