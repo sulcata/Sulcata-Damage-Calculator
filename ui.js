@@ -1176,6 +1176,7 @@ window.onload = function() {
         c.attacker.autotomize = document.getElementById("attackerAutotomize").checked;
         c.attacker.flowerGift = document.getElementById("attackerFlowerGift").checked;
         c.attacker.powerTrick = document.getElementById("attackerPowerTrick").checked;
+        c.attacker.happiness = parseInt(document.getElementById("happiness").value, 10);
         
         c.defender.id = document.getElementById("defenderPoke").value;
         c.defender.evs = getEvs("defender");
@@ -1263,9 +1264,48 @@ window.onload = function() {
         c.field.pledge = document.getElementById("pledge").checked;
         c.field.weather = parseInt(document.getElementById("weather").value, 10);
         
-        dmg = c.calculate();
-        var minPercent = Math.round(dmg.warray[0][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
-        var maxPercent = Math.round(dmg.warray[dmg.warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
+        dmg = [];
+        if (c.move.name() === "Fury Cutter") {
+            while (c.field.furyCutter <= 5) {
+                dmg.push(c.calculate());
+                c.field.furyCutter++;
+            }
+            dmg.push(1);
+        } else if (c.move.name() === "Echoed Voice") {
+            while (c.field.echoedVoice <= 4) {
+                dmg.push(c.calculate());
+                c.field.echoedVoice++;
+            }
+            dmg.push(1);
+        } else if (c.move.name() === "Trump Card") {
+            dmg.push(c.calculate());
+            while (c.field.trumpPP > 0) {
+                c.field.trumpPP -= c.defender.ability.name() === "Pressure" ? 2 : 1;
+                dmg.push(c.calculate());
+            }
+            dmg.push(0);
+        } else if (c.move.name() === "Explosion" || c.move.name() === "Self-Destruct") {
+            dmg.push(c.calculate());
+            dmg.push(0);
+        } else if (c.move.name() === "Rollout" || c.move.name() === "Ice Ball") {
+            while (c.field.rollout <= 4) {
+                dmg.push(c.calculate());
+                c.field.rollout++;
+            }
+            dmg.push(2);
+        } else {
+            var t1 = c.calculate();
+            var t2 = c.calculate();
+            if (t1.warray === t2.warray) {
+                dmg.push(t1);
+            } else {
+                dmg.push(t1);
+                dmg.push(t2);
+            }
+            dmg.push(1);
+        }
+        var minPercent = Math.round(dmg[0].warray[0][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
+        var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
         rpt = "";
         var dclass = 0;
         var type = c.move.type();
@@ -1340,36 +1380,46 @@ window.onload = function() {
         if (c.field.critical) {
             rpt += " on a critical hit";
         }
-        rpt += ": " + dmg.warray[0][0] + " - " + dmg.warray[dmg.warray.length-1][0] + " (" + minPercent + " - " + maxPercent + "%) -- ";
+        rpt += ": " + dmg[0].warray[0][0] + " - " + dmg[0].warray[dmg[0].warray.length-1][0] + " (" + minPercent + " - " + maxPercent + "%) -- ";
         
-        var _chanceToKO = function (turns, damageRange, remainingHP, total, eff, firstCall) {
+        var _chanceToKO = function (turns, damageRange, remainingHP, eff, t) {
             var totalChance = 0;
             if (remainingHP <= 0) {
                 return 1;
             }
-            for (var i = 0; i < eff.length && !firstCall; i++) {
+            for (var i = 0; i < eff.length && t !== 0; i++) {
                 remainingHP += eff[i];
                 if (remainingHP <= 0) {
                     return 1;
                 }
             }
-            if (turns === 0) {
+            if (turns === 0 || damageRange[t] === 0) {
                 return 0;
             }
-            for (var i = 0; i < damageRange.warray.length; i++) {
-                totalChance += _chanceToKO(turns - 1, damageRange, remainingHP - damageRange.warray[i][0], total, eff, false) * damageRange.warray[i][1];
+            if (damageRange[t] === 1) {
+                t--;
+            } else if (damageRange[t] === 2) {
+                t %= (damageRange.length - 1);
             }
-            return totalChance / total;
+            for (var i = 0; i < damageRange[t].warray.length; i++) {
+                totalChance += _chanceToKO(turns - 1, damageRange, remainingHP - damageRange[t].warray[i][0], eff, t+1) * damageRange[t].warray[i][1];
+            }
+            return totalChance / damageRange[t].total();
         }
         
         var chanceToKO = function (turns, damageRange, remainingHP, eff) {
-            if (turns < 7) {
-                return _chanceToKO(turns, damageRange, remainingHP, damageRange.total(), eff, true);
+            if (turns < 7 && (c.move.maxHits() === 1 || gen === 1)) {
+                return _chanceToKO(turns, damageRange, remainingHP, eff, 0);
             }
             var maxDamage = 0, minDamage = 0;
-            for (var i = 0; i < turns; i++) {
-                maxDamage += damageRange.warray[damageRange.warray.length-1][0];
-                minDamage += damageRange.warray[0][0];
+            for (var i = 0, d = 0; i < turns && damageRange[d] !== 0; i++, d++) {
+                if (damageRange[d] === 1) {
+                    d--;
+                } else if (damageRange[d] === 2) {
+                    d %= (damageRange.length - 1);
+                }
+                maxDamage += damageRange[d].warray[damageRange[d].warray.length-1][0];
+                minDamage += damageRange[d].warray[0][0];
                 for (var j = 0; j < eff.length; j++) {
                     minDamage -= eff[j];
                     maxDamage -= eff[j];
@@ -1645,7 +1695,7 @@ window.onload = function() {
         }
         
         for (var i = 1, cko = 0, hasPrevious = false; cko!==1; i++) {
-            if (i === 20 || dmg[dmg.length-1] === 0) {
+            if (i === 20 || dmg[0][dmg[0].length-1] === 0) {
                 rpt += "That's probably not going to KO...";
                 break;
             }
@@ -1678,14 +1728,14 @@ window.onload = function() {
         }
         setText("results", rpt);
         var totalWidth = document.getElementById("hpDisplay").clientWidth;
-        var minWidth = Math.round(totalWidth * dmg.warray[0][0] / c.defender.stat(Sulcalc.Stats.HP));
+        var minWidth = Math.round(totalWidth * dmg[0].warray[0][0] / c.defender.stat(Sulcalc.Stats.HP));
         minWidth = Math.min(totalWidth, minWidth);
-        var maxWidth = Math.round(totalWidth * dmg.warray[dmg.warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP))
+        var maxWidth = Math.round(totalWidth * dmg[0].warray[dmg[0].warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP))
                        - minWidth;
         maxWidth = Math.min(totalWidth-minWidth, maxWidth);
         document.getElementById("minDamageBar").style.width = minWidth + "px";
         document.getElementById("maxDamageBar").style.width = maxWidth + "px";
         document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
-        var maxPercent = Math.round(dmg.warray[dmg.warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
+        var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
     };
 };

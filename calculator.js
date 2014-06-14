@@ -11,7 +11,7 @@ function Database() {
     this.moves = this.getJSON("db/moves.json");
     this.berryEffects = this.getJSON("db/berryEffects.json");
     this.itemEffects = this.getJSON("db/itemEffects.json");
-    this.thisberryType = this.getJSON("db/berryType.json");
+    this.berryType = this.getJSON("db/berryType.json");
     this.berryPower = this.getJSON("db/berryPower.json");
     this.flingPower = this.getJSON("db/itemPower.json");
     this.weight = this.getJSON("db/weight.json");
@@ -507,7 +507,7 @@ function Ability() {
 }
 
 function Item() {
-    this.id = "0";
+    this.id = 0;
     
     this.setName = function (n) {
         for (i in db.items) {
@@ -524,7 +524,10 @@ function Item() {
     }
     
     this.name = function() {
-        return db.items[this.id];
+        if (this.id in db.items) {
+            return db.items[this.id];
+        }
+        return db.berries[this.id - 8000];
     }
     
     this.flagToValue = function (f) {
@@ -544,10 +547,12 @@ function Item() {
     }
     
     this.berryType = function() {
-        if (this.id < 8000 || !((this.id - 8000) in berryEffects)) return -1; // not a berry
+        if (this.id < 8000 || !((this.id - 8000) in db.berryEffects)) return -1; // not a berry
         var e = db.berryEffects[this.id - 8000].split("-");
         if (e[0] === "4") {
             return parseInt(e[1], 10);
+        } else if (e[0] === "5") {
+            return Types.NORMAL;
         }
         return -1; // ???
     }
@@ -863,9 +868,9 @@ function Calculator() {
             return [0];
         }
         var attackerItem = new Item();
-        attackerItem.id = (this.field.magicRoom || attackerAbility.name() === "Klutz") ? "0" : this.attacker.item.id;
+        attackerItem.id = (this.field.magicRoom || attackerAbility.name() === "Klutz" || this.attackerItemUsed) ? 0 : this.attacker.item.id;
         var defenderItem = new Item();
-        defenderItem.id = (this.field.magicRoom || defenderAbility.name() === "Klutz") ? "0" : this.defender.item.id;
+        defenderItem.id = (this.field.magicRoom || defenderAbility.name() === "Klutz" || this.defenderItemUsed) ? 0 : this.defender.item.id;
         var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         var crit = this.field.critical;
         var attackerSpeed = this.attacker.boostedStat(Stats.SPD);
@@ -1041,7 +1046,7 @@ function Calculator() {
         } else if (this.move.name() === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
-            movePower = 30 << (this.field.defenseCurl + this.field.rollout);
+            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
         } else if (this.move.name() === "Fling") {
             movePower = (attackerItem.id in db.flingPower) ? db.flingPower[attackerItem.id] : 10;
         } else if ((this.move.name() === "Fire Pledge" || this.move.name() === "Water Pledge" || this.move.name() === "Grass Pledge") && this.field.pledgeBoost) {
@@ -1062,8 +1067,8 @@ function Calculator() {
         }
         var gemBoost;
         if (moveType === attackerItem.gemType()) {
-            attackerItem.id = "0";
-            this.attacker.item.id = "0"; // consumable for the calculation
+            attackerItem.id = 0;
+            this.attackerItemUsed = true;
             gemBoost = true;
         }
         if (this.move.name() === "Acrobatics") {
@@ -1153,7 +1158,7 @@ function Calculator() {
             && !(this.defender.item.name().indexOf(" Drive") !== -1 && this.defender.name().indexOf("Genesect") !== -1)
             && !(defenderAbility.name() === "Multitype" && this.defender.item.name().indexOf(" Plate") !== -1)) {
             movePowerMod = this.chainMod(0x1800, movePowerMod); // most likely it goes here, idk
-            this.defender.item.id = "0";
+            this.defenderItemUsed = true;
         }
         if (this.field.charge && moveType === Types.ELECTRIC) {
             movePowerMod = this.chainMod(0x2000, movePowerMod);
@@ -1439,7 +1444,7 @@ function Calculator() {
         }
         if (defenderItem.berryType() === moveType && (eff > 64 || moveType === Types.NORMAL)) {
             finalMod = this.chainMod(0x800, finalMod);
-            this.defender.item.id = "0";
+            this.defenderItemUsed = true;
         }
         if (this.field.minimize && (this.move.name() === "Stomp" || this.move.name() === "Steamroller" || this.move.name() === "Phantom Force" || this.move.name() === "Flying Press")) {
             finalMod = this.chainMod(0x2000, finalMod);
@@ -1581,9 +1586,9 @@ function Calculator() {
         } else if (this.move.name() === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         } else if (this.move.name() === "Rollout") {
-            movePower = 30<<(this.field.defenseCurl+this.field.rollout);
+            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
         } else if (this.move.name() === "Triple Kick") {
-            movePower = 10*this.field.tripleKickCount;
+            movePower = 10 * this.field.tripleKickCount;
         } else if (this.move.name() === "Fury Cutter") {
             movePower = Math.min(160, 10 << this.field.furyCutter);
         } else if (this.move.name() === "Beat Up") {
@@ -1745,11 +1750,11 @@ function Calculator() {
         } else if (this.move.name() === "Weather Ball") {
             moveType = this.weatherBall(weather);
         } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
-            movePower = 30<<(this.field.defenseCurl+this.field.rollout);
+            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
         } else if (this.move.name() === "Triple Kick") {
             movePower = 10*this.field.tripleKickCount;
         } else if (this.move.name() === "Water Spout" || this.move.name() === "Eruption") {
-            movePower = Math.max(1, Math.floor(150*this.attacker.currentHP/this.attacker.stat(Stats.HP)));
+            movePower = Math.max(1, Math.floor(150 * this.attacker.currentHP / this.attacker.stat(Stats.HP)));
         } else if (this.move.name() === "Fury Cutter") {
             movePower = Math.min(160, 10 << this.field.furyCutter);
         } else if (this.move.name() === "Beat Up") {
@@ -1963,9 +1968,9 @@ function Calculator() {
         }
         var attackerItem = new Item();
         var attackerItem = new Item();
-        attackerItem.id = attackerAbility.name() === "Klutz" ? "0" : this.attacker.item.id;
+        attackerItem.id = attackerAbility.name() === "Klutz" || this.attackerItemUsed ? 0 : this.attacker.item.id;
         var defenderItem = new Item();
-        defenderItem.id = defenderAbility.name() === "Klutz" ? "0" : this.defender.item.id;
+        defenderItem.id = defenderAbility.name() === "Klutz" || this.defenderItemUsed ? 0 : this.defender.item.id;
         var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         
         var attackerSpeed = attackerAbility.name() === "Simple" ? this.attacker.simpleBoostedStat(Stats.SPD) : this.attacker.boostedStat(Stats.SPD);
@@ -2084,7 +2089,7 @@ function Calculator() {
             moveType = this.weatherBall(weather);
             movePower = moveType === Types.NORMAL ? 50 : 100;
         } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
-            movePower = 30 << (this.field.defenseCurl + this.field.rollout);
+            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
         } else if (this.move.name() === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
         } else if (((this.move.name() === "Avalanche" && !this.field.painSplit) || (this.move.name() === "Revenge" && !this.field.painSplit) || this.move.name === "Assurance") && this.field.attackerDamaged) {
@@ -2424,9 +2429,9 @@ function Calculator() {
         var attackerItem = new Item();
         attackerItem.id = this.attacker.item.id;
         var attackerItem = new Item();
-        attackerItem.id = (this.field.magicRoom || attackerAbility.name() === "Klutz") ? "0" : this.attacker.item.id;
+        attackerItem.id = (this.field.magicRoom || attackerAbility.name() === "Klutz" || this.attackerItemUsed) ? 0 : this.attacker.item.id;
         var defenderItem = new Item();
-        defenderItem.id = (this.field.magicRoom || defenderAbility.name() === "Klutz") ? "0" : this.defender.item.id;
+        defenderItem.id = (this.field.magicRoom || defenderAbility.name() === "Klutz" || this.defenderItemUsed) ? 0 : this.defender.item.id;
         var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         var crit = this.field.critical;
         var attackerSpeed = this.attacker.boostedStat(Stats.SPD);
@@ -2606,7 +2611,7 @@ function Calculator() {
         } else if (this.move.name() === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
-            movePower = 30 << (this.field.defenseCurl + this.field.rollout);
+            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
         } else if (this.move.name() === "Fling") {
             movePower = (attackerItem.id in db.flingPower) ? db.flingPower[attackerItem.id] : 10;
         } else if ((this.move.name() === "Fire Pledge" || this.move.name() === "Water Pledge" || this.move.name() === "Grass Pledge") && this.field.pledgeBoost) {
@@ -2622,8 +2627,8 @@ function Calculator() {
         }
         var gemBoost;
         if (moveType === attackerItem.gemType()) {
-            attackerItem.id = "0";
-            this.attacker.item.id = "0";
+            attackerItem.id = 0;
+            this.attackerItemUsed = true;
             gemBoost = true;
         }
         if (this.move.name() === "Acrobatics") {
@@ -2977,7 +2982,7 @@ function Calculator() {
         }
         if (defenderItem.berryType() === moveType && (eff > 4 || moveType === 0)) {
             finalMod = this.chainMod(0x800, finalMod);
-            this.defenderitem.id = "0";
+            this.defenderItemUsed = true;
         }
         if (this.field.minimize && (this.move.name() === "Stomp" || this.move.name() === "Steamroller")) {
             finalMod = this.chainMod(0x2000, finalMod);
@@ -3002,7 +3007,7 @@ function Calculator() {
             && !(this.defender.item.name() === "Griseous Orb" && this.defender.name().indexOf("Giratina") !== -1)
             && !(this.defender.item.name().indexOf(" Drive") !== -1 && this.defender.name().indexOf("Genesect") !== -1)
             && !(defenderAbility.name() === "Multitype" && this.defender.item.name().indexOf(" Plate") !== -1)) {
-            this.defender.item.id = "0";
+            this.defenderItemUsed = true;
         }
         
         return damages;
@@ -3061,19 +3066,25 @@ function Calculator() {
             }
             dmg = first.combine(second);
             return dmg;
-        } else if (this.move.maxHits() !== 1) {
+        } else if (this.move.maxHits() !== 1 && gen !== 1) {
             var dmg = new WeightedArray([0]);
             var tempdmg = new WeightedArray(this.selCalc());
             var nHits = (this.attacker.ability.name() === "Skill Link") ? this.move.maxHits()
-                                                                          : Math.min(this.move.maxHits(),
-                                                                                     Math.max(this.move.minHits(),
-                                                                                              this.field.multiHits
-                                                                                     )
-                                                                            );
+                                                                        : Math.min(this.move.maxHits(),
+                                                                                   Math.max(this.move.minHits(),
+                                                                                            this.field.multiHits));
             for (var i = 0; i < nHits; i++) {
                 dmg = dmg.combine(tempdmg);
+                tempdmg = new WeightedArray(this.selCalc());
             }
             return dmg;
+        } else if (this.move.maxHits() !== 1) {
+            var nHits = Math.min(this.move.maxHits(), Math.max(this.move.minHits(), this.field.multiHits));
+            var tempArray = this.selCalc();
+            for (var i = 0; i < tempArray.length; i++) {
+                tempArray[i] *= nHits;
+            }
+            return new WeightedArray(tempArray);
         }
         return new WeightedArray(this.selCalc());
     }
