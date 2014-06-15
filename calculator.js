@@ -1206,7 +1206,7 @@ function Calculator() {
                 satk = crit ? Math.max(this.attacker.stat(Stats.SATK), this.attacker.boostedStat(Stats.SATK))
                             : this.attacker.boostedStat(Stats.SATK);
             }
-        } if (this.move.name() === "Chip Away" || this.move.name() === "Sacred Sword") {
+        } else if (this.move.name() === "Chip Away" || this.move.name() === "Sacred Sword") {
             def = this.defender.stat(_def);
             sdef = this.defender.stat(_sdef);
             if (unawareD) {
@@ -2757,7 +2757,7 @@ function Calculator() {
                 satk = crit ? Math.max(this.attacker.stat(Stats.SATK), this.attacker.boostedStat(Stats.SATK))
                             : this.attacker.boostedStat(Stats.SATK);
             }
-        } if (this.move.name() === "Chip Away" || this.move.name() === "Sacred Sword") {
+        } else if (this.move.name() === "Chip Away" || this.move.name() === "Sacred Sword") {
             def = this.defender.stat(_def);
             sdef = this.defender.stat(_sdef);
             if (unawareD) {
