@@ -909,52 +909,59 @@ function updateMoveOptions() {
 }
 
 function autofillPokeOptions (p) {
-    // 649:1 Genesect-D       -> 227 : Douse Drive
-    // 649:2 Genesect-S       -> 228 : Shock Drive
-    // 649:3 Genesect-B       -> 229 : Burn Drive
-    // 649:4 Genesect-C       -> 230 : Chill Drive
-    // 487:1 Giratina-O       -> 213 : Griseous Orb
-    // 493:1 Arceus-Fighting  -> 188 : Fist Plate
-    // 493:2 Arceus-Flying    -> 196 : Sky Plate
-    // 493:3 Arceus-Poison    -> 201 : Toxic Plate
-    // 493:4 Arceus-Ground    -> 187 : Earth Plate
-    // 493:5 Arceus-Rock      -> 199 : Stone Plate
-    // 493:6 Arceus-Bug       -> 192 : Insect Plate
-    // 493:7 Arceus-Ghost     -> 198 : Spooky Plate
-    // 493:8 Arceus-Steel     -> 193 : Iron Plate
-    // 493:9 Arceus-Fire      -> 189 : Flame Plate
-    // 493:10 Arceus-Water    -> 197 : Splash Plate
-    // 493:11 Arceus-Grass    -> 194 : Meadow Plate
-    // 493:12 Arceus-Electric -> 202 : Zap Plate
-    // 493:13 Arceus-Psychic  -> 195 : Mind Plate
-    // 493:14 Arceus-Ice      -> 191 : Icicle Plate
-    // 493:15 Arceus-Dragon   -> 185 : Draco Plate
-    // 493:16 Arceus-Dark     -> 186 : Dread Plate
-    // 493:17 Arceus-Fairy    -> 330 : Pixie Plate
     var pokeId = document.getElementById(p + "Poke").value;
-    var pokeToItem = {"649:1" : "Douse Drive",
-                      "649:2" : "Shock Drive",
-                      "649:3" : "Burn Drive",
-                      "649:4" : "Chill Drive",
-                      "487:1" : "Griseous Orb",
-                      "493:1" : "Fist Plate",
-                      "493:2" : "Sky Plate",
-                      "493:3" : "Toxic Plate",
-                      "493:4" : "Earth Plate",
-                      "493:5" : "Stone Plate",
-                      "493:6" : "Insect Plate",
-                      "493:7" : "Spooky Plate",
-                      "493:8" : "Iron Plate",
-                      "493:9" : "Flame Plate",
-                      "493:10" : "Splash Plate",
-                      "493:11" : "Meadow Plate",
-                      "493:12" : "Zap Plate",
-                      "493:13" : "Mind Plate",
-                      "493:14" : "Icicle Plate",
-                      "493:15" : "Draco Plate",
-                      "493:16" : "Dread Plate",
-                      "493:17" : "Pixie Plate"};
-    if (pokeToItem[pokeId]) {
+    var pokeToItem = {"649:1" : "Douse Drive", // Genesect-D
+                      "649:2" : "Shock Drive", // Genesect-S
+                      "649:3" : "Burn Drive", // Genesect-B
+                      "649:4" : "Chill Drive", // Genesect-C
+                      "487:1" : "Griseous Orb", // Giratina-O
+                      "493:1" : "Fist Plate", // Arceus-Fighting
+                      "493:2" : "Sky Plate", // Arceus-Flying
+                      "493:3" : "Toxic Plate", // Arceus-Poison
+                      "493:4" : "Earth Plate", // Arceus-Ground
+                      "493:5" : "Stone Plate", // Arceus-Rock
+                      "493:6" : "Insect Plate", // Arceus-Bug
+                      "493:7" : "Spooky Plate", // Arceus-Ghost
+                      "493:8" : "Iron Plate", // Arceus-Steel
+                      "493:9" : "Flame Plate", // Arceus-Fire
+                      "493:10" : "Splash Plate", // Arceus-Water
+                      "493:11" : "Meadow Plate", // Arceus-Grass
+                      "493:12" : "Zap Plate", // Arceus-Electric
+                      "493:13" : "Mind Plate", // Arceus-Psychic
+                      "493:14" : "Icicle Plate", // Arceus-Ice
+                      "493:15" : "Draco Plate", // Arceus-Dragon
+                      "493:16" : "Dread Plate", // Arceus-Dark
+                      "493:17" : "Pixie Plate", // Arceus-Fairy
+                      "460:1:M" : "Abomasite", // Mega Abomasnow
+                      "359:1:M" : "Absolite", // Mega Absol
+                      "142:1:M" : "Aerodactylite", // Mega Aerodactyl
+                      "306:1:M" : "Aggronite", // Mega Aggron
+                      "65:1:M" : "Alakazite", // Mega Alakazam
+                      "181:1:M" : "Ampharosite", // Mega Ampharos
+                      "354:1:M" : "Banettite", // Mega Banette
+                      "9:1:M" : "Blastoisinite", // Mega Blastoise
+                      "257:1:M" : "Blazikenite", // Mega Blaziken
+                      "6:1:M" : "Charizardite X", // Mega Charizard X
+                      "6:2:M" : "Charizardite Y", // Mega Charizard Y
+                      "445:1:M" : "Garchompite", // Mega Garchomp
+                      "282:1:M" : "Gardevoirite", // Mega Gardevoir
+                      "94:1:M" : "Gengarite", // Mega Gengar
+                      "130:1:M" : "Gyaradosite", // Mega Gyarados
+                      "214:1:M" : "Heracronite", // Mega Heracross
+                      "229:1:M" : "Houndoominite", // Mega Houndoom
+                      "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
+                      "448:1:M" : "Lucarionite", // Mega Lucario
+                      "310:1:M" : "Manectite", // Mega Manectric
+                      "303:1:M" : "Mawilite", // Mega Mawile
+                      "308:1:M" : "Medichamite", // Mega Medicham
+                      "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
+                      "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+                      "127:1:M" : "Pinsirite", // Mega Pinsir
+                      "212:1:M" : "Scizorite", // Mega Scizor
+                      "248:1:M" : "Tyranitarite", // Mega Tyranitar
+                      "3:1:M" : "Venusaurite" // Mega Venusaur
+                     };
+    if (pokeId in pokeToItem) {
         setSelectByText(document.getElementById(p + "Item"), pokeToItem[pokeId]);
     }
 }
