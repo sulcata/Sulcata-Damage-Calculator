@@ -1476,7 +1476,7 @@ function Calculator() {
         }
         this.applyModA(finalMod, damages);
         
-        if (defenderAbility.name() === "Sturdy") {
+        if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
             }
