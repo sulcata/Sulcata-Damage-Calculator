@@ -24,7 +24,7 @@ function changeSprite(img, id) {
 }
 
 function setText(e, txt) {
-    if (typeof(e) === "string" || (e instanceof String)) {
+    if ((typeof e === "string") || (e instanceof String)) {
         e = document.getElementById(e);
     }
     if ('textContent' in document.body) {
@@ -43,6 +43,20 @@ function getText(e) {
     }
     return e.innerText;
 }
+
+function replaceHtml(e, html) {
+    var oldE = (typeof e === "string") || (e instanceof String) ? document.getElementById(e) : e;
+    /*@cc_on
+        oldE.innerHTML = html;
+        return;
+    @*/
+    var newE = oldE.cloneNode(false);
+    ["onclick", "onchange"].forEach(function (method) { // I don't feel like finding them all
+        newE[method] = oldE[method];
+    });
+    newE.innerHTML = html;
+    oldE.parentNode.replaceChild(newE, oldE);
+};
 
 function setSelectByValue(e, value) {
     for (var i = 0; i < e.options.length; i++) {
@@ -231,7 +245,7 @@ function changeGen(n) {
         document.getElementById("defenderSdefIv").disabled = false;
         document.getElementById("defenderSdefEv").disabled = false;
         document.getElementById("defenderHpIv").disabled = false;
-        document.getElementById("hiddenPowerIvs").innerHTML = "<option value='0'>31-31-31-31-31-31</option>";
+        replaceHtml("hiddenPowerIvs", "<option value='0'>31-31-31-31-31-31</option>");
     } else if (gen === 2) {
         document.getElementById("attackerSdefIv").disabled = true;
         document.getElementById("attackerSdefEv").disabled = true;
@@ -239,7 +253,7 @@ function changeGen(n) {
         document.getElementById("defenderSdefIv").disabled = true;
         document.getElementById("defenderSdefEv").disabled = true;
         document.getElementById("defenderHpIv").disabled = true;
-        document.getElementById("hiddenPowerIvs").innerHTML = "<option value='0'>15-15-15-15-15-15</option>";
+        replaceHtml("hiddenPowerIvs", "<option value='0'>15-15-15-15-15-15</option>");
     } else {
         document.getElementById("attackerHpIv").disabled = true;
         document.getElementById("defenderHpIv").disabled = true;
@@ -255,7 +269,7 @@ function changeGen(n) {
         }
         ops += " (1." + i + "x)</option>";
     }
-    document.getElementById("metronome").innerHTML = ops;
+    replaceHtml("metronome", ops);
     
     var bp = gen < 5 ? 10 : (gen < 6 ? 20 : 40);
     end = gen < 5 ? 4 : (gen < 6 ? 3 : 2);
@@ -267,7 +281,7 @@ function changeGen(n) {
         }
         ops += " hits (" + (bp << i) + " BP)</option>";
     }
-    document.getElementById("furyCutter").innerHTML = ops;
+    replaceHtml("furyCutter", ops);
     
     var strs = [["attacker", "defender"], ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"]];
     for (var i = 0; i < strs[0].length; i++) {
@@ -320,9 +334,12 @@ function changeGen(n) {
             }
         }
         arr.splice(0, 0, ["0:0", "Missingno"]);
-        pokemons[gen] = document.getElementById("attackerPoke").innerHTML = document.getElementById("defenderPoke").innerHTML = getOptions(arr);
+        pokemons[gen] = getOptions(arr);
+        replaceHtml("attackerPoke", pokemons[gen]);
+        replaceHtml("defenderPoke", pokemons[gen]);
     } else {
-        document.getElementById("attackerPoke").innerHTML = document.getElementById("defenderPoke").innerHTML = pokemons[gen];
+        replaceHtml("attackerPoke", pokemons[gen]);
+        replaceHtml("defenderPoke", pokemons[gen]);
     }
 
     if (abilities[gen] === null || cacheDisabled) {
@@ -331,9 +348,12 @@ function changeGen(n) {
         for (var i = 0; i < genAbilityLists[gen]; i++) {
             arr = insertOpOrder(arr, [i, db.abilities[i]]);
         }
-        abilities[gen] = document.getElementById("attackerAbility").innerHTML = document.getElementById("defenderAbility").innerHTML = getOptions(arr);
+        abilities[gen] = getOptions(arr);
+        replaceHtml("attackerAbility", abilities[gen]);
+        replaceHtml("defenderAbility", abilities[gen]);
     } else {
-        document.getElementById("attackerAbility").innerHTML = document.getElementById("defenderAbility").innerHTML = abilities[gen];
+        replaceHtml("attackerAbility", abilities[gen]);
+        replaceHtml("defenderAbility", abilities[gen]);
     }
     
     if (moves[gen] === null || cacheDisabled) {
@@ -342,9 +362,10 @@ function changeGen(n) {
             id = db.releasedMoves[gen][a];
             arr = insertOpOrder(arr, [id, db.moves[id]]);
         }
-        moves[gen] = document.getElementById("move").innerHTML = getOptions(arr);
+        moves[gen] = getOptions(arr);
+        replaceHtml("move", moves[gen]);
     } else {
-        document.getElementById("move").innerHTML = moves[gen];
+        replaceHtml("move", moves[gen]);
     }
     
     if (items[gen] === null || cacheDisabled) {
@@ -357,9 +378,12 @@ function changeGen(n) {
             id = db.releasedBerries[gen][a];
             arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries[id]])
         }
-        items[gen] = document.getElementById("attackerItem").innerHTML = document.getElementById("defenderItem").innerHTML = getOptions(arr);
+        items[gen] = getOptions(arr);
+        replaceHtml("attackerItem", items[gen]);
+        replaceHtml("defenderItem", items[gen]);
     } else {
-        document.getElementById("attackerItem").innerHTML = document.getElementById("defenderItem").innerHTML = items[gen];
+        replaceHtml("attackerItem", items[gen]);
+        replaceHtml("defenderItem", items[gen]);
     }
     
     var typeOps = "<option value='18'>---</option>";
@@ -372,14 +396,15 @@ function changeGen(n) {
     }
     typeLists = document.getElementsByClassName("typeList");
     for (var i = 0; i < typeLists.length; i++) {
-        typeLists[i].innerHTML = typeOps;
+        replaceHtml(typeLists[i], typeOps);
     }
     
     str = "<option value='0'>(No Weather)</option><option value='4'>Sun</option><option value='2'>Rain</option><option value='3'>Sand</option>";
     str += gen>=3?"<option value='1'>Hail</option>":"";
-    document.getElementById("weather").innerHTML = str;
+    replaceHtml("weather", str);
     
-    document.getElementById("attackerGender").innerHTML = document.getElementById("defenderGender").innerHTML = "<option value='0'>Neutral</option>";
+    replaceHtml("attackerGender", "<option value='0'>Neutral</option>");
+    replaceHtml("defenderGender", "<option value='0'>Neutral</option>");
     
     for (var i = 1; i <= 6; i++) {
         document.getElementById("cgen" + i).className = (gen === i) ? "selectGen selectedGen" : "selectGen";
@@ -544,7 +569,7 @@ function updatePoke (p) {
     if (gender === 0) {
         h += "<option value='0'>Neutral</option>"
     }
-    document.getElementById(p + "Gender").innerHTML = h;
+    replaceHtml(p + "Gender", h);
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
         document.getElementById(p + strs[i] + "Ev").value = gen > 2 ? 0 : 255;
@@ -565,7 +590,7 @@ function updatePoke (p) {
         suggestions += "<option value='divider' disabled>─────────────</option>";
     }
     eAbility = document.getElementById(p + "Ability");
-    eAbility.innerHTML = suggestions + abilities[gen];
+    replaceHtml(eAbility, suggestions + abilities[gen]);
     eAbility.selectedIndex = 0;
     updateStats(p);
 }
@@ -687,8 +712,7 @@ function updatePossibleHiddenPowers() {
         }
         acc += "</option>";
     }
-    var hiddenPowerIvs = document.getElementById("hiddenPowerIvs");
-    hiddenPowerIvs.innerHTML = acc;
+    replaceHtml("hiddenPowerIvs", acc);
 }
 
 function getBeatUpStats() {
@@ -737,9 +761,9 @@ function swapPokemon() {
     var aGender = document.getElementById("attackerGender");
     var dGender = document.getElementById("defenderGender");
     var tempGender = [aGender.innerHTML, aGender.selectedIndex];
-    aGender.innerHTML = dGender.innerHTML;
+    replaceHtml(aGender, dGender.innerHTML);
     aGender.selectedIndex = dGender.selectedIndex;
-    dGender.innerHTML = tempGender[0];
+    replaceHtml(dGender, tempGender[0]);
     dGender.selectedIndex = tempGender[1];
     var swapIdx = ["Poke", "Nature", "Ability", "Item", "Status", "Type1", "Type2", "TypeAdded"];
     for (var i = 0; i < swapIdx.length; i++) {
@@ -899,7 +923,8 @@ function updateMoveOptions() {
                     for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
                         multiOps += "<option value='" + h + "'>" + h + " hits</option>";
                     }
-                    document.getElementById("multiHits").innerHTML = multiOps;
+                    var eMultiHits = document.getElementById("multiHits");
+                    replaceHtml(eMultiHits, multiOps);
                     document.getElementById("multiHits").selectedIndex = 0;
                 } else if (m === "PLEDGE" && (move === "Fire Pledge" || move === "Water Pledge" || move === "Grass Pledge")) {
                     a[i].style.display = "";
@@ -1036,11 +1061,10 @@ function natureOptions() {
     return acc;
 }
 
-window.onload = function() {    
-    /*var str = options(db.natures);
-    document.getElementById("attackerNature").innerHTML = str;
-    document.getElementById("defenderNature").innerHTML = str;*/
-    document.getElementById("attackerNature").innerHTML = document.getElementById("defenderNature").innerHTML = natureOptions();
+window.onload = function() {
+    var natOps = natureOptions();
+    replaceHtml("attackerNature", natOps);
+    replaceHtml("defenderNature", natOps);
     
     for (var i = 1; i <= 6; i++) {
         document.getElementById("cgen" + i).onclick = (function (n) {
