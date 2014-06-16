@@ -1322,6 +1322,9 @@ function Calculator() {
         if (defenderItem.name() === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
+        if (defenderItem.name() === "Assault Vest") {
+            sdefMod = this.chainMod(0x1800, sdefMod);
+        }
         def = this.applyMod(defMod, def);
         sdef = this.applyMod(sdefMod, sdef);
         
@@ -1386,6 +1389,9 @@ function Calculator() {
                                  [this.defender.type1(), this.defender.type2(), this.defender.addedType],
                                  this.field.foresight || attackerAbility.name() === "Scrappy",
                                  this.move.name() === "Freeze-Dry");
+        }
+        if (eff === 0) {
+            return [0];
         }
         
         for (var i = 0; i < damages.length; i++) {
@@ -1536,10 +1542,14 @@ function Calculator() {
         if (this.attacker.stab(this.move.type())) {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        baseDamage = (baseDamage * this.effective([this.move.type()],
-                                                  [this.defender.type1(), this.defender.type2()],
-                                                  false,
-                                                  false)) >> 2;
+        var eff = this.effective([this.move.type()],
+                                 [this.defender.type1(), this.defender.type2()],
+                                 false,
+                                 false);
+        if (eff === 0) {
+            return [0];
+        }
+        baseDamage = (baseDamage * eff) >> 2;
         // 768+ not having damage variance seems to be proven false.
         damages = [];
         for (var i = 0; i < 39; i++) {
@@ -1683,10 +1693,14 @@ function Calculator() {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
-        baseDamage = (baseDamage * this.effective([moveType],
-                                                  [this.defender.type1(), this.defender.type2()],
-                                                  this.field.foresight,
-                                                  false)) >> 2;
+        var eff = this.effective([moveType],
+                                 [this.defender.type1(), this.defender.type2()],
+                                 this.field.foresight,
+                                 false);
+        if (eff === 0) {
+            return [0];
+        }
+        baseDamage = (baseDamage * eff) >> 2;
         // 768+ not having damage variance seems to be proven false.
         if (this.move.name() === "Reversal" || this.move.name() === "Flail") { // these don't have damage variance
             return [baseDamage];
@@ -1932,10 +1946,14 @@ function Calculator() {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
-        baseDamage = (baseDamage * this.effective([moveType],
-                                                  [this.defender.type1(), this.defender.type2()],
-                                                  this.field.foresight,
-                                                  false)) >> 2;
+        var eff = this.effective([moveType],
+                                 [this.defender.type1(), this.defender.type2()],
+                                 this.field.foresight,
+                                 false);
+        if (eff === 0) {
+            return [0];
+        }
+        baseDamage = (baseDamage * eff) >> 2;
         
         if (this.move.name() === "Spit Up") {
             return [this.field.stockpile > 0 ? baseDamage : 0]
@@ -1945,11 +1963,13 @@ function Calculator() {
         for (var i = 0; i < 16; i++) {
             damages[i] = Math.max(1, Math.floor(baseDamage * (85 + i) / 100));
         }
-        if (defenderAbility.name() === "Sturdy") {
+        
+        if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
             }
         }
+        
         return damages;
     }
     
@@ -2363,21 +2383,24 @@ function Calculator() {
             }
         }
         
-        var e = this.effective([moveType],
-                               [this.defender.type1(), this.defender.type2()],
-                               this.field.foresight || attackerAbility.name() === "Scrappy",
-                               false);
+        var eff = this.effective([moveType],
+                                 [this.defender.type1(), this.defender.type2()],
+                                 this.field.foresight || attackerAbility.name() === "Scrappy",
+                                 false);
+        if (eff === 0) {
+            return [0];
+        }
         for (var i = 0; i < 16; i++) {
-            damages[i] = (damages[i] * e) >> 2;
+            damages[i] = (damages[i] * eff) >> 2;
         }
         
-        if ((defenderAbility.name() === "Solid Rock" || defenderAbility.name() === "Filter") && e > 4) {
+        if ((defenderAbility.name() === "Solid Rock" || defenderAbility.name() === "Filter") && eff > 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] = (damages[i] * 3) >> 2;
             }
         }
         
-        if (attackerItem.name() === "Expert Belt" && e > 4) {
+        if (attackerItem.name() === "Expert Belt" && eff > 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] = Math.floor(damages[i] * 12 / 10);
             }
@@ -2401,7 +2424,7 @@ function Calculator() {
             }
         }
         
-        if (defenderAbility.name() === "Sturdy") {
+        if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
             }
@@ -2926,6 +2949,9 @@ function Calculator() {
                                  [this.defender.type1(), this.defender.type2()],
                                  this.field.foresight || attackerAbility.name() === "Scrappy",
                                  false);
+        if (eff === 0) {
+            return [0];
+        }
         for (var i = 0; i < damages.length; i++) {
             damages[i] = (damages[i] * eff) >> 2;
         }
@@ -2995,7 +3021,7 @@ function Calculator() {
         }
         this.applyModA(finalMod, damages);
         
-        if (defenderAbility.name() === "Sturdy") {
+        if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
             }
