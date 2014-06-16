@@ -68,6 +68,9 @@ function Database() {
                              "14" : [[15, 15, 13, 15, 15, 15]],
                              "15" : [[11, 15, 14, 15, 15, 15]],
                              "16" : [[15, 15, 15, 15, 15, 15]]};
+    this.ability1 = this.getJSON("db/ability1.json");
+    this.ability2 = this.getJSON("db/ability2.json");
+    this.ability3 = this.getJSON("db/ability3.json");
 };
 
 Database.prototype.getJSON = function (file) {
@@ -349,6 +352,27 @@ function Pokemon() {
         }
         return db.genders[this.species() + ":0"];
     }
+    
+    this.ability1 = function() {
+        if ((this.species() + ":" + this.form()) in db.ability1) {
+            return db.ability1[this.species() + ":" + this.form()];
+        }
+        return 0;
+    }
+    
+    this.ability2 = function() {
+        if ((this.species() + ":" + this.form()) in db.ability2) {
+            return db.ability2[this.species() + ":" + this.form()];
+        }
+        return 0;
+    }
+    
+    this.ability3 = function() {
+        if ((this.species() + ":" + this.form()) in db.ability3) {
+            return db.ability3[this.species() + ":" + this.form()];
+        }
+        return 0;
+    }
 }
 
 function Move() {
@@ -372,7 +396,7 @@ function Move() {
     }
     
     this.damageClass = function() {
-        return db.damageClass[this.id];
+        return this.id in db.damageClass ? db.damageClass[this.id] : 0;
     }
     
     this.type = function() {
@@ -1335,9 +1359,11 @@ function Calculator() {
         } else if (this.move.damageClass() === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else {
+        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
             a = satk;
             d = sdef;
+        } else {
+            return [0];
         }
         
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * movePower * a / d) / 50) + 2;
@@ -1410,14 +1436,14 @@ function Calculator() {
 
         var finalMod = 0x1000;
         if (this.field.reflect && !crit
-                               && (this.move.damageClass === DamageClasses.PHYSICAL
+                               && (this.move.damageClass() === DamageClasses.PHYSICAL
                                    || this.move.name() === "Psyshock"
                                    || this.move.name() === "Psystrike"
                                    || this.move.name() === "Secret Sword")
                                && attackerAbility.name() !== "Infiltrator") {
             finalMod = chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         } else if (this.field.lightScreen && !crit
-                                          && (this.move.damageClass === DamageClasses.SPECIAL
+                                          && (this.move.damageClass() === DamageClasses.SPECIAL
                                               && !this.move.name() === "Psyshock"
                                               && !this.move.name() === "Psystrike"
                                               && !this.move.name() === "Secret Sword")
@@ -1528,6 +1554,9 @@ function Calculator() {
             def >>= 1;
         }
         
+        if (this.move.damageClass() === DamageClasses.OTHER) {
+            return [0];
+        }
         var a = (db.typeDamageClass[this.move.type()] === DamageClasses.PHYSICAL) ? atk : spc_a;
         var d = (db.typeDamageClass[this.move.type()] === DamageClasses.PHYSICAL) ? def : spc_d;
         
@@ -1646,6 +1675,9 @@ function Calculator() {
             def = (def * 3) >> 1;
         }
         
+        if (this.move.damageClass() === DamageClasses.OTHER) {
+            return [0];
+        }
         var a = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? atk : satk;
         var d = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? def : sdef;
         
@@ -1864,6 +1896,9 @@ function Calculator() {
             sdef = Math.floor(sdef*(this.defender.boosts[Stats.SDEF] > 0 ? 2 + this.defender.boosts[Stats.SDEF] : 2) / (this.defender.boosts[Stats.SDEF] < 0 ? 2 - this.defender.boosts[Stats.SDEF] : 2));
         }
 
+        if (this.move.damageClass() === DamageClasses.OTHER) {
+            return [0];
+        }
         a = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? atk : satk;
         d = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? def : sdef;
         if (this.move.name() === "Beat Up") {
@@ -2169,7 +2204,7 @@ function Calculator() {
             movePower = (movePower * 3) >> 1;
         }
         
-        if ((attackerItem.name() === "Muscle Band" && this.move.damageClass === DamageClasses.PHYSICAL) || (attackerItem.name() === "Wise Glasses" && this.move.damageClass === DamageClasses.SPECIAL)) {
+        if ((attackerItem.name() === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) || (attackerItem.name() === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL)) {
             movePower = Math.floor(movePower * 11 / 10);
         } else if (attackerItem.name() === "Lustrous Orb" && (moveType === Types.WATER || moveType === Types.DRAGON) && this.attacker.name() === "Palkia") {
             movePower = Math.floor(movePower * 12 / 10);
@@ -2311,6 +2346,9 @@ function Calculator() {
             sdef = (sdef * 3) >> 1;
         }
         
+        if (this.move.damageClass() === DamageClasses.OTHER) {
+            return [0];
+        }
         a = (this.move.damageClass() === DamageClasses.PHYSICAL) ? atk : satk;
         d = (this.move.damageClass() === DamageClasses.PHYSICAL) ? def : sdef;
         if (this.move.name() === "Beat Up") {
@@ -2903,9 +2941,11 @@ function Calculator() {
         } else if (this.move.damageClass() === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else {
+        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
             a = satk;
             d = sdef;
+        } else {
+            return [0];
         }
 
         var baseDamage = Math.floor(Math.floor((Math.floor((2 * this.attacker.level) / 5) + 2) * movePower * a / d) / 50) + 2;
@@ -2968,14 +3008,14 @@ function Calculator() {
 
         var finalMod = 0x1000;
         if (this.field.reflect && !crit
-                               && (this.move.damageClass === DamageClasses.PHYSICAL
+                               && (this.move.damageClass() === DamageClasses.PHYSICAL
                                    || this.move.name() === "Psyshock"
                                    || this.move.name() === "Psystrike"
                                    || this.move.name() === "Secret Sword")
                                && attackerAbility.name() !== "Infiltrator") {
             finalMod = chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         } else if (this.field.lightScreen && !crit
-                                          && (this.move.damageClass === DamageClasses.SPECIAL
+                                          && (this.move.damageClass() === DamageClasses.SPECIAL
                                               && !this.move.name() === "Psyshock"
                                               && !this.move.name() === "Psystrike"
                                               && !this.move.name() === "Secret Sword")

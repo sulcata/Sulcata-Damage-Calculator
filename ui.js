@@ -9,7 +9,7 @@ var pokemons = [null, null, null, null, null, null, null];
 var abilities = [null, null, null, null, null, null, null];
 var items = [null, null, null, null, null, null, null];
 var moves = [null, null, null, null, null, null, null];
-var cacheDisabled = true;
+var cacheDisabled = false;
 
 function changeSprite(img, id) {
     var gens = [null, "RBY/", "GSC/", "ADV/", "HGSS/", "B2W2/", "XY/"];
@@ -524,7 +524,6 @@ function setBoosts (p, b) {
 function updatePoke (p) {
     changeSprite(p + "Sprite", document.getElementById(p + "Poke").value);
     document.getElementById(p + "Nature").selectedIndex = 0;
-    document.getElementById(p + "Ability").selectedIndex = 0;
     document.getElementById(p + "Item").selectedIndex = 0;
     document.getElementById(p + "Status").selectedIndex = 0;
     document.getElementById(p + "Level").value = 100;
@@ -552,6 +551,22 @@ function updatePoke (p) {
         document.getElementById(p + strs[i] + "Iv").value = gen > 2 ? 31 : 15;
         document.getElementById(p + strs[i] + "Boost").selectedIndex = 6;
     }
+    var suggestions = "";
+    if (poke.ability1() !== 0) {
+        suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities[poke.ability1()] + "</option>";
+    }
+    if (poke.ability2() !== 0) {
+        suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities[poke.ability2()] + "</option>";
+    }
+    if (poke.ability3() !== 0 && gen >= 5) {
+        suggestions += "<option value='" + poke.ability3() + "'>" + db.abilities[poke.ability3()] + "</option>";
+    }
+    if (suggestions !== "") {
+        suggestions += "<option value='divider' disabled>─────────────</option>";
+    }
+    eAbility = document.getElementById(p + "Ability");
+    eAbility.innerHTML = suggestions + abilities[gen];
+    eAbility.selectedIndex = 0;
     updateStats(p);
 }
 
@@ -959,8 +974,7 @@ function autofillPokeOptions (p) {
                       "127:1:M" : "Pinsirite", // Mega Pinsir
                       "212:1:M" : "Scizorite", // Mega Scizor
                       "248:1:M" : "Tyranitarite", // Mega Tyranitar
-                      "3:1:M" : "Venusaurite" // Mega Venusaur
-                     };
+                      "3:1:M" : "Venusaurite"}; // Mega Venusaur
     if (pokeId in pokeToItem) {
         setSelectByText(document.getElementById(p + "Item"), pokeToItem[pokeId]);
     }
@@ -1345,7 +1359,39 @@ window.onload = function() {
             }
             rpt += (a===Sulcalc.Stats.SATK ? " SpAtk" : " Atk");
         }
-        if (gen >= 2 && c.attacker.item.id !== "0") {
+        var itemIgnoreList = {"649:1" : "Douse Drive", // Genesect-D
+                              "649:2" : "Shock Drive", // Genesect-S
+                              "649:3" : "Burn Drive", // Genesect-B
+                              "649:4" : "Chill Drive", // Genesect-C
+                              "460:1:M" : "Abomasite", // Mega Abomasnow
+                              "359:1:M" : "Absolite", // Mega Absol
+                              "142:1:M" : "Aerodactylite", // Mega Aerodactyl
+                              "306:1:M" : "Aggronite", // Mega Aggron
+                              "65:1:M" : "Alakazite", // Mega Alakazam
+                              "181:1:M" : "Ampharosite", // Mega Ampharos
+                              "354:1:M" : "Banettite", // Mega Banette
+                              "9:1:M" : "Blastoisinite", // Mega Blastoise
+                              "257:1:M" : "Blazikenite", // Mega Blaziken
+                              "6:1:M" : "Charizardite X", // Mega Charizard X
+                              "6:2:M" : "Charizardite Y", // Mega Charizard Y
+                              "445:1:M" : "Garchompite", // Mega Garchomp
+                              "282:1:M" : "Gardevoirite", // Mega Gardevoir
+                              "94:1:M" : "Gengarite", // Mega Gengar
+                              "130:1:M" : "Gyaradosite", // Mega Gyarados
+                              "214:1:M" : "Heracronite", // Mega Heracross
+                              "229:1:M" : "Houndoominite", // Mega Houndoom
+                              "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
+                              "448:1:M" : "Lucarionite", // Mega Lucario
+                              "310:1:M" : "Manectite", // Mega Manectric
+                              "303:1:M" : "Mawilite", // Mega Mawile
+                              "308:1:M" : "Medichamite", // Mega Medicham
+                              "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
+                              "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+                              "127:1:M" : "Pinsirite", // Mega Pinsir
+                              "212:1:M" : "Scizorite", // Mega Scizor
+                              "248:1:M" : "Tyranitarite", // Mega Tyranitar
+                              "3:1:M" : "Venusaurite"}; // Mega Venusaur
+        if (gen >= 2 && c.attacker.item.id !== "0" && itemIgnoreList[c.attacker.id] !== c.attacker.item.name()) {
             rpt += " " + c.attacker.item.name();
         }
         if (gen > 2 && c.attacker.ability.id !== "0") {
@@ -1368,7 +1414,7 @@ window.onload = function() {
             }
             rpt += (d===Sulcalc.Stats.SDEF ? " SpDef" : " Def");
         }
-        if (gen >= 2 && c.defender.item.id !== "0") {
+        if (gen >= 2 && c.defender.item.id !== "0" && itemIgnoreList[c.defender.id] !== c.defender.item.name()) {
             rpt += " " + c.defender.item.name();
         }
         if (gen > 2 && c.defender.ability.id !== "0") {
