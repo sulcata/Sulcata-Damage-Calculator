@@ -11,6 +11,314 @@ var items = [null, null, null, null, null, null, null];
 var moves = [null, null, null, null, null, null, null];
 var cacheDisabled = false;
 
+function convertToBaseN(n, base, len) {
+    if (typeof n === "string" || n instanceof String) {
+        n = parseInt(n, 10);
+    }
+    // base 64 lets me do EVs in one digit ((64-1)*4=252)
+    // also lets me represent pretty much everything in two digits
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    // n = base^p
+    // ln n = p ln base
+    // (ln n)/(ln base) = p
+    // floor p
+    var p = Math.floor(Math.log(n) / Math.log(base));
+    var result = "";
+    while (p >= 0) {
+        result += digits[Math.floor(n / Math.pow(base, p))];
+        n %= Math.pow(base, p);
+        p--;
+    }
+    for (var i = len - result.length; i > 0; i--) {
+        result = "0" + result;
+    }
+    return result;
+}
+
+
+
+function convertFromBaseN(n, base) {
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var result = 0;
+    for (var i = 0; i < n.length; i++) {
+        result += digits.indexOf(n[n.length-1-i]) * Math.pow(base, i);
+    }
+    return result;
+}
+
+function binaryToBase64(n) {
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var result = "";
+    var temp = 0;
+    for (var i = 0; i < n.length; i++) {
+        temp |= digits.indexOf(n[n.length-1-i])  << (i % 6);
+        if ((i + 1) % 6 === 0) {
+            result = digits[temp] + result;
+            temp = 0;
+        }
+    }
+    if (temp > 0) {
+        result = digits[temp] + result;
+    }
+    return result;
+}
+
+function base64ToBinary(n) {
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var result = "";
+    for (var i = 0; i < n.length; i++) {
+        result += convertToBaseN(digits.indexOf(n[i]), 2, 6);
+    }
+    return result;
+}
+
+function pokeToBinary(p) {
+    /* format info
+     * gen 1 : 109 bits
+     * gen 2 : 127 bits
+     * gen 3 : 161 bits
+     * gen 4 : 166 bits
+     * gen 5 : 169 bits
+     * gen 6 : 174 bits
+     */
+    var q = "";
+    var poke = document.getElementById(p + "Poke").value;
+    var species = pokeSpecies(poke);
+    var form = pokeForm(poke);
+    if (gen <= 2) {
+        q += convertToBaseN(species, 2, 8);
+    } else if (gen <= 4) {
+        q += convertToBaseN(species, 2, 9);
+    } else if (gen <= 6) {
+        q += convertToBaseN(species, 2, 10);
+    }
+    if (gen >= 2) {
+        q += convertToBaseN(form, 2, 5);
+    }
+    //released abilities (gen:num) - 3:76, 4:123, 5:164, 6:188
+    if (gen === 3 || gen === 4) {
+        q += convertToBaseN(document.getElementById(p + "Ability").value, 2, 7);
+    } else if (gen === 5 || gen === 6) {
+        q += convertToBaseN(document.getElementById(p + "Ability").value, 2, 8);
+    }
+    if (gen >= 3) {
+        q += convertToBaseN(document.getElementById(p + "Nature").value, 2, 5);
+    }
+    if (gen >= 2) {
+        var item = parseInt(document.getElementById(p + "Item").value, 10);
+        if (item >= 8000) {
+            item = (item - 8000) | 0x1000;
+        }
+        q += convertToBaseN(item, 2, 13);
+    }
+    q += convertToBaseN(document.getElementById(p + "Level").value, 2, 7);
+    var stats = gen > 2 ? ["Hp", "Atk", "Def", "Satk", "Sdef", "Spd"]
+                        : gen === 2 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
+                                    : ["Hp", "Atk", "Def", "Spc", "Spd"];
+    for (var i = 0; i < stats.length; i++) {//
+        var ev = parseInt(document.getElementById(p + stats[i] + "Ev").value, 10) >> 2;
+        var iv = parseInt(document.getElementById(p + stats[i] + "Iv").value, 10);
+        var boost = 6 + parseInt(document.getElementById(p + stats[i] + "Boost").value, 10);
+        q += convertToBaseN(ev, 2, 6);
+        q += convertToBaseN(iv, 2, gen <= 2 ? 5 : 6);
+        if (i !== 0) {
+            q += convertToBaseN(boost, 2, 4);
+        } else if (i === 3 && gen === 2) {
+            q += convertToBaseN(6 + parseInt(document.getElementById(p + "SdefBoost").value, 10), 2, 4);
+        }
+    }
+    q += convertToBaseN(document.getElementById(p + "HP").value, 2, 10);
+    q += convertToBaseN(document.getElementById(p + "Status").value, 2, 3);
+    q += convertToBaseN(document.getElementById(p + "Type1").value, 2, 5);
+    q += convertToBaseN(document.getElementById(p + "Type2").value, 2, 5);
+    if (gen >= 6) {
+        q += convertToBaseN(document.getElementById(p + "TypeAdded").value, 2, 5);
+    }
+    if (gen >= 4) {
+        q += document.getElementById(p + "FlowerGift").checked ? 1 : 0;
+        q += document.getElementById(p + "Grounded").checked ? 1 : 0;
+        q += document.getElementById(p + "PowerTrick").checked ? 1 : 0;
+        q += document.getElementById(p + "Tailwind").checked ? 1 : 0;
+        q += document.getElementById(p + "Unburden").checked ? 1 : 0;
+    }
+    if (gen >= 5) {
+        q += document.getElementById(p + "Autotomize").checked ? 1 : 0;
+    }
+    return q;
+}
+
+function calcToQueryString() {
+    var q = "";
+    q += convertToBaseN(gen, 2, 4);
+    q += pokeToBinary("attacker");
+    q += pokeToBinary("defender");
+    q += convertToBaseN(document.getElementById("move").value, 2, 10);
+    q += document.getElementById("critical").checked ? 1 : 0;
+    q += document.getElementById("screens").checked ? 1 : 0;
+    if (gen >= 3) {
+        q += document.getElementById("helpingHand").checked ? 1 : 0;
+        q += document.getElementById("charge").checked ? 1 : 0;
+        q += document.getElementById("multiBattle").checked ? 1 : 0;
+        q += document.getElementById("waterSport").checked ? 1 : 0;
+        q += document.getElementById("mudSport").checked ? 1 : 0;
+    }
+    if (gen >= 4) {
+        q += document.getElementById("meFirst").checked ? 1 : 0;
+    }
+    if (gen >= 5) {
+        q += document.getElementById("friendGuard").checked ? 1 : 0;
+        q += document.getElementById("magicRoom").checked ? 1 : 0;
+        q += document.getElementById("wonderRoom").checked ? 1 : 0;
+    }
+    if (gen >= 6) {
+        q += document.getElementById("grassyTerrain").checked ? 1 : 0;
+        q += document.getElementById("mistyTerrain").checked ? 1 : 0;
+        q += document.getElementById("electricTerrain").checked ? 1 : 0;
+        q += document.getElementById("invertedBattle").checked ? 1 : 0;
+        q += document.getElementById("fairyAura").checked ? 1 : 0;
+        q += document.getElementById("darkAura").checked ? 1 : 0;
+        q += document.getElementById("auraBreak").checked ? 1 : 0;
+        q += document.getElementById("electrify").checked ? 1 : 0;
+        q += document.getElementById("ionDeluge").checked ? 1 : 0;
+    }
+    while (q.length % 6 !== 0) {
+        q += "0";
+    }
+    return binaryToBase64(q);
+}
+
+function binaryToPoke(p, str) {
+    var poke;
+    var ptr = 0;
+    if (gen <= 2) {
+        poke = convertFromBaseN(str.substr(ptr, 8), 2) + ":";
+        ptr += 8;
+    } else if (gen <= 4) {
+        poke = convertFromBaseN(str.substr(ptr, 9), 2) + ":";
+        ptr += 9;
+    } else if (gen <= 6) {
+        poke = convertFromBaseN(str.substr(ptr, 10), 2) + ":";
+        ptr += 10;
+    }
+    if (gen >= 2) {
+        poke += convertFromBaseN(str.substr(ptr, 5), 2);
+        ptr += 5;
+    }
+    setPoke(p + "Poke", poke);
+    if (gen === 3 || gen === 4) {
+        setSelectByValue(p + "Ability", convertFromBaseN(str.substr(ptr, 7), 2) + "");
+        ptr += 7;
+    } else if (gen === 5 || gen === 6) {
+        setSelectByValue(p + "Ability", convertFromBaseN(str.substr(ptr, 8), 2) + "");
+        ptr += 8;
+    }
+    if (gen >= 3) {
+        setSelectByValue(p + "Nature", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+        ptr += 5;
+    }
+    if (gen >= 2) {
+        var itemNum = convertFromBaseN(str.substr(ptr, 13), 2);
+        ptr += 13;
+        if (itemNum & 0x1000) {
+            itemNum = (itemNum & ~0x1000) + 8000;
+        }
+        setSelectByValue(p + "Item", itemNum + "");
+    }
+    document.getElementById(p + "Level").value = convertFromBaseN(str.substr(ptr, 7), 2);
+    ptr += 7;
+    var stats = gen > 2 ? ["Hp", "Atk", "Def", "Satk", "Sdef", "Spd"]
+                        : gen === 2 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
+                                    : ["Hp", "Atk", "Def", "Spc", "Spd"];
+    for (var i = 0; i < stats.length; i++) {
+        document.getElementById(p + stats[i] + "Ev").value = convertFromBaseN(str.substr(ptr, 6), 2) << 2;
+        ptr += 6;
+        document.getElementById(p + stats[i] + "Iv").value = convertFromBaseN(str.substr(ptr, gen <= 2 ? 5 : 6), 2);
+        ptr += gen <= 2 ? 5 : 6;
+        if (i !== 0) {
+            setSelectByValue(p + stats[i] + "Boost", (convertFromBaseN(str.substr(ptr, 4), 2) - 6) + "");
+            ptr += 4;
+        } else if (i === 3 && gen === 2) {
+            setSelectByValue(p + "SdefBoost", (convertFromBaseN(str.substr(ptr, 4), 2) - 6) + "");
+            ptr += 4;
+        }
+    }
+    document.getElementById(p + "HP").value = convertFromBaseN(str.substr(ptr, 10), 2);
+    ptr += 10;
+    setSelectByValue(p + "Status", convertFromBaseN(str.substr(ptr, 3), 2) + "");
+    ptr += 3;
+    setSelectByValue(p + "Type1", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+    ptr += 5;
+    setSelectByValue(p + "Type2", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+    ptr += 5;
+    if (gen >= 6) {
+        setSelectByValue(p + "TypeAdded", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+        ptr += 5;
+    }
+    if (gen >= 4) {
+        document.getElementById(p + "FlowerGift").checked = str[ptr++] === "1";
+        document.getElementById(p + "Grounded").checked = str[ptr++] === "1";
+        document.getElementById(p + "PowerTrick").checked = str[ptr++] === "1";
+        document.getElementById(p + "Tailwind").checked = str[ptr++] === "1";
+        document.getElementById(p + "Unburden").checked = str[ptr++] === "1";
+    }
+    if (gen >= 5) {
+        document.getElementById(p + "Autotomize").checked = str[ptr++] === "1";
+    }
+    updateStats(p);
+    changeSprite(p + "Sprite", poke);
+}
+
+function loadQueryString(q) {
+    /* format info
+     * gen 1 : 109 bits
+     * gen 2 : 127 bits
+     * gen 3 : 161 bits
+     * gen 4 : 166 bits
+     * gen 5 : 169 bits
+     * gen 6 : 174 bits
+     */
+    q = base64ToBinary(q);
+    var ptr = 0;
+    changeGen(convertFromBaseN(q.substr(ptr, 4), 2));
+    ptr += 4;
+    var size = [0, 109, 127, 161, 166, 169, 174];
+    binaryToPoke("attacker", q.substr(ptr, size[gen]));
+    ptr += size[gen];
+    binaryToPoke("defender", q.substr(ptr, size[gen]));
+    ptr += size[gen];
+    
+    setSelectByValue("move", convertFromBaseN(q.substr(ptr, 10), 2) + "");
+    ptr += 10;
+    document.getElementById("critical").checked = q[ptr++] === "1";
+    document.getElementById("screens").checked = q[ptr++] === "1";
+    if (gen >= 3) {
+        document.getElementById("helpingHand").checked = q[ptr++] === "1";
+        document.getElementById("charge").checked = q[ptr++] === "1";
+        document.getElementById("multiBattle").checked = q[ptr++] === "1";
+        document.getElementById("waterSport").checked = q[ptr++] === "1";
+        document.getElementById("mudSport").checked = q[ptr++] === "1";
+    }
+    if (gen >= 4) {
+        document.getElementById("meFirst").checked = q[ptr++] === "1";
+    }
+    if (gen >= 5) {
+        document.getElementById("friendGuard").checked = q[ptr++] === "1";
+        document.getElementById("magicRoom").checked = q[ptr++] === "1";
+        document.getElementById("wonderRoom").checked = q[ptr++] === "1";
+    }
+    if (gen >= 6) {
+        document.getElementById("grassyTerrain").checked = q[ptr++] === "1";
+        document.getElementById("mistyTerrain").checked = q[ptr++] === "1";
+        document.getElementById("electricTerrain").checked = q[ptr++] === "1";
+        document.getElementById("invertedBattle").checked = q[ptr++] === "1";
+        document.getElementById("fairyAura").checked = q[ptr++] === "1";
+        document.getElementById("darkAura").checked = q[ptr++] === "1";
+        document.getElementById("auraBreak").checked = q[ptr++] === "1";
+        document.getElementById("electrify").checked = q[ptr++] === "1";
+        document.getElementById("ionDeluge").checked = q[ptr++] === "1";
+    }
+}
+
 function changeSprite(img, id) {
     var gens = [null, "RBY/", "GSC/", "ADV/", "HGSS/", "B2W2/", "XY/"];
     var imgurl = "sprites/" + gens[gen] + pokeSpecies(id);
@@ -58,7 +366,23 @@ function replaceHtml(e, html) {
     oldE.parentNode.replaceChild(newE, oldE);
 };
 
+function setPoke(e, p) {
+    if ((typeof e === "string") || (e instanceof String)) {
+        e = document.getElementById(e);
+    }
+    for (var i = 0; i < e.options.length; i++) {
+        if (e.options[i].value.substr(0, p.length) === p) {
+            e.selectedIndex = i;
+            return true;
+        }
+    }
+    return false;
+}
+
 function setSelectByValue(e, value) {
+    if ((typeof e === "string") || (e instanceof String)) {
+        e = document.getElementById(e);
+    }
     for (var i = 0; i < e.options.length; i++) {
         if (e.options[i].value === value) {
             e.selectedIndex = i;
@@ -69,6 +393,9 @@ function setSelectByValue(e, value) {
 }
 
 function setSelectByText(e, text) {
+    if ((typeof e === "string") || (e instanceof String)) {
+        e = document.getElementById(e);
+    }
     for (var i = 0; i < e.options.length; i++) {
         if (e.options[i].text === text) {
             e.selectedIndex = i;
@@ -318,19 +645,19 @@ function changeGen(n) {
     var id = "";
     
     if (pokemons[gen] === null || cacheDisabled) {
-        for (var a in db.releasedPokes[gen]) {
-            id = db.releasedPokes[gen][a];
-            if (id in db.pokemons) {
-                if (db.pokemons[id] === "Missingno") {
+        for (var a in db.releasedPokes(gen)) {
+            id = db.releasedPokes(gen)[a];
+            if (db.pokemons(id)) {
+                if (db.pokemons(id) === "Missingno") {
                     continue;
                 }
-                arr = insertOpOrder(arr, [id, db.pokemons[id]]);
-            } else if ((id + ":H") in db.pokemons) {
-                arr = insertOpOrder(arr, [id + ":H", db.pokemons[id + ":H"]]);
-            } else if ((id + ":M") in db.pokemons) {
-                arr = insertOpOrder(arr, [id + ":M", db.pokemons[id + ":M"]]);
-            } else if ((id + ":B") in db.pokemons) {
-                arr = insertOpOrder(arr, [id + ":B", db.pokemons[id + ":B"]]);
+                arr = insertOpOrder(arr, [id, db.pokemons(id)]);
+            } else if (db.pokemons(id + ":H")) {
+                arr = insertOpOrder(arr, [id + ":H", db.pokemons(id + ":H")]);
+            } else if (db.pokemons(id + ":M")) {
+                arr = insertOpOrder(arr, [id + ":M", db.pokemons(id + ":M")]);
+            } else if (db.pokemons(id + ":B")) {
+                arr = insertOpOrder(arr, [id + ":B", db.pokemons(id + ":B")]);
             }
         }
         arr.splice(0, 0, ["0:0", "Missingno"]);
@@ -346,7 +673,7 @@ function changeGen(n) {
         arr = [];
         var genAbilityLists = [null, 0, 0, 76, 123, 164, 188];
         for (var i = 0; i < genAbilityLists[gen]; i++) {
-            arr = insertOpOrder(arr, [i, db.abilities[i]]);
+            arr = insertOpOrder(arr, [i, db.abilities(i)]);
         }
         abilities[gen] = getOptions(arr);
         replaceHtml("attackerAbility", abilities[gen]);
@@ -358,9 +685,9 @@ function changeGen(n) {
     
     if (moves[gen] === null || cacheDisabled) {
         arr = [];
-        for (var a in db.releasedMoves[gen]) {
-            id = db.releasedMoves[gen][a];
-            arr = insertOpOrder(arr, [id, db.moves[id]]);
+        for (var a in db.releasedMoves(gen)) {
+            id = db.releasedMoves(gen)[a];
+            arr = insertOpOrder(arr, [id, db.moves(id)]);
         }
         moves[gen] = getOptions(arr);
         replaceHtml("move", moves[gen]);
@@ -370,13 +697,13 @@ function changeGen(n) {
     
     if (items[gen] === null || cacheDisabled) {
         arr = [];
-        for (var a in db.releasedItems[gen]) {
-            id = db.releasedItems[gen][a];
-            arr = insertOpOrder(arr, [id, db.items[id]])
+        for (var a in db.releasedItems(gen)) {
+            id = db.releasedItems(gen)[a];
+            arr = insertOpOrder(arr, [id, db.items(id)])
         }
-        for (var a in db.releasedBerries[gen]) {
-            id = db.releasedBerries[gen][a];
-            arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries[id]])
+        for (var a in db.releasedBerries(gen)) {
+            id = db.releasedBerries(gen)[a];
+            arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries(id)])
         }
         items[gen] = getOptions(arr);
         replaceHtml("attackerItem", items[gen]);
@@ -392,7 +719,7 @@ function changeGen(n) {
             || (gen < 6 && i === 17)) {
             continue;
         }
-        typeOps += "<option value='" + i + "'>" + db.types[i] + "</option>";
+        typeOps += "<option value='" + i + "'>" + db.types(i) + "</option>";
     }
     typeLists = document.getElementsByClassName("typeList");
     for (var i = 0; i < typeLists.length; i++) {
@@ -403,9 +730,6 @@ function changeGen(n) {
     str += gen>=3?"<option value='1'>Hail</option>":"";
     replaceHtml("weather", str);
     
-    replaceHtml("attackerGender", "<option value='0'>Neutral</option>");
-    replaceHtml("defenderGender", "<option value='0'>Neutral</option>");
-    
     for (var i = 1; i <= 6; i++) {
         document.getElementById("cgen" + i).className = (gen === i) ? "selectGen selectedGen" : "selectGen";
     }
@@ -415,7 +739,7 @@ function changeGen(n) {
     for (var i = 0; i < g.length; i++) {
         if (g[i].className) {
             if (g[i].className.indexOf("G_") > -1) {
-                if (g[i].className.substr(g[i].className.indexOf("G_") + 2).indexOf(gen + "") > -1) {
+                if (g[i].className.substring(g[i].className.indexOf("G_") + 2).indexOf(gen + "") > -1) {
                     g[i].style.display = "";
                 } else {
                     g[i].style.display = "none";
@@ -427,7 +751,7 @@ function changeGen(n) {
     updateFormatting();
 }
 
-function sortOptions (id) {
+function sortOptions(id) {
     var e = document.getElementById(id).options;
     var a = [];
     var str = "";
@@ -461,18 +785,18 @@ function sortSelect(selElem) {
         return;
     }
 
-function pokeForm (id) {
+function pokeForm(id) {
     if (id.indexOf(":")!==id.lastIndexOf(":")) {
         return id.substring(id.indexOf(":") + 1, id.lastIndexOf(":"));
     }
     return id.substring(id.indexOf(":") + 1);
 }
 
-function pokeSpecies (id) {
+function pokeSpecies(id) {
     return id.substring(0, id.indexOf(":"));
 }
 
-function options (j) {
+function options(j) {
     var str="";
     for (var a in j) {
         str += "<option value='" + a + "'>" + j[a] + "</option>";
@@ -480,7 +804,7 @@ function options (j) {
     return str;
 }
 
-function options8000 (j) {
+function options8000(j) {
     var str="";
     for (var a in j) {
         str += "<option value='" + (parseInt(a, 10)+8000) + "'>" + j[a] + "</option>";
@@ -488,7 +812,7 @@ function options8000 (j) {
     return str;
 }
 
-function getEvs (p) {
+function getEvs(p) {
     return [ parseInt(document.getElementById(p + "HpEv").value, 10),
              parseInt(document.getElementById(p + "AtkEv").value, 10),
              parseInt(document.getElementById(p + "DefEv").value, 10),
@@ -497,7 +821,7 @@ function getEvs (p) {
              parseInt(document.getElementById(p + "SpdEv").value, 10)];
 }
 
-function getIvs (p) {
+function getIvs(p) {
     return [ parseInt(document.getElementById(p + "HpIv").value, 10),
              parseInt(document.getElementById(p + "AtkIv").value, 10),
              parseInt(document.getElementById(p + "DefIv").value, 10),
@@ -506,7 +830,7 @@ function getIvs (p) {
              parseInt(document.getElementById(p + "SpdIv").value, 10)];
 }
 
-function getBoosts (p) {
+function getBoosts(p) {
     return [ 0,
              parseInt(document.getElementById(p + "AtkBoost").value, 10),
              parseInt(document.getElementById(p + "DefBoost").value, 10),
@@ -517,7 +841,7 @@ function getBoosts (p) {
              0];
 }
     
-function setEvs (p, e) {
+function setEvs(p, e) {
     document.getElementById(p + "HpEv").value = e[Sulcalc.Stats.HP];
     document.getElementById(p + "AtkEv").value = e[Sulcalc.Stats.ATK];
     document.getElementById(p + "DefEv").value = e[Sulcalc.Stats.DEF];
@@ -527,7 +851,7 @@ function setEvs (p, e) {
     document.getElementById(p + "SpdEv").value = e[Sulcalc.Stats.SPD];
 }
 
-function setIvs (p, i) {
+function setIvs(p, i) {
     document.getElementById(p + "HpIv").value = (gen > 2) ? i[Sulcalc.Stats.HP] : (i[1] & 1) << 3 | (i[2] & 1) << 2 | (i[5] & 1) << 1 | (i[3] & 1);
     document.getElementById(p + "AtkIv").value = i[Sulcalc.Stats.ATK];
     document.getElementById(p + "DefIv").value = i[Sulcalc.Stats.DEF];
@@ -537,7 +861,7 @@ function setIvs (p, i) {
     document.getElementById(p + "SpdIv").value = i[Sulcalc.Stats.SPD];
 }
 
-function setBoosts (p, b) {
+function setBoosts(p, b) {
     document.getElementById(p + "AtkBoost").value = b[Sulcalc.Stats.ATK];
     document.getElementById(p + "DefBoost").value = b[Sulcalc.Stats.DEF];
     document.getElementById(p + "SatkBoost").value = b[Sulcalc.Stats.SATK];
@@ -546,7 +870,7 @@ function setBoosts (p, b) {
     document.getElementById(p + "SpdBoost").value = b[Sulcalc.Stats.SPD];
 }
 
-function updatePoke (p) {
+function updatePoke(p) {
     changeSprite(p + "Sprite", document.getElementById(p + "Poke").value);
     document.getElementById(p + "Nature").selectedIndex = 0;
     document.getElementById(p + "Item").selectedIndex = 0;
@@ -558,18 +882,6 @@ function updatePoke (p) {
     var type2e = document.getElementById(p + "Type2");
     setSelectByValue(type1e, poke.type1() + "");
     setSelectByValue(type2e, poke.type2() + "");
-    var gender = poke.gender();
-    var h = "";
-    if ((gender & 1) === 1) {
-        h = "<option value='1'>Male</option>";
-    }
-    if ((gender & 2) === 2) {
-        h += "<option value='2'>Female</option>";
-    }
-    if (gender === 0) {
-        h += "<option value='0'>Neutral</option>"
-    }
-    replaceHtml(p + "Gender", h);
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
         document.getElementById(p + strs[i] + "Ev").value = gen > 2 ? 0 : 255;
@@ -578,13 +890,13 @@ function updatePoke (p) {
     }
     var suggestions = "";
     if (poke.ability1() !== 0) {
-        suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities[poke.ability1()] + "</option>";
+        suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities(poke.ability1()) + "</option>";
     }
     if (poke.ability2() !== 0) {
-        suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities[poke.ability2()] + "</option>";
+        suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities(poke.ability2()) + "</option>";
     }
     if (poke.ability3() !== 0 && gen >= 5) {
-        suggestions += "<option value='" + poke.ability3() + "'>" + db.abilities[poke.ability3()] + "</option>";
+        suggestions += "<option value='" + poke.ability3() + "'>" + db.abilities(poke.ability3()) + "</option>";
     }
     if (suggestions !== "") {
         suggestions += "<option value='divider' disabled>─────────────</option>";
@@ -595,7 +907,7 @@ function updatePoke (p) {
     updateStats(p);
 }
 
-function updateHpPercent (p) {
+function updateHpPercent(p) {
     var poke = new Sulcalc.Pokemon();
     poke.level = parseInt(document.getElementById(p + "Level").value, 10);
     poke.evs = getEvs(p);
@@ -612,7 +924,7 @@ function updateHpPercent (p) {
     document.getElementById(p + "HP").value = Math.max(1, Math.min(total, currentPoints));
 }
     
-function updateHpPoints (p) {
+function updateHpPoints(p) {
     var poke = new Sulcalc.Pokemon();
     poke.level = parseInt(document.getElementById(p + "Level").value, 10);
     poke.evs = getEvs(p);
@@ -629,7 +941,7 @@ function updateHpPoints (p) {
     document.getElementById(p + "HPp").value = Math.max(1, Math.min(100, currentPercent));
 }
 
-function updateStats (p) {
+function updateStats(p) {
     // ev and iv are unified in a "special" stat, but the base stats are different.
     // I recall reading it was because GSC and RBY used the same data structures.
     if (gen === 2) {
@@ -673,7 +985,11 @@ function updateStats (p) {
     document.getElementById(p + "HPp").value = "100";
     var strs = [["Hp", 0], ["Atk", 1], ["Def", 2], ["Satk", 3], ["Spc", 3], ["Sdef", 4], ["Spd", 5]];
     for (var i = 0; i < strs.length; i++) {
-        setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
+        if (gen > 2) {
+            setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
+        } else {
+            setText(p + strs[i][0] + "Stat", Math.min(999, poke.boostedStat(strs[i][1])));
+        }
     }
 }
 
@@ -693,9 +1009,9 @@ function updatePossibleHiddenPowers() {
     var p = [];
     var hpType = document.getElementById("hiddenPowerType").value;
     if (gen > 2) {
-        p = db.hiddenPowers[hpType];
+        p = db.hiddenPowers(hpType);
     } else {
-        p = db.hiddenPowersGen2[hpType];
+        p = db.hiddenPowersGen2(hpType);
     }
     var acc = "";
     for (var i = 0; i < p.length; i++) {
@@ -758,13 +1074,6 @@ function swapPokemon() {
     var tempSrc = aSprite.src;
     aSprite.src = dSprite.src;
     dSprite.src = tempSrc;
-    var aGender = document.getElementById("attackerGender");
-    var dGender = document.getElementById("defenderGender");
-    var tempGender = [aGender.innerHTML, aGender.selectedIndex];
-    replaceHtml(aGender, dGender.innerHTML);
-    aGender.selectedIndex = dGender.selectedIndex;
-    replaceHtml(dGender, tempGender[0]);
-    dGender.selectedIndex = tempGender[1];
     var swapIdx = ["Poke", "Nature", "Ability", "Item", "Status", "Type1", "Type2", "TypeAdded"];
     for (var i = 0; i < swapIdx.length; i++) {
         var a = document.getElementById("attacker" + swapIdx[i]);
@@ -826,11 +1135,11 @@ function swapPokemon() {
 function updateAttackerItemOptions() {
     var e = document.getElementById("battleOptions").getElementsByTagName("div");
     var i = "";
-    var item = db.items[this.value];
+    var item = db.items(this.value);
     for (var j = 0; j < e.length; j++) {
         if (e[j].className) {
             if (e[j].className.indexOf("I_") !== -1) {
-                i = e[j].className.substr(e[j].className.indexOf("I_") + 2);
+                i = e[j].className.substring(e[j].className.indexOf("I_") + 2);
                 if (i === "METRONOME" && item === "Metronome") {
                     e[j].style.display = "block";
                     document.getElementById("metronome").selectedIndex = 0;
@@ -844,7 +1153,7 @@ function updateAttackerItemOptions() {
 
 
 function autofillAttackerAbilityOptions() {
-    var ability = db.abilities[this.value];
+    var ability = db.abilities(this.value);
     if (ability === "Toxic Boost") {
         var aStatus = document.getElementById("attackerStatus");
         setSelectByText(aStatus, "Poisoned");
@@ -857,11 +1166,11 @@ function autofillAttackerAbilityOptions() {
 function updateMoveOptions() {
     var a = document.getElementsByTagName("div");
     var m = "";
-    var move = db.moves[this.value];
+    var move = db.moves(this.value);
     for (var i = 0; i < a.length; i++) {
         if (a[i].className) {
             if (a[i].className.indexOf("M_") !== -1) {
-                m = a[i].className.substr(a[i].className.indexOf("M_") + 2);
+                m = a[i].className.substring(a[i].className.indexOf("M_") + 2);
                 if (m === "FURYCUTTER" && move === "Fury Cutter") {
                     a[i].style.display = "";
                 } else if (m === "MINIMIZE"
@@ -915,7 +1224,7 @@ function updateMoveOptions() {
                     a[i].style.display = "";
                 } else if (m === "DAMAGED" && (move === "Assurance" || move === "Revenge" || move === "Avalanche")) {
                     a[i].style.display = "";
-                } else if (m === "MULTIHIT" && (this.value in db.minMaxHits[gen]) && move !== "(No Move)" && move !== "Beat Up") {
+                } else if (m === "MULTIHIT" && db.minMaxHits(gen, this.value) && db.minMaxHits(gen, this.value) > 1 && move !== "Beat Up") {
                     a[i].style.display = "";
                     var moveInfo = new Sulcalc.Move(),
                         multiOps = "";
@@ -948,7 +1257,7 @@ function updateMoveOptions() {
     }
 }
 
-function autofillPokeOptions (p) {
+function autofillPokeOptions(p) {
     var pokeId = document.getElementById(p + "Poke").value;
     var pokeToItem = {"649:1" : "Douse Drive", // Genesect-D
                       "649:2" : "Shock Drive", // Genesect-S
@@ -1005,23 +1314,23 @@ function autofillPokeOptions (p) {
     }
 }
 
-function importableToPokemon (importText) {
+function importableToPokemon(importText) {
     var poke = new Sulcalc.Pokemon();
     var lines = importText.split("\n");
-    var speciesName = lines[0].substr(0, lines[0].indexOf(" "));
+    var speciesName = lines[0].substring(0, lines[0].indexOf(" "));
     var genderLetter = lines[0].indexOf(" ") === lines[0].indexOf(" @ ") ? "(N)"
-                                                                         : lines[0].substr(lines[0].indexOf(" ") + 1,
-                                                                                           lines[0].indexOf(" @ "));
-    var itemName = lines[0].substr(lines[0].indexOf(" @ ") + 3);
-    var abilityName = lines[1].substr(lines[1].indexOf(" ") + 1);
-    var evStringList = lines[2].substr(lines[2].indexOf(" ") + 1).split(" / ");
+                                                                         : lines[0].substring(lines[0].indexOf(" ") + 1,
+                                                                                              lines[0].indexOf(" @ "));
+    var itemName = lines[0].substring(lines[0].indexOf(" @ ") + 3);
+    var abilityName = lines[1].substring(lines[1].indexOf(" ") + 1);
+    var evStringList = lines[2].substring(lines[2].indexOf(" ") + 1).split(" / ");
     var stats = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
     for (var i = 0; i < evStringList.length; i++) {
-        var n = parseInt(evStringList[i].substr(0, evStringList[i].indexOf(" ")), 10);
-        var s = evStringList[i].substr(evStringList[i].indexOf(" ") + 1);
+        var n = parseInt(evStringList[i].substring(0, evStringList[i].indexOf(" ")), 10);
+        var s = evStringList[i].substring(evStringList[i].indexOf(" ") + 1);
         poke.evs[stats.indexOf(s)] = isNaN(n) ? 0 : n;
     }
-    var natureName = lines[3].substr(0, lines[3].indexOf(" "));
+    var natureName = lines[3].substring(0, lines[3].indexOf(" "));
     
     poke.setName(speciesName);
     poke.gender = ["(N)", "(M)", "(F)"].indexOf(genderLetter);
@@ -1042,17 +1351,17 @@ function natureOptions() {
     var stat2 = [0, 1, 2, 4, 5, 3];
     var statToName = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
     var acc = "";
-    for (var n=0; n<25; n++) {
+    for (var n = 0; n < 25; n++) {
         var inc = -1, dec = -1;
-        for (var i=1; i<6; i++) {
-            var boost = ((Math.floor(n/5) === stat2[i]-1)?1:0) - ((n%5 === stat2[i]-1)?1:0);
+        for (var i = 1; i < 6; i++) {
+            var boost = ((Math.floor(n / 5) === stat2[i] - 1) ? 1 : 0) - ((n % 5 === stat2[i] - 1) ? 1 : 0);
             if (boost > 0) {
                 inc = i;
             } else if (boost < 0) {
                 dec = i;
             }
         }
-        acc += "<option value='"+n+"'>" + db.natures[n];
+        acc += "<option value='" + n + "'>" + db.natures(n);
         if (inc !== -1) {
             acc += " (+" + statToName[inc] + ", -" + statToName[dec] + ")";
         }
@@ -1068,7 +1377,7 @@ window.onload = function() {
     
     for (var i = 1; i <= 6; i++) {
         document.getElementById("cgen" + i).onclick = (function (n) {
-            return (function () {
+            return (function() {
                 if (gen !== n) {
                     changeGen(n);
                 }
@@ -1096,6 +1405,13 @@ window.onload = function() {
     document.getElementById("defenderNature").onchange = document.getElementById("defenderLevel").onchange = function() {updateStats("defender");};
     document.getElementById("moreOptions").onclick = toggleOptions;
     document.getElementById("swap").onclick = swapPokemon;
+    document.getElementById("export").onclick = function() {
+        var href = document.location.href;
+        if (href.indexOf("?") != -1) {
+            href = href.substr(0, href.indexOf("?"));
+        }
+        document.getElementById("exportText").value = href + "?" + calcToQueryString();
+    };
     
     document.getElementById("happiness").onchange = function() {
         // "216":"Return"
@@ -1170,9 +1486,9 @@ window.onload = function() {
     document.getElementById("hiddenPowerType").onchange = function() {
         updatePossibleHiddenPowers();
         if (gen > 2) {
-            setIvs("attacker", db.hiddenPowers[this.value][hiddenPowerIvs.value]);
+            setIvs("attacker", db.hiddenPowers(this.value)[hiddenPowerIvs.value]);
         } else {
-            setIvs("attacker", db.hiddenPowersGen2[this.value][hiddenPowerIvs.value]);
+            setIvs("attacker", db.hiddenPowersGen2(this.value)[hiddenPowerIvs.value]);
         }
         updateStats("attacker");
     }
@@ -1180,15 +1496,13 @@ window.onload = function() {
     document.getElementById("hiddenPowerIvs").onchange = function() {
         var hiddenPowerType = document.getElementById("hiddenPowerType");
         if (gen > 2) {
-            setIvs("attacker", db.hiddenPowers[hiddenPowerType.value][parseInt(this.value, 10)]);
+            setIvs("attacker", db.hiddenPowers(hiddenPowerType.value)[parseInt(this.value, 10)]);
         } else {
-            setIvs("attacker", db.hiddenPowersGen2[hiddenPowerType.value][parseInt(this.value, 10)]);
+            setIvs("attacker", db.hiddenPowersGen2(hiddenPowerType.value)[parseInt(this.value, 10)]);
         }
         updateStats("attacker");
     }
-    
-    changeGen(6);
-    
+
     var toggleElements = document.getElementsByClassName("morePokeOptions");
     for (var i = 0; i < toggleElements.length; i++) {
         toggleElements[i].style.display = "none";
@@ -1203,14 +1517,12 @@ window.onload = function() {
         c.attacker.nature = document.getElementById("attackerNature").value;
         c.attacker.ability.id = document.getElementById("attackerAbility").value;
         c.attacker.item.id = document.getElementById("attackerItem").value;
-        c.attacker.gender = parseInt(document.getElementById("attackerGender").value, 10);
         c.attacker.status = parseInt(document.getElementById("attackerStatus").value, 10);
         c.attacker.currentHP = parseInt(document.getElementById("attackerHP").value, 10);
         if (c.attacker.currentHP === NaN) {
             c.attacker.currentHP = c.attacker.stat(Sulcalc.Stats.HP);
         }
         c.attacker.level = parseInt(document.getElementById("attackerLevel").value, 10);
-        c.attacker.gender = parseInt(document.getElementById("attackerGender").value, 10);
         c.attacker.addedType = parseInt(document.getElementById("attackerTypeAdded").value, 10);
         c.attacker.override = true;
         c.attacker.overrideTypes = [parseInt(document.getElementById("attackerType1").value, 10),
@@ -1230,14 +1542,12 @@ window.onload = function() {
         c.defender.nature = document.getElementById("defenderNature").value;
         c.defender.ability.id = document.getElementById("defenderAbility").value;
         c.defender.item.id = document.getElementById("defenderItem").value;
-        c.defender.gender = parseInt(document.getElementById("defenderGender").value, 10);
         c.defender.status = parseInt(document.getElementById("defenderStatus").value, 10);
         c.defender.currentHP = parseInt(document.getElementById("defenderHP").value, 10);
         if (c.defender.currentHP === NaN) {
             c.defender.currentHP = c.defender.stat(Sulcalc.Stats.HP);
         }
         c.defender.level = parseInt(document.getElementById("defenderLevel").value, 10);
-        c.defender.gender = parseInt(document.getElementById("defenderGender").value, 10);
         c.defender.addedType = parseInt(document.getElementById("defenderTypeAdded").value, 10);
         c.defender.override = true;
         c.defender.overrideTypes = [parseInt(document.getElementById("defenderType1").value, 10),
@@ -1248,6 +1558,15 @@ window.onload = function() {
         c.defender.autotomize = document.getElementById("defenderAutotomize").checked;
         c.defender.flowerGift = document.getElementById("defenderFlowerGift").checked;
         c.defender.powerTrick = document.getElementById("defenderPowerTrick").checked;
+        
+        var g = document.getElementById("rivalryGenders").value;
+        if (g === "same") {
+            c.attacker.gender = Sulcalc.Genders.MALE;
+            c.defender.gender = Sulcalc.Genders.MALE;
+        } else {
+            c.attacker.gender = Sulcalc.Genders.MALE;
+            c.defender.gender = Sulcalc.Genders.FEMALE;
+        }
         
         c.move.id = document.getElementById("move").value;
 
@@ -1360,7 +1679,7 @@ window.onload = function() {
             power = Sulcalc.hiddenPowerP(c.attacker.ivs);
         }
         if (gen <= 3) {
-            dclass = db.typeDamageClass[c.move.type()];
+            dclass = db.typeDamageClass()[c.move.type()];
         } else {
             dclass = c.move.damageClass();
         }
@@ -1771,12 +2090,14 @@ window.onload = function() {
             }
         }
         
-        for (var i = 1, cko = 0, hasPrevious = false; cko!==1; i++) {
-            if (i === 20 || dmg[0][dmg[0].length-1] === 0) {
+        for (var i = 1, cko = 0, hasPrevious = false; cko !== 1; i++) {
+            cko = chanceToKO(i, dmg, c.defender.currentHP, effects);
+            if (dmg[dmg.length-1] === 0 && i !== 1) {
+                break;
+            } else if (i === 20 || dmg[0][dmg[0].length-1] === 0) {
                 rpt += "That's probably not going to KO...";
                 break;
             }
-            cko = chanceToKO(i, dmg, c.defender.currentHP, effects);
             var decimalPlaces = 1;
             if (cko > 0) {
                 if (hasPrevious) {
@@ -1815,4 +2136,11 @@ window.onload = function() {
         document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
         var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
     };
+    
+    var q = document.location.href;
+    if (q.indexOf("?") >= 0) {
+        loadQueryString(q.substr(q.indexOf("?") + 1));
+    } else {
+        changeGen(6);
+    }
 };

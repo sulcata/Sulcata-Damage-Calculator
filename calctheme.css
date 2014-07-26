@@ -101,7 +101,17 @@ select, input {
     padding: 0;
 }
 
-label, .levelButton, #calc, #selectorPanel, .togglebox, #swap {
+#exportText {
+    width: 8em;
+    display: block;
+    font-size: 1em;
+    margin: 0.4em 0 0 0.5em;
+    padding: 2px 4px;
+    float: left;
+    clear: both;
+}
+
+label, .levelButton, #calc, #selectorPanel, .togglebox, #swap, #export {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -135,7 +145,7 @@ label {
     float: left;
 }
 
-.levelButton, #calc, .togglebox, #swap {
+.levelButton, #calc, .togglebox, #swap, #export {
     display: inline-block;
     text-align: center;
     background-color: #FFF;
@@ -145,11 +155,11 @@ label {
     cursor: pointer;
 }
 
-.levelButton:hover, #calc:hover, .togglebox:hover, #swap:hover {
+.levelButton:hover, #calc:hover, .togglebox:hover, #swap:hover, #export:hover {
     border-color: #AAA;
 }
 
-.levelButton:active, #calc:active, .togglebox:active, .lock, #swap:active {
+.levelButton:active, #calc:active, .togglebox:active, .lock, #swap:active, #export:active {
     background-color: #EEE;
     border-color: #AAA;
 }
@@ -158,7 +168,7 @@ label {
     width: 2.2em;
 }
 
-.togglebox, #swap {
+.togglebox, #swap, #export {
     padding: 0.2em 0.5em;
     margin: 0.4em 0 0 0.4em;
     float: left;
@@ -227,4 +237,8 @@ label {
     position: fixed;
     top: 0;
     left: 0;
+}
+
+.endSection {
+    margin-bottom: 1em;
 }
