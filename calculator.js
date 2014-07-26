@@ -2,75 +2,394 @@ var gen = 6, db = null;
 
 function Database() {
     this.gens = [null, "db/rby/", "db/gsc/", "db/adv/", "db/hgss/", "db/b2w2/", "db/xy/"];
-    this.damageClass = this.getJSON("db/damageClass.json");
-    this.typeDamageClass = this.getJSON("db/typeDamageClass.json");
-    this.pokemons = this.getJSON("db/pokemons.json");
-    this.natures = this.getJSON("db/natures.json");
-    this.abilities = this.getJSON("db/abilities.json");
-    this.items = this.getJSON("db/items.json");
-    this.moves = this.getJSON("db/moves.json");
-    this.berryEffects = this.getJSON("db/berryEffects.json");
-    this.itemEffects = this.getJSON("db/itemEffects.json");
-    this.berryType = this.getJSON("db/berryType.json");
-    this.berryPower = this.getJSON("db/berryPower.json");
-    this.flingPower = this.getJSON("db/itemPower.json");
-    this.weight = this.getJSON("db/weight.json");
-    this.berries = this.getJSON("db/berries.json");
-    this.recoil = this.getJSON("db/recoil.json");
-    this.flags = this.getJSON("db/flags.json");
-    this.flinch = this.getJSON("db/flinch.json");
-    this.effects = this.getJSON("db/effect.json");
-    this.abilityEffects = this.getJSON("db/abilityEffects.json");
-    this.evolutions = this.getJSON("db/evolutions.json");
-    this.stats = [];
-    this.movePowers = [];
-    this.moveTypes = [];
-    this.pokeType1 = [];
-    this.pokeType2 = [];
-    this.typesTable = [];
-    this.minMaxHits = [];
-    this.ranges = [];
-    for (var i = 1; i < this.gens.length; i++) {
-        this.stats[i] = this.getJSON(this.gens[i] + "stats.json");
-        this.movePowers[i] = this.getJSON(this.gens[i] + "power.json");
-        this.moveTypes[i] = this.getJSON(this.gens[i] + "moveTypes.json");
-        this.pokeType1[i] = this.getJSON(this.gens[i] + "pokeType1.json");
-        this.pokeType2[i] = this.getJSON(this.gens[i] + "pokeType2.json");
-        this.typesTable[i] = this.getJSON(this.gens[i] + "typesTable.json");
-        this.minMaxHits[i] = this.getJSON(this.gens[i] + "minMaxHits.json");
-        if (i === 1) {
-            this.ranges[i] = null;
-        } else {
-            this.ranges[i] = this.getJSON(this.gens[i] + "range.json");
+    this._damageClass = null;
+    this.damageClass = function (id) {
+        if (this._damageClass === null) {
+            this._damageClass = this.getJSON("db/damageClass.json");
         }
+        if (typeof(id) === "undefined") {
+            return this._damageClass;
+        } else if (id in this._damageClass) {
+            return this._damageClass[id];
+        }
+        return 0;
+    };
+    this._typeDamageClass = null;
+    this.typeDamageClass = function (t) {
+        if (this._typeDamageClass === null) {
+            this._typeDamageClass = this.getJSON("db/typeDamageClass.json");
+        }
+        if (typeof(t) === "undefined") {
+            return this._typeDamageClass;
+        } else if (t in this._typeDamageClass) {
+            return this._typeDamageClass[t];
+        }
+        return 0;
+    };
+    this._pokemons = null;
+    this.pokemons = function (id) {
+        if (this._pokemons === null) {
+            this._pokemons = this.getJSON("db/pokemons.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._pokemons;
+        }
+        return this._pokemons[id];
+    };
+    this._natures = null;
+    this.natures = function (id) {
+        if (this._natures === null) {
+            this._natures = this.getJSON("db/natures.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._natures;
+        }
+        return this._natures[id];
+    };
+    this._abilities = null;
+    this.abilities = function (id) {
+        if (this._abilities === null) {
+            this._abilities = this.getJSON("db/abilities.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._abilities;
+        }
+        return this._abilities[id];
+    };
+    this._items = null;
+    this.items = function (id) {
+        if (this._items === null) {
+            this._items = this.getJSON("db/items.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._items;
+        }
+        return this._items[id];
+    };
+    this._moves = null;
+    this.moves = function (id) {
+        if (this._moves === null) {
+            this._moves = this.getJSON("db/moves.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._moves;
+        }
+        return this._moves[id];
+    };
+    this._berryEffects = null;
+    this.berryEffects = function (id) {
+        if (this._berryEffects === null) {
+            this._berryEffects = this.getJSON("db/berryEffects.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._berryEffects;
+        }
+        return this._berryEffects[id];
+    };
+    this._itemEffects = null;
+    this.itemEffects = function (id) {
+        if (this._itemEffects === null) {
+            this._itemEffects = this.getJSON("db/itemEffects.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._itemEffects;
+        }
+        return this._itemEffects[id];
+    };
+    this._berryType = null;
+    this.berryType = function (id) {
+        if (this._berryType === null) {
+            this._berryType = this.getJSON("db/berryType.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._berryType;
+        }
+        return this._berryType[id];
+    };
+    this._berryPower = null;
+    this.berryPower = function (id) {
+        if (this._berryPower === null) {
+            this._berryPower = this.getJSON("db/berryPower.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._berryPower;
+        }
+        return this._berryPower[id];
+    };
+    this._flingPower = null;
+    this.flingPower = function (id) {
+        if (this._flingPower === null) {
+            this._flingPower = this.getJSON("db/itemPower.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._flingPower;
+        } else if (id in this._flingPower) {
+            return this._flingPower[id];
+        }
+        return 10;
+    };
+    this._weight = null;
+    this.weight = function (id) {
+        if (this._weight === null) {
+            this._weight = this.getJSON("db/weight.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._weight;
+        }
+        return this._weight[id];
+    };
+    this._berries = null;
+    this.berries = function (id) {
+        if (this._berries === null) {
+            this._berries = this.getJSON("db/berries.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._berries;
+        }
+        return this._berries[id];
+    };
+    this._recoil = null;
+    this.recoil = function (id) {
+        if (this._recoil === null) {
+            this._recoil = this.getJSON("db/recoil.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._recoil;
+        }
+        return this._recoil[id];
+    };
+    this._flags = null;
+    this.flags = function (id) {
+        if (this._flags === null) {
+            this._flags = this.getJSON("db/flags.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._flags;
+        }
+        return this._flags[id];
+    };
+    this._flinch = null;
+    this.flinch = function (id) {
+        if (this._flinch === null) {
+            this._flinch = this.getJSON("db/flinch.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._flinch;
+        }
+        return this._flinch[id];
+    };
+    this._effects = null;
+    this.effects = function (id) {
+        if (this._effects === null) {
+            this._effects = this.getJSON("db/effect.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._effects;
+        }
+        return this._effects[id];
+    };
+    this._abilityEffects = null;
+    this.abilityEffects = function (id) {
+        if (this._abilityEffects === null) {
+            this._abilityEffects = this.getJSON("db/abilityEffects.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._abilityEffects;
+        }
+        return this._abilityEffects[id];
+    };
+    this._evolutions = null;
+    this.evolutions = function (id) {
+        if (this._evolutions === null) {
+            this._evolutions = this.getJSON("db/evolutions.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._evolutions;
+        }
+        return this._evolutions[id];
+    };
+    this._stats = [];
+    this.stats = function (g, id) {
+        if (!(g in this._stats)) {
+            this._stats[g] = this.getJSON(this.gens[g] + "stats.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._stats[g];
+        }
+        return this._stats[g][id];
+    };
+    this._movePowers = [];
+    this.movePowers = function (g, id) {
+        if (!(g in this._movePowers)) {
+            this._movePowers[g] = this.getJSON(this.gens[g] + "power.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._movePowers[g];
+        }
+        return this._movePowers[g][id];
+    };
+    this._moveTypes = [];
+    this.moveTypes = function (g, id) {
+        if (!(g in this._moveTypes)) {
+            this._moveTypes[g] = this.getJSON(this.gens[g] + "moveTypes.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._moveTypes[g];
+        }
+        return this._moveTypes[g][id];
+    };
+    this._pokeType1 = [];
+    this.pokeType1 = function (g, id) {
+        if (!(g in this._pokeType1)) {
+            this._pokeType1[g] = this.getJSON(this.gens[g] + "pokeType1.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._pokeType1[g];
+        }
+        return this._pokeType1[g][id];
+    };
+    this._pokeType2 = [];
+    this.pokeType2 = function (g, id) {
+        if (!(g in this._pokeType2)) {
+            this._pokeType2[g] = this.getJSON(this.gens[g] + "pokeType2.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._pokeType2[g];
+        }
+        return this._pokeType2[g][id];
+    };
+    this._typesTable = [];
+    this.typesTable = function (g, aType, dType) {
+        if (!(g in this._typesTable)) {
+            this._typesTable[g] = this.getJSON(this.gens[g] + "typesTable.json");
+        }
+        if (typeof(aType) === "undefined" || typeof(dType) === "undefined") {
+            return this._typesTable[g];
+        }
+        return this._typesTable[g][aType][dType];
+    };
+    this._minMaxHits = [];
+    this.minMaxHits = function (g, id) {
+        if (!(g in this._minMaxHits)) {
+            this._minMaxHits[g] = this.getJSON(this.gens[g] + "minMaxHits.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._minMaxHits[g];
+        }
+        return this._minMaxHits[g][id];
+    };
+    this._ranges = [];
+    this.ranges = function (g, id) {
+        if (g <= 1) {
+            return null;
+        }
+        if (!(g in this._ranges)) {
+            this._ranges[g] = this.getJSON(this.gens[g] + "range.json");
+        }
+        if (typeof(id) === "undefined") {
+            return this._ranges[g]
+        }
+        return this._ranges[g][id];
+    };
+    // the functions below are unneeded for calculations and will not load files unless explicitly called
+    this._releasedPokes = null;
+    this.releasedPokes = function(g) {
+        if (this._releasedPokes === null) {
+            this._releasedPokes = this.getJSON("db/releasedPokes.json");
+        }
+        return this._releasedPokes[g];
+    };
+    this._releasedMoves = null;
+    this.releasedMoves = function(g) {
+        if (this._releasedMoves === null) {
+            this._releasedMoves = this.getJSON("db/releasedMoves.json");
+        }
+        return this._releasedMoves[g];
+    };
+    this._releasedItems = null;
+    this.releasedItems = function(g) {
+        if (this._releasedItems === null) {
+            this._releasedItems = this.getJSON("db/releasedItems.json");
+        }
+        return this._releasedItems[g];
+    };
+    this._releasedBerries = null;
+    this.releasedBerries= function(g) {
+        if (this._releasedBerries === null) {
+            this._releasedBerries = this.getJSON("db/releasedBerries.json");
+        }
+        return this._releasedBerries[g];
+    };
+    this._genders = null;
+    this.genders = function() {
+        if (this._genders === null) {
+            this._genders = this.getJSON("db/gender.json");
+        }
+        return this._genders;
     }
-    // the rest is unneeded for calculations
-    this.releasedPokes = this.getJSON("db/releasedPokes.json");
-    this.releasedMoves = this.getJSON("db/releasedMoves.json");
-    this.releasedItems = this.getJSON("db/releasedItems.json");
-    this.releasedBerries = this.getJSON("db/releasedBerries.json");
-    this.genders = this.getJSON("db/gender.json");
-    this.types = this.getJSON("db/types.json");
-    this.hiddenPowers = this.getJSON("db/hiddenPowers.json");
-    this.hiddenPowersGen2 = {"1"  : [[3,  12, 12, 15, 15, 15]],
-                             "2"  : [[7,  12, 13, 15, 15, 15]],
-                             "3"  : [[3,  12, 14, 15, 15, 15]],
-                             "4"  : [[7,  12, 15, 15, 15, 15]],
-                             "5"  : [[11, 13, 12, 15, 15, 15]],
-                             "6"  : [[15, 13, 13, 15, 15, 15]],
-                             "7"  : [[11, 13, 14, 15, 15, 15]],
-                             "8"  : [[15, 13, 15, 15, 15, 15]],
-                             "9"  : [[3,  14, 12, 15, 15, 15]],
-                             "10" : [[7,  14, 13, 15, 15, 15]],
-                             "11" : [[3,  14, 14, 15, 15, 15]],
-                             "12" : [[7,  14, 15, 15, 15, 15]],
-                             "13" : [[11, 15, 12, 15, 15, 15]],
-                             "14" : [[15, 15, 13, 15, 15, 15]],
-                             "15" : [[11, 15, 14, 15, 15, 15]],
-                             "16" : [[15, 15, 15, 15, 15, 15]]};
-    this.ability1 = this.getJSON("db/ability1.json");
-    this.ability2 = this.getJSON("db/ability2.json");
-    this.ability3 = this.getJSON("db/ability3.json");
+    this._types = null;
+    this.types = function (t) {
+        if (this._types === null) {
+            this._types = this.getJSON("db/types.json");
+        }
+        return this._types[t];
+    }
+    this._hiddenPowers = null;
+    this.hiddenPowers = function (t) {
+        if (this._hiddenPowers === null) {
+            this._hiddenPowers = this.getJSON("db/hiddenPowers.json");
+        }
+        return this._hiddenPowers[t];
+    }
+    this._hiddenPowersGen2 = {"1"  : [[3,  12, 12, 15, 15, 15]],
+                              "2"  : [[7,  12, 13, 15, 15, 15]],
+                              "3"  : [[3,  12, 14, 15, 15, 15]],
+                              "4"  : [[7,  12, 15, 15, 15, 15]],
+                              "5"  : [[11, 13, 12, 15, 15, 15]],
+                              "6"  : [[15, 13, 13, 15, 15, 15]],
+                              "7"  : [[11, 13, 14, 15, 15, 15]],
+                              "8"  : [[15, 13, 15, 15, 15, 15]],
+                              "9"  : [[3,  14, 12, 15, 15, 15]],
+                              "10" : [[7,  14, 13, 15, 15, 15]],
+                              "11" : [[3,  14, 14, 15, 15, 15]],
+                              "12" : [[7,  14, 15, 15, 15, 15]],
+                              "13" : [[11, 15, 12, 15, 15, 15]],
+                              "14" : [[15, 15, 13, 15, 15, 15]],
+                              "15" : [[11, 15, 14, 15, 15, 15]],
+                              "16" : [[15, 15, 15, 15, 15, 15]]};
+    this.hiddenPowersGen2 = function (t) {
+        return this._hiddenPowersGen2[t];
+    }
+    this._ability1 = null;
+    this.ability1 = function (p) {
+        if (this._ability1 === null) {
+            this._ability1 = this.getJSON("db/ability1.json");
+        }
+        if (p in this._ability1) {
+            return this._ability1[p];
+        }
+        return 0;
+    }
+    this._ability2 = null;
+    this.ability2 = function (p) {
+        if (this._ability2 === null) {
+            this._ability2 = this.getJSON("db/ability2.json");
+        }
+        if (p in this._ability2) {
+            return this._ability2[p];
+        }
+        return 0;
+    }
+    this._ability3 = null;
+    this.ability3 = function (p) {
+        if (this._ability3 === null) {
+            this._ability3 = this.getJSON("db/ability3.json");
+        }
+        if (p in this._ability3) {
+            return this._ability3[p];
+        }
+        return 0;
+    }
 };
 
 Database.prototype.getJSON = function (file) {
@@ -84,7 +403,7 @@ Database.prototype.getJSON = function (file) {
             try {
                 httpreq = new ActiveXObject("Microsoft.XMLHTTP"); // really, reeaaally old ie
             } catch (g) {
-                alert("Nice potato!"); // compliment their potato
+                alert("I really have no idea what Internet browser you are using. Try updating your browser to something within the last five to six years.");
             }
         }
     }
@@ -190,8 +509,8 @@ function Pokemon() {
     this.override = false;
     
     this.setNatureName = function (n) {
-        for (nat in db.natures) {
-            if (db.natures[nat] === n) {
+        for (nat in db.natures()) {
+            if (db.natures(nat) === n) {
                 this.nature = parseInt(nat, 10);
                 return;
             }
@@ -199,8 +518,8 @@ function Pokemon() {
     }
     
     this.setName = function (n) {
-        for (p in db.pokemons) { // not particularly efficient
-            if (db.pokemons[p] === n) {
+        for (p in db.pokemons()) { // not particularly efficient
+            if (db.pokemons(p) === n) {
                 this.id = p;
                 return;
             }
@@ -208,7 +527,7 @@ function Pokemon() {
     }
     
     this.name = function() {
-        return db.pokemons[this.id];
+        return db.pokemons(this.id);
     }
     
     this.form = function() {
@@ -300,30 +619,30 @@ function Pokemon() {
     
     this.baseStat = function (s) {
         var temp = this.species() + ":" + this.form(); // ignores any :H or :whatever stuff
-        if (temp in db.stats[gen]) {
-            return db.stats[gen][temp][s];
+        if (db.stats(gen, temp)) {
+            return db.stats(gen, temp)[s];
         }
-        return db.stats[gen][this.species() + ":0"][s]; // this is for keldeo and friends
+        return db.stats(gen, this.species() + ":0")[s]; // this is for keldeo and friends
     }
     
     this.type1 = function() {
         if (this.override) {
             return this.overrideTypes[0];
         }
-        if ((this.species() + ":" + this.form()) in db.pokeType1[gen]) {
-            return db.pokeType1[gen][this.species() + ":" + this.form()];
+        if (db.pokeType1(gen, this.species() + ":" + this.form())) {
+            return db.pokeType1(gen, this.species() + ":" + this.form());
         }
-        return db.pokeType1[gen][this.species() + ":0"];
+        return db.pokeType1(gen, this.species() + ":0");
     }
     
     this.type2 = function() {
         if (this.override) {
             return this.overrideTypes[1];
         }
-        if ((this.species() + ":" + this.form()) in db.pokeType2[gen]) {
-            return db.pokeType2[gen][this.species() + ":" + this.form()];
-        } else if ((this.species() + ":0") in db.pokeType2[gen]) {
-            return db.pokeType2[gen][this.species() + ":0"];
+        if (db.pokeType2(gen, this.species() + ":" + this.form())) {
+            return db.pokeType2(gen, this.species() + ":" + this.form());
+        } else if (db.pokeType2(gen, this.species() + ":0")) {
+            return db.pokeType2(gen, this.species() + ":0");
         }
         return Types.CURSE;
     }
@@ -336,42 +655,33 @@ function Pokemon() {
     }
     
     this.weight = function() {//kg
-        if ((this.species() + ":" + this.form()) in db.weight) {
-            return db.weight[this.species() + ":" + this.form()];
+        if (db.weight(this.species() + ":" + this.form())) {
+            return db.weight(this.species() + ":" + this.form());
         }
-        return db.weight[this.species() + ":0"];
+        return db.weight(this.species() + ":0");
     }
     
     this.hasEvolution = function() {
-        return this.species() in db.evolutions;
+        return db.evolutions(this.species());
     }
     
     this.gender = function () {
-        if ((this.species() + this.form()) in db.genders) {
-            return db.genders[this.species() + ":" + this.form()];
+        if (db.genders(this.species() + this.form())) {
+            return db.genders()[this.species() + ":" + this.form()];
         }
-        return db.genders[this.species() + ":0"];
+        return db.genders()[this.species() + ":0"];
     }
     
     this.ability1 = function() {
-        if ((this.species() + ":" + this.form()) in db.ability1) {
-            return db.ability1[this.species() + ":" + this.form()];
-        }
-        return 0;
+        return db.ability1(this.species() + ":" + this.form());
     }
     
     this.ability2 = function() {
-        if ((this.species() + ":" + this.form()) in db.ability2) {
-            return db.ability2[this.species() + ":" + this.form()];
-        }
-        return 0;
+        return db.ability2(this.species() + ":" + this.form());
     }
     
     this.ability3 = function() {
-        if ((this.species() + ":" + this.form()) in db.ability3) {
-            return db.ability3[this.species() + ":" + this.form()];
-        }
-        return 0;
+        return db.ability3(this.species() + ":" + this.form());
     }
 }
 
@@ -379,8 +689,8 @@ function Move() {
     this.id = "0";
     
     this.setName = function (n) {
-        for (m in db.moves) { // not particularly efficient
-            if (db.moves[m] === n) {
+        for (m in db.moves()) { // not particularly efficient
+            if (db.moves(m) === n) {
                 this.id = m;
                 return;
             }
@@ -388,67 +698,67 @@ function Move() {
     }
     
     this.name = function() {
-        return db.moves[this.id];
+        return db.moves(this.id);
     }
     
     this.power = function() {
-        return db.movePowers[gen][this.id];
+        return db.movePowers(gen, this.id) ? db.movePowers(gen, this.id) : 0;
     }
     
     this.damageClass = function() {
-        return this.id in db.damageClass ? db.damageClass[this.id] : 0;
+        return db.damageClass(this.id);
     }
     
     this.type = function() {
-        return (this.id in db.moveTypes[gen]) ? db.moveTypes[gen][this.id] : Types.NORMAL;
+        return db.moveTypes(gen, this.id) ? db.moveTypes(gen, this.id) : Types.NORMAL;
     }
     
     this.hasRecoil = function() {
-        return (this.id in db.recoil) ? (db.recoil[this.id] < 0) : false; // negative means it's actually recoil and not recovery!!!
+        return db.recoil(this.id) ? (db.recoil(this.id) < 0) : false; // negative means it's actually recoil and not recovery!!!
     }
     
     this.isPunch = function() {
-        return (this.id in db.flags) ? ((db.flags[this.id] & 0x80) === 0x80) : false;
+        return db.flags(this.id) ? ((db.flags(this.id) & 0x80) === 0x80) : false;
     }
     
     this.sheerForce = function() {
-        return (this.id in db.flinch) || (this.id in db.effects);
+        return db.flinch(this.id) || db.effects(this.id);
     }
     
     this.contact = function() {
-        return (this.id in db.flags) ? ((db.flags[this.id] & 0x1) === 0x1) : false;
+        return db.flags(this.id) ? ((db.flags(this.id) & 0x1) === 0x1) : false;
     }
     
     this.sound = function() {
-        return (this.id in db.flags) ? ((db.flags[this.id] & 0x100) === 0x100) : false;
+        return db.flags(this.id) ? ((db.flags(this.id) & 0x100) === 0x100) : false;
     }
     
     this.powder = function() {
-        return (this.id in db.flags) ? ((db.flags[this.id] & 0x8000) === 0x8000) : false;
+        return db.flags(this.id) ? ((db.flags(this.id) & 0x8000) === 0x8000) : false;
     }
     
     this.bite = function() {
-        return (this.id in db.flags) ? ((db.flags[this.id] & 0x4000) === 0x4000) : false;
+        return db.flags(this.id) ? ((db.flags(this.id) & 0x4000) === 0x4000) : false;
     }
     
     this.pulse = function() {
-        return (this.id in db.flags) ? ((db.flags[this.id] & 0x800) === 0x800) : false;
+        return db.flags(this.id) ? ((db.flags(this.id) & 0x800) === 0x800) : false;
     }
     
     this.ball = function() {
-        return (this.id in db.flags) ? ((db.flags[this.id] & 0x10000) === 0x10000) : false;
+        return db.flags(this.id) ? ((db.flags(this.id) & 0x10000) === 0x10000) : false;
     }
     
     this.minHits = function() {
-        return (this.id in db.minMaxHits[gen]) ? db.minMaxHits[gen][this.id] & 0xF : 1;
+        return db.minMaxHits(gen, this.id) ? db.minMaxHits(gen, this.id) & 0xF : 1;
     }
     
     this.maxHits = function() {
-        return (this.id in db.minMaxHits[gen]) ? (db.minMaxHits[gen][this.id] & 0xF0) >> 4 : 1;
+        return db.minMaxHits(gen, this.id) ? (db.minMaxHits(gen, this.id) & 0xF0) >> 4 : 1;
     }
     
     this.multiTargets = function() {
-        return (this.id in db.ranges[gen]) ? (db.ranges[gen][this.id] === 4 || db.ranges[gen][this.id] === 5) : false;
+        return db.ranges(gen, this.id) ? (db.ranges(gen, this.id) === 4 || db.ranges(gen, this.id) === 5) : false;
     }
 }
 
@@ -456,8 +766,8 @@ function Ability() {
     this.id = "0";
     
     this.setName = function (n) {
-        for (a in db.abilities) { // not particularly efficient
-            if (db.abilities[a] === n) {
+        for (a in db.abilities()) { // not particularly efficient
+            if (db.abilities(a) === n) {
                 this.id = a;
                 return;
             }
@@ -465,12 +775,12 @@ function Ability() {
     }
     
     this.name = function() {
-        return db.abilities[this.id];
+        return db.abilities(this.id);
     }
     
     this.flagToValue = function (f) {
-        if (!(this.id in db.abilityEffects)) return null;
-        var effectsList = db.abilityEffects[this.id].split("|");
+        if (db.abilityEffects(this.id)) return null;
+        var effectsList = db.abilityEffects(this.id).split("|");
         for (e in effectsList) {
             if (effectsList[e].split("-")[0] === f) {
                 return effectsList[e].split("-")[1];
@@ -490,7 +800,7 @@ function Ability() {
     }
     
     this.normalToType = function() {
-        var v = this.flagToValue("102");
+        var v = this.flagToValue("121");
         return v !== null ? parseInt(v, 10) : -1;
     }
     
@@ -503,10 +813,10 @@ function Ability() {
         if (v !== null) {
             return parseInt(v, 10);
         }
-        if (db.abilityEffects[this.id] === "120") { // levitate
+        if (db.abilityEffects()[this.id] === "120") { // levitate
             return Sulcalc.Types.GROUND;
         }
-        if (db.abilityEffects[this.id] === "41") { // motor drive
+        if (db.abilityEffects()[this.id] === "41") { // motor drive
             return Sulcalc.Types.ELECTRIC;
         }
         var v = this.flagToValue("68"); // sap sipper, etc.
@@ -534,13 +844,13 @@ function Item() {
     this.id = 0;
     
     this.setName = function (n) {
-        for (i in db.items) {
-            if (db.items[i] === n) {
+        for (i in db.items()) {
+            if (db.items(i) === n) {
                 this.id = i;
             }
         }
-        for (b in db.berries) {
-            if (db.berries[b] === n) {
+        for (b in db.berries()) {
+            if (db.berries(b) === n) {
                 this.id = b + 8000;
                 return;
             }
@@ -548,15 +858,15 @@ function Item() {
     }
     
     this.name = function() {
-        if (this.id in db.items) {
-            return db.items[this.id];
+        if (db.items(this.id)) {
+            return db.items(this.id);
         }
-        return db.berries[this.id - 8000];
+        return db.berries(this.id - 8000);
     }
     
     this.flagToValue = function (f) {
-        if (!(this.id in db.itemEffects)) return null;
-        var effectList = db.itemEffects[this.id].split("|");
+        if (!db.itemEffects(this.id)) return null;
+        var effectList = db.itemEffects(this.id).split("|");
         for (e in effectList) {
             if (effectList[e].split("-")[0] === f) {
                return effectList[e].split("-")[1];
@@ -571,8 +881,8 @@ function Item() {
     }
     
     this.berryType = function() {
-        if (this.id < 8000 || !((this.id - 8000) in db.berryEffects)) return -1; // not a berry
-        var e = db.berryEffects[this.id - 8000].split("-");
+        if (this.id < 8000 || !db.berryEffects(this.id - 8000)) return -1; // not a berry
+        var e = db.berryEffects(this.id - 8000).split("-");
         if (e[0] === "4") {
             return parseInt(e[1], 10);
         } else if (e[0] === "5") {
@@ -705,22 +1015,22 @@ function Calculator() {
     
     this.typeEffectiveness = function (aType, dType) {
         // 0:immune, 1:resisted, 2:neutral, 4:super effective
-        return db.typesTable[gen][aType][dType];
+        return db.typesTable(gen, aType, dType);
     }
-    
+
     this.effective = function (aTypes, dTypes, foresight, freezeDry) {
         var e = 1;
-            for (d in dTypes) {
-                for (a in aTypes) {
-                    if (foresight && (aTypes[a]===Types.FIGHTING || aTypes[a]===Types.NORMAL) && dTypes[d]===Types.GHOST) {
-                        e *= 2;
-                    } else if (freezeDry && dTypes[d] === Types.WATER) {
-                        e *= 4;
-                    } else {
-                        e *= this.typeEffectiveness(aTypes[a], dTypes[d]);
-                    }
+        for (d in dTypes) {
+            if (freezeDry && dTypes[d] === Types.WATER) {
+                e *= 4;
+            } else for (a in aTypes) {
+                if (foresight && (aTypes[a] === Types.FIGHTING || aTypes[a] === Types.NORMAL) && dTypes[d]===Types.GHOST) {
+                    e *= 2;
+                } else {
+                    e *= this.typeEffectiveness(aTypes[a], dTypes[d]);
                 }
             }
+        }
         return e;
     }
     
@@ -736,12 +1046,10 @@ function Calculator() {
     this.invertedEffective = function (aTypes, dTypes, freezeDry) { // foresight has no effect, freeze dry still works
         var e = 1;
         for (d in dTypes) {
-            for (a in aTypes) {
-                if (freezeDry && dTypes[d] === Types.WATER) {
-                    e *= 4;
-                } else {
-                    e *= this.invert(this.typeEffectiveness(aTypes[a], dTypes[d]));
-                }
+            if (freezeDry && dTypes[d] === Types.WATER) {
+                e *= 4;
+            } else for (a in aTypes) {
+                e *= this.invert(this.typeEffectiveness(aTypes[a], dTypes[d]));
             }
         }
         return e;
@@ -1064,15 +1372,15 @@ function Calculator() {
             movePower *= 2;
         } else if (this.move.name() === "Present") {
             movePower = this.field.present;
-        } else if (this.move.name() === "Natural Gift" && attackerItem.name() >= 8000) {
-            movePower = db.berryPower[atackerItem.id - 8000];
-            moveType = db.berryType[attackerItem.id - 8000];
+        } else if (this.move.name() === "Natural Gift" && attackerItem.id >= 8000) {
+            movePower = db.berryPower(atackerItem.id - 8000);
+            moveType = db.berryType(atackerItem.id - 8000);
         } else if (this.move.name() === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
             movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
         } else if (this.move.name() === "Fling") {
-            movePower = (attackerItem.id in db.flingPower) ? db.flingPower[attackerItem.id] : 10;
+            movePower = db.flingPower(attackerItem.id);
         } else if ((this.move.name() === "Fire Pledge" || this.move.name() === "Water Pledge" || this.move.name() === "Grass Pledge") && this.field.pledgeBoost) {
             movePower *= 2; /* I'm assuming smogon is wrong here,
                              * fuzzy pointed out that stab is applied,
@@ -1122,7 +1430,7 @@ function Calculator() {
             }
         } else if (attackerAbility.name() === "Sand Force" && weather === Weathers.SAND && (moveType === Types.GROUND || moveType === Types.ROCK || moveType === Types.STEEL)) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod)
-        } else if (attackerAbility.normalToType() !== -1 && moveType === 0) { // refrigerate, etc
+        } else if (attackerAbility.normalToType() !== -1 && moveType === Types.NORMAL) { // refrigerate, etc
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
             moveType = attackerAbility.normalToType();
         } else if (attackerAbility.name() === "Normalize") {
@@ -1176,7 +1484,7 @@ function Calculator() {
             movePowerMod = this.chainMod(0x800, movePowerMod);
         }
         if (this.move.name() === "Knock Off"
-            && this.defender.item.megaPoke() !== null
+            && this.defender.item.megaPoke() === null
             && this.defender.item.name() !== "(No Item)"
             && !(this.defender.item.name() === "Griseous Orb" && this.defender.name().indexOf("Giratina") !== -1)
             && !(this.defender.item.name().indexOf(" Drive") !== -1 && this.defender.name().indexOf("Genesect") !== -1)
@@ -1421,10 +1729,10 @@ function Calculator() {
         }
         
         for (var i = 0; i < damages.length; i++) {
-            damages[i] = (damages[i] * eff) >> 6;
+            damages[i] = (damages[i] * eff) >> 5;
         }
 
-        if (this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.PHYSICAL && attackerAbility.name() !== "Guts") {
+        if (this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.PHYSICAL && attackerAbility.name() !== "Guts" && this.move.name() !== "Facade") {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = damages[i] >> 1;
             }
@@ -1453,7 +1761,7 @@ function Calculator() {
         if (defenderAbility.name() === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             finalMod = this.chainMod(0x800, finalMod);
         }
-        if (attackerAbility.name() === "Tinted Lens" && eff < 64) {
+        if (attackerAbility.name() === "Tinted Lens" && eff < 32) {
             finalMod = this.chainMod(0x2000, finalMod);
         }
         if (this.field.friendGuard) {
@@ -1462,13 +1770,13 @@ function Calculator() {
         if (attackerAbility.name() === "Sniper" && crit) {
             finalMod = this.chainMod(0x1800, finalMod);
         }
-        if ((defenderAbility.name() === "Filter" || defenderAbility.name() === "Solid Rock") && eff > 64) {
+        if ((defenderAbility.name() === "Filter" || defenderAbility.name() === "Solid Rock") && eff > 32) {
             finalMod = this.chainMod(0xC00, finalMod);
         }
         if (attackerItem.name() === "Metronome") {
             finalMod = this.chainMod(this.field.metronome <= 4 ? (0x1000 + this.field.metronome * 0x333) : 0x2000, finalMod);
         }
-        if (attackerItem.name() === "Expert Belt" && eff > 64) {
+        if (attackerItem.name() === "Expert Belt" && eff > 32) {
             finalMod = this.chainMod(0x1333, finalMod);
         }
         if (attackerItem.name() === "Life Orb") {
@@ -1504,7 +1812,7 @@ function Calculator() {
         
         if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
-                damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
+                damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
         
@@ -1554,11 +1862,16 @@ function Calculator() {
             def >>= 1;
         }
         
-        if (this.move.damageClass() === DamageClasses.OTHER) {
+        var a, d;
+        if (db.typeDamageClass(this.move.type()) === DamageClasses.PHYSICAL) {
+            a = atk;
+            d = def;
+        } else if (db.typeDamageClass(this.move.type()) === DamageClasses.SPECIAL) {
+            a = spc_a;
+            d = spc_d;
+        } else {
             return [0];
         }
-        var a = (db.typeDamageClass[this.move.type()] === DamageClasses.PHYSICAL) ? atk : spc_a;
-        var d = (db.typeDamageClass[this.move.type()] === DamageClasses.PHYSICAL) ? def : spc_d;
         
         if ((a > 255) || (d > 255)) { // is attack or defense greater than 255?
             a = (a >> 2) & 0xFF;
@@ -1675,16 +1988,22 @@ function Calculator() {
             def = (def * 3) >> 1;
         }
         
-        if (this.move.damageClass() === DamageClasses.OTHER) {
+        var a, d;
+        if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
+            a = atk;
+            d = def;
+        } else if (db.typeDamageClass(moveType) === DamageClasses.SPECIAL) {
+            a = satk;
+            d = sdef;
+        } else {
             return [0];
         }
-        var a = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? atk : satk;
-        var d = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? def : sdef;
         
         if ((a > 255) || (d > 255)) { // is attack or defense greater than 255?
             a = (a >> 2) & 0xFF;
             d = (d >> 2) & 0xFF;
         }
+        // in-game Crystal would repeat the process without &0xFF, but not in link battles
         d = Math.max(1, d);
         
         if (this.move.name() === "Beat Up") {
@@ -1829,7 +2148,7 @@ function Calculator() {
             atk *= 2;
         }
         if (attackerItem.typeBoosted() === moveType) {
-            if (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) { // make sure we are boosting the right stat
+            if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) { // make sure we are boosting the right stat
                 atk = Math.floor(atk * 11 / 10);
             } else {
                 satk = Math.floor(satk * (attackerItem.name() === "Sea Incense" ? 105 : 110) / 100); // sea incense is 1.05
@@ -1896,15 +2215,19 @@ function Calculator() {
             sdef = Math.floor(sdef*(this.defender.boosts[Stats.SDEF] > 0 ? 2 + this.defender.boosts[Stats.SDEF] : 2) / (this.defender.boosts[Stats.SDEF] < 0 ? 2 - this.defender.boosts[Stats.SDEF] : 2));
         }
 
-        if (this.move.damageClass() === DamageClasses.OTHER) {
-            return [0];
-        }
-        a = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? atk : satk;
-        d = (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) ? def : sdef;
+        var a, d;
         if (this.move.name() === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
+        } else if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
+            a = atk;
+            d = def;
+        } else if (db.typeDamageClass(moveType) === DamageClasses.SPECIAL) {
+            a = satk;
+            d = sdef;
+        } else {
+            return [0];
         }
         
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * a * movePower / d) / 50);
@@ -1912,7 +2235,7 @@ function Calculator() {
         if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && this.move.name() !== "Beat Up") {
             baseDamage >>= 1;
         }
-        if ((this.field.reflect && db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) || (this.field.lightScreen && db.typeDamageClass[moveType] === DamageClasses.SPECIAL)) {
+        if ((this.field.reflect && db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) || (this.field.lightScreen && db.typeDamageClass(moveType) === DamageClasses.SPECIAL)) {
             if (!crit && this.move.name() !== "Beat Up") {
                 if (this.field.multiBattle) {
                     baseDamage = Math.floor(baseDamage * 2 / 3);
@@ -1947,7 +2270,7 @@ function Calculator() {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
-        if (db.typeDamageClass[moveType] === DamageClasses.PHYSICAL) {
+        if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
             baseDamage = Math.max(1, baseDamage);
         }
         
@@ -2001,7 +2324,7 @@ function Calculator() {
         
         if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
-                damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
+                damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
         
@@ -2182,11 +2505,11 @@ function Calculator() {
             if (movePower === 0) {
                 return [0];
             }
-        } else if (this.move.name() === "Natural Gift" && attackerItem.name() >= 8000) {
-            movePower = db.berryPower[atackerItem.id-8000];
-            moveType = db.berryType[attackerItem.id-8000];
+        } else if (this.move.name() === "Natural Gift" && attackerItem.id >= 8000) {
+            movePower = db.berryPower(atackerItem.id - 8000);
+            moveType = db.berryType(atackerItem.id - 8000);
         } else if (this.move.name() === "Fling") {
-            movePower = (attackerItem.id in db.flingPower) ? db.flingPower[attackerItem.id] : 10;
+            movePower = db.flingPower(attackerItem.id);
         } else if (this.move.name() === "Beat Up") {
             moveType = Types.CURSE;
         } else if (this.move.name() === "Judgment" && this.attacker.item.plateType() !== -1) {
@@ -2346,16 +2669,21 @@ function Calculator() {
             sdef = (sdef * 3) >> 1;
         }
         
-        if (this.move.damageClass() === DamageClasses.OTHER) {
-            return [0];
-        }
-        a = (this.move.damageClass() === DamageClasses.PHYSICAL) ? atk : satk;
-        d = (this.move.damageClass() === DamageClasses.PHYSICAL) ? def : sdef;
+        var a, d;
         if (this.move.name() === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
+        } else if (this.move.damageClass() === DamageClasses.PHYSICAL) {
+            a = atk;
+            d = def;
+        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
+            a = satk;
+            d = sdef;
+        } else {
+            return [0];
         }
+        
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * a * movePower / d) / 50);
         
         if (this.attacker.status === BURN && attackerAbility.name() !== "Guts" && this.move.damageClass() === DamageClasses.PHYSICAL && this.move.name() !== "Beat Up") {
@@ -2464,7 +2792,7 @@ function Calculator() {
         
         if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
-                damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
+                damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
         
@@ -2666,15 +2994,15 @@ function Calculator() {
             movePower *= 2;
         } else if (this.move.name() === "Present") {
             movePower = this.field.present;
-        } else if (this.move.name() === "Natural Gift" && attackerItem.name() >= 8000) {
-            movePower = db.berryPower[atackerItem.id - 8000];
-            moveType = db.berryType[attackerItem.id - 8000];
+        } else if (this.move.name() === "Natural Gift" && attackerItem.id >= 8000) {
+            movePower = db.berryPower(atackerItem.id - 8000);
+            moveType = db.berryType(atackerItem.id - 8000);
         } else if (this.move.name() === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
             movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
         } else if (this.move.name() === "Fling") {
-            movePower = (attackerItem.id in db.flingPower) ? db.flingPower[attackerItem.id] : 10;
+            movePower = db.flingPower(attackerItem.id);
         } else if ((this.move.name() === "Fire Pledge" || this.move.name() === "Water Pledge" || this.move.name() === "Grass Pledge") && this.field.pledgeBoost) {
             movePower *= 2;
         } else if (this.move.name() === "Triple Kick") {
@@ -3063,7 +3391,7 @@ function Calculator() {
         
         if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
-                damages[i] = Math.min(damages.length, this.defender.stat(Stats.HP) - 1);
+                damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
         

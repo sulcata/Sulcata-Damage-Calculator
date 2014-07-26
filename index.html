@@ -23,6 +23,8 @@
             </div>
             <div id="moreOptions" class="togglebox">More Options</div>
             <div id="swap">Swap Pok&eacute;mon</div>
+            <div id="export">Export Calculation</div>
+            <input type="text" id="exportText" />
         </div>
         <div id="calculator">
             <div id="attacker">
@@ -47,7 +49,7 @@
                         <select id="attackerAbility" class="largeSelect G_3456"></select>
                     </div>
                 
-                    <div class="clear">
+                    <div class="clear endSection">
                         <div class="textLabel G_23456">Item</div>
                         <select id="attackerItem" class="largeSelect G_23456"></select>
                     </div>
@@ -171,7 +173,7 @@
                         </select><div id="attackerSpcStat" class="stat"></div>
                     </div>
 
-                    <div class="clear">
+                    <div class="clear endSection">
                         <div class="textLabel">Speed</div>
                         <input type="text" value="0" id="attackerSpdEv" /><input type="text" value="0" id="attackerSpdIv" /><select id="attackerSpdBoost">
                             <option value="6">+6</option>
@@ -209,12 +211,6 @@
                         </select>
                     </div>
                     <div class="morePokeOptions">
-                        <div class="clear G_56">
-                            <div class="textLabel">Gender</div>
-                            <select id="attackerGender">
-                                <option value="0">Neutral</option>
-                            </select>
-                        </div>
                         <div>
                             <div class="textLabel">Types</div>
                             <select id="attackerType1" class="typeList"></select>
@@ -271,7 +267,7 @@
                         <select id="defenderAbility" class="largeSelect G_3456"></select>
                     </div>
                 
-                    <div class="clear">
+                    <div class="clear endSection">
                         <div class="textLabel G_23456">Item</div>
                         <select id="defenderItem" class="largeSelect G_23456"></select>
                     </div>
@@ -395,7 +391,7 @@
                         </select><div id="defenderSpcStat" class="stat"></div>
                     </div>
 
-                    <div class="clear">
+                    <div class="clear endSection">
                         <div class="textLabel">Speed</div>
                         <input type="text" value="0" id="defenderSpdEv" /><input type="text" value="0" id="defenderSpdIv" /><select id="defenderSpdBoost">
                             <option value="6">+6</option>
@@ -433,12 +429,6 @@
                         </select>
                     </div>
                     <div class="morePokeOptions">
-                        <div class="clear G_56">
-                            <div class="textLabel">Gender</div>
-                            <select id="defenderGender">
-                                <option value="0">Neutral</option>
-                            </select>
-                        </div>
                         <div class="clear">
                             <div class="textLabel">Types</div>
                             <select id="defenderType1" class="typeList"></select>
@@ -474,7 +464,13 @@
                 </div>
             </div>
             <div id="battleOptions">
-                <div class="move">Attack: <select id="move"></select></div>
+                <div class="M_RIVALRY">
+                    <select id="rivalryGenders">
+                        <option value="opposite">Different Genders (not neutral)</option>
+                        <option value="same">Same Genders (not neutral)</option>
+                    </select>
+                </div>
+                <div class="move endSection">Attack: <select id="move"></select></div>
                 <div class="M_MULTIHIT"><select id="multiHits"></select></div>
                 <div class="M_FURYCUTTER"><select id="furyCutter"></select></div>
                 <div class="M_MINIMIZE"><input type="checkbox" id="minimize" />Minimized</div>
