@@ -779,7 +779,7 @@ function Ability() {
     }
     
     this.flagToValue = function (f) {
-        if (db.abilityEffects(this.id)) return null;
+        if (!db.abilityEffects(this.id)) return null;
         var effectsList = db.abilityEffects(this.id).split("|");
         for (e in effectsList) {
             if (effectsList[e].split("-")[0] === f) {
@@ -813,10 +813,10 @@ function Ability() {
         if (v !== null) {
             return parseInt(v, 10);
         }
-        if (db.abilityEffects()[this.id] === "120") { // levitate
+        if (db.abilityEffects(this.id) === "120") { // levitate
             return Sulcalc.Types.GROUND;
         }
-        if (db.abilityEffects()[this.id] === "41") { // motor drive
+        if (db.abilityEffects(this.id) === "41") { // motor drive
             return Sulcalc.Types.ELECTRIC;
         }
         var v = this.flagToValue("68"); // sap sipper, etc.
@@ -1729,7 +1729,7 @@ function Calculator() {
         }
         
         for (var i = 0; i < damages.length; i++) {
-            damages[i] = (damages[i] * eff) >> 5;
+            damages[i] = (damages[i] * eff) >> 6;
         }
 
         if (this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.PHYSICAL && attackerAbility.name() !== "Guts" && this.move.name() !== "Facade") {
@@ -1761,7 +1761,7 @@ function Calculator() {
         if (defenderAbility.name() === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             finalMod = this.chainMod(0x800, finalMod);
         }
-        if (attackerAbility.name() === "Tinted Lens" && eff < 32) {
+        if (attackerAbility.name() === "Tinted Lens" && eff < 64) {
             finalMod = this.chainMod(0x2000, finalMod);
         }
         if (this.field.friendGuard) {
@@ -1770,13 +1770,13 @@ function Calculator() {
         if (attackerAbility.name() === "Sniper" && crit) {
             finalMod = this.chainMod(0x1800, finalMod);
         }
-        if ((defenderAbility.name() === "Filter" || defenderAbility.name() === "Solid Rock") && eff > 32) {
+        if ((defenderAbility.name() === "Filter" || defenderAbility.name() === "Solid Rock") && eff > 64) {
             finalMod = this.chainMod(0xC00, finalMod);
         }
         if (attackerItem.name() === "Metronome") {
             finalMod = this.chainMod(this.field.metronome <= 4 ? (0x1000 + this.field.metronome * 0x333) : 0x2000, finalMod);
         }
-        if (attackerItem.name() === "Expert Belt" && eff > 32) {
+        if (attackerItem.name() === "Expert Belt" && eff > 64) {
             finalMod = this.chainMod(0x1333, finalMod);
         }
         if (attackerItem.name() === "Life Orb") {
