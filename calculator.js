@@ -293,39 +293,54 @@ function Database() {
     };
     // the functions below are unneeded for calculations and will not load files unless explicitly called
     this._releasedPokes = null;
-    this.releasedPokes = function(g) {
+    this.releasedPokes = function (g, id) {
         if (this._releasedPokes === null) {
             this._releasedPokes = this.getJSON("db/releasedPokes.json");
         }
-        return this._releasedPokes[g];
+        if (typeof(id) === "undefined") {
+            return this._releasedPokes[g];
+        }
+        return this._releasedPokes[g][id];
     };
     this._releasedMoves = null;
-    this.releasedMoves = function(g) {
+    this.releasedMoves = function (g, id) {
         if (this._releasedMoves === null) {
             this._releasedMoves = this.getJSON("db/releasedMoves.json");
         }
-        return this._releasedMoves[g];
+        if (typeof(id) === "undefined") {
+            return this._releasedMoves[g];
+        }
+        return this._releasedMoves[g][id];
     };
     this._releasedItems = null;
-    this.releasedItems = function(g) {
+    this.releasedItems = function (g, id) {
         if (this._releasedItems === null) {
             this._releasedItems = this.getJSON("db/releasedItems.json");
         }
-        return this._releasedItems[g];
+        if (typeof(id) === "undefined") {
+            return this._releasedItems[g];
+        }
+        return this._releasedItems[g][id];
     };
     this._releasedBerries = null;
-    this.releasedBerries= function(g) {
+    this.releasedBerries= function (g, id) {
         if (this._releasedBerries === null) {
             this._releasedBerries = this.getJSON("db/releasedBerries.json");
         }
-        return this._releasedBerries[g];
+        if (typeof(id) === "undefined") {
+            return this._releasedBerries[g];
+        }
+        return this._releasedBerries[g][id];
     };
     this._genders = null;
     this.genders = function() {
         if (this._genders === null) {
             this._genders = this.getJSON("db/gender.json");
         }
-        return this._genders;
+        if (typeof(id) === "undefined") {
+            return this._genders[g];
+        }
+        return this._genders[g][id];
     }
     this._types = null;
     this.types = function (t) {
@@ -667,9 +682,9 @@ function Pokemon() {
     
     this.gender = function () {
         if (db.genders(this.species() + this.form())) {
-            return db.genders()[this.species() + ":" + this.form()];
+            return db.genders(this.species() + ":" + this.form());
         }
-        return db.genders()[this.species() + ":0"];
+        return db.genders(this.species() + ":0");
     }
     
     this.ability1 = function() {
