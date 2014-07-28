@@ -1037,7 +1037,7 @@ function Calculator() {
         var e = 1;
         for (d in dTypes) {
             if (freezeDry && dTypes[d] === Types.WATER) {
-                e *= 4;
+                e <<= (aTypes.length + 1); // *2 for each attacking type (aType) and then an extra *2
             } else for (a in aTypes) {
                 if (foresight && (aTypes[a] === Types.FIGHTING || aTypes[a] === Types.NORMAL) && dTypes[d]===Types.GHOST) {
                     e *= 2;
