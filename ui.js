@@ -2090,12 +2090,14 @@ window.onload = function() {
             }
         }
         
-        for (var i = 1, cko = 0, hasPrevious = false; cko !== 1; i++) {
+        for (var i = 1, cko = 0, hasPrevious = false; cko < 1; i++) {
             cko = chanceToKO(i, dmg, c.defender.currentHP, effects);
-            if (dmg[dmg.length-1] === 0 && i !== 1) {
+            if (dmg[dmg.length - 1] === 0 && i !== 1) {
                 break;
             } else if (i === 20 || dmg[0][dmg[0].length-1] === 0) {
                 rpt += "That's probably not going to KO...";
+                break;
+            } else if (cko >= 1) {
                 break;
             }
             var decimalPlaces = 1;
@@ -2103,11 +2105,7 @@ window.onload = function() {
                 if (hasPrevious) {
                     rpt += ", "
                 }
-                if (cko === 1) {
-                    rpt += "guaranteed "
-                } else {
-                    rpt += Math.floor(cko * Math.pow(10, decimalPlaces + 2)) / Math.pow(10, decimalPlaces) + "% chance to ";
-                }
+                rpt += Math.floor(cko * Math.pow(10, decimalPlaces + 2)) / Math.pow(10, decimalPlaces) + "% chance to ";
                 rpt += (i === 1 ? "O" : i) + "HKO";
                 hasPrevious = true;
             }
