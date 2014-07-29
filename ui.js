@@ -1574,7 +1574,7 @@ window.onload = function() {
         c.field.reflect = document.getElementById("screens").checked;
         c.field.friendGuard = document.getElementById("friendGuard").checked;
         c.field.critical = document.getElementById("critical").checked;
-        c.field.flashFire = document.getElementById("attackerAbility").value === "Flash Fire";
+        c.field.flashFire = db.abilities(document.getElementById("attackerAbility").value) === "Flash Fire";
         c.field.helpingHand = document.getElementById("helpingHand").checked;
         c.field.charge = document.getElementById("charge").checked;
         c.field.multiBattle = document.getElementById("multiBattle").checked;
@@ -1612,7 +1612,7 @@ window.onload = function() {
         c.field.meFirst = document.getElementById("meFirst").checked;
         c.field.waterSport = document.getElementById("waterSport").checked;
         c.field.mudSport = document.getElementById("mudSport").checked;
-        c.field.slowStart = document.getElementById("attackerAbility").value === "Slow Start";
+        c.field.slowStart = db.abilities(document.getElementById("attackerAbility").value) === "Slow Start";
         c.field.grassyTerrain = document.getElementById("grassyTerrain").checked;
         c.field.mistyTerrain = document.getElementById("mistyTerrain").checked;
         c.field.fairyAura = document.getElementById("fairyAura").checked;
@@ -2098,6 +2098,9 @@ window.onload = function() {
                 rpt += "That's probably not going to KO...";
                 break;
             } else if (cko >= 1) {
+                if (!hasPrevious) {
+                    rpt += "guaranteed " + (i === 1 ? "O" : i) + "HKO";
+                }
                 break;
             }
             var decimalPlaces = 1;
