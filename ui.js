@@ -320,7 +320,7 @@ function loadQueryString(q) {
 }
 
 function changeSprite(img, id) {
-    var gens = [null, "RBY/", "GSC/", "ADV/", "HGSS/", "B2W2/", "XY/"];
+    /*var gens = [null, "RBY/", "GSC/", "ADV/", "HGSS/", "B2W2/", "XY/"];
     var imgurl = "sprites/" + gens[gen] + pokeSpecies(id);
     if (pokeForm(id) !== "0") {
         imgurl += "-" + pokeForm(id);
@@ -328,7 +328,7 @@ function changeSprite(img, id) {
     if (pokeSpecies(id) === "0") {
         imgurl = "sprites/XY/0";
     }
-    document.getElementById(img).src = imgurl + ".png";
+    document.getElementById(img).src = imgurl + ".png";*/
 }
 
 function setText(e, txt) {
@@ -1069,11 +1069,11 @@ function toggleOptions() {
 }
 
 function swapPokemon() {
-    var aSprite = document.getElementById("attackerSprite");
-    var dSprite = document.getElementById("defenderSprite");
-    var tempSrc = aSprite.src;
-    aSprite.src = dSprite.src;
-    dSprite.src = tempSrc;
+    //var aSprite = document.getElementById("attackerSprite");
+    //var dSprite = document.getElementById("defenderSprite");
+    //var tempSrc = aSprite.src;
+    //aSprite.src = dSprite.src;
+    //dSprite.src = tempSrc;
     var swapIdx = ["Poke", "Nature", "Ability", "Item", "Status", "Type1", "Type2", "TypeAdded"];
     for (var i = 0; i < swapIdx.length; i++) {
         var a = document.getElementById("attacker" + swapIdx[i]);
