@@ -424,7 +424,13 @@ Database.prototype.getJSON = function (file) {
     }
     httpreq.open("GET", file, false);
     httpreq.send();
-    return JSON.parse(httpreq.responseText);
+    var result = null;
+    try {
+        result = JSON.parse(httpreq.responseText);
+    } catch (e) {
+        console.log(e.name, e.message, file);
+    }
+    return result;
 };
 
 (function() {
@@ -1221,65 +1227,57 @@ function Calculator() {
         attackerItem.id = (this.field.magicRoom || attackerAbility.name() === "Klutz" || this.attackerItemUsed) ? 0 : this.attacker.item.id;
         var defenderItem = new Item();
         defenderItem.id = (this.field.magicRoom || defenderAbility.name() === "Klutz" || this.defenderItemUsed) ? 0 : this.defender.item.id;
+        var aAbilityName = attackerAbility.name();
+        var dAbilityName = defenderAbility.name();
         var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         var crit = this.field.critical;
         var attackerSpeed = this.attacker.boostedStat(Stats.SPD);
         var defenderSpeed = this.defender.boostedStat(Stats.SPD);
-        if ((weather === Weathers.RAIN && attackerAbility.name() === "Swift Swim") || (weather === Weathers.SUN && attackerAbility.name() === "Chlorophyll")) {
+        if ((weather === Weathers.RAIN && aAbilityName === "Swift Swim") || (weather === Weathers.SUN && aAbilityName === "Chlorophyll")) {
             attackerSpeed *= 2;
         }
-        if ((weather === Weathers.RAIN && defenderAbility.name() === "Swift Swim") || (weather === Weathers.SUN && defenderAbility.name() === "Chlorophyll")) {
+        if ((weather === Weathers.RAIN && dAbilityName === "Swift Swim") || (weather === Weathers.SUN && dAbilityName === "Chlorophyll")) {
             defenderSpeed *= 2;
         }
-        if (this.attacker.item.name() === "Iron Ball" // ignore embargo & klutz
-            || this.attacker.item.name() === "Macho Brace"
-            || this.attacker.item.name() === "Power Bracer"
-            || this.attacker.item.name() === "Power Belt"
-            || this.attacker.item.name() === "Power Lens"
-            || this.attacker.item.name() === "Power Band"
-            || this.attacker.item.name() === "Power Anklet"
-            || this.attacker.item.name() === "Power Weight") {
+        var aItemName = attackerItem.name();
+        var dItemName = defenderItem.name();
+        var aItemName2 = this.attacker.item.name();
+        var dItemName2 = this.defender.item.name();
+        if (["Iron Ball", "Macho Brace", "Power Bracer", "Power Belt", "Power Lens", "Power Band", "Power Anklet", "Power Weight"].indexOf(aItemName2) !== -1) {
             attackerSpeed >>= 1;
         }
-        if (this.defender.item.name() === "Iron Ball"
-            || this.defender.item.name() === "Macho Brace"
-            || this.defender.item.name() === "Power Bracer"
-            || this.defender.item.name() === "Power Belt"
-            || this.defender.item.name() === "Power Lens"
-            || this.defender.item.name() === "Power Band"
-            || this.defender.item.name() === "Power Anklet"
-            || this.defender.item.name() === "Power Weight") {
+        if (["Iron Ball", "Macho Brace", "Power Bracer", "Power Belt", "Power Lens", "Power Band", "Power Anklet", "Power Weight"].indexOf(dItemName2) !== -1) {
             defenderSpeed >>= 1;
         }
-        if (attackerItem.name() === "Choice Scarf") {
+        if (aItemName === "Choice Scarf") {
             attackerSpeed = (attackerSpeed * 3) >> 1;
         }
-        if (defenderItem.name() === "Choice Scarf") {
+        if (dItemName === "Choice Scarf") {
             defenderSpeed = (defenderSpeed * 3) >> 1;
         }
-        if (attackerItem.name() === "Quick Powder" && this.attacker.name() === "Ditto") {
+        if (aItemName === "Quick Powder" && this.attacker.name() === "Ditto") {
             attackerSpeed *= 2;
         }
-        if (defenderItem.name() === "Quick Powder" && this.defender.name() === "Ditto") {
+        if (dItemName === "Quick Powder" && this.defender.name() === "Ditto") {
             defenderSpeed *= 2;
         }
-        if (attackerAbility.name() === "Quick Feet" && this.attacker.status !== Statuses.NOSTATUS) {
+        if (aAbilityName === "Quick Feet" && this.attacker.status !== Statuses.NOSTATUS) {
             attackerSpeed = (attackerSpeed * 3) >> 1;
         } else if (this.attacker.status === Statuses.PARALYZED) {
             attackerSpeed >>= 2;
         }
-        if (defenderAbility.name() === "Quick Feet" && this.defender.status !== Statuses.NOSTATUS) {
+        if (dAbilityName === "Quick Feet" && this.defender.status !== Statuses.NOSTATUS) {
             defenderSpeed = (defenderSpeed * 3) >> 1;
         } else if (this.defender.status === Statuses.PARALYZED) {
             defenderSpeed >>= 2;
         }
-        if (attackerAbility.name() === "Slow Start" && this.field.slowStart) {
+        if (aAbilityName === "Slow Start" && this.field.slowStart) {
             attackerSpeed >>= 1;
         }
-        if (this.attacker.item.id === "0" && attackerAbility.name() === "Unburden" && this.attacker.unburden) {
+        if (this.attacker.item.id === "0" && aAbilityName === "Unburden" && this.attacker.unburden) {
             attackerSpeed *= 2;
         }
-        if (this.defender.item.id === "0" && attackerAbility.name() === "Unburden" && this.defender.unburden) {
+        if (this.defender.item.id === "0" && dAbilityName === "Unburden" && this.defender.unburden) {
             defenderSpeed *= 2;
         }
         if (this.attacker.tailwind) {
@@ -1292,12 +1290,12 @@ function Calculator() {
         if (this.attacker.autotomize) {
             attackerWeight -= 1000;
         }
-        if (attackerAbility.name() === "Light Metal") {
+        if (aAbilityName === "Light Metal") {
             attackerWeight /= 2;
-        } else if (attackerAbility.name() === "Heavy Metal") {
+        } else if (aAbilityName === "Heavy Metal") {
             attackerWeight *= 2;
         }
-        if (attackerItem.name() === "Float Stone") {
+        if (aItemName === "Float Stone") {
             attackerWeight /= 2;
         }
         attackerWeight = Math.max(1, attackerWeight - Math.floor(attackerWeight) > 0.5 ? 1 + Math.floor(attackerWeight) : Math.floor(attackerWeight));
@@ -1305,114 +1303,115 @@ function Calculator() {
         if (this.defender.autotomize) {
             defenderWeight -= 1000;
         }
-        if (defenderAbility.name() === "Light Metal") {
+        if (dAbilityName === "Light Metal") {
             defenderWeight /= 2;
-        } else if (defenderAbility.name() === "Heavy Metal") {
+        } else if (dAbilityName === "Heavy Metal") {
             defenderWeight *= 2;
         }
-        if (defenderItem.name() === "Float Stone") {
+        if (dItemName === "Float Stone") {
             defenderWeight /= 2;
         }
         defenderWeight = Math.max(1, defenderWeight - Math.floor(defenderWeight) > 0.5 ? 1 + Math.floor(defenderWeight) : Math.floor(defenderWeight));
         
-        if (this.move.name() === "Seismic Toss" || this.move.name() === "Night Shade") {
+        var moveName = this.move.name();
+        if (["Seismic Toss", "Night Shade"].indexOf(moveName) !== -1) {
             return [this.attacker.level];
-        } else if (this.move.name() === "Dragon Rage") {
+        } else if (moveName === "Dragon Rage") {
             return [40];
-        } else if (this.move.name() === "Sonic Boom") {
+        } else if (moveName === "Sonic Boom") {
             return [20];
-        } else if (this.move.name() === "Guillotine" || this.move.name() === "Horn Drill" || this.move.name() === "Fissure" || this.move.name() === "Sheer Cold") {
+        } else if (["Guillotine", "Horn Drill", "Fissure", "Sheer Cold"].indexOf(moveName) !== -1) {
             return [65535];
-        } else if (this.move.name() === "Endeavor") {
-            return [this.attacker.currentHP>=this.defender.currentHP ? 0 : this.defender.currentHP-this.attacker.currentHP];
-        } else if (this.move.name() === "Psywave") {
+        } else if (moveName === "Endeavor") {
+            return [this.attacker.currentHP >= this.defender.currentHP ? 0 : this.defender.currentHP-this.attacker.currentHP];
+        } else if (moveName === "Psywave") {
             var range = [];
             for (var i = 0; i <= 100; i++) {
                 range[i] = Math.max(1, Math.floor(this.attacker.level * (i + 50) / 100))
             }
             return range;
-        } else if (this.move.name() === "Super Fang") {
+        } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
-        } else if (this.move.name() === "Weather Ball") {
+        } else if (moveName === "Weather Ball") {
             moveType = this.weatherBall(weather);
             movePower = moveType === Types.NORMAL ? 50 : 100;
-        } else if (this.move.name() === "Frustration") {
+        } else if (moveName === "Frustration") {
             movePower = Math.max(1,Math.floor((255 - this.attacker.happiness) * 10 / 25));
-        } else if (this.move.name() === "Return") {
+        } else if (moveName === "Return") {
             movePower = Math.max(1, Math.floor(this.attacker.happiness * 10 / 25));
-        } else if (this.move.name() === "Payback" && this.field.targetMoved) {
+        } else if (moveName === "Payback" && this.field.targetMoved) {
             movePower *= 2;
-        } else if (this.move.name() === "Electro Ball") {
+        } else if (moveName === "Electro Ball") {
             movePower = this.electroBall(attackerSpeed, defenderSpeed);
-        } else if (((this.move.name() === "Avalanche" && !this.field.painSplit) || (this.move.name() === "Revenge" && !this.field.painSplit) || this.move.name === "Assurance") && this.field.attackerDamaged) {
+        } else if (((moveName === "Avalanche" && !this.field.painSplit) || (moveName === "Revenge" && !this.field.painSplit) || moveName === "Assurance") && this.field.attackerDamaged) {
             movePower *= 2;
-        } else if (this.move.name() === "Gyro Ball") {
+        } else if (moveName === "Gyro Ball") {
             movePower = this.gyroBall(attackerSpeed, defenderSpeed);
-        } else if (this.move.name() === "Water Spout" || this.move.name() === "Eruption") {
+        } else if (["Water Spout", "Eruption"].indexOf(moveName) !== -1) {
             movePower = Math.max(1, Math.floor(150 * this.attacker.currentHP / this.attacker.stat(Stats.HP)));
-        } else if (this.move.name() === "Punishment") {
+        } else if (moveName === "Punishment") {
             movePower = this.punishment(this.defender.boosts);
-        } else if (this.move.name() === "Fury Cutter") {
+        } else if (moveName === "Fury Cutter") {
             movePower = Math.min(160, 40 << this.field.furyCutter);
-        } else if (this.move.name() === "Low Kick" || this.move.name() === "Grass Knot") { // very effective on zorodark
+        } else if (["Low Kick", "Grass Knot"].indexOf(moveName) !== -1) {
             movePower = this.grassKnot(defenderWeight);
-        } else if (this.move.name() === "Echoed Voice") {
-            movePower = Math.min(200, 40+40*field.echoedVoice);
-        } else if (this.move.name() === "Hex" && this.defender.status !== Statuses.NOSTATUS) {
+        } else if (moveName === "Echoed Voice") {
+            movePower = Math.min(200, 40 + 40 * field.echoedVoice);
+        } else if (moveName === "Hex" && this.defender.status !== Statuses.NOSTATUS) {
             movePower *= 2;
-        } else if (this.move.name() === "Wring Out" || this.move.name() === "Crush Grip") {
+        } else if (["Wring Out", "Crush Grip"].indexOf(moveName) !== -1) {
             var r = 120 * defender.currentHP / defender.getStat(Stats.HP);
             r = (r - Math.floor(r) > 0.5) ? 1 + Math.floor(r) : Math.floor(r);
             movePower = Math.max(1, r);
-        } else if (this.move.name() === "Heavy Slam" || this.move.name() === "Heat Crash") {
+        } else if (["Heavy Slam", "Heat Crash"].indexOf(moveName) !== -1) {
             movePower = this.heavySlam(attackerWeight, defenderWeight);
-        } else if (this.move.name() === "Stored Power") {
+        } else if (moveName === "Stored Power") {
             movePower = this.storedPower(this.attacker.boosts);
-        } else if (this.move.name() === "Flail" || this.move.name()==="Reversal") {
+        } else if (["Flail", "Reversal"].indexOf(moveName) !== -1) {
             movePower = this.flail(this.attacker.currentHP, this.attacker.stat(Stats.HP));
-        } else if (this.move.name() === "Trump Card") {
+        } else if (moveName === "Trump Card") {
             movePower = this.trumpPower(this.field.trumpPP);
-        } else if (this.move.name() === "Round" && this.field.roundBoost) {
+        } else if (moveName === "Round" && this.field.roundBoost) {
             movePower *= 2;
-        } else if (this.move.name() === "Wake-Up Slap" && this.defender.status === Statuses.ASLEEP) {
+        } else if (moveName === "Wake-Up Slap" && this.defender.status === Statuses.ASLEEP) {
             movePower *= 2;
-        } else if (this.move.name() === "Smelling Salts" && this.defender.status === Statuses.PARALYZED) {
+        } else if (moveName === "Smelling Salts" && this.defender.status === Statuses.PARALYZED) {
             movePower *= 2;
-        } else if ((this.move.name() === "Twister" || this.move.name() === "Gust") && this.field.fly) {
+        } else if (["Twister", "Gust"].indexOf(moveName) !== -1 && this.field.fly) {
             movePower *= 2;
-        } else if (this.move.name() === "Beat Up") {
+        } else if (moveName === "Beat Up") {
             movePower = Math.floor(this.field.beatUpStats[this.field.beatUpHit]/10)+5;
-        } else if (this.move.name() === "Hidden Power") {
+        } else if (moveName === "Hidden Power") {
             moveType = hiddenPowerT(this.attacker.ivs);
-        } else if (this.move.name() === "Spit Up") {
+        } else if (moveName === "Spit Up") {
             movePower = 100*this.field.stockpile;
-        } else if (this.move.name() === "Pursuit" && this.field.switchOut) {
+        } else if (moveName === "Pursuit" && this.field.switchOut) {
             movePower *= 2;
-        } else if (this.move.name() === "Present") {
+        } else if (moveName === "Present") {
             movePower = this.field.present;
-        } else if (this.move.name() === "Natural Gift" && attackerItem.id >= 8000) {
+        } else if (moveName === "Natural Gift" && attackerItem.id >= 8000) {
             movePower = db.berryPower(atackerItem.id - 8000);
             moveType = db.berryType(atackerItem.id - 8000);
-        } else if (this.move.name() === "Magnitude") {
+        } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
-        } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
+        } else if (["Rollout", "Ice Ball"].indexOf(moveName) !== -1) {
             movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
-        } else if (this.move.name() === "Fling") {
+        } else if (moveName === "Fling") {
             movePower = db.flingPower(attackerItem.id);
-        } else if ((this.move.name() === "Fire Pledge" || this.move.name() === "Water Pledge" || this.move.name() === "Grass Pledge") && this.field.pledgeBoost) {
+        } else if (["Fire Pledge", "Grass Pledge", "Water Pledge"].indexOf(moveName) !== -1 && this.field.pledgeBoost) {
             movePower *= 2; /* I'm assuming smogon is wrong here,
                              * fuzzy pointed out that stab is applied,
                              * so in past gens it'd have been 50*2*1.5
                              * They probably plugged in a value to test
                              * the BP and forgot STAB /ramble
                              */
-        } else if (this.move.name() === "Triple Kick") {
+        } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
-        } else if ((this.move.name() === "Self-Destruct" || this.move.name() === "Explosion") && defenderAbility.name() === "Damp") {
+        } else if (["Self-Destruct", "Explosion"].indexOf(moveName) !== -1 && defenderAbility.name() === "Damp") {
             return [0];
-        } else if (this.move.name() === "Final Gambit") {
+        } else if (moveName === "Final Gambit") {
             return [this.attacker.currentHP];
-        } else if (this.move.name() === "Judgment" && this.attacker.item.plateType() !== -1) {
+        } else if (moveName === "Judgment" && this.attacker.item.plateType() !== -1) {
             moveType = this.attacker.item.plateType();
         }
         var gemBoost;
@@ -1421,92 +1420,92 @@ function Calculator() {
             this.attackerItemUsed = true;
             gemBoost = true;
         }
-        if (this.move.name() === "Acrobatics") {
-            if (attackerItem.name() === "(No Item)") { // gems are "used" earlier in calc and item set to 0
+        if (moveName === "Acrobatics") {
+            if (attackerItem.id === 0) { // gems are "used" earlier in calc and item set to 0
                 movePower *= 2;
             }
         }
         
         var movePowerMod = 0x1000;
-        if (attackerAbility.name() === "Technician" && movePower <= 60) {
+        if (aAbilityName === "Technician" && movePower <= 60) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
-        } else if (attackerAbility.name() === "Flare Boost" && this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.SPECIAL) {
+        } else if (aAbilityName === "Flare Boost" && this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.SPECIAL) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
-        } else if (attackerAbility.name() === "Analytic" && this.field.targetMoved) {
+        } else if (aAbilityName === "Analytic" && this.field.targetMoved) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
-        } else if (attackerAbility.name() === "Reckless" && (this.move.name() === "Jump Kick" || this.move.name() === "High Jump Kick" || this.move.hasRecoil())) {
+        } else if (aAbilityName === "Reckless" && (moveName === "Jump Kick" || moveName === "High Jump Kick" || this.move.hasRecoil())) {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
-        } else if (attackerAbility.name() === "Iron Fist" && this.move.isPunch()) {
+        } else if (aAbilityName === "Iron Fist" && this.move.isPunch()) {
             movePowerMod = this.chainMod(0x1333, movePowerMod)
-        } else if (attackerAbility.name() === "Toxic Boost" && (this.attacker.status === Statuses.POISONED || this.attacker.status === Statuses.BADLYPOISONED) && this.move.damageClass() === DamageClasses.PHYSICAL) {
+        } else if (aAbilityName === "Toxic Boost" && (this.attacker.status === Statuses.POISONED || this.attacker.status === Statuses.BADLYPOISONED) && this.move.damageClass() === DamageClasses.PHYSICAL) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
-        } else if (attackerAbility.name() === "Rivalry") {
+        } else if (aAbilityName === "Rivalry") {
             if (this.attacker.gender !== this.defender.gender && this.attacker.gender !== NOGENDER) {
                 movePowerMod = this.chainMod(0x1400, movePowerMod);
             } else if (this.attacker.gender === this.defender.gender && this.attacker.gender !== NOGENDER) {
                 movePowerMod = this.chainMod(0xC00, movePowerMod);
             }
-        } else if (attackerAbility.name() === "Sand Force" && weather === Weathers.SAND && (moveType === Types.GROUND || moveType === Types.ROCK || moveType === Types.STEEL)) {
+        } else if (aAbilityName === "Sand Force" && weather === Weathers.SAND && (moveType === Types.GROUND || moveType === Types.ROCK || moveType === Types.STEEL)) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod)
-        } else if (attackerAbility.normalToType() !== -1 && moveType === Types.NORMAL) { // refrigerate, etc
+        } else if (moveType === Types.NORMAL && attackerAbility.normalToType() !== -1) { // refrigerate, etc
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
             moveType = attackerAbility.normalToType();
-        } else if (attackerAbility.name() === "Normalize") {
+        } else if (aAbilityName === "Normalize") {
             moveType = Types.NORMAL;
-        } else if (attackerAbility.name() === "Tough Claws" && this.move.contact()) {
+        } else if (aAbilityName === "Tough Claws" && this.move.contact()) {
             movePowerMod = this.chainMod(0x1555, movePowerMod);
-        } else if (attackerAbility.name() === "Strong Jaw" && this.move.bite()) {
+        } else if (aAbilityName === "Strong Jaw" && this.move.bite()) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
-        } else if (attackerAbility.name() === "Mega Launcher" && this.move.pulse()) {
+        } else if (aAbilityName === "Mega Launcher" && this.move.pulse()) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
-        } else if (attackerAbility.name() === "Parental Bond" && this.field.parentalBond) {
+        } else if (aAbilityName === "Parental Bond" && this.field.parentalBond) {
             movePowerMod = this.chainMod(0x800, movePowerMod); // also probably where this goes
         }
-        if (defenderAbility.name() === "Heatproof" && moveType === Types.FIRE) {
+        if (dAbilityName === "Heatproof" && moveType === Types.FIRE) {
             movePowerMod = this.chainMod(0x800, movePowerMod);
-        } else if (defenderAbility.name() === "Dry Skin" && moveType === Types.FIRE) {
+        } else if (dAbilityName === "Dry Skin" && moveType === Types.FIRE) {
             movePowerMod = this.chainMod(0x1400, movePowerMod);
-        } else if (attackerAbility.name() === "Sheer Force" && this.move.sheerForce()) {
+        } else if (aAbilityName === "Sheer Force" && this.move.sheerForce()) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
         }
         if (attackerItem.typeBoosted() === moveType) {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
-        } else if (attackerItem.name() === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) {
+        } else if (aItemName === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) {
             movePowerMod = this.chainMod(0x1199, movePowerMod);
-        } else if (attackerItem.name() === "Lustrous Orb" && (moveType === 10 || moveType === 15) && this.attacker.name() === "Palkia") {
+        } else if (aItemName === "Lustrous Orb" && (moveType === 10 || moveType === 15) && this.attacker.name() === "Palkia") {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
-        } else if (attackerItem.name() === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL) {
+        } else if (aItemName === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL) {
             movePowerMod = this.chainMod(0x1199, movePowerMod);
-        } else if (attackerItem.name() === "Griseous Orb" && (moveType === 7 || moveType === 15) && this.attacker.name() === "Giratina-O") {
+        } else if (aItemName === "Griseous Orb" && (moveType === 7 || moveType === 15) && this.attacker.name() === "Giratina-O") {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
         } else if (gemBoost) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
-        } else if (attackerItem.name() === "Adamant Orb" && (moveType === 8 || moveType === 15) && this.attacker.name() === "Dialga") {
+        } else if (aItemName === "Adamant Orb" && (moveType === 8 || moveType === 15) && this.attacker.name() === "Dialga") {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
         }
-        if (this.move.name() === "Facade" && this.attacker.status !== Statuses.NOSTATUS) {
+        if (moveName === "Facade" && this.attacker.status !== Statuses.NOSTATUS) {
             movePowerMod = this.chainMod(0x2000, movePowerMod);
-        } else if (this.move.name() === "Brine" && this.defender.currentHP * 2 <= this.defender.stat(Stats.HP)) {
+        } else if (moveName === "Brine" && this.defender.currentHP * 2 <= this.defender.stat(Stats.HP)) {
             movePowerMod = this.chainMod(0x2000, movePowerMod);
-        } else if (this.move.name() === "Venoshock" && (this.attacker.status === Statuses.POISONED || this.attacker.status === Statuses.BADLYPOISONED)) {
+        } else if (moveName === "Venoshock" && (this.attacker.status === Statuses.POISONED || this.attacker.status === Statuses.BADLYPOISONED)) {
             movePowerMod = this.chainMod(0x2000, movePowerMod);
-        } else if (this.move.name() === "Retaliate" && this.field.previouslyFainted) {
+        } else if (moveName === "Retaliate" && this.field.previouslyFainted) {
             movePowerMod = this.chainMod(0x2000, movePowerMod);
-        } else if ((this.move.name() === "Fusion Bolt" && this.field.fusionFlare) || (this.move.name() === "Fusion Flare" && this.field.fusionBolt)) {
+        } else if ((moveName === "Fusion Bolt" && this.field.fusionFlare) || (moveName === "Fusion Flare" && this.field.fusionBolt)) {
             movePowerMod = this.chainMod(0x2000, movePowerMod);
         }
         if (this.field.meFirst) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         }
-        if (this.move.name() === "Solar Beam" && (weather !== Weathers.SUN && weather !== Weathers.CLEAR)) {
+        if (moveName === "Solar Beam" && (weather !== Weathers.SUN && weather !== Weathers.CLEAR)) {
             movePowerMod = this.chainMod(0x800, movePowerMod);
         }
-        if (this.move.name() === "Knock Off"
+        if (moveName === "Knock Off"
             && this.defender.item.megaPoke() === null
             && this.defender.item.name() !== "(No Item)"
             && !(this.defender.item.name() === "Griseous Orb" && this.defender.name().indexOf("Giratina") !== -1)
             && !(this.defender.item.name().indexOf(" Drive") !== -1 && this.defender.name().indexOf("Genesect") !== -1)
-            && !(defenderAbility.name() === "Multitype" && this.defender.item.name().indexOf(" Plate") !== -1)) {
+            && !(dAbilityName === "Multitype" && this.defender.item.name().indexOf(" Plate") !== -1)) {
             movePowerMod = this.chainMod(0x1800, movePowerMod); // most likely it goes here, idk
             this.defenderItemUsed = true;
         }
@@ -1535,8 +1534,8 @@ function Calculator() {
         
         var _def = this.field.wonderRoom ? Stats.SDEF : Stats.DEF;
         var _sdef = this.field.wonderRoom ? Stats.DEF : Stats.SDEF;
-        var unawareA = attackerAbility.name() === "Unaware";
-        var unawareD = defenderAbility.name() === "Unaware";
+        var unawareA = aAbilityName === "Unaware";
+        var unawareD = dAbilityName === "Unaware";
         if (this.move.name() === "Foul Play") {
             if (unawareA) {
                 def = this.defender.stat(_def);
@@ -1556,7 +1555,7 @@ function Calculator() {
                 satk = crit ? Math.max(this.attacker.stat(Stats.SATK), this.attacker.boostedStat(Stats.SATK))
                             : this.attacker.boostedStat(Stats.SATK);
             }
-        } else if (this.move.name() === "Chip Away" || this.move.name() === "Sacred Sword") {
+        } else if (moveName === "Chip Away" || moveName === "Sacred Sword") {
             def = this.defender.stat(_def);
             sdef = this.defender.stat(_sdef);
             if (unawareD) {
@@ -1586,7 +1585,7 @@ function Calculator() {
         }
         
         var atkMod = 0x1000, satkMod = 0x1000;
-        if (defenderAbility.name() === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
+        if (dAbilityName === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
             atkMod = this.chainMod(0x800, atkMod);
             satkMod = this.chainMod(0x800, satkMod);
         }
@@ -1594,53 +1593,53 @@ function Calculator() {
             atkMod = this.chainMod(0x1800, atkMod); // blaze, torrent, overgrow, ...
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Guts" && this.defender.status !== Statuses.NOSTATUS) {
+        if (aAbilityName === "Guts" && this.defender.status !== Statuses.NOSTATUS) {
             atkMod = this.chainMod(0x1800, atkMod);
         }
-        if ((attackerAbility.name() === "Plus" && this.field.minus) || (attackerAbility.name() === "Minus" && this.field.plus)) {
+        if ((aAbilityName === "Plus" && this.field.minus) || (aAbilityName === "Minus" && this.field.plus)) {
             atkMod = this.chainMod(0x1800, atkMod);
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Defeatist" && this.attacker.currentHP*2 <= this.attacker.stat(Stats.HP)) {
+        if (aAbilityName === "Defeatist" && this.attacker.currentHP*2 <= this.attacker.stat(Stats.HP)) {
             atkMod = this.chainMod(0x800, atkMod);
             satkMod = this.chainMod(0x800, satkMod);
         }
-        if (attackerAbility.name() === "Huge Power" || attackerAbility.name() === "Pure Power") {
+        if (aAbilityName === "Huge Power" || aAbilityName === "Pure Power") {
             atkMod = this.chainMod(0x2000, atkMod);
         }
-        if (attackerAbility.name() === "Solar Power" && weather === Weathers.SUN) {
+        if (aAbilityName === "Solar Power" && weather === Weathers.SUN) {
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Hustle") {
+        if (aAbilityName === "Hustle") {
             atk = this.applyMod(0x1800, atk);
         }
-        if (attackerAbility.name() === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
+        if (aAbilityName === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
             atkMod = this.chainMod(0x1800, atkMod);
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Slow Start" && this.field.slowStart) {
+        if (aAbilityName === "Slow Start" && this.field.slowStart) {
             atkMod = this.chainMod(0x800, atkMod);
         }
         if (this.attacker.flowerGift && weather === Weathers.SUN) {
             atkMod = this.chainMod(0x1800, atkMod);
         }
-        if (attackerItem.name() === "Thick Club" && (this.attacker.name() === "Cubone" || this.attacker.name() === "Marowak")) {
+        if (aItemName === "Thick Club" && (this.attacker.name() === "Cubone" || this.attacker.name() === "Marowak")) {
             atkMod = this.chainMod(0x2000, atkMod);
         }
-        if (attackerItem.name() === "Deep Sea Tooth" && this.attacker.name() === "Clamperl") {
+        if (aItemName === "Deep Sea Tooth" && this.attacker.name() === "Clamperl") {
             satkMod = this.chainMod(0x2000, satkMod);
         }
-        if (attackerItem.name() === "Light Ball" && this.attacker.name() === "Pikachu") {
+        if (aItemName === "Light Ball" && this.attacker.name() === "Pikachu") {
             atkMod = this.chainMod(0x2000, atkMod);
             satkMod = this.chainMod(0x2000, satkMod);
         }
-        if (attackerItem.name() === "Soul Dew" && (this.attacker.name() === "Latias" || this.attacker.name() === "Latios")) {
+        if (aItemName === "Soul Dew" && (this.attacker.name() === "Latias" || this.attacker.name() === "Latios")) {
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerItem.name() === "Choice Band") {
+        if (aItemName === "Choice Band") {
             atkMod = this.chainMod(0x1800, atkMod);
         }
-        if (attackerItem.name() === "Choice Specs") {
+        if (aItemName === "Choice Specs") {
             satkMod = this.chainMod(0x1800, satkMod);
         }
         atk = this.applyMod(atkMod, atk);
@@ -1650,36 +1649,36 @@ function Calculator() {
             sdef = this.applyMod(0x1800, sdef);
         }
         var defMod = 0x1000, sdefMod = 0x1000;
-        if (defenderAbility.name() === "Marvel Scale" && this.defender.status !== Statuses.NOSTATUS) {
+        if (dAbilityName === "Marvel Scale" && this.defender.status !== Statuses.NOSTATUS) {
             defMod = this.chainMod(0x1800, defMod);
         }
-        if (defenderAbility.name() === "Grass Pelt" && this.field.grassyTerrain) { // unconfirmed
+        if (dAbilityName === "Grass Pelt" && this.field.grassyTerrain) { // unconfirmed
             defMod = this.chainMod(0x1800, defMod);
         }
         if (this.defender.flowerGift && weather === Weathers.SUN) {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
-        if (defenderItem.name() === "Deep Sea Scale" && this.defender.name() === "Clamperl") {
+        if (dItemName === "Deep Sea Scale" && this.defender.name() === "Clamperl") {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
-        if (defenderItem.name() === "Metal Powder" && this.defender.name() === "Ditto") {
+        if (dItemName === "Metal Powder" && this.defender.name() === "Ditto") {
             defMod = this.chainMod(0x2000, defMod);
         }
-        if (defenderItem.name() === "Eviolite" && this.defender.hasEvolution()) {
+        if (dItemName === "Eviolite" && this.defender.hasEvolution()) {
             defMod = this.chainMod(0x1800, defMod);
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
-        if (defenderItem.name() === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
+        if (dItemName === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
-        if (defenderItem.name() === "Assault Vest") {
+        if (dItemName === "Assault Vest") {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
         def = this.applyMod(defMod, def);
         sdef = this.applyMod(sdefMod, sdef);
         
         var a = 0, d = 0;
-        if (this.move.name() === "Psyshock" || this.move.name() === "Psystrike" || this.move.name() === "Secret Sword") {
+        if (["Psyshock", "Psystrike", "Secret Sword"].indexOf(moveName) !== -1) {
             a = satk;
             d = def;
         } else if (this.move.damageClass() === DamageClasses.PHYSICAL) {
@@ -1723,24 +1722,24 @@ function Calculator() {
         }
 
         if (this.attacker.stab(moveType)) {
-            if (attackerAbility.name() === "Adaptability") {
+            if (aAbilityName === "Adaptability") {
                 damages = this.applyModA(0x2000, damages);
             } else {
                 damages = this.applyModA(0x1800, damages);
             }
         }
 
-        var attackTypes = [moveType, this.move.name() === "Flying Press" ? Types.FLYING : Types.CURSE];
+        var attackTypes = [moveType, moveName === "Flying Press" ? Types.FLYING : Types.CURSE];
         var eff = 0;
         if (this.field.invertedBattle) {
             eff = this.invertedEffective(attackTypes,
                                          [this.defender.type1(), this.defender.type2(), this.defender.addedType],
-                                         this.move.name() === "Freeze-Dry");
+                                         moveName === "Freeze-Dry");
         } else {
             eff = this.effective(attackTypes,
                                  [this.defender.type1(), this.defender.type2(), this.defender.addedType],
                                  this.field.foresight || attackerAbility.name() === "Scrappy",
-                                 this.move.name() === "Freeze-Dry");
+                                 moveName === "Freeze-Dry");
         }
         if (eff === 0 || attackTypes.indexOf(defenderAbility.immunityType()) !== -1) {
             return [0];
@@ -1750,7 +1749,7 @@ function Calculator() {
             damages[i] = (damages[i] * eff) >> 6;
         }
 
-        if (this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.PHYSICAL && attackerAbility.name() !== "Guts" && this.move.name() !== "Facade") {
+        if (this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.PHYSICAL && aAbilityName !== "Guts" && moveName !== "Facade") {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = damages[i] >> 1;
             }
@@ -1763,60 +1762,55 @@ function Calculator() {
         var finalMod = 0x1000;
         if (this.field.reflect && !crit
                                && (this.move.damageClass() === DamageClasses.PHYSICAL
-                                   || this.move.name() === "Psyshock"
-                                   || this.move.name() === "Psystrike"
-                                   || this.move.name() === "Secret Sword")
-                               && attackerAbility.name() !== "Infiltrator") {
+                                   || ["Psyshock", "Psystrike", "Secret Sword"].indexOf(moveName) !== -1)
+                               && aAbilityName !== "Infiltrator") {
             finalMod = chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         } else if (this.field.lightScreen && !crit
-                                          && (this.move.damageClass() === DamageClasses.SPECIAL
-                                              && !this.move.name() === "Psyshock"
-                                              && !this.move.name() === "Psystrike"
-                                              && !this.move.name() === "Secret Sword")
-                                          && attackerAbility.name() !== "Infiltrator") {
+                                          && ["Psyshock", "Psystrike", "Secret Sword"].indexOf(moveName) === -1
+                                          && aAbilityName !== "Infiltrator") {
             finalMod = chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         }
-        if (defenderAbility.name() === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
+        if (dAbilityName === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             finalMod = this.chainMod(0x800, finalMod);
         }
-        if (attackerAbility.name() === "Tinted Lens" && eff < 64) {
+        if (aAbilityName === "Tinted Lens" && eff < 64) {
             finalMod = this.chainMod(0x2000, finalMod);
         }
         if (this.field.friendGuard) {
             finalMod = this.chainMod(0xC00, finalMod);
         }
-        if (attackerAbility.name() === "Sniper" && crit) {
+        if (aAbilityName === "Sniper" && crit) {
             finalMod = this.chainMod(0x1800, finalMod);
         }
-        if ((defenderAbility.name() === "Filter" || defenderAbility.name() === "Solid Rock") && eff > 64) {
+        if ((dAbilityName === "Filter" || dAbilityName === "Solid Rock") && eff > 64) {
             finalMod = this.chainMod(0xC00, finalMod);
         }
-        if (attackerItem.name() === "Metronome") {
+        if (aItemName === "Metronome") {
             finalMod = this.chainMod(this.field.metronome <= 4 ? (0x1000 + this.field.metronome * 0x333) : 0x2000, finalMod);
         }
-        if (attackerItem.name() === "Expert Belt" && eff > 64) {
+        if (aItemName === "Expert Belt" && eff > 64) {
             finalMod = this.chainMod(0x1333, finalMod);
         }
-        if (attackerItem.name() === "Life Orb") {
+        if (aItemName === "Life Orb") {
             finalMod = this.chainMod(0x14CC, finalMod);
         }
         if (defenderItem.berryType() === moveType && (eff > 64 || moveType === Types.NORMAL)) {
             finalMod = this.chainMod(0x800, finalMod);
             this.defenderItemUsed = true;
         }
-        if (this.field.minimize && (this.move.name() === "Stomp" || this.move.name() === "Steamroller" || this.move.name() === "Phantom Force" || this.move.name() === "Flying Press")) {
+        if (this.field.minimize && ["Stomp", "Steamroller", "Phantom Force", "Flying Press"].indexOf(moveName) !== -1) {
             finalMod = this.chainMod(0x2000, finalMod);
         }
-        if (this.field.dig && (this.move.name() === "Earthquake" || this.move.name() === "Magnitude")) {
+        if (this.field.dig && (moveName === "Earthquake" || moveName === "Magnitude")) {
             finalMod = this.chainMod(0x2000, finalMod);
         }
-        if (this.field.dive && (this.move.name() === "Surf" || this.move.name() === "Whirlpool")) {
+        if (this.field.dive && (moveName === "Surf" || moveName === "Whirlpool")) {
             finalMod = this.chainMod(0x2000, finalMod);
         }
         if (this.field.mistyTerrain && this.defender.grounded) { // unconfirmed
             finalMod = this.chainMod(0x800, finalMod); // it says that it "divides damage" by half, not attack
         }
-        if (defenderAbility.name() === "Fur Coat") { // unconfirmed
+        if (dAbilityName === "Fur Coat") { // unconfirmed
             finalMod = this.chainMod(0x800, finalMod);
         }
         if ((this.field.fairyAura && moveType === Types.FAIRY) || (this.field.darkAura && moveType === Types.DARK)) {
@@ -1828,7 +1822,7 @@ function Calculator() {
         }
         this.applyModA(finalMod, damages);
         
-        if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
+        if (dAbilityName === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
@@ -1839,21 +1833,22 @@ function Calculator() {
     
     this.rby_calculate = function() {
         // massive shoutout to Crystal_ for verifying the RBY/GSC mechanics for me
-        if (this.move.name() === "Seismic Toss" || this.move.name() === "Night Shade") {
+        var moveName = this.move.name();
+        if (moveName === "Seismic Toss" || moveName === "Night Shade") {
             return [this.attacker.level];
-        } else if (this.move.name() === "Dragon Rage") {
+        } else if (moveName === "Dragon Rage") {
             return [40];
-        } else if (this.move.name() === "Sonic Boom") {
+        } else if (moveName === "Sonic Boom") {
             return [20];
-        } else if (this.move.name() === "Guillotine" || this.move.name() === "Horn Drill" || this.move.name() === "Fissure") {
+        } else if (["Guillotine", "Horn Drill", "Fissure"].indexOf(moveName) !== -1) {
             return [65535];
-        } else if (this.move.name() === "Psywave") {
+        } else if (moveName === "Psywave") {
             var range = [];
             for (var i = 1; i <= Math.floor(this.attacker.level*3/2-1); i++) {
                 range[i-1] = i;
             }
             return range;
-        } else if (this.move.name() === "Super Fang") {
+        } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         }
         var lvl, atk, def, spc_a, spc_d;
@@ -1876,7 +1871,7 @@ function Calculator() {
         if (this.field.lightScreen && !this.field.critical) {
             spc_d *= 2;
         }
-        if (this.move.name() === "Explosion" || this.move.name() === "Self-Destruct") {
+        if (moveName === "Explosion" || moveName === "Self-Destruct") {
             def >>= 1;
         }
         
@@ -1923,55 +1918,56 @@ function Calculator() {
         
         var moveType = this.move.type();
         var movePower = this.move.power();
+        var moveName = this.move.name();
         
-        if (this.move.name() === "Hidden Power") {
+        if (moveName === "Hidden Power") {
             moveType = hiddenPowerT2(this.attacker.ivs);
             movePower = hiddenPowerP2(this.attacker.ivs);
-        } else if (this.move.name() === "Reversal" || this.move.name() === "Flail") {
+        } else if (moveName === "Reversal" || moveName === "Flail") {
             movePower = this.flail(this.attacker.currentHP, this.attacker.stat(Stats.HP));
-        } else if (this.move.name() === "Frustration") {
+        } else if (moveName === "Frustration") {
             movePower = Math.max(1, Math.floor((255 - this.attacker.happiness) * 10 / 25));
-        } else if (this.move.name() === "Return") {
+        } else if (moveName === "Return") {
             movePower = Math.max(1, Math.floor(this.attacker.happiness * 10 / 25));
-        } else if (this.move.name() === "Future Sight") {
+        } else if (moveName === "Future Sight") {
             moveType = 18; // curse so there is no type effectiveness nor stab
-        } else if (this.move.name() === "Magnitude") {
+        } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
-        } else if (this.move.name() === "Present") {
+        } else if (moveName === "Present") {
             movePower = this.field.present;
-        } else if (this.move.name() === "Seismic Toss" || this.move.name() === "Night Shade") {
+        } else if (moveName === "Seismic Toss" || moveName === "Night Shade") {
             return [this.attacker.level];
-        } else if (this.move.name() === "Dragon Rage") {
+        } else if (moveName === "Dragon Rage") {
             return [40];
-        } else if (this.move.name() === "Sonic Boom") {
+        } else if (moveName === "Sonic Boom") {
             return [20];
-        } else if (this.move.name() === "Guillotine" || this.move.name() === "Horn Drill" || this.move.name() === "Fissure") {
+        } else if (["Guillotine", "Horn Drill", "Fissure"].indexOf(moveName) !== -1) {
             return [65535];
-        } else if (this.move.name() === "Psywave") {
+        } else if (moveName === "Psywave") {
             var range = [];
             for (var i = 1; i <= Math.floor(this.attacker.level * 3 / 2 - 1); i++) {
                 range[i-1] = i;
             }
             return range;
-        } else if (this.move.name() === "Super Fang") {
+        } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
-        } else if (this.move.name() === "Rollout") {
+        } else if (moveName === "Rollout") {
             movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
-        } else if (this.move.name() === "Triple Kick") {
+        } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
-        } else if (this.move.name() === "Fury Cutter") {
+        } else if (moveName === "Fury Cutter") {
             movePower = Math.min(160, 10 << this.field.furyCutter);
-        } else if (this.move.name() === "Beat Up") {
+        } else if (moveName === "Beat Up") {
             moveType = Types.CURSE;
         }
-        if ((this.move.name() === "Magnitude" || this.move.name() === "Earthquake") && this.field.dig) {
+        if ((moveName === "Magnitude" || moveName === "Earthquake") && this.field.dig) {
             movePower *= 2;
-        } else if ((this.move.name() === "Gust" || this.move.name() === "Twister") && this.field.fly) {
+        } else if ((moveName === "Gust" || moveName === "Twister") && this.field.fly) {
             movePower *= 2;
         }
         
         lvl = this.attacker.level;
-        var crit = this.field.critical && this.move.name() !== "Reversal" && this.move.name() !== "Flail" && this.move.name() !== "Future Sight"; // moves can't crit
+        var crit = this.field.critical && ["Reversal", "Flail", "Future Sight"].indexOf(moveName) === -1; // moves can't crit
         var ignoreAtkBoosts = crit && !(this.attacker.boost(Stats.ATK) > this.defender.boost(Stats.DEF));
         var ignoreSpcBoosts = crit && !(this.attacker.boost(Stats.SATK) > this.defender.boost(Stats.SDEF));
         var atk = Math.min(999, this.attacker.boostedStat(Stats.ATK) >> (this.attacker.status===Statuses.BURNED ? 1 : 0));
@@ -1998,7 +1994,7 @@ function Calculator() {
         if ((this.attacker.name() === "Marowak" || this.attacker.name() === "Cubone") && this.attacker.item.name() === "Thick Club") {
             atk *= 2;
         }
-        if (this.move.name() === "Explosion" || this.move.name() === "Self-Destruct") {
+        if (moveName === "Explosion" || moveName === "Self-Destruct") {
             def >>= 1;
         }
         if (this.attacker.name() === "Ditto" && this.attacker.item.name() === "Metal Powder") {
@@ -2024,7 +2020,7 @@ function Calculator() {
         // in-game Crystal would repeat the process without &0xFF, but not in link battles
         d = Math.max(1, d);
         
-        if (this.move.name() === "Beat Up") {
+        if (moveName === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
@@ -2049,12 +2045,12 @@ function Calculator() {
         } else if (this.field.weather === Weathers.RAIN) {
             if (moveType === Types.WATER) {
                 baseDamage = (baseDamage * 3) >> 1;
-            } else if (moveType === Types.FIRE || this.move.name() === "Solar Beam") {
+            } else if (moveType === Types.FIRE || moveName === "Solar Beam") {
                 baseDamage >>= 1;
             }
         }
         
-        if (this.move.name() === "Pursuit" && this.field.switchOut) {
+        if (moveName === "Pursuit" && this.field.switchOut) {
             baseDamage *= 2;
         }
         
@@ -2071,7 +2067,7 @@ function Calculator() {
         }
         baseDamage = (baseDamage * eff) >> 2;
         // 768+ not having damage variance seems to be proven false.
-        if (this.move.name() === "Reversal" || this.move.name() === "Flail") { // these don't have damage variance
+        if (moveName === "Reversal" || moveName === "Flail") { // these don't have damage variance
             return [baseDamage];
         }
         
@@ -2085,6 +2081,7 @@ function Calculator() {
     this.adv_calculate = function() {
         var moveType = this.move.type();
         var movePower = this.move.power();
+        var moveName = this.move.name();
         var attackerAbility = new Ability();
         attackerAbility.id = this.attacker.ability.id;
         var defenderAbility = new Ability();
@@ -2097,57 +2094,57 @@ function Calculator() {
         var defenderItem = new Item();
         defenderItem.id = this.defender.item.id;
         var weather = airLock ? Weathers.CLEAR : this.field.weather;
-        if (this.move.name() === "Hidden Power") {
+        if (moveName === "Hidden Power") {
             movePower = hiddenPowerP(this.attacker.ivs);
             moveType = hiddenPowerT(this.attacker.ivs);
-        } else if (this.move.name() === "Reversal" || this.move.name() === "Flail") {
+        } else if (moveName === "Reversal" || moveName === "Flail") {
             movePower = this.flail(this.attacker.currentHP, this.attacker.stat(Stats.HP));
-        } else if (this.move.name() === "Frustration") {
+        } else if (moveName === "Frustration") {
             movePower = Math.max(1, Math.floor((255 - this.attacker.happiness) * 10 / 25));
-        } else if (this.move.name() === "Return") {
+        } else if (moveName === "Return") {
             movePower = Math.max(1,Math.floor(this.attacker.happiness * 10 / 25));
-        } else if (this.move.name() === "Future Sight" || this.move.name() === "Doom Desire") {
+        } else if (moveName === "Future Sight" || moveName === "Doom Desire") {
             moveType = 18; // curse so there is no type effectiveness nor stab
-        } else if (this.move.name() === "Magnitude") {
+        } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
-        } else if (this.move.name() === "Present") {
+        } else if (moveName === "Present") {
             movePower = this.field.present;
-        } else if (this.move.name() === "Seismic Toss" || this.move.name() === "Night Shade") {
+        } else if (moveName === "Seismic Toss" || moveName === "Night Shade") {
             return [this.attacker.level];
-        } else if (this.move.name() === "Dragon Rage") {
+        } else if (moveName === "Dragon Rage") {
             return [40];
-        } else if (this.move.name() === "Sonic Boom") {
+        } else if (moveName === "Sonic Boom") {
             return [20];
-        } else if (this.move.name() === "Guillotine" || this.move.name() === "Horn Drill" || this.move.name() === "Fissure" || this.move.name() === "Sheer Cold") {
+        } else if (["Guillotine", "Horn Drill", "Fissure", "Sheer Cold"].indexOf(moveName) !== -1) {
             return [65535];
-        } else if (this.move.name() === "Endeavor") {
+        } else if (moveName === "Endeavor") {
             return [this.attacker.currentHP >= this.defender.currentHP ? 0 : this.defender.currentHP - this.attacker.currentHP];
-        } else if (this.move.name() === "Psywave") {
+        } else if (moveName === "Psywave") {
             var temp = [];
             for (var i = 0; i <= 10; i++) {
                 temp[i] = Math.max(1, Math.floor(this.attacker.level * (i * 10 + 50) / 100));
             }
             return temp;
-        } else if (this.move.name() === "Super Fang") {
+        } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
-        } else if (this.move.name() === "Weather Ball") {
+        } else if (moveName === "Weather Ball") {
             moveType = this.weatherBall(weather);
-        } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
+        } else if (moveName === "Rollout" || moveName === "Ice Ball") {
             movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
-        } else if (this.move.name() === "Triple Kick") {
+        } else if (moveName === "Triple Kick") {
             movePower = 10*this.field.tripleKickCount;
-        } else if (this.move.name() === "Water Spout" || this.move.name() === "Eruption") {
+        } else if (moveName === "Water Spout" || moveName === "Eruption") {
             movePower = Math.max(1, Math.floor(150 * this.attacker.currentHP / this.attacker.stat(Stats.HP)));
-        } else if (this.move.name() === "Fury Cutter") {
+        } else if (moveName === "Fury Cutter") {
             movePower = Math.min(160, 10 << this.field.furyCutter);
-        } else if (this.move.name() === "Beat Up") {
+        } else if (moveName === "Beat Up") {
             moveType = Types.CURSE;
         }
-        if ((this.move.name() === "Surf" || this.move.name() === "Whirlpool") && this.field.dive) {
+        if ((moveName === "Surf" || moveName === "Whirlpool") && this.field.dive) {
             movePower *= 2;
-        } else if ((this.move.name() === "Magnitude" || this.move.name() === "Earthquake") && this.field.dig) {
+        } else if ((moveName === "Magnitude" || moveName === "Earthquake") && this.field.dig) {
             movePower *= 2;
-        } else if ((this.move.name() === "Gust" || this.move.name() === "Twister") && this.field.fly) {
+        } else if ((moveName === "Gust" || moveName === "Twister") && this.field.fly) {
             movePower *= 2;
         }
         
@@ -2155,11 +2152,7 @@ function Calculator() {
         var def = this.defender.stat(Stats.DEF);
         var satk = this.attacker.stat(Stats.SATK);
         var sdef = this.attacker.stat(Stats.SDEF);
-        var crit = this.field.critical && this.move.name() !== "Reversal"
-                                       && this.move.name() !== "Flail"
-                                       && this.move.name() !== "Future Sight"
-                                       && this.move.name() !== "Doom Desire"
-                                       && this.move.name() !== "Spit Up"
+        var crit = this.field.critical && ["Reversal", "Flail", "Future Sight", "Doom Desire", "Spit Up"].indexOf(moveName) === -1
                                        && defenderAbility.name() !== "Battle Armor";
 
         if (attackerAbility.name() === "Huge Power" || attackerAbility.name() === "Pure Power") {
@@ -2181,10 +2174,10 @@ function Calculator() {
         if (defenderItem.name() === "Soul Dew") {
             sdef = (sdef * 3) >> 1;
         }
-        if (attackerItem.name() === "DeepSeaTooth" && this.attacker.name() === "Clamperl") {
+        if (attackerItem.name() === "Deep Sea Tooth" && this.attacker.name() === "Clamperl") {
             satk *= 2;
         }
-        if (defenderItem.name() === "DeepSeaScale" && this.defender.name() === "Clamperl") {
+        if (defenderItem.name() === "Deep Sea Scale" && this.defender.name() === "Clamperl") {
             sdef *= 2;
         }
         if (attackerItem.name() === "Light Ball" && this.attacker.name() === "Pikachu") {
@@ -2217,7 +2210,7 @@ function Calculator() {
         if (attackerAbility.pinchType() === moveType && this.attacker.stat(Stats.HP) >= this.attacker.currentHP * 3) {
             movePower = (movePower * 3) >> 1;
         }
-        if (this.move.name() === "Self-Destruct" || this.move.name() === "Explosion") {
+        if (moveName === "Self-Destruct" || moveName === "Explosion") {
             if (defenderAbility.name() === "Damp") return [0];
             def >>= 1;
         }
@@ -2234,7 +2227,7 @@ function Calculator() {
         }
 
         var a, d;
-        if (this.move.name() === "Beat Up") {
+        if (moveName === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
@@ -2250,11 +2243,11 @@ function Calculator() {
         
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * a * movePower / d) / 50);
         
-        if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && this.move.name() !== "Beat Up") {
+        if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && moveName !== "Beat Up") {
             baseDamage >>= 1;
         }
         if ((this.field.reflect && db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) || (this.field.lightScreen && db.typeDamageClass(moveType) === DamageClasses.SPECIAL)) {
-            if (!crit && this.move.name() !== "Beat Up") {
+            if (!crit && moveName !== "Beat Up") {
                 if (this.field.multiBattle) {
                     baseDamage = Math.floor(baseDamage * 2 / 3);
                 } else {
@@ -2280,7 +2273,7 @@ function Calculator() {
                 baseDamage >>= 1;
             }
         }
-        if (weather !== Weathers.CLEAR && weather !== Weathers.SUN && this.move.name() === "Solar Beam") {
+        if (weather !== Weathers.CLEAR && weather !== Weathers.SUN && moveName === "Solar Beam") {
             baseDamage >>= 1;
         }
         
@@ -2296,17 +2289,17 @@ function Calculator() {
         
         baseDamage *= crit ? 2 : 1;
         
-        if (this.move.name() === "Facade" && this.attacker.status !== NONE) {
+        if (moveName === "Facade" && this.attacker.status !== NONE) {
             baseDamage *= 2;
-        } else if (this.move.name() === "Pursuit" && this.field.switchOut) {
+        } else if (moveName === "Pursuit" && this.field.switchOut) {
             baseDamage *= 2;
-        } else if (this.move.name() === "Revenge" && this.field.attackerDamaged) {
+        } else if (moveName === "Revenge" && this.field.attackerDamaged) {
             baseDamage *= 2;
-        } else if (this.move.name() === "Smelling Salts" && this.defender.status === Statuses.PARALYZED) {
+        } else if (moveName === "Smelling Salts" && this.defender.status === Statuses.PARALYZED) {
             baseDamage *= 2;
-        } else if ((this.move.name() === "Stomp" || this.move.name() === "Extrasensory" || this.move.name() === "Astonish" || this.move.name() === "Needle Arm") && this.field.minimize) {
+        } else if (["Stomp", "Extrasensory", "Astonish", "Needle Arm"].indexOf(moveName) !== -1 && this.field.minimize) {
             baseDamage *= 2;
-        } else if (this.move.name() === "Weather Ball" && weather !== Weathers.CLEAR) {
+        } else if (moveName === "Weather Ball" && weather !== Weathers.CLEAR) {
             baseDamage *= 2;
         }
         
@@ -2331,7 +2324,7 @@ function Calculator() {
         }
         baseDamage = (baseDamage * eff) >> 2;
         
-        if (this.move.name() === "Spit Up") {
+        if (moveName === "Spit Up") {
             return [this.field.stockpile > 0 ? baseDamage : 0]
         }
         
@@ -2363,7 +2356,6 @@ function Calculator() {
             return [0];
         }
         var attackerItem = new Item();
-        var attackerItem = new Item();
         attackerItem.id = attackerAbility.name() === "Klutz" || this.attackerItemUsed ? 0 : this.attacker.item.id;
         var defenderItem = new Item();
         defenderItem.id = defenderAbility.name() === "Klutz" || this.defenderItemUsed ? 0 : this.defender.item.id;
@@ -2377,55 +2369,47 @@ function Calculator() {
         if ((weather === Weathers.RAIN && defenderAbility.name() === "Swift Swim") || (weather === Weathers.SUN && defenderAbility.name() === "Chlorophyll")) {
             defenderSpeed *= 2;
         }
-        if (this.attacker.item.name() === "Iron Ball" // ignore embargo & klutz
-            || this.attacker.item.name() === "Macho Brace"
-            || this.attacker.item.name() === "Power Bracer"
-            || this.attacker.item.name() === "Power Belt"
-            || this.attacker.item.name() === "Power Lens"
-            || this.attacker.item.name() === "Power Band"
-            || this.attacker.item.name() === "Power Anklet"
-            || this.attacker.item.name() === "Power Weight") {
+        var aItemName = attackerItem.name();
+        var dItemName = defenderItem.name();
+        var aAbilityName = attackerAbility.name();
+        var dAbilityName = defenderAbility.name();
+        var aItemName2 = this.attacker.item.name();
+        var dItemName2 = this.defender.item.name();
+        if (["Iron Ball", "Macho Brace", "Power Bracer", "Power Belt", "Power Lens", "Power Band", "Power Anklet", "Power Weight"].indexOf(aItemName2) !== -1) {
             attackerSpeed >>= 1;
         }
-        if (this.defender.item.name() === "Iron Ball"
-            || this.defender.item.name() === "Macho Brace"
-            || this.defender.item.name() === "Power Bracer"
-            || this.defender.item.name() === "Power Belt"
-            || this.defender.item.name() === "Power Lens"
-            || this.defender.item.name() === "Power Band"
-            || this.defender.item.name() === "Power Anklet"
-            || this.defender.item.name() === "Power Weight") {
+        if (["Iron Ball", "Macho Brace", "Power Bracer", "Power Belt", "Power Lens", "Power Band", "Power Anklet", "Power Weight"].indexOf(dItemName2) !== -1) {
             defenderSpeed >>= 1;
         }
-        if (attackerItem.name() === "Choice Scarf") {
+        if (aItemName === "Choice Scarf") {
             attackerSpeed = (attackerSpeed * 3) >> 1;
         }
-        if (defenderItem.name() === "Choice Scarf") {
+        if (dItemName === "Choice Scarf") {
             defenderSpeed = (defenderSpeed * 3) >> 1;
         }
-        if (attackerItem.name() === "Quick Powder" && this.attacker.name() === "Ditto") {
+        if (aItemName === "Quick Powder" && this.attacker.name() === "Ditto") {
             attackerSpeed *= 2;
         }
-        if (defenderItem.name() === "Quick Powder" && this.defender.name() === "Ditto") {
+        if (dItemName === "Quick Powder" && this.defender.name() === "Ditto") {
             defenderSpeed *= 2;
         }
-        if (attackerAbility.name() === "Quick Feet" && this.attacker.status !== Statuses.NOSTATUS) {
+        if (aAbilityName === "Quick Feet" && this.attacker.status !== Statuses.NOSTATUS) {
             attackerSpeed = (attackerSpeed * 3) >> 1;
         } else if (this.attacker.status === Statuses.PARALYZED) {
             attackerSpeed >>= 2;
         }
-        if (defenderAbility.name() === "Quick Feet" && this.defender.status !== Statuses.NOSTATUS) {
+        if (dAbilityName === "Quick Feet" && this.defender.status !== Statuses.NOSTATUS) {
             defenderSpeed = (defenderSpeed * 3) >> 1;
         } else if (this.defender.status === Statuses.PARALYZED) {
             defenderSpeed >>= 2;
         }
-        if (attackerAbility.name() === "Slow Start" && this.field.slowStart) {
+        if (aAbilityName === "Slow Start" && this.field.slowStart) {
             attackerSpeed >>= 1;
         }
-        if (this.attacker.item.id === "0" && attackerAbility.name() === "Unburden") {
+        if (this.attacker.item.id === "0" && aAbilityName === "Unburden") {
             attackerSpeed *= 2;
         }
-        if (this.defender.item.id === "0" && attackerAbility.name() === "Unburden") {
+        if (this.defender.item.id === "0" && dAbilityName === "Unburden") {
             defenderSpeed *= 2;
         }
         if (this.attacker.tailwind) {
@@ -2435,10 +2419,11 @@ function Calculator() {
             defenderSpeed *= 2;
         }
         
-        if (this.move.name() === "Hidden Power") {
+        var moveName = this.move.name();
+        if (moveName === "Hidden Power") {
             movePower = hiddenPowerP(this.attacker.ivs);
             moveType = hiddenPowerT(this.attacker.ivs);
-        } else if (this.move.name() === "Reversal" || this.move.name() === "Flail") {
+        } else if (moveName === "Reversal" || moveName === "Flail") {
             var n = Math.floor(this.attacker.currentHP * 64 / this.attacker.stat(Stats.HP));
             if (n < 2) {
                 movePower = 200;
@@ -2453,91 +2438,91 @@ function Calculator() {
             } else {
                 movePower = 20;
             }
-        } else if (this.move.name() === "Frustration") {
+        } else if (moveName === "Frustration") {
             movePower = Math.max(1, Math.floor((255 - this.attacker.happiness) * 10 / 25));
-        } else if (this.move.name() === "Return") {
+        } else if (moveName === "Return") {
             movePower = Math.max(1, Math.floor(this.attacker.happiness * 10 / 25));
-        } else if (this.move.name() === "Future Sight" || this.move.name() === "Doom Desire") {
+        } else if (moveName === "Future Sight" || moveName === "Doom Desire") {
             moveType = 18; // curse so there is no type effectiveness nor stab
-        } else if (this.move.name() === "Magnitude") {
+        } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
-        } else if (this.move.name() === "Present") {
+        } else if (moveName === "Present") {
             movePower = this.field.present;
-        } else if (this.move.name() === "Seismic Toss" || this.move.name() === "Night Shade") {
+        } else if (moveName === "Seismic Toss" || moveName === "Night Shade") {
             return [this.attacker.level];
-        } else if (this.move.name() === "Dragon Rage") {
+        } else if (moveName === "Dragon Rage") {
             return [40];
-        } else if (this.move.name() === "Sonic Boom") {
+        } else if (moveName === "Sonic Boom") {
             return [20];
-        } else if (this.move.name() === "Guillotine" || this.move.name() === "Horn Drill" || this.move.name() === "Fissure" || this.move.name() === "Sheer Cold") {
+        } else if (["Guillotine", "Horn Drill", "Fissure", "Sheer Cold"].indexOf(moveName) !== -1) {
             return [65535];
-        } else if (this.move.name() === "Endeavor") {
+        } else if (moveName === "Endeavor") {
             return [this.attacker.currentHP >= this.defender.currentHP ? 0 : this.defender.currentHP - this.attacker.currentHP];
-        } else if (this.move.name() === "Psywave") {
+        } else if (moveName === "Psywave") {
             var temp = [];
             for (var i = 0; i <= 10; i++) {
                 temp[i] = Math.max(1, (Math.floor(this.attacker.level * (10 * i + 50) / 100)));
             }
             return temp;
-        } else if (this.move.name() === "Super Fang") {
+        } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
-        } else if (this.move.name() === "Weather Ball") {
+        } else if (moveName === "Weather Ball") {
             moveType = this.weatherBall(weather);
             movePower = moveType === Types.NORMAL ? 50 : 100;
-        } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
+        } else if (moveName === "Rollout" || moveName === "Ice Ball") {
             movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
-        } else if (this.move.name() === "Triple Kick") {
+        } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
-        } else if (((this.move.name() === "Avalanche" && !this.field.painSplit) || (this.move.name() === "Revenge" && !this.field.painSplit) || this.move.name === "Assurance") && this.field.attackerDamaged) {
+        } else if (((moveName === "Avalanche" && !this.field.painSplit) || (moveName === "Revenge" && !this.field.painSplit) || this.move.name === "Assurance") && this.field.attackerDamaged) {
             movePower *= 2;
-        } else if (this.move.name() === "Wring Out" || this.move.name() === "Crush Grip") {
+        } else if (moveName === "Wring Out" || moveName === "Crush Grip") {
             movePower = Math.floor(this.defender.currentHP * 120 / Math.max(1, this.defender.stat(Stats.HP))) + 1;
-        } else if (this.move.name() === "Water Spout" || this.move.name() === "Eruption") {
+        } else if (moveName === "Water Spout" || moveName === "Eruption") {
             movePower = Math.max(1, Math.floor(150 * this.attacker.currentHP / this.attacker.stat(Stats.HP)));
-        } else if (this.move.name() === "Brine" && this.defender.currentHP * 2 <= this.defender.stat(Stats.HP)) {
+        } else if (moveName === "Brine" && this.defender.currentHP * 2 <= this.defender.stat(Stats.HP)) {
             movePower *= 2;
-        } else if (this.move.name() === "Echoed Voice") {
+        } else if (moveName === "Echoed Voice") {
             movePower = Math.min(200, 40 + 40 * field.echoedVoice);
-        } else if (this.move.name() === "Facade" && this.attacker.status !== Statuses.NOSTATUS) {
+        } else if (moveName === "Facade" && this.attacker.status !== Statuses.NOSTATUS) {
             movePower *= 2;
-        } else if (this.move.name() === "Trump Card") {
+        } else if (moveName === "Trump Card") {
             movePower = this.trumpPower(this.field.trumpPP);
-        } else if (this.move.name() === "Wake-Up Slap" && this.defender.status === Statuses.ASLEEP) {
+        } else if (moveName === "Wake-Up Slap" && this.defender.status === Statuses.ASLEEP) {
             movePower *= 2;
-        } else if (this.move.name() === "Smelling Salts" && this.defender.status === Statuses.PARALYZED) {
+        } else if (moveName === "Smelling Salts" && this.defender.status === Statuses.PARALYZED) {
             movePower *= 2;
-        } else if (this.move.name() === "Gyro Ball") {
+        } else if (moveName === "Gyro Ball") {
             movePower = this.gyroBall(attackerSpeed, defenderSpeed);
-        } else if (this.move.name() === "Low Kick" || this.move.name() === "Grass Knot") { // very effective on zorodark
+        } else if (moveName === "Low Kick" || moveName === "Grass Knot") {
             movePower = this.grassKnot(defenderWeight);
-        } else if (this.move.name() === "Fury Cutter") {
+        } else if (moveName === "Fury Cutter") {
             movePower = Math.min(160, 10 << this.field.furyCutter);
-        } else if (this.move.name() === "Punishment") {
+        } else if (moveName === "Punishment") {
             movePower = this.punishment(this.defender.boosts);
-        } else if (this.move.name() === "Pursuit" && this.field.switchOut) {
+        } else if (moveName === "Pursuit" && this.field.switchOut) {
             movePower *= 2;
-        } else if (this.move.name() === "Stomp" && this.field.minimize) {
+        } else if (moveName === "Stomp" && this.field.minimize) {
             movePower *= 2;
-        } else if (this.move.name() === "Spit Up") {
+        } else if (moveName === "Spit Up") {
            movePower = 100 * this.field.stockpile;
             if (movePower === 0) {
                 return [0];
             }
-        } else if (this.move.name() === "Natural Gift" && attackerItem.id >= 8000) {
+        } else if (moveName === "Natural Gift" && attackerItem.id >= 8000) {
             movePower = db.berryPower(atackerItem.id - 8000);
             moveType = db.berryType(atackerItem.id - 8000);
-        } else if (this.move.name() === "Fling") {
+        } else if (moveName === "Fling") {
             movePower = db.flingPower(attackerItem.id);
-        } else if (this.move.name() === "Beat Up") {
+        } else if (moveName === "Beat Up") {
             moveType = Types.CURSE;
-        } else if (this.move.name() === "Judgment" && this.attacker.item.plateType() !== -1) {
+        } else if (moveName === "Judgment" && this.attacker.item.plateType() !== -1) {
             moveType = this.attacker.item.plateType();
         }
-        if ((this.move.name() === "Surf" || this.move.name() === "Whirlpool") && this.field.dive) {
+        if ((moveName === "Surf" || moveName === "Whirlpool") && this.field.dive) {
             movePower *= 2;
-        } else if ((this.move.name() === "Magnitude" || this.move.name() === "Earthquake") && this.field.dig) {
+        } else if ((moveName === "Magnitude" || moveName === "Earthquake") && this.field.dig) {
             movePower *= 2;
-        } else if ((this.move.name() === "Gust" || this.move.name() === "Twister") && this.field.fly) {
+        } else if ((moveName === "Gust" || moveName === "Twister") && this.field.fly) {
             movePower *= 2;
         }
         
@@ -2545,13 +2530,13 @@ function Calculator() {
             movePower = (movePower * 3) >> 1;
         }
         
-        if ((attackerItem.name() === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) || (attackerItem.name() === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL)) {
+        if ((aItemName === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) || (aItemName === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL)) {
             movePower = Math.floor(movePower * 11 / 10);
-        } else if (attackerItem.name() === "Lustrous Orb" && (moveType === Types.WATER || moveType === Types.DRAGON) && this.attacker.name() === "Palkia") {
+        } else if (aItemName === "Lustrous Orb" && (moveType === Types.WATER || moveType === Types.DRAGON) && this.attacker.name() === "Palkia") {
             movePower = Math.floor(movePower * 12 / 10);
-        } else if (attackerItem.name() === "Griseous Orb" && (moveType === Types.GHOST || moveType === Types.DRAGON) && this.attacker.name() === "Giratina-O") {
+        } else if (aItemName === "Griseous Orb" && (moveType === Types.GHOST || moveType === Types.DRAGON) && this.attacker.name() === "Giratina-O") {
             movePower = Math.floor(movePower * 12 / 10);
-        } else if (attackerItem.name() === "Adamant Orb" && (moveType === Types.STEEL || moveType === Types.DRAGON) && this.attacker.name() === "Dialga") {
+        } else if (aItemName === "Adamant Orb" && (moveType === Types.STEEL || moveType === Types.DRAGON) && this.attacker.name() === "Dialga") {
             movePower = Math.floor(movePower * 12 / 10);
         } else if (attackerItem.typeBoosted() === moveType) {
             movePower = Math.floor(movePower * 12 / 10);
@@ -2561,25 +2546,25 @@ function Calculator() {
             movePower *= 2;
         }
         
-        if (attackerAbility.name() === "Rivalry") {
+        if (aAbilityName === "Rivalry") {
             if (this.attacker.gender !== this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePower = (movePower * 5) >> 2; // 125/100
             } else if (this.attacker.gender===this.defender.gender && this.attacker.gender!==Genders.NOGENDER) {
                 movePower = (movePower * 3 ) >> 2; // 75/100
             }
-        } else if (attackerAbility.name() === "Reckless" && (this.move.name() === "Jump Kick" || this.move.name() === "High Jump Kick" || this.move.hasRecoil())) {
+        } else if (aAbilityName === "Reckless" && (moveName === "Jump Kick" || moveName === "High Jump Kick" || this.move.hasRecoil())) {
             movePower = Math.floor(movePower * 12 / 10);
-        } else if (attackerAbility.name() === "Iron Fist" && this.move.isPunch()) {
+        } else if (aAbilityName === "Iron Fist" && this.move.isPunch()) {
             movePower = Math.floor(movePower * 12 / 10);
-        } else if (attackerAbility.name() === "Technician" && movePower <= 60) {
+        } else if (aAbilityName === "Technician" && movePower <= 60) {
             movePower = (movePower * 3) >> 1;
         }
         
-        if (defenderAbility.name() === "Heatproof" && moveType === Types.FIRE) {
+        if (dAbilityName === "Heatproof" && moveType === Types.FIRE) {
             movePower >>= 1;
-        } else if (defenderAbility.name() === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
+        } else if (dAbilityName === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
             movePower >>= 1;
-        } else if (defenderAbility.name() === "Dry Skin" && moveType === Types.FIRE) {
+        } else if (dAbilityName === "Dry Skin" && moveType === Types.FIRE) {
             movePower = (moverPower*5)>>2;
         }
         if ((this.field.mudSport && moveType === Types.ELECTRIC) || (this.field.waterSport && moveType === Types.FIRE)) {
@@ -2587,10 +2572,10 @@ function Calculator() {
         }
         
         var atk, def, sdef, satk;
-        var simpleA = attackerAbility.name() === "Simple";
-        var simpleD = defenderAbility.name() === "Simple";
-        var unawareA = attackerAbility.name() === "Unaware";
-        var unawareD = defenderAbility.name() === "Unaware";
+        var simpleA = aAbilityName === "Simple";
+        var simpleD = dAbilityName === "Simple";
+        var unawareA = aAbilityName === "Unaware";
+        var unawareD = dAbilityName === "Unaware";
         if (this.field.crit) {
             if (unawareA) {
                 def = this.defender.stat(Stats.DEF);
@@ -2631,43 +2616,43 @@ function Calculator() {
             }
         }
         
-        if (attackerAbility.name() === "Huge Power" || attackerAbility.name() === "Pure Power") {
+        if (aAbilityName === "Huge Power" || aAbilityName === "Pure Power") {
             atk *= 2;
         } else if (this.attacker.flowerGift && weather === Weathers.SUN) {
             atk *= 2;
-        } else if (attackerAbility.name() === "Guts" && this.attacker.status !== Statuses.NOSTATUS) {
+        } else if (aAbilityName === "Guts" && this.attacker.status !== Statuses.NOSTATUS) {
             atk = (atk * 3) >> 1;
-        } else if (attackerAbility.name() === "Hustle") {
+        } else if (aAbilityName === "Hustle") {
             atk = (atk * 3) >> 1;
-        } else if (attackerAbility.name() === "Slow Start" && this.field.slowStart) {
+        } else if (aAbilityName === "Slow Start" && this.field.slowStart) {
             atk >>= 1;
-        } else if ((attackerAbility.name() === "Plus" && this.field.minus) || (attackerAbility.name() === "Minus" && this.field.plus)) {
+        } else if ((aAbilityName === "Plus" && this.field.minus) || (aAbilityName === "Minus" && this.field.plus)) {
             satk = (satk * 3) >> 1;
-        } else if (attackerAbility.name() === "Solar Power" && weather === Weathers.SUN) {
+        } else if (aAbilityName === "Solar Power" && weather === Weathers.SUN) {
             satk *= 2;
         }
         
-        if (attackerItem.name() === "Choice Band") {
+        if (aItemName === "Choice Band") {
             atk *= 2;
-        } else if (attackerItem.name() === "Light Ball" && this.attacker.name() === "Pikachu") {
+        } else if (aItemName === "Light Ball" && this.attacker.name() === "Pikachu") {
             atk *= 2;
             satk *= 2;
-        } else if (attackerItem.name() === "Thick Club" && (this.attacker.name() === "Cubone" || this.attacker.name() === "Marowak")) {
+        } else if (aItemName === "Thick Club" && (this.attacker.name() === "Cubone" || this.attacker.name() === "Marowak")) {
             atk *= 2;
-        } else if (attackerItem.name() === "Choice Specs") {
+        } else if (aItemName === "Choice Specs") {
             satk = (satk * 3) >> 1;
-        } else if (attackerItem.name() === "Soul Dew" && (this.attacker.name() === "Latias" || this.attacker.name() === "Latios")) {
+        } else if (aItemName === "Soul Dew" && (this.attacker.name() === "Latias" || this.attacker.name() === "Latios")) {
             satk = (satk * 3) >> 1;
-        } else if (attackerItem.name() === "DeepSeaTooth" && this.attacker.name() === "Clamperl") {
+        } else if (aItemName === "Deep Sea Tooth" && this.attacker.name() === "Clamperl") {
             satk *= 2;
         }
         
-        if (this.move.name() === "Explosion" || this.move.name() === "Self-Destruct") {
+        if (moveName === "Explosion" || moveName === "Self-Destruct") {
             if (defenderAbility.name() === "Damp") return [0];
             def >>= 1;
         }
         
-        if (defenderAbility.name() === "Marvel Scale" && this.defender.status !== Statuses.NOSTATUS) {
+        if (dAbilityName === "Marvel Scale" && this.defender.status !== Statuses.NOSTATUS) {
             def = (def * 3) >> 1;
         }
         
@@ -2675,11 +2660,11 @@ function Calculator() {
             sdef = (sdef * 3) >> 1;
         }
         
-        if (defenderItem.name() === "Metal Powder" && this.defender.name() === "Ditto") {
+        if (dItemName === "Metal Powder" && this.defender.name() === "Ditto") {
             def *= 2;
-        } else if (defenderItem.name() === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
+        } else if (dItemName === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
             sdef = (sdef * 3) >> 1;
-        } else if (defenderItem.name() === "DeepSeaScale" && this.defender.name() === "Clamperl") {
+        } else if (dItemName === "Deep Sea Scale" && this.defender.name() === "Clamperl") {
             sdef *= 2;
         }
         
@@ -2688,7 +2673,7 @@ function Calculator() {
         }
         
         var a, d;
-        if (this.move.name() === "Beat Up") {
+        if (moveName === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
@@ -2704,12 +2689,12 @@ function Calculator() {
         
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * a * movePower / d) / 50);
         
-        if (this.attacker.status === BURN && attackerAbility.name() !== "Guts" && this.move.damageClass() === DamageClasses.PHYSICAL && this.move.name() !== "Beat Up") {
+        if (this.attacker.status === BURN && aAbilityName !== "Guts" && this.move.damageClass() === DamageClasses.PHYSICAL && moveName !== "Beat Up") {
             baseDamage >>= 1;
         }
         
         if ((this.move.damageClass() === DamageClasses.PHYSICAL && this.field.reflect) || (this.move.damageClass() === DamageClasses.SPECIAL && this.field.lightScreen)) {
-            if (this.move.name() !== "Beat Up" && !this.field.crit) {
+            if (moveName !== "Beat Up" && !this.field.crit) {
                 if (this.field.multiBattle) {
                     baseDamage = Math.floor(baseDamage * 2 / 3);
                 } else {
@@ -2735,24 +2720,24 @@ function Calculator() {
                 baseDamage >>= 1;
             }
         }
-        if (weather !== Weathers.CLEAR && weather !== Weathers.SUN && this.move.name() === "Solar Beam") {
+        if (weather !== Weathers.CLEAR && weather !== Weathers.SUN && moveName === "Solar Beam") {
             baseDamage >>= 1;
         }
         
-        if (attackerAbility.name() === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
+        if (aAbilityName === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
         baseDamage += 2;
-        baseDamage *= this.field.critical ? (attackerAbility.name() === "Sniper" ? 3 : 2) : 1;
+        baseDamage *= this.field.critical ? (aAbilityName === "Sniper" ? 3 : 2) : 1;
         
-        if (attackerItem.name() === "Life Orb" && this.move.name() !== "Beat Up") {
+        if (aItemName === "Life Orb" && moveName !== "Beat Up") {
             baseDamage = Math.floor(baseDamage * 13 / 10);
-        } else if (attackerItem.name() === "Metronome" && this.move.name() !== "Beat Up") {
+        } else if (aItemName === "Metronome" && moveName !== "Beat Up") {
             baseDamage = Math.floor(baseDamage*Math.min(20, 10 + this.field.metronome) / 10);
         }
         
-        if (this.field.meFirst && this.move.name() !== "Beat Up") {
+        if (this.field.meFirst && moveName !== "Beat Up") {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
@@ -2778,13 +2763,13 @@ function Calculator() {
             damages[i] = (damages[i] * eff) >> 2;
         }
         
-        if ((defenderAbility.name() === "Solid Rock" || defenderAbility.name() === "Filter") && eff > 4) {
+        if ((dAbilityName === "Solid Rock" || dAbilityName === "Filter") && eff > 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] = (damages[i] * 3) >> 2;
             }
         }
         
-        if (attackerItem.name() === "Expert Belt" && eff > 4) {
+        if (aItemName === "Expert Belt" && eff > 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] = Math.floor(damages[i] * 12 / 10);
             }
@@ -2796,7 +2781,7 @@ function Calculator() {
             }
         }
         
-        if (attackerAbility.name() === "Tinted Lens" && eff < 4) {
+        if (aAbilityName === "Tinted Lens" && eff < 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] *= 2;
             }
@@ -2808,7 +2793,7 @@ function Calculator() {
             }
         }
         
-        if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
+        if (dAbilityName === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
@@ -2830,74 +2815,62 @@ function Calculator() {
         if (attackerAbility.name() === "Mold Breaker" && defenderAbility.ignorable()) {
             defenderAbility.id = "0";
         }
-        if (this.move.sound() && defenderAbility.name() === "Soundproof") {
+        var aAbilityName = attackerAbility.name();
+        var dAbilityName = defenderAbility.name();
+        if (this.move.sound() && dAbilityName === "Soundproof") {
             return [0];
         }
         var attackerItem = new Item();
-        attackerItem.id = this.attacker.item.id;
-        var attackerItem = new Item();
-        attackerItem.id = (this.field.magicRoom || attackerAbility.name() === "Klutz" || this.attackerItemUsed) ? 0 : this.attacker.item.id;
+        attackerItem.id = (this.field.magicRoom || aAbilityName === "Klutz" || this.attackerItemUsed) ? 0 : this.attacker.item.id;
         var defenderItem = new Item();
-        defenderItem.id = (this.field.magicRoom || defenderAbility.name() === "Klutz" || this.defenderItemUsed) ? 0 : this.defender.item.id;
+        defenderItem.id = (this.field.magicRoom || dAbilityName === "Klutz" || this.defenderItemUsed) ? 0 : this.defender.item.id;
+        aItemName = attackerItem.name();
+        dItemName = defenderItem.name();
         var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         var crit = this.field.critical;
         var attackerSpeed = this.attacker.boostedStat(Stats.SPD);
         var defenderSpeed = this.defender.boostedStat(Stats.SPD);
-        if ((weather === Weathers.RAIN && attackerAbility.name() === "Swift Swim") || (weather === Weathers.SUN && attackerAbility.name() === "Chlorophyll")) {
+        if ((weather === Weathers.RAIN && aAbilityName === "Swift Swim") || (weather === Weathers.SUN && aAbilityName === "Chlorophyll")) {
             attackerSpeed *= 2;
         }
-        if ((weather === Weathers.RAIN && defenderAbility.name() === "Swift Swim") || (weather === Weathers.SUN && defenderAbility.name() === "Chlorophyll")) {
+        if ((weather === Weathers.RAIN && dAbilityName === "Swift Swim") || (weather === Weathers.SUN && dAbilityName === "Chlorophyll")) {
             defenderSpeed *= 2;
         }
-        if (this.attacker.item.name() === "Iron Ball" // ignore embargo & klutz
-            || this.attacker.item.name() === "Macho Brace"
-            || this.attacker.item.name() === "Power Bracer"
-            || this.attacker.item.name() === "Power Belt"
-            || this.attacker.item.name() === "Power Lens"
-            || this.attacker.item.name() === "Power Band"
-            || this.attacker.item.name() === "Power Anklet"
-            || this.attacker.item.name() === "Power Weight") {
+        if (["Iron Ball", "Macho Brace", "Power Bracer", "Power Belt", "Power Lens", "Power Band", "Power Anklet", "Power Weight"].indexOf(this.attacker.item.name()) !== -1) {
             attackerSpeed >>= 1;
         }
-        if (this.defender.item.name() === "Iron Ball"
-            || this.defender.item.name() === "Macho Brace"
-            || this.defender.item.name() === "Power Bracer"
-            || this.defender.item.name() === "Power Belt"
-            || this.defender.item.name() === "Power Lens"
-            || this.defender.item.name() === "Power Band"
-            || this.defender.item.name() === "Power Anklet"
-            || this.defender.item.name() === "Power Weight") {
+        if (["Iron Ball", "Macho Brace", "Power Bracer", "Power Belt", "Power Lens", "Power Band", "Power Anklet", "Power Weight"].indexOf(this.defender.item.name()) !== -1) {
             defenderSpeed >>= 1;
         }
-        if (attackerItem.name() === "Choice Scarf") {
+        if (aItemName === "Choice Scarf") {
             attackerSpeed = (attackerSpeed * 3) >> 1;
         }
-        if (defenderItem.name() === "Choice Scarf") {
+        if (dItemName === "Choice Scarf") {
             defenderSpeed = (defenderSpeed * 3) >> 1;
         }
-        if (attackerItem.name() === "Quick Powder" && this.attacker.name() === "Ditto") {
+        if (aItemName === "Quick Powder" && this.attacker.name() === "Ditto") {
             attackerSpeed *= 2;
         }
-        if (defenderItem.name() === "Quick Powder" && this.defender.name() === "Ditto") {
+        if (dItemName === "Quick Powder" && this.defender.name() === "Ditto") {
             defenderSpeed *= 2;
         }
-        if (attackerAbility.name() === "Quick Feet" && this.attacker.status !== Statuses.NOSTATUS) {
+        if (aAbilityName === "Quick Feet" && this.attacker.status !== Statuses.NOSTATUS) {
             attackerSpeed = (attackerSpeed * 3) >> 1;
         } else if (this.attacker.status === Statuses.PARALYZED) {
             attackerSpeed >>= 2;
         }
-        if (defenderAbility.name() === "Quick Feet" && this.defender.status !== Statuses.NOSTATUS) {
+        if (dAbilityName === "Quick Feet" && this.defender.status !== Statuses.NOSTATUS) {
             defenderSpeed = (defenderSpeed * 3) >> 1;
         } else if (this.defender.status === Statuses.PARALYZED) {
             defenderSpeed >>= 2;
         }
-        if (attackerAbility.name() === "Slow Start" && this.field.slowStart) {
+        if (aAbilityName === "Slow Start" && this.field.slowStart) {
             attackerSpeed >>= 1;
         }
-        if (this.attacker.item.id === "0" && attackerAbility.name() === "Unburden") {
+        if (this.attacker.item.id === "0" && aAbilityName === "Unburden") {
             attackerSpeed *= 2;
         }
-        if (this.defender.item.id === "0" && attackerAbility.name() === "Unburden") {
+        if (this.defender.item.id === "0" && dAbilityName === "Unburden") {
             defenderSpeed *= 2;
         }
         if (this.attacker.tailwind) {
@@ -2910,12 +2883,12 @@ function Calculator() {
         if (this.attacker.autotomize) {
             attackerWeight -= 1000;
         }
-        if (attackerAbility.name() === "Light Metal") {
+        if (aAbilityName === "Light Metal") {
             attackerWeight /= 2;
-        } else if (attackerAbility.name() === "Heavy Metal") {
+        } else if (aAbilityName === "Heavy Metal") {
             attackerWeight *= 2;
         }
-        if (attackerItem.name() === "Float Stone") {
+        if (aItemName === "Float Stone") {
             attackerWeight /= 2;
         }
         attackerWeight = Math.max(1, attackerWeight - Math.floor(attackerWeight) > 0.5 ? 1 + Math.floor(attackerWeight) : Math.floor(attackerWeight));
@@ -2923,12 +2896,12 @@ function Calculator() {
         if (this.defender.autotomize) {
             defenderWeight -= 1000;
         }
-        if (defenderAbility.name() === "Light Metal") {
+        if (dAbilityName === "Light Metal") {
             defenderWeight /= 2;
-        } else if (defenderAbility.name() === "Heavy Metal") {
+        } else if (dAbilityName === "Heavy Metal") {
             defenderWeight *= 2;
         }
-        if (defenderItem.name() === "Float Stone") {
+        if (dItemName === "Float Stone") {
             defenderWeight /= 2;
         }
         defenderWeight = Math.max(1, defenderWeight - Math.floor(defenderWeight) > 0.5 ? 1 + Math.floor(defenderWeight) : Math.floor(defenderWeight));
@@ -3025,7 +2998,7 @@ function Calculator() {
             movePower *= 2;
         } else if (this.move.name() === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
-        } else if ((this.move.name() === "Self-Destruct" || this.move.name() === "Explosion") && defenderAbility.name() === "Damp") {
+        } else if ((this.move.name() === "Self-Destruct" || this.move.name() === "Explosion") && dAbilityName === "Damp") {
             return [0];
         } else if (this.move.name() === "Final Gambit") {
             return [this.attacker.currentHP];
@@ -3039,71 +3012,71 @@ function Calculator() {
             gemBoost = true;
         }
         if (this.move.name() === "Acrobatics") {
-            if (attackerItem.name() === "(No Item)") { // gems are "used" earlier in calc and item set to 0
+            if (aItemName === "(No Item)") { // gems are "used" earlier in calc and item set to 0
                 movePower *= 2;
             }
         }
         
         var movePowerMod = 0x1000;
-        if (attackerAbility.name() === "Technician" && movePower<=60) {
+        if (aAbilityName === "Technician" && movePower<=60) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         }
-        if (attackerAbility.name() === "Flare Boost" && this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.SPECIAL) {
+        if (aAbilityName === "Flare Boost" && this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.SPECIAL) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         }
-        if (attackerAbility.name() === "Analytic" && this.field.targetMoved) {
+        if (aAbilityName === "Analytic" && this.field.targetMoved) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
         }
-        if (attackerAbility.name() === "Reckless" && (this.move.name() === "Jump Kick" || this.move.name() === "High Jump Kick" || this.move.hasRecoil())) {
+        if (aAbilityName === "Reckless" && (this.move.name() === "Jump Kick" || this.move.name() === "High Jump Kick" || this.move.hasRecoil())) {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
         }
-        if (attackerAbility.name() === "Iron Fist" && this.move.isPunch()) {
+        if (aAbilityName === "Iron Fist" && this.move.isPunch()) {
             movePowerMod = this.chainMod(0x1333, movePowerMod)
         }
-        if (attackerAbility.name() === "Toxic Boost" && (this.attacker.status === Statuses.POISONED || this.attacker.status === Statuses.BADLYPOISONED) && this.move.damageClass() === DamageClasses.PHYSICAL) {
+        if (aAbilityName === "Toxic Boost" && (this.attacker.status === Statuses.POISONED || this.attacker.status === Statuses.BADLYPOISONED) && this.move.damageClass() === DamageClasses.PHYSICAL) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         }
-        if (attackerAbility.name() === "Rivalry") {
+        if (aAbilityName === "Rivalry") {
             if (this.attacker.gender !== this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePowerMod = this.chainMod(0x1400, movePowerMod);
             } else if (this.attacker.gender === this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePowerMod = this.chainMod(0xC00, movePowerMod);
             }
         }
-        if (attackerAbility.name() === "Sand Force" && weather === Weathers.SAND && (moveType === Types.GROUND || moveType === Types.ROCK || moveType === Types.STEEL)) {
+        if (aAbilityName === "Sand Force" && weather === Weathers.SAND && (moveType === Types.GROUND || moveType === Types.ROCK || moveType === Types.STEEL)) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod)
         }
-        if (attackerAbility.name() === "Normalize") {
+        if (aAbilityName === "Normalize") {
             moveType = 0;
         }
-        if (defenderAbility.name() === "Heatproof" && moveType === Types.FIRE) {
+        if (dAbilityName === "Heatproof" && moveType === Types.FIRE) {
             movePowerMod = this.chainMod(0x800, movePowerMod);
         }
-        if (defenderAbility.name() === "Dry Skin" && moveType === Types.FIRE) {
+        if (dAbilityName === "Dry Skin" && moveType === Types.FIRE) {
             movePowerMod = this.chainMod(0x1400, movePowerMod);
         }
-        if (attackerAbility.name() === "Sheer Force" && this.move.sheerForce()) {
+        if (aAbilityName === "Sheer Force" && this.move.sheerForce()) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
         }
         if (attackerItem.typeBoosted() === moveType) {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
         }
-        if (attackerItem.name() === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) {
+        if (aItemName === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) {
             movePowerMod = this.chainMod(0x1199, movePowerMod);
         }
-        if (attackerItem.name() === "Lustrous Orb" && (moveType === Types.WATER || moveType === Types.DRAGON) && this.attacker.name() === "Palkia") {
+        if (aItemName === "Lustrous Orb" && (moveType === Types.WATER || moveType === Types.DRAGON) && this.attacker.name() === "Palkia") {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
         }
-        if (attackerItem.name() === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL) {
+        if (aItemName === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL) {
             movePowerMod = this.chainMod(0x1199, movePowerMod);
         }
-        if (attackerItem.name() === "Griseous Orb" && (moveType === Types.GHOST || moveType === Types.DRAGON) && this.attacker.name() === "Giratina-O") {
+        if (aItemName === "Griseous Orb" && (moveType === Types.GHOST || moveType === Types.DRAGON) && this.attacker.name() === "Giratina-O") {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
         }
         if (gemBoost) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         }
-        if (attackerItem.name() === "Adamant Orb" && (moveType === Types.STEEL || moveType === Types.DRAGON) && this.attacker.name() === "Dialga") {
+        if (aItemName === "Adamant Orb" && (moveType === Types.STEEL || moveType === Types.DRAGON) && this.attacker.name() === "Dialga") {
             movePowerMod = this.chainMod(0x1333, movePowerMod);
         }
         if (this.move.name() === "Facade" && this.attacker.status !== Statuses.NOSTATUS) {
@@ -3143,8 +3116,8 @@ function Calculator() {
 
         var _def = this.field.wonderRoom ? Stats.SDEF : Stats.DEF;
         var _sdef = this.field.wonderRoom ? Stats.DEF : Stats.SDEF;
-        var unawareA = attackerAbility.name() === "Unaware";
-        var unawareD = defenderAbility.name() === "Unaware";
+        var unawareA = aAbilityName === "Unaware";
+        var unawareD = dAbilityName === "Unaware";
         if (this.move.name() === "Foul Play") {
             if (unawareA) {
                 def = this.defender.stat(_def);
@@ -3194,7 +3167,7 @@ function Calculator() {
         }
         
         var atkMod = 0x1000, satkMod = 0x1000;
-        if (defenderAbility.name() === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
+        if (dAbilityName === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
             atkMod = this.chainMod(0x800, atkMod);
             satkMod = this.chainMod(0x800, satkMod);
         }
@@ -3202,53 +3175,53 @@ function Calculator() {
             atkMod = this.chainMod(0x1800, atkMod); // blaze, torrent, overgrow, ...
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Guts" && this.defender.status !== Statuses.NOSTATUS) {
+        if (aAbilityName === "Guts" && this.defender.status !== Statuses.NOSTATUS) {
             atkMod = this.chainMod(0x1800, atkMod);
         }
-        if ((attackerAbility.name() === "Plus" && this.field.minus) || (attackerAbility.name() === "Minus" && this.field.plus)) {
+        if ((aAbilityName === "Plus" && this.field.minus) || (aAbilityName === "Minus" && this.field.plus)) {
             atkMod = this.chainMod(0x1800, atkMod);
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Defeatist" && this.attacker.currentHP * 2 <= this.attacker.stat(Stats.HP)) {
+        if (aAbilityName === "Defeatist" && this.attacker.currentHP * 2 <= this.attacker.stat(Stats.HP)) {
             atkMod = this.chainMod(0x800, atkMod);
             satkMod = this.chainMod(0x800, satkMod);
         }
-        if (attackerAbility.name() === "Huge Power" || attackerAbility.name() === "Pure Power") {
+        if (aAbilityName === "Huge Power" || aAbilityName === "Pure Power") {
             atkMod = this.chainMod(0x2000, atkMod);
         }
-        if (attackerAbility.name() === "Solar Power" && weather === Weathers.SUN) {
+        if (aAbilityName === "Solar Power" && weather === Weathers.SUN) {
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Hustle") {
+        if (aAbilityName === "Hustle") {
             atk = this.applyMod(0x1800, atk);
         }
-        if (attackerAbility.name() === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
+        if (aAbilityName === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
             atkMod = this.chainMod(0x1800, atkMod);
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerAbility.name() === "Slow Start" && this.field.slowStart) {
+        if (aAbilityName === "Slow Start" && this.field.slowStart) {
             atkMod = this.chainMod(0x800, atkMod);
         }
         if (this.attacker.flowerGift && weather === Weathers.SUN) {
             atkMod = this.chainMod(0x1800, atkMod);
         }
-        if (attackerItem.name() === "Thick Club" && (this.attacker.name() === "Cubone" || this.attacker.name() === "Marowak")) {
+        if (aItemName === "Thick Club" && (this.attacker.name() === "Cubone" || this.attacker.name() === "Marowak")) {
             atkMod = this.chainMod(0x2000, atkMod);
         }
-        if (attackerItem.name() === "Deep Sea Tooth" && this.attacker.name() === "Clamperl") {
+        if (aItemName === "Deep Sea Tooth" && this.attacker.name() === "Clamperl") {
             satkMod = this.chainMod(0x2000, satkMod);
         }
-        if (attackerItem.name() === "Light Ball" && this.attacker.name() === "Pikachu") {
+        if (aItemName === "Light Ball" && this.attacker.name() === "Pikachu") {
             atkMod = this.chainMod(0x2000, atkMod);
             satkMod = this.chainMod(0x2000, satkMod);
         }
-        if (attackerItem.name() === "Soul Dew" && (this.attacker.name() === "Latias" || this.attacker.name() === "Latios")) {
+        if (aItemName === "Soul Dew" && (this.attacker.name() === "Latias" || this.attacker.name() === "Latios")) {
             satkMod = this.chainMod(0x1800, satkMod);
         }
-        if (attackerItem.name() === "Choice Band") {
+        if (aItemName === "Choice Band") {
             atkMod = this.chainMod(0x1800, atkMod);
         }
-        if (attackerItem.name() === "Choice Specs") {
+        if (aItemName === "Choice Specs") {
             satkMod = this.chainMod(0x1800, satkMod);
         }
         atk = this.applyMod(atkMod, atk);
@@ -3258,23 +3231,23 @@ function Calculator() {
             sdef = this.applyMod(0x1800, sdef);
         }
         var defMod = 0x1000, sdefMod = 0x1000;
-        if (defenderAbility.name() === "Marvel Scale" && this.defender.status !== Statuses.NOSTATUS) {
+        if (dAbilityName === "Marvel Scale" && this.defender.status !== Statuses.NOSTATUS) {
             defMod = this.chainMod(0x1800, defMod);
         }
         if (this.defender.flowerGift && weather === Weathers.SUN) {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
-        if (defenderItem.name() === "DeepSeaScale" && this.defender.name() === "Clamperl") {
+        if (dItemName === "Deep Sea Scale" && this.defender.name() === "Clamperl") {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
-        if (defenderItem.name() === "Metal Powder" && this.defender.name() === "Ditto") {
+        if (dItemName === "Metal Powder" && this.defender.name() === "Ditto") {
             defMod = this.chainMod(0x2000, defMod);
         }
-        if (defenderItem.name() === "Eviolite" && this.defender.hasEvolution()) {
+        if (dItemName === "Eviolite" && this.defender.hasEvolution()) {
             defMod = this.chainMod(0x1800, defMod);
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
-        if (defenderItem.name() === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
+        if (dItemName === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
             sdefMod = this.chainMod(0x1800, sdefMod);
         }
         def = this.applyMod(defMod, def);
@@ -3324,7 +3297,7 @@ function Calculator() {
         }
 
         if (this.attacker.stab(moveType)) {
-            if (attackerAbility.name() === "Adaptability") {
+            if (aAbilityName === "Adaptability") {
                 damages = this.applyModA(0x2000, damages);
             } else {
                 damages = this.applyModA(0x1800, damages);
@@ -3333,7 +3306,7 @@ function Calculator() {
 
         var eff = this.effective([moveType],
                                  [this.defender.type1(), this.defender.type2()],
-                                 this.field.foresight || attackerAbility.name() === "Scrappy",
+                                 this.field.foresight || aAbilityName === "Scrappy",
                                  false);
         if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
@@ -3342,7 +3315,7 @@ function Calculator() {
             damages[i] = (damages[i] * eff) >> 2;
         }
 
-        if (this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.PHYSICAL && attackerAbility.name() !== "Guts") {
+        if (this.attacker.status === Statuses.BURNED && this.move.damageClass() === DamageClasses.PHYSICAL && aAbilityName !== "Guts") {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = damages[i] >> 1;
             }
@@ -3358,38 +3331,38 @@ function Calculator() {
                                    || this.move.name() === "Psyshock"
                                    || this.move.name() === "Psystrike"
                                    || this.move.name() === "Secret Sword")
-                               && attackerAbility.name() !== "Infiltrator") {
+                               && aAbilityName !== "Infiltrator") {
             finalMod = chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         } else if (this.field.lightScreen && !crit
                                           && (this.move.damageClass() === DamageClasses.SPECIAL
                                               && !this.move.name() === "Psyshock"
                                               && !this.move.name() === "Psystrike"
                                               && !this.move.name() === "Secret Sword")
-                                          && attackerAbility.name() !== "Infiltrator") {
+                                          && aAbilityName !== "Infiltrator") {
             finalMod = chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         }
-        if (defenderAbility.name() === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
+        if (dAbilityName === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             finalMod = this.chainMod(0x800, finalMod);
         }
-        if (attackerAbility.name() === "Tinted Lens" && eff < 4) {
+        if (aAbilityName === "Tinted Lens" && eff < 4) {
             finalMod = this.chainMod(0x2000, finalMod);
         }
         if (this.field.friendGuard) {
             finalMod = this.chainMod(0xC00, finalMod);
         }
-        if (attackerAbility.name() === "Sniper" && crit) {
+        if (aAbilityName === "Sniper" && crit) {
             finalMod = this.chainMod(0x1800, finalMod);
         }
-        if ((defenderAbility.name() === "Filter" || defenderAbility.name() === "Solid Rock") && eff > 4) {
+        if ((dAbilityName === "Filter" || dAbilityName === "Solid Rock") && eff > 4) {
             finalMod = this.chainMod(0xC00, finalMod);
         }
-        if (attackerItem.name() === "Metronome") {
+        if (aItemName === "Metronome") {
             finalMod = this.chainMod(this.field.metronome <= 4 ? (0x1000 + this.field.metronome * 0x333) : 0x2000, finalMod);
         }
-        if (attackerItem.name() === "Expert Belt" && eff > 4) {
+        if (aItemName === "Expert Belt" && eff > 4) {
             finalMod = this.chainMod(0x1333, finalMod);
         }
-        if (attackerItem.name() === "Life Orb") {
+        if (aItemName === "Life Orb") {
             finalMod = this.chainMod(0x14CC, finalMod);
         }
         if (defenderItem.berryType() === moveType && (eff > 4 || moveType === 0)) {
@@ -3407,7 +3380,7 @@ function Calculator() {
         }
         this.applyModA(finalMod, damages);
         
-        if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
+        if (dAbilityName === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
@@ -3418,7 +3391,7 @@ function Calculator() {
             && this.defender.item.name() !== "(No Item)"
             && !(this.defender.item.name() === "Griseous Orb" && this.defender.name().indexOf("Giratina") !== -1)
             && !(this.defender.item.name().indexOf(" Drive") !== -1 && this.defender.name().indexOf("Genesect") !== -1)
-            && !(defenderAbility.name() === "Multitype" && this.defender.item.name().indexOf(" Plate") !== -1)) {
+            && !(dAbilityName === "Multitype" && this.defender.item.name().indexOf(" Plate") !== -1)) {
             this.defenderItemUsed = true;
         }
         
