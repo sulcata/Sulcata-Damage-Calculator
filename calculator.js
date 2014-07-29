@@ -825,7 +825,7 @@ function Ability() {
             return parseInt(v, 10);
         }
         var v = this.flagToValue("38"); // storm drain, lightning rod, etc.
-        if (v !== null) {
+        if (v !== null && gen > 4) { // did damage anyway in gen 4
             return parseInt(v, 10);
         }
         if (db.abilityEffects(this.id) === "120") { // levitate
@@ -837,6 +837,9 @@ function Ability() {
         var v = this.flagToValue("68"); // sap sipper, etc.
         if (v !== null) {
             return parseInt(v, 10);
+        }
+        if (db.abilityEffects(this.id) === "19") { // flash fire
+            return Sulcalc.Types.FIRE;
         }
         return -1;
     }
@@ -1189,7 +1192,7 @@ function Calculator() {
     
     this.storedPower = function (b) {
         var statBoostTotal = 1;
-        for (var i = 0; i < b.length; i++) {
+        for (var i = 1; i < b.length; i++) {
             if (b[i] > 0) {
                 statBoostTotal += b[i];
             }
@@ -1739,10 +1742,10 @@ function Calculator() {
                                  this.field.foresight || attackerAbility.name() === "Scrappy",
                                  this.move.name() === "Freeze-Dry");
         }
-        if (eff === 0) {
+        if (eff === 0 || attackTypes.indexOf(defenderAbility.immunityType()) !== -1) {
             return [0];
         }
-        
+
         for (var i = 0; i < damages.length; i++) {
             damages[i] = (damages[i] * eff) >> 6;
         }
@@ -2281,7 +2284,7 @@ function Calculator() {
             baseDamage >>= 1;
         }
         
-        if (attackerAbility.name() === "Flash Fire" && moveType === Types.FIRE && this.field.flashFire) {
+        if (this.field.flashFire && moveType === Types.FIRE && attackerAbility.name() === "Flash Fire") {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
@@ -2323,7 +2326,7 @@ function Calculator() {
                                  [this.defender.type1(), this.defender.type2()],
                                  this.field.foresight,
                                  false);
-        if (eff === 0) {
+        if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
         }
         baseDamage = (baseDamage * eff) >> 2;
@@ -2768,7 +2771,7 @@ function Calculator() {
                                  [this.defender.type1(), this.defender.type2()],
                                  this.field.foresight || attackerAbility.name() === "Scrappy",
                                  false);
-        if (eff === 0) {
+        if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
         }
         for (var i = 0; i < 16; i++) {
@@ -3332,7 +3335,7 @@ function Calculator() {
                                  [this.defender.type1(), this.defender.type2()],
                                  this.field.foresight || attackerAbility.name() === "Scrappy",
                                  false);
-        if (eff === 0) {
+        if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
         }
         for (var i = 0; i < damages.length; i++) {
