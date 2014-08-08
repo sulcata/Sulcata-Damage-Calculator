@@ -904,6 +904,9 @@ function updatePoke(p) {
     eAbility = document.getElementById(p + "Ability");
     replaceHtml(eAbility, suggestions + abilities[gen]);
     eAbility.selectedIndex = 0;
+    var disableAuto = {
+        
+    }
     updateStats(p);
 }
 
@@ -1259,58 +1262,62 @@ function updateMoveOptions() {
 
 function autofillPokeOptions(p) {
     var pokeId = document.getElementById(p + "Poke").value;
-    var pokeToItem = {"649:1" : "Douse Drive", // Genesect-D
-                      "649:2" : "Shock Drive", // Genesect-S
-                      "649:3" : "Burn Drive", // Genesect-B
-                      "649:4" : "Chill Drive", // Genesect-C
-                      "487:1" : "Griseous Orb", // Giratina-O
-                      "493:1" : "Fist Plate", // Arceus-Fighting
-                      "493:2" : "Sky Plate", // Arceus-Flying
-                      "493:3" : "Toxic Plate", // Arceus-Poison
-                      "493:4" : "Earth Plate", // Arceus-Ground
-                      "493:5" : "Stone Plate", // Arceus-Rock
-                      "493:6" : "Insect Plate", // Arceus-Bug
-                      "493:7" : "Spooky Plate", // Arceus-Ghost
-                      "493:8" : "Iron Plate", // Arceus-Steel
-                      "493:9" : "Flame Plate", // Arceus-Fire
-                      "493:10" : "Splash Plate", // Arceus-Water
-                      "493:11" : "Meadow Plate", // Arceus-Grass
-                      "493:12" : "Zap Plate", // Arceus-Electric
-                      "493:13" : "Mind Plate", // Arceus-Psychic
-                      "493:14" : "Icicle Plate", // Arceus-Ice
-                      "493:15" : "Draco Plate", // Arceus-Dragon
-                      "493:16" : "Dread Plate", // Arceus-Dark
-                      "493:17" : "Pixie Plate", // Arceus-Fairy
-                      "460:1:M" : "Abomasite", // Mega Abomasnow
-                      "359:1:M" : "Absolite", // Mega Absol
-                      "142:1:M" : "Aerodactylite", // Mega Aerodactyl
-                      "306:1:M" : "Aggronite", // Mega Aggron
-                      "65:1:M" : "Alakazite", // Mega Alakazam
-                      "181:1:M" : "Ampharosite", // Mega Ampharos
-                      "354:1:M" : "Banettite", // Mega Banette
-                      "9:1:M" : "Blastoisinite", // Mega Blastoise
-                      "257:1:M" : "Blazikenite", // Mega Blaziken
-                      "6:1:M" : "Charizardite X", // Mega Charizard X
-                      "6:2:M" : "Charizardite Y", // Mega Charizard Y
-                      "445:1:M" : "Garchompite", // Mega Garchomp
-                      "282:1:M" : "Gardevoirite", // Mega Gardevoir
-                      "94:1:M" : "Gengarite", // Mega Gengar
-                      "130:1:M" : "Gyaradosite", // Mega Gyarados
-                      "214:1:M" : "Heracronite", // Mega Heracross
-                      "229:1:M" : "Houndoominite", // Mega Houndoom
-                      "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
-                      "448:1:M" : "Lucarionite", // Mega Lucario
-                      "310:1:M" : "Manectite", // Mega Manectric
-                      "303:1:M" : "Mawilite", // Mega Mawile
-                      "308:1:M" : "Medichamite", // Mega Medicham
-                      "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
-                      "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
-                      "127:1:M" : "Pinsirite", // Mega Pinsir
-                      "212:1:M" : "Scizorite", // Mega Scizor
-                      "248:1:M" : "Tyranitarite", // Mega Tyranitar
-                      "3:1:M" : "Venusaurite"}; // Mega Venusaur
+    var pokeToItem = {
+        "649:1" : "Douse Drive", // Genesect-D
+        "649:2" : "Shock Drive", // Genesect-S
+        "649:3" : "Burn Drive", // Genesect-B
+        "649:4" : "Chill Drive", // Genesect-C
+        "487:1" : "Griseous Orb", // Giratina-O
+        "493:1" : "Fist Plate", // Arceus-Fighting
+        "493:2" : "Sky Plate", // Arceus-Flying
+        "493:3" : "Toxic Plate", // Arceus-Poison
+        "493:4" : "Earth Plate", // Arceus-Ground
+        "493:5" : "Stone Plate", // Arceus-Rock
+        "493:6" : "Insect Plate", // Arceus-Bug
+        "493:7" : "Spooky Plate", // Arceus-Ghost
+        "493:8" : "Iron Plate", // Arceus-Steel
+        "493:9" : "Flame Plate", // Arceus-Fire
+        "493:10" : "Splash Plate", // Arceus-Water
+        "493:11" : "Meadow Plate", // Arceus-Grass
+        "493:12" : "Zap Plate", // Arceus-Electric
+        "493:13" : "Mind Plate", // Arceus-Psychic
+        "493:14" : "Icicle Plate", // Arceus-Ice
+        "493:15" : "Draco Plate", // Arceus-Dragon
+        "493:16" : "Dread Plate", // Arceus-Dark
+        "493:17" : "Pixie Plate", // Arceus-Fairy
+        "460:1:M" : "Abomasite", // Mega Abomasnow
+        "359:1:M" : "Absolite", // Mega Absol
+        "142:1:M" : "Aerodactylite", // Mega Aerodactyl
+        "306:1:M" : "Aggronite", // Mega Aggron
+        "65:1:M" : "Alakazite", // Mega Alakazam
+        "181:1:M" : "Ampharosite", // Mega Ampharos
+        "354:1:M" : "Banettite", // Mega Banette
+        "9:1:M" : "Blastoisinite", // Mega Blastoise
+        "257:1:M" : "Blazikenite", // Mega Blaziken
+        "6:1:M" : "Charizardite X", // Mega Charizard X
+        "6:2:M" : "Charizardite Y", // Mega Charizard Y
+        "445:1:M" : "Garchompite", // Mega Garchomp
+        "282:1:M" : "Gardevoirite", // Mega Gardevoir
+        "94:1:M" : "Gengarite", // Mega Gengar
+        "130:1:M" : "Gyaradosite", // Mega Gyarados
+        "214:1:M" : "Heracronite", // Mega Heracross
+        "229:1:M" : "Houndoominite", // Mega Houndoom
+        "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
+        "448:1:M" : "Lucarionite", // Mega Lucario
+        "310:1:M" : "Manectite", // Mega Manectric
+        "303:1:M" : "Mawilite", // Mega Mawile
+        "308:1:M" : "Medichamite", // Mega Medicham
+        "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
+        "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+        "127:1:M" : "Pinsirite", // Mega Pinsir
+        "212:1:M" : "Scizorite", // Mega Scizor
+        "248:1:M" : "Tyranitarite", // Mega Tyranitar
+        "3:1:M" : "Venusaurite", // Mega Venusaur
+        "104:0" : "Thick Club", // Cubone
+        "105:0" : "Thick Club" // Marowak
+    };
     if (pokeId in pokeToItem) {
-        setSelectByText(document.getElementById(p + "Item"), pokeToItem[pokeId]);
+        setSelectByText(p + "Item", pokeToItem[pokeId]);
     }
 }
 
