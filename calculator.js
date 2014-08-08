@@ -847,6 +847,9 @@ function Ability() {
         if (db.abilityEffects(this.id) === "19") { // flash fire
             return Sulcalc.Types.FIRE;
         }
+        if (db.abilityEffects(this.id) === "15") { // dry skin
+            return Sulcalc.Types.Water;
+        }
         return -1;
     }
     
@@ -860,7 +863,11 @@ function Ability() {
                      "Shield Dust", "Simple", "Snow Cloak", "Solid Rock", "Soundproof", "Sticky Hold", "Storm Drain",
                      "Sturdy", "Suction Cups", "Sweet Veil", "Tangled Feet", "Telepathy", "Thick Fat", "Unaware",
                      "Vital Spirit", "Volt Absorb", "Water Absorb", "Water Veil", "White Smoke", "Wonder Guard", "Wonder Skin"];
-        return this.name() in aList;
+        return aList.indexOf(this.name()) !== -1;
+    }
+    
+    this.moldBreaker = function() {
+        return db.abilityEffects(this.id) === "40";
     }
 }
 
@@ -1216,7 +1223,7 @@ function Calculator() {
         attackerAbility.id = this.attacker.ability.id;
         var defenderAbility = new Ability();
         defenderAbility.id = this.defender.ability.id;
-        if (attackerAbility.name() === "Mold Breaker" && defenderAbility.ignorable()) {
+        if (attackerAbility.moldBreaker() && defenderAbility.ignorable()) {
             defenderAbility.id = "0";
         }
         if (this.move.sound() && defenderAbility.name() === "Soundproof"
@@ -2349,7 +2356,7 @@ function Calculator() {
         attackerAbility.id = this.attacker.ability.id;
         var defenderAbility = new Ability();
         defenderAbility.id = this.defender.ability.id;
-        if (attackerAbility.name() === "Mold Breaker" && defenderAbility.ignorable()) {
+        if (attackerAbility.moldBreaker() && defenderAbility.ignorable()) {
             defenderAbility.id = "0";
         }
         if (this.move.sound() && defenderAbility.name() === "Soundproof") {
@@ -2812,7 +2819,7 @@ function Calculator() {
         attackerAbility.id = this.attacker.ability.id;
         var defenderAbility = new Ability();
         defenderAbility.id = this.defender.ability.id;
-        if (attackerAbility.name() === "Mold Breaker" && defenderAbility.ignorable()) {
+        if (attackerAbility.moldBreaker() && defenderAbility.ignorable()) {
             defenderAbility.id = "0";
         }
         var aAbilityName = attackerAbility.name();
