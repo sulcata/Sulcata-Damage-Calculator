@@ -383,7 +383,7 @@ function Database() {
         if (p in this._ability1) {
             return this._ability1[p];
         }
-        return 0;
+        return -1;
     }
     this._ability2 = null;
     this.ability2 = function (p) {
@@ -393,7 +393,7 @@ function Database() {
         if (p in this._ability2) {
             return this._ability2[p];
         }
-        return 0;
+        return -1;
     }
     this._ability3 = null;
     this.ability3 = function (p) {
@@ -403,7 +403,7 @@ function Database() {
         if (p in this._ability3) {
             return this._ability3[p];
         }
-        return 0;
+        return -1;
     }
 };
 
@@ -525,7 +525,7 @@ function Pokemon() {
     this.flowerGift = false;
     this.powerTrick = false;
     this.gender = Genders.NOGENDER; // NOGENDER, MALE, FEMALE
-    this.addedType = Types.CURSE; // GHOST:Trick or Treat, GRASS:Forest's Curse, CURSE:Nothing; They can't exist simultaneously
+    this.addedType = Types.CURSE; // GHOST: Trick or Treat, GRASS: Forest's Curse, CURSE: Nothing; They can't exist simultaneously
     this.overrideTypes = [Types.CURSE, Types.CURSE]; // curse should be used for "no type"
     this.override = false;
     
@@ -536,6 +536,10 @@ function Pokemon() {
                 return;
             }
         }
+    }
+    
+    this.natureName = function() {
+        return db.natures(this.nature)
     }
     
     this.setName = function (n) {
@@ -694,15 +698,27 @@ function Pokemon() {
     }
     
     this.ability1 = function() {
-        return db.ability1(this.species() + ":" + this.form());
+        var aId = db.ability1(this.species() + ":" + this.form());
+        if (aId < 0) {
+            return db.ability1(this.species() + ":0");
+        }
+        return aId;
     }
     
     this.ability2 = function() {
-        return db.ability2(this.species() + ":" + this.form());
+        var aId = db.ability2(this.species() + ":" + this.form());
+        if (aId < 0) {
+            return db.ability2(this.species() + ":0");
+        }
+        return aId;
     }
     
     this.ability3 = function() {
-        return db.ability3(this.species() + ":" + this.form());
+        var aId = db.ability3(this.species() + ":" + this.form());
+        if (aId < 0) {
+            return db.ability3(this.species() + ":0");
+        }
+        return aId;
     }
 }
 
@@ -2100,7 +2116,7 @@ function Calculator() {
         attackerItem.id = this.attacker.item.id;
         var defenderItem = new Item();
         defenderItem.id = this.defender.item.id;
-        var weather = airLock ? Weathers.CLEAR : this.field.weather;
+        var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         if (moveName === "Hidden Power") {
             movePower = hiddenPowerP(this.attacker.ivs);
             moveType = hiddenPowerT(this.attacker.ivs);

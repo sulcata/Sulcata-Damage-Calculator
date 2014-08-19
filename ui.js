@@ -359,8 +359,8 @@ function replaceHtml(e, html) {
         return;
     @*/
     var newE = oldE.cloneNode(false);
-    ["onclick", "onchange"].forEach(function (method) { // I don't feel like finding them all
-        newE[method] = oldE[method];
+    ["onclick", "onchange"].forEach(function (val, idx, arr) { // I don't feel like finding them all
+        newE[val] = oldE[val];
     });
     newE.innerHTML = html;
     oldE.parentNode.replaceChild(newE, oldE);
@@ -889,13 +889,13 @@ function updatePoke(p) {
         document.getElementById(p + strs[i] + "Boost").selectedIndex = 6;
     }
     var suggestions = "";
-    if (poke.ability1() !== 0) {
+    if (poke.ability1() > 0) {
         suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities(poke.ability1()) + "</option>";
     }
-    if (poke.ability2() !== 0) {
+    if (poke.ability2() > 0) {
         suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities(poke.ability2()) + "</option>";
     }
-    if (poke.ability3() !== 0 && gen >= 5) {
+    if (poke.ability3() > 0 && gen >= 5) {
         suggestions += "<option value='" + poke.ability3() + "'>" + db.abilities(poke.ability3()) + "</option>";
     }
     if (suggestions !== "") {
@@ -1077,7 +1077,7 @@ function swapPokemon() {
     //var tempSrc = aSprite.src;
     //aSprite.src = dSprite.src;
     //dSprite.src = tempSrc;
-    var swapIdx = ["Poke", "Nature", "Ability", "Item", "Status", "Type1", "Type2", "TypeAdded"];
+    var swapIdx = ["Poke", "Nature", "Item", "Status", "Type1", "Type2", "TypeAdded"];
     for (var i = 0; i < swapIdx.length; i++) {
         var a = document.getElementById("attacker" + swapIdx[i]);
         var d = document.getElementById("defender" + swapIdx[i]);
@@ -1085,6 +1085,14 @@ function swapPokemon() {
         a.selectedIndex = d.selectedIndex;
         d.selectedIndex = tempIdx;
     }
+    var a = document.getElementById("attackerAbility");
+    var d = document.getElementById("defenderAbility");
+    var tempIdx = a.selectedIndex;
+    var tempHtml = a.innerHTML;
+    a.innerHTML = d.innerHTML;
+    a.selectedIndex = d.selectedIndex;
+    d.innerHTML = tempHtml;
+    d.selectedIndex = tempIdx;
     var swapStats = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < swapStats.length; i++) {
         var a = [document.getElementById("attacker" + swapStats[i] + "Ev"),
@@ -1321,38 +1329,87 @@ function autofillPokeOptions(p) {
     }
 }
 
-function importableToPokemon(importText) {
+function importableToPokemon (importText) {
+    var statMatches = {
+        "hp" : 0,
+        "atk" : 1,
+        "def" : 2,
+        "satk" : 3,
+        "sdef" : 4,
+        "spd" : 5,
+        "spc" : 3
+    };
     var poke = new Sulcalc.Pokemon();
     var lines = importText.split("\n");
-    var speciesName = lines[0].substring(0, lines[0].indexOf(" "));
-    var genderLetter = lines[0].indexOf(" ") === lines[0].indexOf(" @ ") ? "(N)"
-                                                                         : lines[0].substring(lines[0].indexOf(" ") + 1,
-                                                                                              lines[0].indexOf(" @ "));
-    var itemName = lines[0].substring(lines[0].indexOf(" @ ") + 3);
-    var abilityName = lines[1].substring(lines[1].indexOf(" ") + 1);
-    var evStringList = lines[2].substring(lines[2].indexOf(" ") + 1).split(" / ");
-    var stats = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
-    for (var i = 0; i < evStringList.length; i++) {
-        var n = parseInt(evStringList[i].substring(0, evStringList[i].indexOf(" ")), 10);
-        var s = evStringList[i].substring(evStringList[i].indexOf(" ") + 1);
-        poke.evs[stats.indexOf(s)] = isNaN(n) ? 0 : n;
+    lines.forEach(function (val, idx, arr) {
+        arr[idx] = val.trim();
+    });
+    var tempIdx = lines[0].indexOf(" @ ");
+    var gender = ["(N)", "(M)", "(F)"].indexOf(lines[0].substring(tempIdx - 3, tempIdx));
+    var name;
+    if (gender > -1) {
+        name = lines[0].substring(0, tempIdx - 4);
+    } else {
+        name = lines[0].substring(0, tempIdx);
     }
-    var natureName = lines[3].substring(0, lines[3].indexOf(" "));
-    
-    poke.setName(speciesName);
-    poke.gender = ["(N)", "(M)", "(F)"].indexOf(genderLetter);
-    poke.item.setName(itemName);
-    poke.ability.setName(abilityName);
-    poke.setNatureName(natureName);
+    if (name.indexOf("(") > -1) {
+        name = name.substring(name.indexOf("(") + 1, name.indexOf(")"))
+    }
+    var item = lines[0].substring(tempIdx + 3);
+    poke.setName(name);
+    poke.gender = gender;
+    for (var i = 1; i < lines.length; ++i) {
+        if (lines[i].substr(0, 6).toLowerCase() === "level:") {
+            poke.level = parseInt(lines[i].substr(6).trim(), 10);
+        } else if (lines[i].substr(0, 6).toLowerCase() === "trait:") {
+            poke.ability.setName(lines[i].substr(6).trim());
+        } else if (lines[i].substr(0, 8).toLowerCase() === "ability:") {
+            poke.ability.setName(lines[i].substr(8).trim());
+        } else if (lines[i].substr(0, 4).toLowerCase() === "evs:") {
+            lines[i].substr(4).split("/").forEach(function(val, idx, arr) {
+                var v = val.trim();
+                var ev = parseInt(v.substring(0, v.indexOf(" ")), 10);
+                var stat = v.substring(v.indexOf(" ") + 1);
+                poke.evs[statMatches[stat.toLowerCase()]] = Math.max(0, Math.min(ev, 255));
+            });
+        } else if (lines[i].substr(0, 4).toLowerCase() === "ivs:") {
+            var ivs = lines[i].substr(4).split("/").forEach(function(val, idx, arr) {
+                var v = val.trim();
+                var iv = parseInt(v.substring(0, v.indexOf(" ")), 10);
+                var stat = v.substring(v.indexOf(" ") + 1);
+                poke.ivs[statMatches[stat.toLowerCase()]] = Math.max(0, Math.min(iv, gen > 2 ? 31 : 15));
+            });
+        } else if (lines[i].substr(0, 6).toLowerCase() === "level:") {
+            poke.level = parseInt(lines[i].substr(6).trim(), 10);
+        } else if (lines[i].substr(lines[i].indexOf(" ") + 1, 6).toLowerCase() === "nature"
+                   && lines[i][0] !== "-" // ignore nature power, etc.
+                   && lines[i][0] !== "~") {
+            // it's important that this is last since ability potentially can trigger "nature"
+            poke.setNatureName(lines[i].substring(0, lines[i].indexOf(" ")));
+        }
+    }
     return poke;
 }
 
-/*var p = importableToPokemon("Sylveon (M) @ Leftovers\nTrait: Pixilate\nEVs: 248 HP / 252 Def / 8 SDef\nBold Nature (+Def, -Atk)\n- Wish\n- Protect\n- Hyper Voice\n- Heal Bell");
-alert(p.id);
-alert(p.evs);
-alert(p.nature);
-alert(p.ability.id);
-alert(p.item.id);*/
+function importableToMoveset (importText) {
+    var lines = importText.split("\n");
+    lines.forEach(function (val, idx, arr) {
+       arr[idx] = val.trim(); 
+    });
+    var foundOne = false;
+    var moveset = [];
+    for (var i = 0; i < lines.length; ++i) {
+        if (lines[i][0] === "-"
+            || lines[i][0] === "~") {
+            var move = new Sulcalc.Move();
+            move.setName(lines[i].substring(1).trim());
+            moveset.push(move);
+        } else if (foundOne) {
+            break;
+        }
+    }
+    return moveset;
+}
 
 function natureOptions() {
     var stat2 = [0, 1, 2, 4, 5, 3];
@@ -1709,38 +1766,38 @@ window.onload = function() {
             }
             rpt += (a===Sulcalc.Stats.SATK ? " SpAtk" : " Atk");
         }
-        var itemIgnoreList = {"649:1" : "Douse Drive", // Genesect-D
-                              "649:2" : "Shock Drive", // Genesect-S
-                              "649:3" : "Burn Drive", // Genesect-B
-                              "649:4" : "Chill Drive", // Genesect-C
-                              "460:1:M" : "Abomasite", // Mega Abomasnow
-                              "359:1:M" : "Absolite", // Mega Absol
-                              "142:1:M" : "Aerodactylite", // Mega Aerodactyl
-                              "306:1:M" : "Aggronite", // Mega Aggron
-                              "65:1:M" : "Alakazite", // Mega Alakazam
-                              "181:1:M" : "Ampharosite", // Mega Ampharos
-                              "354:1:M" : "Banettite", // Mega Banette
-                              "9:1:M" : "Blastoisinite", // Mega Blastoise
-                              "257:1:M" : "Blazikenite", // Mega Blaziken
-                              "6:1:M" : "Charizardite X", // Mega Charizard X
-                              "6:2:M" : "Charizardite Y", // Mega Charizard Y
-                              "445:1:M" : "Garchompite", // Mega Garchomp
-                              "282:1:M" : "Gardevoirite", // Mega Gardevoir
-                              "94:1:M" : "Gengarite", // Mega Gengar
-                              "130:1:M" : "Gyaradosite", // Mega Gyarados
-                              "214:1:M" : "Heracronite", // Mega Heracross
-                              "229:1:M" : "Houndoominite", // Mega Houndoom
-                              "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
-                              "448:1:M" : "Lucarionite", // Mega Lucario
-                              "310:1:M" : "Manectite", // Mega Manectric
-                              "303:1:M" : "Mawilite", // Mega Mawile
-                              "308:1:M" : "Medichamite", // Mega Medicham
-                              "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
-                              "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
-                              "127:1:M" : "Pinsirite", // Mega Pinsir
-                              "212:1:M" : "Scizorite", // Mega Scizor
-                              "248:1:M" : "Tyranitarite", // Mega Tyranitar
-                              "3:1:M" : "Venusaurite"}; // Mega Venusaur
+        var itemIgnoreList = {"649:1": "Douse Drive", // Genesect-D
+                              "649:2": "Shock Drive", // Genesect-S
+                              "649:3": "Burn Drive", // Genesect-B
+                              "649:4": "Chill Drive", // Genesect-C
+                              "460:1:M": "Abomasite", // Mega Abomasnow
+                              "359:1:M": "Absolite", // Mega Absol
+                              "142:1:M": "Aerodactylite", // Mega Aerodactyl
+                              "306:1:M": "Aggronite", // Mega Aggron
+                              "65:1:M": "Alakazite", // Mega Alakazam
+                              "181:1:M": "Ampharosite", // Mega Ampharos
+                              "354:1:M": "Banettite", // Mega Banette
+                              "9:1:M": "Blastoisinite", // Mega Blastoise
+                              "257:1:M": "Blazikenite", // Mega Blaziken
+                              "6:1:M": "Charizardite X", // Mega Charizard X
+                              "6:2:M": "Charizardite Y", // Mega Charizard Y
+                              "445:1:M": "Garchompite", // Mega Garchomp
+                              "282:1:M": "Gardevoirite", // Mega Gardevoir
+                              "94:1:M": "Gengarite", // Mega Gengar
+                              "130:1:M": "Gyaradosite", // Mega Gyarados
+                              "214:1:M": "Heracronite", // Mega Heracross
+                              "229:1:M": "Houndoominite", // Mega Houndoom
+                              "115:1:M": "Kangaskhanite", // Mega Kangaskhan
+                              "448:1:M": "Lucarionite", // Mega Lucario
+                              "310:1:M": "Manectite", // Mega Manectric
+                              "303:1:M": "Mawilite", // Mega Mawile
+                              "308:1:M": "Medichamite", // Mega Medicham
+                              "150:1:M": "Mewtwonite X", // Mega Mewtwo X
+                              "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
+                              "127:1:M": "Pinsirite", // Mega Pinsir
+                              "212:1:M": "Scizorite", // Mega Scizor
+                              "248:1:M": "Tyranitarite", // Mega Tyranitar
+                              "3:1:M": "Venusaurite"}; // Mega Venusaur
         if (gen >= 2 && c.attacker.item.id !== "0" && itemIgnoreList[c.attacker.id] !== c.attacker.item.name()) {
             rpt += " " + c.attacker.item.name();
         }
