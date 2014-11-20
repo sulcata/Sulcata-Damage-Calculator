@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8" />
         <meta name="description" content="A Pok&eacute;mon Damage Calculator for all generations of Pok&eacute;mon games. The most accurate calculator to date!" />
-        <meta name="keywords" content="damage,pokemon,calculator,sulcata" />
-        <title>Sulcata's Damage Calculator</title>
+        <meta name="keywords" content="damage,pokemon,calculator,sulcata,more accurate" />
+        <title>The More Accurate Damage Calculator</title>
         <link rel="stylesheet" type="text/css" href="reset.css" />
         <link rel="stylesheet" type="text/css" href="calctheme.css" />
         <script type="text/javascript" src="calculator.js"></script>
@@ -13,7 +13,7 @@
     <body>
         <div id="menu">
             <div id="selectorPanel">
-                <div class="selectGen" id="cgen6">XY</div>
+                <div class="selectGen" id="cgen6">ORAS</div>
                 <div class="selectGen" id="cgen5">B2W2</div>
                 <div class="selectGen" id="cgen4">HGSS</div>
                 <div class="selectGen" id="cgen3">ADV</div>
@@ -21,7 +21,7 @@
                 <div class="selectGen" id="cgen1">RBY</div>
                 <div class="clear"></div>
             </div>
-            <div id="moreOptions" class="togglebox">More Options</div>
+            <div id="toggleOptions" class="togglebox">More Options</div>
             <div id="swap">Swap Pok&eacute;mon</div>
             <div id="export">Export Calculation</div>
             <input type="text" id="exportText" />
@@ -29,7 +29,7 @@
         <div id="calculator">
             <div id="attacker">
                 <div class="pokeContainer">
-                    <!-- <div class="sprite">
+                    <!-- <div class="sprite6">
                         <span class="helper"></span>
                         <img id="attackerSprite" src="sprites/XY/0.png" />
                     </div> -->
@@ -38,10 +38,10 @@
                         <div class="textLabel">Pok&eacute;mon</div>
                         <select id="attackerPoke" class="largeSelect"></select>
                     </div>
-                
+                    
                     <div class="clear">
-                        <div class="textLabel G_3456">Nature</div>
-                        <select id="attackerNature" class="largeSelect G_3456"></select>
+                        <div class="textLabel">Set</div>
+                        <select id="attackerSets" class="largeSelect"></select>
                     </div>
                 
                     <div class="clear">
@@ -53,6 +53,11 @@
                         <div class="textLabel G_23456">Item</div>
                         <select id="attackerItem" class="largeSelect G_23456"></select>
                     </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_3456">Nature</div>
+                        <select id="attackerNature" class="largeSelect G_3456"></select>
+                    </div>
 
                     <div class="clear">
                         <div class="textLabel">Level</div>
@@ -60,7 +65,7 @@
                     </div>
 
                     <div class="clear">
-                        <div class="textLabel">Health</div>
+                        <div class="textLabel">Hit Points</div>
                         <input type="text" value="0" id="attackerHpEv" /><input type="text" value="0" id="attackerHpIv" /><select id="attackerHpBoost">
                             <option value="6">+6</option>
                             <option value="5">+5</option>
@@ -247,7 +252,7 @@
             </div>
             <div id="defender">
                 <div class="pokeContainer">
-                    <!-- <div class="sprite">
+                    <!-- <div class="sprite6">
                         <span class="helper"></span>
                         <img id="defenderSprite" src="sprites/XY/0.png" />
                     </div> -->
@@ -256,10 +261,10 @@
                         <div class="textLabel">Pok&eacute;mon</div>
                         <select id="defenderPoke" class="largeSelect"></select>
                     </div>
-                
+                    
                     <div class="clear">
-                        <div class="textLabel G_3456">Nature</div>
-                        <select id="defenderNature" class="largeSelect G_3456"></select>
+                        <div class="textLabel">Set</div>
+                        <select id="defenderSets" class="largeSelect"></select>
                     </div>
                 
                     <div class="clear">
@@ -271,6 +276,11 @@
                         <div class="textLabel G_23456">Item</div>
                         <select id="defenderItem" class="largeSelect G_23456"></select>
                     </div>
+                
+                    <div class="clear">
+                        <div class="textLabel G_3456">Nature</div>
+                        <select id="defenderNature" class="largeSelect G_3456"></select>
+                    </div>
 
                     <div class="clear">
                         <div class="textLabel">Level</div>
@@ -278,7 +288,7 @@
                     </div>
 
                     <div class="clear">
-                        <div class="textLabel">Health</div>
+                        <div class="textLabel">Hit Points</div>
                         <input type="text" value="0" id="defenderHpEv" /><input type="text" value="0" id="defenderHpIv" /><select id="defenderHpBoost">
                             <option value="6">+6</option>
                             <option value="5">+5</option>
@@ -464,12 +474,13 @@
                 </div>
             </div>
             <div id="battleOptions">
-                <div class="M_RIVALRY">
-                    <select id="rivalryGenders">
-                        <option value="opposite">Different Genders (not neutral)</option>
-                        <option value="same">Same Genders (not neutral)</option>
+                <div class="A_RIVALRY">
+                    <select id="rivalryGenders" title="Neutral gendered Pok&eacute;mon are not affected by Rivalry.">
+                        <option value="opposite">Different Genders</option>
+                        <option value="same">Same Genders</option>
                     </select>
                 </div>
+                <div class="A_FLASHFIRE"><input type="checkbox" id="flashFire" />Flash Fire</div>
                 <div class="move endSection">Attack: <select id="move"></select></div>
                 <div class="M_MULTIHIT"><select id="multiHits"></select></div>
                 <div class="M_FURYCUTTER"><select id="furyCutter"></select></div>
@@ -535,7 +546,7 @@
                 <div class="M_FUSIONBOLT"><input type="checkbox" id="fusionFlare" />Fusion Flare was previously used</div>
                 <div class="M_MOVED"><input type="checkbox" id="moved" />Opponent moved first</div>
                 <div class="M_DAMAGED"><input type="checkbox" id="damaged" />Received damage</div>
-                <div class="M_PLEDGE"><input type="checkbox" id="pledge" />Pledge was previously used</div>
+                <div class="M_PLEDGE"><input type="checkbox" id="pledge" />A pledge was previously used</div>
                 <div class="M_HAPPINESS">Happiness: <input type="text" id="happiness" /></div>
                 <div class="M_HIDDENPOWER">
                     <select id="hiddenPowerType">
@@ -566,6 +577,8 @@
                     <option value="2">Rain</option>
                     <option value="3">Sand</option>
                     <option value="1">Hail</option>
+                    <option value="6">Harsh Sun</option>
+                    <option value="5">Heavy Rain</option>
                 </select></div>
                 <div class="clear I_METRONOME">Metronome: <select id="metronome"></select></div>
                 <div class="clear"></div>
