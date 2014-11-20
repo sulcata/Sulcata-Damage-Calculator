@@ -1,27 +1,83 @@
-/** to-do
- * make calculations less slow (timeouts?)
- * quench karppu's autism
- */
-
 db = new Database();
 
+// I cache these so I don't need to go through the slow procedure of determining which pokemon/item/etc. goes in which gen
+// Without the cache this would require looking up a database for each element in the list.
+// For example: Gen 5
 var pokemons = [null, null, null, null, null, null, null];
 var abilities = [null, null, null, null, null, null, null];
 var items = [null, null, null, null, null, null, null];
 var moves = [null, null, null, null, null, null, null];
 var cacheDisabled = false;
 
-function convertToBaseN(n, base, len) {
+// a nice little conversion chart
+var pokeToItem = {
+    "649:1" : "Douse Drive", // Genesect-D
+    "649:2" : "Shock Drive", // Genesect-S
+    "649:3" : "Burn Drive", // Genesect-B
+    "649:4" : "Chill Drive", // Genesect-C
+    "487:1" : "Griseous Orb", // Giratina-O
+    "493:1" : "Fist Plate", // Arceus-Fighting
+    "493:2" : "Sky Plate", // Arceus-Flying
+    "493:3" : "Toxic Plate", // Arceus-Poison
+    "493:4" : "Earth Plate", // Arceus-Ground
+    "493:5" : "Stone Plate", // Arceus-Rock
+    "493:6" : "Insect Plate", // Arceus-Bug
+    "493:7" : "Spooky Plate", // Arceus-Ghost
+    "493:8" : "Iron Plate", // Arceus-Steel
+    "493:9" : "Flame Plate", // Arceus-Fire
+    "493:10" : "Splash Plate", // Arceus-Water
+    "493:11" : "Meadow Plate", // Arceus-Grass
+    "493:12" : "Zap Plate", // Arceus-Electric
+    "493:13" : "Mind Plate", // Arceus-Psychic
+    "493:14" : "Icicle Plate", // Arceus-Ice
+    "493:15" : "Draco Plate", // Arceus-Dragon
+    "493:16" : "Dread Plate", // Arceus-Dark
+    "493:17" : "Pixie Plate", // Arceus-Fairy
+    "460:1:M" : "Abomasite", // Mega Abomasnow
+    "359:1:M" : "Absolite", // Mega Absol
+    "142:1:M" : "Aerodactylite", // Mega Aerodactyl
+    "306:1:M" : "Aggronite", // Mega Aggron
+    "65:1:M" : "Alakazite", // Mega Alakazam
+    "181:1:M" : "Ampharosite", // Mega Ampharos
+    "354:1:M" : "Banettite", // Mega Banette
+    "9:1:M" : "Blastoisinite", // Mega Blastoise
+    "257:1:M" : "Blazikenite", // Mega Blaziken
+    "6:1:M" : "Charizardite X", // Mega Charizard X
+    "6:2:M" : "Charizardite Y", // Mega Charizard Y
+    "445:1:M" : "Garchompite", // Mega Garchomp
+    "282:1:M" : "Gardevoirite", // Mega Gardevoir
+    "94:1:M" : "Gengarite", // Mega Gengar
+    "130:1:M" : "Gyaradosite", // Mega Gyarados
+    "214:1:M" : "Heracronite", // Mega Heracross
+    "229:1:M" : "Houndoominite", // Mega Houndoom
+    "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
+    "448:1:M" : "Lucarionite", // Mega Lucario
+    "310:1:M" : "Manectite", // Mega Manectric
+    "303:1:M" : "Mawilite", // Mega Mawile
+    "308:1:M" : "Medichamite", // Mega Medicham
+    "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
+    "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+    "127:1:M" : "Pinsirite", // Mega Pinsir
+    "212:1:M" : "Scizorite", // Mega Scizor
+    "248:1:M" : "Tyranitarite", // Mega Tyranitar
+    "3:1:M" : "Venusaurite", // Mega Venusaur
+    "383:1:M" : "Red Orb", // Primal Groudon
+    "382:1:M" : "Blue Orb" // Primal Kyogre
+};
+
+function convertToBaseN (n, base, paddingLength) {
     if (typeof n === "string" || n instanceof String) {
         n = parseInt(n, 10);
     }
     // base 64 lets me do EVs in one digit ((64-1)*4=252)
+    // 252 is the maximum number of EVs that will matter and only multiples of 4 can change a Pokemon's stats.
     // also lets me represent pretty much everything in two digits
     var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     // n = base^p
     // ln n = p ln base
     // (ln n)/(ln base) = p
     // floor p
+    // p will be the largest integer such that n > base^p
     var p = Math.floor(Math.log(n) / Math.log(base));
     var result = "";
     while (p >= 0) {
@@ -29,7 +85,7 @@ function convertToBaseN(n, base, len) {
         n %= Math.pow(base, p);
         p--;
     }
-    for (var i = len - result.length; i > 0; i--) {
+    for (var i = paddingLength - result.length; i > 0; i--) {
         result = "0" + result;
     }
     return result;
@@ -37,33 +93,53 @@ function convertToBaseN(n, base, len) {
 
 
 
-function convertFromBaseN(n, base) {
+function convertFromBaseN (n, base) {
+    // this is a lot easier
     var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    // The index of the digit is its value, therefore 'Z'=63, '0'=0, and '-'=10.
+    // The digit's contribution to the integer value is dependent on its position.
+    // value += digit * base^position
     var result = 0;
     for (var i = 0; i < n.length; i++) {
+        // We iterate forwards and read the values backwards because the power increases from right to left.
         result += digits.indexOf(n[n.length-1-i]) * Math.pow(base, i);
     }
     return result;
 }
 
-function binaryToBase64(n) {
+function binaryToBase64 (n) {
+    // Converting the strings without an integer middleman prevents overflow
     var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     var result = "";
+    // A base-64 digit will store exactly 6 bits worth of data.
+    // Before adding the digit to the string, we need to know all 6 bits.
     var temp = 0;
     for (var i = 0; i < n.length; i++) {
+        /* Iterate forwards. Read right to left. Same reason as before.
+         * Left shift is a convient and fast way to multiply by powers of 2.
+         * a << b = a * 2^b
+         * Each 6 bits translates to one 64-digit and does not effect the other digits.
+         * Example:
+         * 100101101010
+         * 100101 in binary = 37 in decimal = z in base-64
+         * 101010 in binary = 42 in decimal = E in base-64
+         * 100101101010 in binary = zE in base-64
+         */ 
         temp |= digits.indexOf(n[n.length-1-i])  << (i % 6);
         if ((i + 1) % 6 === 0) {
+            // left append the digit and reset the temporary value
             result = digits[temp] + result;
             temp = 0;
         }
     }
-    if (temp > 0) {
+    if (temp > 0) { // anything left over
         result = digits[temp] + result;
     }
     return result;
 }
 
-function base64ToBinary(n) {
+function base64ToBinary (n) {
+    // We don't need to worry about overflow as we're converting one digit at a time.
     var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     var result = "";
     for (var i = 0; i < n.length; i++) {
@@ -72,7 +148,7 @@ function base64ToBinary(n) {
     return result;
 }
 
-function pokeToBinary(p) {
+function pokeToBinary (p) {
     /* format info
      * gen 1 : 109 bits
      * gen 2 : 127 bits
@@ -95,7 +171,7 @@ function pokeToBinary(p) {
     if (gen >= 2) {
         q += convertToBaseN(form, 2, 5);
     }
-    //released abilities (gen:num) - 3:76, 4:123, 5:164, 6:188
+    //released abilities (gen:num) - 3:76, 4:123, 5:164, 6:191
     if (gen === 3 || gen === 4) {
         q += convertToBaseN(document.getElementById(p + "Ability").value, 2, 7);
     } else if (gen === 5 || gen === 6) {
@@ -154,6 +230,7 @@ function calcToQueryString() {
     q += pokeToBinary("defender");
     q += convertToBaseN(document.getElementById("move").value, 2, 10);
     q += document.getElementById("critical").checked ? 1 : 0;
+    q += document.getElementById("flashFire").checked ? 1 : 0;
     q += document.getElementById("screens").checked ? 1 : 0;
     if (gen >= 3) {
         q += document.getElementById("helpingHand").checked ? 1 : 0;
@@ -290,6 +367,7 @@ function loadQueryString(q) {
     setSelectByValue("move", convertFromBaseN(q.substr(ptr, 10), 2) + "");
     ptr += 10;
     document.getElementById("critical").checked = q[ptr++] === "1";
+    document.getElementById("flashFire").checked = q[ptr++] === "1";
     document.getElementById("screens").checked = q[ptr++] === "1";
     if (gen >= 3) {
         document.getElementById("helpingHand").checked = q[ptr++] === "1";
@@ -320,7 +398,7 @@ function loadQueryString(q) {
 }
 
 function changeSprite(img, id) {
-    /*var gens = [null, "RBY/", "GSC/", "ADV/", "HGSS/", "B2W2/", "XY/"];
+    /*var gens = [null, "RBY/", "GSC/", "ADV/", "HGSS/", "B2W2/", "ORAS/"];
     var imgurl = "sprites/" + gens[gen] + pokeSpecies(id);
     if (pokeForm(id) !== "0") {
         imgurl += "-" + pokeForm(id);
@@ -328,14 +406,38 @@ function changeSprite(img, id) {
     if (pokeSpecies(id) === "0") {
         imgurl = "sprites/XY/0";
     }
-    document.getElementById(img).src = imgurl + ".png";*/
+    var el = document.getElementById(img);
+    // We need a preloader with an onload event so we don't continue with
+    // setting the image's dimensions before it's even loaded.
+    // A preloader also prevents the user from seeing resizing.
+    preloader = document.createElement("img");
+    preloader.onload = function() {
+        el.src = imgurl + ".png";
+        // I think border-width and padding are doing the 4px
+        var maxWidths = [0, 56, 56, 64, 80, 96, 120],
+            maxHeights = [0, 56, 56, 64, 80, 96, 138];
+        var w = el.naturalWidth, h = el.naturalHeight;
+        // keep it proportional
+        if (w > maxWidths[gen]) {
+            h *= maxWidths[gen] / w;
+            w = maxWidths[gen];
+        }
+        if (h > maxHeights[gen]) {
+            w *= maxHeights[gen] / h;
+            h = maxHeights[gen];
+        }
+        el.style.width = Math.floor(w) + "px";
+        el.style.height = Math.floor(h) + "px";
+        el.style.display = "initial";
+   }
+   preloader.src = imgurl + ".png";*/
 }
 
 function setText(e, txt) {
     if ((typeof e === "string") || (e instanceof String)) {
         e = document.getElementById(e);
     }
-    if ('textContent' in document.body) {
+    if ("textContent" in document.body) {
         e.textContent = txt;
     } else {
         e.innerText = txt;
@@ -346,12 +448,18 @@ function getText(e) {
     if (typeof(e) === "string" || (e instanceof String)) {
         e = document.getElementById(e);
     }
-    if ('textContent' in document.body) {
+    if ("textContent" in document.body) { // Is it compliant?
         return e.textContent;
     }
     return e.innerText;
 }
 
+/*
+ * http://blog.stevenlevithan.com/archives/faster-than-innerhtml
+ * Literally made this application not a nightmare to use when not using Chrome (i.e. on Firefox)
+ * Very useful snippet of code. I've adapted it slightly as needed for my purposes.
+ * Also, it's a good thing this code is compatible with GPLv3.
+ */
 function replaceHtml(e, html) {
     var oldE = (typeof e === "string") || (e instanceof String) ? document.getElementById(e) : e;
     /*@cc_on
@@ -477,9 +585,14 @@ function updateFormatting() {
 }
 
 function changeGen(n) {
+    var oldgen = gen;
     gen = n;
     // reset form first
     setText("results", "");
+    var sprites = document.getElementsByClassName("sprite" + oldgen);
+    for (var i = sprites.length-1; i >= 0; i--) {
+        sprites[i].className = "sprite" + gen;
+    }
     document.getElementById("attackerPoke").selectedIndex = 0;
     changeSprite("attackerSprite", "0:0");
     document.getElementById("attackerNature").selectedIndex = 0;
@@ -522,6 +635,7 @@ function changeGen(n) {
     document.getElementById("screens").checked = false;
     document.getElementById("friendGuard").checked = false;
     document.getElementById("critical").checked = false;
+    document.getElementById("flashFire").checked = false;
     document.getElementById("helpingHand").checked = false;
     document.getElementById("charge").checked = false;
     document.getElementById("multiBattle").checked = false;
@@ -564,6 +678,7 @@ function changeGen(n) {
     document.getElementById("move").selectedIndex = 0;
     updateMoveOptions();
     document.getElementById("pledge").checked = false;
+    updateSets();
 
     if (gen >= 3) {
         document.getElementById("attackerSdefIv").disabled = false;
@@ -589,12 +704,13 @@ function changeGen(n) {
     
     var ops = "";
     var end = gen < 5 ? 10 : 5;
+    var step = gen < 5 ? 1 : 2;
     for (var i = 0; i <= end; i++) {
         ops += "<option value='" + i + "'>" + i;
         if (i === end) {
             ops += "+";
         }
-        ops += " (1." + i + "x)</option>";
+        ops += " (" + Math.floor(i * step / 10 + 1) + "." + ((i * step) % 10) + "x)</option>";
     }
     replaceHtml("metronome", ops);
     
@@ -645,20 +761,32 @@ function changeGen(n) {
     var id = "";
     
     if (pokemons[gen] === null || cacheDisabled) {
-        for (var a in db.releasedPokes(gen)) {
-            id = db.releasedPokes(gen)[a];
-            if (db.pokemons(id)) {
-                if (db.pokemons(id) === "Missingno") {
+        var onlyZero = ["201", "666", "676", "25", "669", "671", "585", "586", "172", "422", "423", "550", "716"];
+        var redundantForms = ["493:18", "0:0"];
+        if (gen === 6) { // just a quick fix to unreleased stuff
+            for (var a in db.pokemons()) {
+                if (redundantForms.indexOf(a) > -1
+                    || (onlyZero.indexOf(a.substring(0, a.indexOf(":"))) > -1 && a.charAt(a.indexOf(":") + 1) !== "0")
+                    || (a.indexOf("670:") === 0 && a.charAt(4) !== "0" && a.charAt(4) !== "5")) {
                     continue;
                 }
-                arr = insertOpOrder(arr, [id, db.pokemons(id)]);
-            } else if (db.pokemons(id + ":H")) {
-                arr = insertOpOrder(arr, [id + ":H", db.pokemons(id + ":H")]);
-            } else if (db.pokemons(id + ":M")) {
-                arr = insertOpOrder(arr, [id + ":M", db.pokemons(id + ":M")]);
-            } else if (db.pokemons(id + ":B")) {
-                arr = insertOpOrder(arr, [id + ":B", db.pokemons(id + ":B")]);
+                arr = insertOpOrder(arr, [a, db.pokemons(a)]);
             }
+        } else for (var a in db.releasedPokes(gen)) {
+            id = db.releasedPokes(gen, a);
+            if (db.pokemons(id + ":H")) {
+                id += ":H";
+            } else if (db.pokemons(id + ":M")) {
+                id += ":M";
+            } else if (db.pokemons(id + ":B")) {
+                id += ":B";
+            }
+            if (redundantForms.indexOf(id) > -1
+                || (onlyZero.indexOf(id.substring(0, id.indexOf(":"))) > -1 && id.charAt(id.indexOf(":") + 1) !== "0")
+                || (id.indexOf("670:") === 0 && id.charAt(4) !== "0" && id.charAt(4) !== "5")) {
+                continue;
+            }
+            arr = insertOpOrder(arr, [id, db.pokemons(id)]);
         }
         arr.splice(0, 0, ["0:0", "Missingno"]);
         pokemons[gen] = getOptions(arr);
@@ -671,7 +799,7 @@ function changeGen(n) {
 
     if (abilities[gen] === null || cacheDisabled) {
         arr = [];
-        var genAbilityLists = [null, 0, 0, 76, 123, 164, 188];
+        var genAbilityLists = [null, 0, 0, 76, 123, 164, 191];
         for (var i = 0; i < genAbilityLists[gen]; i++) {
             arr = insertOpOrder(arr, [i, db.abilities(i)]);
         }
@@ -686,7 +814,7 @@ function changeGen(n) {
     if (moves[gen] === null || cacheDisabled) {
         arr = [];
         for (var a in db.releasedMoves(gen)) {
-            id = db.releasedMoves(gen)[a];
+            id = db.releasedMoves(gen, a);
             arr = insertOpOrder(arr, [id, db.moves(id)]);
         }
         moves[gen] = getOptions(arr);
@@ -698,11 +826,11 @@ function changeGen(n) {
     if (items[gen] === null || cacheDisabled) {
         arr = [];
         for (var a in db.releasedItems(gen)) {
-            id = db.releasedItems(gen)[a];
+            id = db.releasedItems(gen, a);
             arr = insertOpOrder(arr, [id, db.items(id)])
         }
         for (var a in db.releasedBerries(gen)) {
-            id = db.releasedBerries(gen)[a];
+            id = db.releasedBerries(gen, a);
             arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries(id)])
         }
         items[gen] = getOptions(arr);
@@ -786,10 +914,10 @@ function sortSelect(selElem) {
     }
 
 function pokeForm(id) {
-    if (id.indexOf(":")!==id.lastIndexOf(":")) {
-        return id.substring(id.indexOf(":") + 1, id.lastIndexOf(":"));
+    if (id.indexOf(":") !== id.lastIndexOf(":")) {
+        return id.substring(id.indexOf(":")+1, id.lastIndexOf(":"));
     }
-    return id.substring(id.indexOf(":") + 1);
+    return id.substring(id.indexOf(":")+1);
 }
 
 function pokeSpecies(id) {
@@ -861,7 +989,7 @@ function setIvs(p, i) {
     document.getElementById(p + "SpdIv").value = i[Sulcalc.Stats.SPD];
 }
 
-function setBoosts(p, b) {
+function setBoosts (p, b) {
     document.getElementById(p + "AtkBoost").value = b[Sulcalc.Stats.ATK];
     document.getElementById(p + "DefBoost").value = b[Sulcalc.Stats.DEF];
     document.getElementById(p + "SatkBoost").value = b[Sulcalc.Stats.SATK];
@@ -870,14 +998,29 @@ function setBoosts(p, b) {
     document.getElementById(p + "SpdBoost").value = b[Sulcalc.Stats.SPD];
 }
 
-function updatePoke(p) {
+function updatePoke (p) {
     changeSprite(p + "Sprite", document.getElementById(p + "Poke").value);
-    document.getElementById(p + "Nature").selectedIndex = 0;
-    document.getElementById(p + "Item").selectedIndex = 0;
-    document.getElementById(p + "Status").selectedIndex = 0;
-    document.getElementById(p + "Level").value = 100;
     var poke = new Sulcalc.Pokemon();
     poke.id = document.getElementById(p + "Poke").value;
+    document.getElementById(p + "Nature").selectedIndex = 0;
+    if (poke.id === "104:0" || poke.id === "105:0") {
+        setSelectByText(p + "Item", "Thick Club");
+    } else if (poke.id in pokeToItem) {
+        setSelectByText(p + "Item", pokeToItem[poke.id]);
+    } else if (poke.hasEvolution()) {
+        setSelectByText(p + "Item", "Eviolite");
+    } else {
+        document.getElementById(p + "Item").selectedIndex = 0;
+    }
+    document.getElementById(p + "Status").selectedIndex = 0;
+    var hasPreEvo = false; // Little Cup check
+    for (var e in db.evolutions()) {
+        if (db.evolutions(e).indexOf(parseInt(poke.species(), 10)) > -1) {
+            hasPreEvo = true;
+            break;
+        }
+    }
+    document.getElementById(p + "Level").value = !hasPreEvo && poke.hasEvolution() ? 5 : 100;
     var type1e = document.getElementById(p + "Type1");
     var type2e = document.getElementById(p + "Type2");
     setSelectByValue(type1e, poke.type1() + "");
@@ -1060,23 +1203,14 @@ function resetBeatUp() {
 }
 
 function toggleOptions() {
-    if (this.className) {
-        this.className = this.className.indexOf("lock") > -1 ? "togglebox" : "lock togglebox";
-        var toggleElements = document.getElementsByClassName("morePokeOptions");
-        for (var i = 0; i < toggleElements.length; i++) {
-            toggleElements[i].style.display = this.className.indexOf("lock") > -1 ? "" : "none";
-        }
-    } else {
-        this.className = "lock togglebox";
+    setText(this, getText(this) === "More Options" ? "Less Options" : "More Options");
+    var toggleElements = document.getElementsByClassName("morePokeOptions");
+    for (var i = 0; i < toggleElements.length; i++) {
+        toggleElements[i].style.display = getText(this) === "More Options" ? "none" : "";
     }
 }
 
 function swapPokemon() {
-    //var aSprite = document.getElementById("attackerSprite");
-    //var dSprite = document.getElementById("defenderSprite");
-    //var tempSrc = aSprite.src;
-    //aSprite.src = dSprite.src;
-    //dSprite.src = tempSrc;
     var swapIdx = ["Poke", "Nature", "Item", "Status", "Type1", "Type2", "TypeAdded"];
     for (var i = 0; i < swapIdx.length; i++) {
         var a = document.getElementById("attacker" + swapIdx[i]);
@@ -1085,6 +1219,8 @@ function swapPokemon() {
         a.selectedIndex = d.selectedIndex;
         d.selectedIndex = tempIdx;
     }
+    changeSprite("attackerSprite", document.getElementById("attackerPoke").value);
+    changeSprite("defenderSprite", document.getElementById("defenderPoke").value);
     var a = document.getElementById("attackerAbility");
     var d = document.getElementById("defenderAbility");
     var tempIdx = a.selectedIndex;
@@ -1144,188 +1280,130 @@ function swapPokemon() {
 }
 
 function updateAttackerItemOptions() {
-    var e = document.getElementById("battleOptions").getElementsByTagName("div");
-    var i = "";
-    var item = db.items(this.value);
-    for (var j = 0; j < e.length; j++) {
-        if (e[j].className) {
-            if (e[j].className.indexOf("I_") !== -1) {
-                i = e[j].className.substring(e[j].className.indexOf("I_") + 2);
-                if (i === "METRONOME" && item === "Metronome") {
-                    e[j].style.display = "block";
-                    document.getElementById("metronome").selectedIndex = 0;
-                } else {
-                    e[j].style.display = "none";
-                }
-            }
+    var a = document.getElementById("battleOptions").getElementsByTagName("div");
+    var item = db.items(document.getElementById("attackerItem").value);
+    for (var i = 0; i < a.length; i++) {
+        if (a[i].className && a[i].className.indexOf("I_") > -1) {
+            a[i].style.display = "none";
         }
     }
-}
-
-
-function autofillAttackerAbilityOptions() {
-    var ability = db.abilities(this.value);
-    if (ability === "Toxic Boost") {
-        var aStatus = document.getElementById("attackerStatus");
-        setSelectByText(aStatus, "Poisoned");
-    } else if (ability === "Flare Boost" || ability === "Guts") {
-        var aStatus = document.getElementById("attackerStatus");
-        setSelectByText(aStatus, "Burned");
+    var showInput = function (id) {
+        document.getElementById(id).parentElement.style.display = "";
+    }
+    if (item === "Metronome") {
+        showInput("metronome");
     }
 }
 
 function updateMoveOptions() {
     var a = document.getElementsByTagName("div");
-    var m = "";
-    var move = db.moves(this.value);
+    var move = db.moves(document.getElementById("move").value);
+    var moveId = document.getElementById("move").value;
     for (var i = 0; i < a.length; i++) {
-        if (a[i].className) {
-            if (a[i].className.indexOf("M_") !== -1) {
-                m = a[i].className.substring(a[i].className.indexOf("M_") + 2);
-                if (m === "FURYCUTTER" && move === "Fury Cutter") {
-                    a[i].style.display = "";
-                } else if (m === "MINIMIZE"
-                           && (move === "Stomp"
-                               || move === "Steamroller"
-                               || move === "Phantom Force"
-                               || move === "Flying Press"
-                               || (gen === 3 && (move === "Extrasensory"
-                                                 || move === "Astonish"
-                                                 || move === "Needle Arm")))
-                           && gen !== 1) {
-                    a[i].style.display = "";
-                } else if (m === "DIG" && (move === "Earthquake" || move === "Magnitude") && gen > 1) {
-                    a[i].style.display = "";
-                } else if (m === "DIVE" && (move === "Surf" || move === "Whirlpool") && gen >= 3) {
-                    a[i].style.display = "";
-                } else if (m === "ECHOEDVOICE" && move === "Echoed Voice") {
-                    a[i].style.display = "";
-                } else if (m === "TRUMPCARD" && move === "Trump Card") {
-                    a[i].style.display = "";
-                } else if (m === "ROUND" && move === "Round") {
-                    a[i].style.display = "";
-                } else if (m === "FLY" && (move === "Twister" || move === "Gust") && gen > 1) {
-                    a[i].style.display = "";
-                } else if (m === "BEATUP" && move === "Beat Up") {
-                    resetBeatUp();
-                    a[i].style.display = "";
-                    document.getElementById("beatUpStatLabel").style.width = document.getElementById("beatUpStat0").offsetWidth + "px";
-                    document.getElementById("beatUpLevelLabel").style.width = document.getElementById("beatUpLevel0").offsetWidth + "px";
-                    for (var n = 0; n < 6; n++) {
-                        document.getElementById("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
-                    }
-                    document.getElementById("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
-                } else if (m === "SPITUP" && move === "Spit Up") {
-                    a[i].style.display = "";
-                } else if (m === "PURSUIT" && move === "Pursuit") {
-                    a[i].style.display = "";
-                } else if (m === "PRESENT" && move === "Present") {
-                    a[i].style.display = "";
-                } else if (m === "MAGNITUDE" && move === "Magnitude") {
-                    a[i].style.display = "";
-                } else if (m === "ROLLOUT" && (move === "Rollout" || move === "Ice Ball")) {
-                    a[i].style.display = "";
-                } else if (m === "RETALIATE" && move === "Retaliate") {
-                    a[i].style.display = "";
-                } else if (m === "FUSIONFLARE" && move === "Fusion Flare") {
-                    a[i].style.display = "";
-                } else if (m === "FUSIONBOLT" && move === "Fusion Bolt") {
-                    a[i].style.display = "";
-                } else if (m === "MOVED" && move === "Payback") {
-                    a[i].style.display = "";
-                } else if (m === "DAMAGED" && (move === "Assurance" || move === "Revenge" || move === "Avalanche")) {
-                    a[i].style.display = "";
-                } else if (m === "MULTIHIT" && db.minMaxHits(gen, this.value) && db.minMaxHits(gen, this.value) > 1 && move !== "Beat Up") {
-                    a[i].style.display = "";
-                    var moveInfo = new Sulcalc.Move(),
-                        multiOps = "";
-                    moveInfo.id = this.value;
-                    for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
-                        multiOps += "<option value='" + h + "'>" + h + " hits</option>";
-                    }
-                    var eMultiHits = document.getElementById("multiHits");
-                    replaceHtml(eMultiHits, multiOps);
-                    document.getElementById("multiHits").selectedIndex = 0;
-                } else if (m === "PLEDGE" && (move === "Fire Pledge" || move === "Water Pledge" || move === "Grass Pledge")) {
-                    a[i].style.display = "";
-                } else if (m === "HAPPINESS" && move === "Return") {
-                    a[i].style.display = "";
-                    document.getElementById("happiness").value = 255;
-                } else if (m === "HAPPINESS" && move === "Frustration") {
-                    a[i].style.display = "";
-                    document.getElementById("happiness").value = 0;
-                } else if (m === "SPEED" && (move === "Gyro Ball" || move === "Electro Ball")) {
-                    a[i].style.display = "";
-                } else if (m === "HEALTH" && (move === "Eruption" || move === "Water Spout" || move === "Endeavor" || move === "Final Gambit")) {
-                    a[i].style.display = "";
-                } else if (m === "HIDDENPOWER" && move === "Hidden Power") {
-                    a[i].style.display = "";
-                } else {
-                    a[i].style.display = "none";
-                }
-            }
+        if (a[i].className && a[i].className.indexOf("M_") > -1) {
+            a[i].style.display = "none";
         }
     }
+    var showInput = function (id) {
+        document.getElementById(id).parentElement.style.display = "";
+    }
+    if (move === "Fury Cutter") {
+        showInput("furyCutter");
+    } else if ((gen > 1 && ["Stomp", "Steamroller", "Flying Press"].indexOf(move) > -1)
+               || (gen === 3 && ["Extrasensory", "Astonish", "Needle Arm"].indexOf(move) > -1)
+               || (gen >= 6 && ["Body Slam", "Dragon Rush", "Phantom Force"].indexOf(move) > -1)) {
+        showInput("minimize");
+    } else if (["Magnitude", "Earthquake"].indexOf(move) > -1) {
+        if (gen > 1) {
+            showInput("dig");
+        }
+        if (move === "Magnitude") {
+            showInput("Magnitude");
+        }
+    } else if (gen >= 3 && ["Surf", "Whirlpool"].indexOf(move) > -1) {
+        showInput("dive");
+    } else if (move === "Echoed Voice") {
+        showInput("echoedVoice");
+    } else if (move === "Trump Card") {
+        showInput("trumpCardPP");
+    } else if (move === "Round") {
+        showInput("round");
+    } else if (gen > 1 && ["Twister", "Gust"].indexOf(move) > -1) {
+        showInput("fly")
+    } else if (move === "Beat Up") {
+        resetBeatUp();
+        showInput("beatUpStat0");
+        document.getElementById("beatUpStatLabel").style.width = document.getElementById("beatUpStat0").offsetWidth + "px";
+        document.getElementById("beatUpLevelLabel").style.width = document.getElementById("beatUpLevel0").offsetWidth + "px";
+        for (var n = 0; n < 6; n++) {
+            document.getElementById("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
+        }
+        document.getElementById("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
+    } else if (move === "Spit Up") {
+        showInput("stockpile");
+    } else if (move === "Pursuit") {
+        showInput("switchOut");
+    } else if (move === "Present") {
+        showInput("present");
+    } else if (["Rollout", "Ice Ball"].indexOf(move) > -1) {
+        showInput("rollout");
+        showInput("defenseCurl");
+    } else if (move === "Retaliate") {
+        showInput("previouslyFainted");
+    } else if (move === "Fusion Flare") {
+        showInput("fusionBolt");
+    } else if (move === "Fusion Bolt") {
+        showInput("fusionFlare");
+    } else if (move === "Payback") {
+        showInput("moved");
+    } else if (["Assurance", "Avalanche", "Revenge"].indexOf(move) > -1) {
+        showInput("damaged");
+    } else if (db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && move !== "Beat Up") {
+        var moveInfo = new Sulcalc.Move(),
+            multiOps = "";
+        moveInfo.id = moveId;
+        for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
+            multiOps += "<option value='" + h + "'>" + h + " hits</option>";
+        }
+        var eMultiHits = document.getElementById("multiHits");
+        replaceHtml(eMultiHits, multiOps);
+        document.getElementById("multiHits").selectedIndex = 0;
+        showInput("multiHits");
+    } else if (["Fire Pledge", "Water Pledge", "Grass Pledge"].indexOf(move) > -1) {
+        showInput("pledge");
+    } else if (move === "Return") {
+        showInput("happiness");
+        document.getElementById("happiness").value = 255;
+    } else if (move === "Frustration") {
+        showInput("happiness");
+        document.getElementById("happiness").value = 0;
+    } else if (move === "Hidden Power") {
+        showInput("hiddenPowerType");
+        updateHiddenPowerType();
+    }
+    // maybe toggle health and speed based inputs, idk
 }
 
-function autofillPokeOptions(p) {
-    var pokeId = document.getElementById(p + "Poke").value;
-    var pokeToItem = {
-        "649:1" : "Douse Drive", // Genesect-D
-        "649:2" : "Shock Drive", // Genesect-S
-        "649:3" : "Burn Drive", // Genesect-B
-        "649:4" : "Chill Drive", // Genesect-C
-        "487:1" : "Griseous Orb", // Giratina-O
-        "493:1" : "Fist Plate", // Arceus-Fighting
-        "493:2" : "Sky Plate", // Arceus-Flying
-        "493:3" : "Toxic Plate", // Arceus-Poison
-        "493:4" : "Earth Plate", // Arceus-Ground
-        "493:5" : "Stone Plate", // Arceus-Rock
-        "493:6" : "Insect Plate", // Arceus-Bug
-        "493:7" : "Spooky Plate", // Arceus-Ghost
-        "493:8" : "Iron Plate", // Arceus-Steel
-        "493:9" : "Flame Plate", // Arceus-Fire
-        "493:10" : "Splash Plate", // Arceus-Water
-        "493:11" : "Meadow Plate", // Arceus-Grass
-        "493:12" : "Zap Plate", // Arceus-Electric
-        "493:13" : "Mind Plate", // Arceus-Psychic
-        "493:14" : "Icicle Plate", // Arceus-Ice
-        "493:15" : "Draco Plate", // Arceus-Dragon
-        "493:16" : "Dread Plate", // Arceus-Dark
-        "493:17" : "Pixie Plate", // Arceus-Fairy
-        "460:1:M" : "Abomasite", // Mega Abomasnow
-        "359:1:M" : "Absolite", // Mega Absol
-        "142:1:M" : "Aerodactylite", // Mega Aerodactyl
-        "306:1:M" : "Aggronite", // Mega Aggron
-        "65:1:M" : "Alakazite", // Mega Alakazam
-        "181:1:M" : "Ampharosite", // Mega Ampharos
-        "354:1:M" : "Banettite", // Mega Banette
-        "9:1:M" : "Blastoisinite", // Mega Blastoise
-        "257:1:M" : "Blazikenite", // Mega Blaziken
-        "6:1:M" : "Charizardite X", // Mega Charizard X
-        "6:2:M" : "Charizardite Y", // Mega Charizard Y
-        "445:1:M" : "Garchompite", // Mega Garchomp
-        "282:1:M" : "Gardevoirite", // Mega Gardevoir
-        "94:1:M" : "Gengarite", // Mega Gengar
-        "130:1:M" : "Gyaradosite", // Mega Gyarados
-        "214:1:M" : "Heracronite", // Mega Heracross
-        "229:1:M" : "Houndoominite", // Mega Houndoom
-        "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
-        "448:1:M" : "Lucarionite", // Mega Lucario
-        "310:1:M" : "Manectite", // Mega Manectric
-        "303:1:M" : "Mawilite", // Mega Mawile
-        "308:1:M" : "Medichamite", // Mega Medicham
-        "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
-        "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
-        "127:1:M" : "Pinsirite", // Mega Pinsir
-        "212:1:M" : "Scizorite", // Mega Scizor
-        "248:1:M" : "Tyranitarite", // Mega Tyranitar
-        "3:1:M" : "Venusaurite", // Mega Venusaur
-        "104:0" : "Thick Club", // Cubone
-        "105:0" : "Thick Club" // Marowak
-    };
-    if (pokeId in pokeToItem) {
-        setSelectByText(p + "Item", pokeToItem[pokeId]);
+function updateAbilityOptions() {
+    var a = document.getElementsByTagName("div");
+    var attackerAbility = db.abilities(document.getElementById("attackerAbility").value);
+    var defenderAbility = db.abilities(document.getElementById("defenderAbility").value);
+    for (var i = 0; i < a.length; i++) {
+        if (a[i].className && a[i].className.indexOf("A_") > -1) {
+            a[i].style.display = "none";
+        }
+    }
+    var showInput = function (id) {
+        document.getElementById(id).parentElement.style.display = "";
+    }
+    if (attackerAbility === "Flash Fire") {
+        showInput("flashFire");
+    } else if (attackerAbility === "Rivalry") {
+        showInput("rivalryGenders");
+    } else if (attackerAbility === "Toxic Boost") {
+        setSelectByText("attackerStatus", "Poisoned");
+    } else if (attackerAbility === "Flare Boost" || attackerAbility === "Guts") {
+        setSelectByText("attackerStatus", "Burned");
     }
 }
 
@@ -1411,6 +1489,94 @@ function importableToMoveset (importText) {
     return moveset;
 }
 
+function updateSets (p, setTypes) {
+    var offensiveSets, defensiveSets;
+    offensiveSets = defensiveSets = "<option value='No set'>No set</option>";
+    if (gen <= 2) {
+        document.getElementById("attackerSets").parentNode.style.display = document.getElementById("defenderSets").parentNode.style.display = "none";
+    } else {
+        document.getElementById("attackerSets").parentNode.style.display = document.getElementById("defenderSets").parentNode.style.display = "";
+    }
+    var a = document.getElementById("attackerPoke").value,
+        d = document.getElementById("defenderPoke").value;
+    if (gen >= 3) {
+        offensiveSets += "<option value='Physical attacker'>Physical attacker</option>";
+        offensiveSets += "<option value='Special attacker'>Special attacker</option>";
+        if (!(a in pokeToItem)) {
+            offensiveSets += "<option value='Choice Band'>Choice Band</option>";
+        }
+        
+        defensiveSets += "<option value='Physical wall'>Physical wall</option>";
+        defensiveSets += "<option value='Special wall'>Special wall</option>";
+        defensiveSets += "<option value='Mixed wall'>Mixed wall</option>";
+        defensiveSets += "<option value='Bulky'>Bulky</option>";
+    }
+    if (gen >= 4) {
+        if (!(a in pokeToItem)) {
+            offensiveSets += "<option value='Choice Specs'>Choice Specs</option>";
+            offensiveSets += "<option value='Physical Life Orb'>Physical Life Orb</option>";
+            offensiveSets += "<option value='Special Life Orb'>Special Life Orb</option>";
+        }
+    }
+    document.getElementById("attackerSets").innerHTML = offensiveSets;
+    document.getElementById("defenderSets").innerHTML = defensiveSets;
+}
+
+function changeSet (p, setName) {
+    var poke = new Sulcalc.Pokemon();
+    poke.id = document.getElementById(p + "Poke").value;
+    if (setName === "Choice Band") {
+        setEvs(p, [0, 252, 0, 4, 0, 252]);
+        setSelectByText(p + "Item", "Choice Band");
+    } else if (setName === "Choice Specs") {
+        setEvs(p, [0, 4, 0, 252, 0, 252]);
+        setSelectByText(p + "Item", "Choice Specs");
+    } else if (setName === "Physical Life Orb") {
+        setEvs(p, [0, 252, 0, 4, 0, 252]);
+        setSelectByText(p + "Item", "Life Orb");
+    } else if (setName === "Special Life Orb") {
+        setEvs(p, [0, 4, 0, 252, 0, 252]);
+        setSelectByText(p + "Item", "Life Orb");
+    } else if (setName === "Physical attacker") {
+        setEvs(p, [0, 252, 0, 4, 0, 252]);
+        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+    } else if (setName === "Special attacker") {
+        setEvs(p, [0, 4, 0, 252, 0, 252]);
+        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+    } else if (setName === "Physical wall") {
+        setEvs(p, [252, 0, 252, 0, 4, 0]);
+        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+        setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "8" : "5");
+    } else if (setName === "Special wall") {
+        setEvs(p, [252, 0, 4, 0, 252, 0]);
+        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+        setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "23" : "20");
+    } else if (setName === "Mixed wall") { // make "fatest set" algorithm
+        setEvs(p, [4, 0, 252, 0, 252, 0]);
+        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+        if (poke.baseStat(Sulcalc.Stats.DEF) >  poke.baseStat(Sulcalc.Stats.SDEF)) {
+            setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "23" : "20");
+        } else {
+            setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "8" : "5");
+        }
+    } else if (setName === "Bulky") {
+        setEvs(p, [252, 0, 4, 0, 4, 0]);
+        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+    } else if (setName === "No set") {
+        setEvs(p, [0, 0, 0, 0, 0, 0]);
+        setIvs(p, [31, 31, 31, 31, 31, 31]);
+        setSelectByValue(p + "Item", "0");
+        setSelectByValue(p + "Ability", "0");
+        setSelectByValue(p + "Nature", "0");
+    }
+
+    if (poke.id in pokeToItem) {
+        setSelectByText(p + "Item", pokeToItem[poke.id]);
+    }
+    
+    updateStats(p);
+}
+
 function natureOptions() {
     var stat2 = [0, 1, 2, 4, 5, 3];
     var statToName = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
@@ -1439,39 +1605,39 @@ window.onload = function() {
     replaceHtml("attackerNature", natOps);
     replaceHtml("defenderNature", natOps);
     
-    for (var i = 1; i <= 6; i++) {
-        document.getElementById("cgen" + i).onclick = (function (n) {
-            return (function() {
-                if (gen !== n) {
-                    changeGen(n);
-                }
-            });
-        }(i));
-    };
+    [1, 2, 3, 4, 5, 6].forEach(function (val, idx, array) {
+        document.getElementById("cgen" + val).onclick = function() {
+            if (gen !== val) {
+                changeGen(val);
+            }
+        };
+    });
     
     document.getElementById("attackerItem").onchange = updateAttackerItemOptions;
-    document.getElementById("attackerAbility").onchange = autofillAttackerAbilityOptions;
+    document.getElementById("attackerAbility").onchange = updateAbilityOptions;
+    document.getElementById("defenderAbility").onchange = updateAbilityOptions;
     document.getElementById("move").onchange = updateMoveOptions;
     document.getElementById("attackerPoke").onchange = function() {
         updatePoke("attacker");
-        autofillPokeOptions("attacker");
-        updateHiddenPowerType();
+        updateSets("attacker");
     };
     document.getElementById("defenderPoke").onchange = function() {
         updatePoke("defender");
-        autofillPokeOptions("defender");
+        updateSets("defender");
     };
     document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
     document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
     document.getElementById("defenderHP").onchange = function() {updateHpPercent("defender");};
     document.getElementById("defenderHPp").onchange = function() {updateHpPoints("defender");};
+    document.getElementById("attackerSets").onchange = function() {changeSet("attacker", this.value);};
+    document.getElementById("defenderSets").onchange = function() {changeSet("defender", this.value);};
     document.getElementById("attackerNature").onchange = document.getElementById("attackerLevel").onchange = function() {updateStats("attacker");};
     document.getElementById("defenderNature").onchange = document.getElementById("defenderLevel").onchange = function() {updateStats("defender");};
-    document.getElementById("moreOptions").onclick = toggleOptions;
+    document.getElementById("toggleOptions").onclick = toggleOptions;
     document.getElementById("swap").onclick = swapPokemon;
     document.getElementById("export").onclick = function() {
         var href = document.location.href;
-        if (href.indexOf("?") != -1) {
+        if (href.indexOf("?") > -1) {
             href = href.substr(0, href.indexOf("?"));
         }
         document.getElementById("exportText").value = href + "?" + calcToQueryString();
@@ -1486,43 +1652,37 @@ window.onload = function() {
         }
     };
     
-    var strs = [["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"], ["Ev", "Iv", "Boost"]];
-    for (var i = 0; i < strs[0].length; i++) {
-        for (var j = 0; j < strs[1].length; j++) {
-            if (strs[1][j] === "Iv") {
-                document.getElementById("attacker" + strs[0][i] + "Iv").onchange = function() {
+    ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"].forEach(function (val, idx, arr) {
+        ["Ev", "Iv", "Boost"].forEach(function (val2, idx2, arr2) {
+            if (val2 === "Iv") {
+                document.getElementById("attacker" + val + "Iv").onchange = function() {
                     updateStats("attacker");
                     updateHiddenPowerType();
                 };
-                document.getElementById("defender" + strs[0][i] + "Iv").onchange = function() {
+                document.getElementById("defender" + val + "Iv").onchange = function() {
                     updateStats("defender");
                 };
-            } else if (strs[0][i] !== "Hp" || strs[1][j] !== "Boost") {
-                document.getElementById("attacker" + strs[0][i] + strs[1][j]).onchange = function() {
+            } else if (val !== "Hp" || val2 !== "Boost") {
+                document.getElementById("attacker" + val + val2).onchange = function() {
                     updateStats("attacker");
                 };
-                document.getElementById("defender" + strs[0][i] + strs[1][j]).onchange = function() {
+                document.getElementById("defender" + val + val2).onchange = function() {
                     updateStats("defender");
                 };
             }
-        }
-    }
+        });
+    });
     
-    var lvls = [5, 50, 100];
-    for (var i = 0; i < lvls.length; i++) {
-        document.getElementById("attackerLevel" + lvls[i]).onclick = (function (level) {
-            return (function() {
-                document.getElementById("attackerLevel").value = level;
-                updateStats("attacker");
-            });
-        }(lvls[i]));
-        document.getElementById("defenderLevel" + lvls[i]).onclick = (function (level) {
-            return (function() {
-                document.getElementById("defenderLevel").value = level;
-                updateStats("defender");
-            });
-        }(lvls[i]));
-    }
+    [5, 50, 100].forEach(function (val, idx, arr) {
+        document.getElementById("attackerLevel" + val).onclick = function() {
+            document.getElementById("attackerLevel").value = val;
+            updateStats("attacker");
+        };
+        document.getElementById("defenderLevel" + val).onclick = function() {
+            document.getElementById("defenderLevel").value = val;
+            updateStats("defender");
+        };
+    });
     
     for (var i = 0; i < 6; i++) {
         document.getElementById("beatUpLevel" + i).onchange = (function (n) {
@@ -1555,7 +1715,7 @@ window.onload = function() {
             setIvs("attacker", db.hiddenPowersGen2(this.value)[hiddenPowerIvs.value]);
         }
         updateStats("attacker");
-    }
+    };
     
     document.getElementById("hiddenPowerIvs").onchange = function() {
         var hiddenPowerType = document.getElementById("hiddenPowerType");
@@ -1565,7 +1725,7 @@ window.onload = function() {
             setIvs("attacker", db.hiddenPowersGen2(hiddenPowerType.value)[parseInt(this.value, 10)]);
         }
         updateStats("attacker");
-    }
+    };
 
     var toggleElements = document.getElementsByClassName("morePokeOptions");
     for (var i = 0; i < toggleElements.length; i++) {
@@ -1638,7 +1798,7 @@ window.onload = function() {
         c.field.reflect = document.getElementById("screens").checked;
         c.field.friendGuard = document.getElementById("friendGuard").checked;
         c.field.critical = document.getElementById("critical").checked;
-        c.field.flashFire = db.abilities(document.getElementById("attackerAbility").value) === "Flash Fire";
+        c.field.flashFire = document.getElementById("flashFire").checked;
         c.field.helpingHand = document.getElementById("helpingHand").checked;
         c.field.charge = document.getElementById("charge").checked;
         c.field.multiBattle = document.getElementById("multiBattle").checked;
@@ -1764,40 +1924,44 @@ window.onload = function() {
             } else if (c.attacker.natureMultiplier(a) === -1 && gen > 2) {
                 rpt += "-";
             }
-            rpt += (a===Sulcalc.Stats.SATK ? " SpAtk" : " Atk");
+            rpt += (a === Sulcalc.Stats.SATK ? " SpAtk" : " Atk");
         }
-        var itemIgnoreList = {"649:1": "Douse Drive", // Genesect-D
-                              "649:2": "Shock Drive", // Genesect-S
-                              "649:3": "Burn Drive", // Genesect-B
-                              "649:4": "Chill Drive", // Genesect-C
-                              "460:1:M": "Abomasite", // Mega Abomasnow
-                              "359:1:M": "Absolite", // Mega Absol
-                              "142:1:M": "Aerodactylite", // Mega Aerodactyl
-                              "306:1:M": "Aggronite", // Mega Aggron
-                              "65:1:M": "Alakazite", // Mega Alakazam
-                              "181:1:M": "Ampharosite", // Mega Ampharos
-                              "354:1:M": "Banettite", // Mega Banette
-                              "9:1:M": "Blastoisinite", // Mega Blastoise
-                              "257:1:M": "Blazikenite", // Mega Blaziken
-                              "6:1:M": "Charizardite X", // Mega Charizard X
-                              "6:2:M": "Charizardite Y", // Mega Charizard Y
-                              "445:1:M": "Garchompite", // Mega Garchomp
-                              "282:1:M": "Gardevoirite", // Mega Gardevoir
-                              "94:1:M": "Gengarite", // Mega Gengar
-                              "130:1:M": "Gyaradosite", // Mega Gyarados
-                              "214:1:M": "Heracronite", // Mega Heracross
-                              "229:1:M": "Houndoominite", // Mega Houndoom
-                              "115:1:M": "Kangaskhanite", // Mega Kangaskhan
-                              "448:1:M": "Lucarionite", // Mega Lucario
-                              "310:1:M": "Manectite", // Mega Manectric
-                              "303:1:M": "Mawilite", // Mega Mawile
-                              "308:1:M": "Medichamite", // Mega Medicham
-                              "150:1:M": "Mewtwonite X", // Mega Mewtwo X
-                              "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
-                              "127:1:M": "Pinsirite", // Mega Pinsir
-                              "212:1:M": "Scizorite", // Mega Scizor
-                              "248:1:M": "Tyranitarite", // Mega Tyranitar
-                              "3:1:M": "Venusaurite"}; // Mega Venusaur
+        var itemIgnoreList = { // don't exclude plates & orbs as those affect damage
+            "649:1": "Douse Drive", // Genesect-D
+            "649:2": "Shock Drive", // Genesect-S
+            "649:3": "Burn Drive", // Genesect-B
+            "649:4": "Chill Drive", // Genesect-C
+            "460:1:M": "Abomasite", // Mega Abomasnow
+            "359:1:M": "Absolite", // Mega Absol
+            "142:1:M": "Aerodactylite", // Mega Aerodactyl
+            "306:1:M": "Aggronite", // Mega Aggron
+            "65:1:M": "Alakazite", // Mega Alakazam
+            "181:1:M": "Ampharosite", // Mega Ampharos
+            "354:1:M": "Banettite", // Mega Banette
+            "9:1:M": "Blastoisinite", // Mega Blastoise
+            "257:1:M": "Blazikenite", // Mega Blaziken
+            "6:1:M": "Charizardite X", // Mega Charizard X
+            "6:2:M": "Charizardite Y", // Mega Charizard Y
+            "445:1:M": "Garchompite", // Mega Garchomp
+            "282:1:M": "Gardevoirite", // Mega Gardevoir
+            "94:1:M": "Gengarite", // Mega Gengar
+            "130:1:M": "Gyaradosite", // Mega Gyarados
+            "214:1:M": "Heracronite", // Mega Heracross
+            "229:1:M": "Houndoominite", // Mega Houndoom
+            "115:1:M": "Kangaskhanite", // Mega Kangaskhan
+            "448:1:M": "Lucarionite", // Mega Lucario
+            "310:1:M": "Manectite", // Mega Manectric
+            "303:1:M": "Mawilite", // Mega Mawile
+            "308:1:M": "Medichamite", // Mega Medicham
+            "150:1:M": "Mewtwonite X", // Mega Mewtwo X
+            "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
+            "127:1:M": "Pinsirite", // Mega Pinsir
+            "212:1:M": "Scizorite", // Mega Scizor
+            "248:1:M": "Tyranitarite", // Mega Tyranitar
+            "3:1:M": "Venusaurite", // Mega Venusaur
+            "383:1:M" : "Red Orb", // Primal Groudon
+            "382:1:M" : "Blue Orb" // Primal Kyogre
+        }
         if (gen >= 2 && c.attacker.item.id !== "0" && itemIgnoreList[c.attacker.id] !== c.attacker.item.name()) {
             rpt += " " + c.attacker.item.name();
         }
@@ -1836,11 +2000,15 @@ window.onload = function() {
             rpt += " in Hail";
         } else if (c.field.weather === Sulcalc.Weathers.SAND) {
             rpt += " in Sand";
+        } else if (c.field.weather === Sulcalc.Weathers.HEAVY_RAIN) {
+            rpt += " in Heavy Rain";
+        } else if (c.field.weather === Sulcalc.Weathers.HARSH_SUN) {
+            rpt += " in Harsh Sun";
         }
         if (c.field.critical) {
             rpt += " on a critical hit";
         }
-        rpt += ": " + dmg[0].warray[0][0] + " - " + dmg[0].warray[dmg[0].warray.length-1][0] + " (" + minPercent + " - " + maxPercent + "%) -- ";
+        rpt += ": " + dmg[0].warray[0][0] + " - " + dmg[0].warray[dmg[0].warray.length - 1][0] + " (" + minPercent + " - " + maxPercent + "%) -- ";
         
         var _chanceToKO = function (turns, damageRange, remainingHP, eff, t) {
             var totalChance = 0;
@@ -1862,7 +2030,7 @@ window.onload = function() {
                 t %= (damageRange.length - 1);
             }
             for (var i = 0; i < damageRange[t].warray.length; i++) {
-                totalChance += _chanceToKO(turns - 1, damageRange, remainingHP - damageRange[t].warray[i][0], eff, t+1) * damageRange[t].warray[i][1];
+                totalChance += _chanceToKO(turns - 1, damageRange, remainingHP - damageRange[t].warray[i][0], eff, t + 1) * damageRange[t].warray[i][1];
             }
             return totalChance / damageRange[t].total();
         }
@@ -2156,7 +2324,7 @@ window.onload = function() {
         
         for (var i = 1, cko = 0, hasPrevious = false; cko < 1; i++) {
             cko = chanceToKO(i, dmg, c.defender.currentHP, effects);
-            if (dmg[dmg.length - 1] === 0 && i !== 1) {
+            if (dmg[dmg.length-1] === 0 && i !== 1) {
                 break;
             } else if (i === 20 || dmg[0][dmg[0].length-1] === 0) {
                 rpt += "That's probably not going to KO...";
@@ -2172,7 +2340,7 @@ window.onload = function() {
                 if (hasPrevious) {
                     rpt += ", "
                 }
-                rpt += Math.floor(cko * Math.pow(10, decimalPlaces + 2)) / Math.pow(10, decimalPlaces) + "% chance to ";
+                rpt += Math.floor(cko * Math.pow(10, decimalPlaces+2)) / Math.pow(10, decimalPlaces) + "% chance to ";
                 rpt += (i === 1 ? "O" : i) + "HKO";
                 hasPrevious = true;
             }
@@ -2182,10 +2350,10 @@ window.onload = function() {
         } 
         for (var i = 1; i < effectMsgs.length; i++) {
             rpt += effectMsgs[i];
-            if (effectMsgs.length === i + 2) {
+            if (effectMsgs.length === i+2) {
                 rpt += effectMsgs.length === 3 ? "" : ",";
                 rpt += " and "
-            } else if (effectMsgs.length !== i + 1) {
+            } else if (effectMsgs.length !== i+1) {
                 rpt += ", "
             }
         }
@@ -2193,19 +2361,20 @@ window.onload = function() {
         var totalWidth = document.getElementById("hpDisplay").clientWidth;
         var minWidth = Math.round(totalWidth * dmg[0].warray[0][0] / c.defender.stat(Sulcalc.Stats.HP));
         minWidth = Math.min(totalWidth, minWidth);
-        var maxWidth = Math.round(totalWidth * dmg[0].warray[dmg[0].warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP))
+        var maxWidth = Math.round(totalWidth * dmg[0].warray[dmg[0].warray.length-1][0] / c.defender.stat(Sulcalc.Stats.HP))
                        - minWidth;
         maxWidth = Math.min(totalWidth-minWidth, maxWidth);
         document.getElementById("minDamageBar").style.width = minWidth + "px";
         document.getElementById("maxDamageBar").style.width = maxWidth + "px";
         document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
-        var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0]/c.defender.stat(Sulcalc.Stats.HP)*1000)/10;
+        var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length - 1][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
     };
     
     var q = document.location.href;
-    if (q.indexOf("?") >= 0) {
+    if (q.indexOf("?") > -1) {
         loadQueryString(q.substr(q.indexOf("?") + 1));
     } else {
         changeGen(6);
     }
+    updateAbilityOptions();
 };

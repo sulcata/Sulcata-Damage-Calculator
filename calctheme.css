@@ -23,7 +23,7 @@ html {
 }
 
 #selectorPanel {
-    width: 9em;
+    width: 9.5em;
 }
 
 .clear {
@@ -55,14 +55,34 @@ input[type="text"] {
     float: left;
 }
 
-.sprite {
-    height: 138px;
-    width: 120px;
+.sprite1, .sprite2, .sprite3, .sprite4, .sprite5, .sprite6 {
+    height: 142px; /* 138+4 */
+    width: 124px; /* 120+4 */
     margin: 0 auto 0.2em auto;
     text-align: center;
     background-color: #FFF;
-    border: 1px solid #AAA;
+    /* border: 1px solid #AAA; */
     padding: 0.5em;
+}
+
+.sprite1, .sprite2 {
+    width: 60px; /* 56+4 */
+    height: 60px;
+}
+
+.sprite3 {
+    width: 68px; /* 64+4 */
+    height: 68px;
+}
+
+.sprite4 {
+    width: 84px; /* 80+4 */
+    height: 84px;
+}
+
+.sprite5 {
+    width: 100px; /* 96+4 */
+    height: 100px;
 }
 
 .helper {
@@ -102,7 +122,7 @@ select, input {
 }
 
 #exportText {
-    width: 8em;
+    width: 8.5em;
     display: block;
     font-size: 1em;
     margin: 0.4em 0 0 0.5em;
@@ -155,11 +175,15 @@ label {
     cursor: pointer;
 }
 
+.togglebox, #swap, #export {
+    width: 8em;
+}
+
 .levelButton:hover, #calc:hover, .togglebox:hover, #swap:hover, #export:hover {
     border-color: #AAA;
 }
 
-.levelButton:active, #calc:active, .togglebox:active, .lock, #swap:active, #export:active {
+.levelButton:active, #calc:active, .togglebox:active, #swap:active, #export:active {
     background-color: #EEE;
     border-color: #AAA;
 }
@@ -237,6 +261,7 @@ label {
     position: fixed;
     top: 0;
     left: 0;
+    background-color: #FFF;
 }
 
 .endSection {
