@@ -433,7 +433,7 @@ function changeSprite(img, id) {
    preloader.src = imgurl + ".png";*/
 }
 
-function setText(e, txt) {
+function setText (e, txt) {
     if ((typeof e === "string") || (e instanceof String)) {
         e = document.getElementById(e);
     }
@@ -444,7 +444,7 @@ function setText(e, txt) {
     }
 }
 
-function getText(e) {
+function getText (e) {
     if (typeof(e) === "string" || (e instanceof String)) {
         e = document.getElementById(e);
     }
@@ -855,7 +855,8 @@ function changeGen(n) {
     }
     
     str = "<option value='0'>(No Weather)</option><option value='4'>Sun</option><option value='2'>Rain</option><option value='3'>Sand</option>";
-    str += gen>=3?"<option value='1'>Hail</option>":"";
+    str += gen >= 3 ? "<option value='1'>Hail</option>" : "";
+    str += gen >= 6 ? "<option value='6'>Harsh Sun</option><option value='5'>Heavy Rain</option><option value='7'>Strong Winds</option>" : "";
     replaceHtml("weather", str);
     
     for (var i = 1; i <= 6; i++) {
@@ -876,6 +877,8 @@ function changeGen(n) {
         }
     }
     
+    updateAttackerAbilityOptions();
+    updateDefenderAbilityOptions();
     updateFormatting();
 }
 
@@ -1384,26 +1387,62 @@ function updateMoveOptions() {
     // maybe toggle health and speed based inputs, idk
 }
 
-function updateAbilityOptions() {
+var weatherAbilities = [null, "Snow Warning", "Drizzle", "Sand Stream", "Drought", "Primordial Sea", "Desolate Land", "Delta Stream"];
+
+function updateAttackerAbilityOptions() {
     var a = document.getElementsByTagName("div");
-    var attackerAbility = db.abilities(document.getElementById("attackerAbility").value);
-    var defenderAbility = db.abilities(document.getElementById("defenderAbility").value);
+    var ability = db.abilities(document.getElementById("attackerAbility").value);
     for (var i = 0; i < a.length; i++) {
-        if (a[i].className && a[i].className.indexOf("A_") > -1) {
+        if (a[i].className && a[i].className.indexOf("AA_") > -1) {
             a[i].style.display = "none";
         }
     }
     var showInput = function (id) {
         document.getElementById(id).parentElement.style.display = "";
     }
-    if (attackerAbility === "Flash Fire") {
+    if (ability === "Flash Fire") {
         showInput("flashFire");
-    } else if (attackerAbility === "Rivalry") {
+    } else if (ability === "Rivalry") {
         showInput("rivalryGenders");
-    } else if (attackerAbility === "Toxic Boost") {
+    } else if (ability === "Toxic Boost") {
         setSelectByText("attackerStatus", "Poisoned");
-    } else if (attackerAbility === "Flare Boost" || attackerAbility === "Guts") {
+    } else if (ability === "Flare Boost" || ability === "Guts") {
         setSelectByText("attackerStatus", "Burned");
+    }
+    if (weatherAbilities.indexOf(ability) > -1) {
+        updateWeatherOptions("attacker");
+    }
+}
+
+function updateDefenderAbilityOptions() {
+    var a = document.getElementsByTagName("div");
+    var ability = db.abilities(document.getElementById("defenderAbility").value);
+    for (var i = 0; i < a.length; i++) {
+        if (a[i].className && a[i].className.indexOf("DA_") > -1) {
+            a[i].style.display = "none";
+        }
+    }
+    var showInput = function (id) {
+        document.getElementById(id).parentElement.style.display = "";
+    }
+    if (weatherAbilities.indexOf(ability) > -1) {
+        updateWeatherOptions("defender");
+    }
+}
+
+function updateWeatherOptions (p) {
+    var weatherWeights = [null, 1, 1, 1, 1, 2, 2, 3];
+    var aWeather = weatherAbilities.indexOf(db.abilities(document.getElementById("attackerAbility").value));
+    var dWeather = weatherAbilities.indexOf(db.abilities(document.getElementById("defenderAbility").value));
+    /*if (weatherAbilities.indexOf(ability) > -1) {
+        setSelectByValue("weather",  + "");
+    }*/
+    if (weatherWeights[aWeather] > weatherWeights[dWeather]) {
+        setSelectByValue("weather", aWeather + "");
+    } else if (weatherWeights[dWeather] > weatherWeights[aWeather]) {
+        setSelectByValue("weather", dWeather + "");
+    } else {
+        setSelectByValue("weather", "" + (p === "attacker" ? aWeather : dWeather));
     }
 }
 
@@ -1614,16 +1653,18 @@ window.onload = function() {
     });
     
     document.getElementById("attackerItem").onchange = updateAttackerItemOptions;
-    document.getElementById("attackerAbility").onchange = updateAbilityOptions;
-    document.getElementById("defenderAbility").onchange = updateAbilityOptions;
+    document.getElementById("attackerAbility").onchange = updateAttackerAbilityOptions;
+    document.getElementById("defenderAbility").onchange = updateDefenderAbilityOptions;
     document.getElementById("move").onchange = updateMoveOptions;
     document.getElementById("attackerPoke").onchange = function() {
         updatePoke("attacker");
         updateSets("attacker");
+        updateAttackerAbilityOptions(oldAbility);
     };
     document.getElementById("defenderPoke").onchange = function() {
         updatePoke("defender");
         updateSets("defender");
+        updateDefenderAbilityOptions(oldAbility);
     };
     document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
     document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
@@ -1851,6 +1892,8 @@ window.onload = function() {
         c.field.invertedBattle = document.getElementById("invertedBattle").checked;
         c.field.pledge = document.getElementById("pledge").checked;
         c.field.weather = parseInt(document.getElementById("weather").value, 10);
+        c.field.airLock = c.attacker.ability.name() === "Air Lock"
+                          || c.defender.ability.name() === "Air Lock";
         
         dmg = [];
         if (c.move.name() === "Fury Cutter") {
@@ -2376,5 +2419,4 @@ window.onload = function() {
     } else {
         changeGen(6);
     }
-    updateAbilityOptions();
 };
