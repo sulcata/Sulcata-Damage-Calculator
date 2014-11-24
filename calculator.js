@@ -604,7 +604,7 @@ WeightedArray.prototype.toString = function() {
 var Stats = {HP:0, ATK:1, DEF:2, SATK:3, SDEF:4, SPD:5, ACC:6, EVA:7, SPC:3}; // special overlaps with SpAtk for gen 2
 var Genders = {NOGENDER:0, MALE:1, FEMALE:2};
 var DamageClasses = {OTHER:0, PHYSICAL:1, SPECIAL:2};
-var Weathers = {CLEAR:0, SUN:4, RAIN:2, SAND:3, HAIL:1, HARSH_SUN:6, HEAVY_RAIN:5};
+var Weathers = {CLEAR:0, SUN:4, RAIN:2, SAND:3, HAIL:1, HARSH_SUN:6, HEAVY_RAIN:5, STRONG_WINDS:7};
 var Statuses = {NOSTATUS:0, POISONED:1, BADLYPOISONED:2, BURNED:3, PARALYZED:4, ASLEEP:5, FROZEN:6};
 var Types = {NORMAL:0, FIGHTING:1, FLYING:2, POISON:3, GROUND:4, ROCK:5, BUG:6,
              GHOST:7, STEEL:8, FIRE:9, WATER:10, GRASS:11, ELECTRIC:12,
@@ -1164,12 +1164,12 @@ function Field() {
 function hiddenPowerP (ivs) {
     // just a weird formula involving the second bit of the pokemon's IVs
     // differs for gen 2
-    return Math.floor(((ivs[Stats.HP] & 2)
-                        | ((ivs[Stats.ATK] & 2) << 1)
-                        | ((ivs[Stats.DEF] & 2) << 2)
-                        | ((ivs[Stats.SPD] & 2) << 3)
-                        | ((ivs[Stats.SATK] & 2) << 4)
-                        | ((ivs[Stats.SDEF] & 2) << 5)
+    return Math.floor((   ((ivs[Stats.HP] & 2) >> 1)
+                        | (ivs[Stats.ATK] & 2)
+                        | ((ivs[Stats.DEF] & 2) << 1)
+                        | ((ivs[Stats.SPD] & 2) << 2)
+                        | ((ivs[Stats.SATK] & 2) << 3)
+                        | ((ivs[Stats.SDEF] & 2) << 4)
                       ) * 40 / 63 + 30);
 }
     
@@ -1627,9 +1627,9 @@ function Calculator() {
         } else if (aAbilityName === "Toxic Boost" && (this.attacker.status === Statuses.POISONED || this.attacker.status === Statuses.BADLYPOISONED) && this.move.damageClass() === DamageClasses.PHYSICAL) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         } else if (aAbilityName === "Rivalry") {
-            if (this.attacker.gender !== this.defender.gender && this.attacker.gender !== NOGENDER) {
+            if (this.attacker.gender !== this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePowerMod = this.chainMod(0x1400, movePowerMod);
-            } else if (this.attacker.gender === this.defender.gender && this.attacker.gender !== NOGENDER) {
+            } else if (this.attacker.gender === this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePowerMod = this.chainMod(0xC00, movePowerMod);
             }
         } else if (aAbilityName === "Sand Force" && weather === Weathers.SAND && (moveType === Types.GROUND || moveType === Types.ROCK || moveType === Types.STEEL)) {
@@ -1908,6 +1908,10 @@ function Calculator() {
             } else if (moveType === Types.FIRE) {
                 return [0];
             }
+        } else if (weather === Weathers.STRONG_WINDS
+                   && this.typeEffectiveness(moveType, Types.FLYING)
+                   && [this.defender.type1(), this.defender.type2()].indexOf(Types.FLYING) > -1) {
+            baseDamage = this.applyMod(0x800, baseDamage);
         }
 
         if (crit) { // I'm guessing this is how GameFreak does it, although I believe x1.5 round down has the same effect anyway
@@ -2748,7 +2752,7 @@ function Calculator() {
         if (aAbilityName === "Rivalry") {
             if (this.attacker.gender !== this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePower = (movePower * 5) >> 2; // 125/100
-            } else if (this.attacker.gender===this.defender.gender && this.attacker.gender!==Genders.NOGENDER) {
+            } else if (this.attacker.gender===this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePower = (movePower * 3 ) >> 2; // 75/100
             }
         } else if (aAbilityName === "Reckless" && (moveName === "Jump Kick" || moveName === "High Jump Kick" || this.move.hasRecoil())) {
