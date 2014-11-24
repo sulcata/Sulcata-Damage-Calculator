@@ -1939,12 +1939,8 @@ window.onload = function() {
         var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
         rpt = "";
         var dclass = 0;
-        var type = c.move.type();
-        var power = c.move.power();
-        if (c.move.name() === "Hidden Power") {
-            type = Sulcalc.hiddenPowerT(c.attacker.ivs);
-            power = Sulcalc.hiddenPowerP(c.attacker.ivs);
-        }
+        /*var type = c.move.type();
+        var power = c.move.power();*/
         if (gen <= 3) {
             dclass = db.typeDamageClass()[c.move.type()];
         } else {
@@ -2013,7 +2009,17 @@ window.onload = function() {
         }
         rpt += c.attacker.status === Sulcalc.Statuses.BURNED ? " Burned " : " ";
         rpt += c.attacker.name() + " " + c.move.name();
-        // additional move info
+        if (c.move.name() === "Hidden Power") {
+            if (gen <= 2) {
+                rpt += " [" + db.types(Sulcalc.hiddenPowerT2(c.attacker.ivs))
+                       + " " + Sulcalc.hiddenPowerP2(c.attacker.ivs) + "]";
+            } else if (gen <= 5) {
+                rpt += " [" + db.types(Sulcalc.hiddenPowerT(c.attacker.ivs))
+                       + " " + Sulcalc.hiddenPowerP(c.attacker.ivs) + "]";
+            } else {
+                rpt += " [" + db.types(Sulcalc.hiddenPowerT(c.attacker.ivs)) + "]";
+            }
+        }
         rpt += " vs. ";
         if (c.defender.boosts[d] !== 0) {
             rpt += (c.defender.boosts[d] > 0 ? "+" : "-") + Math.abs(c.defender.boosts[d]) + " ";
