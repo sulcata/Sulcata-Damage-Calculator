@@ -65,6 +65,13 @@ var pokeToItem = {
     "382:1:M" : "Blue Orb" // Primal Kyogre
 };
 
+function isUseless (m) {
+    if (db.movePowers(6, m) > 0) {
+        return false;
+    }
+    return ["0", "267"].indexOf(m) < 0;
+}
+
 function convertToBaseN (n, base, paddingLength) {
     if (typeof n === "string" || n instanceof String) {
         n = parseInt(n, 10);
@@ -772,21 +779,33 @@ function changeGen(n) {
                 }
                 arr = insertOpOrder(arr, [a, db.pokemons(a)]);
             }
-        } else for (var a in db.releasedPokes(gen)) {
-            id = db.releasedPokes(gen, a);
-            if (db.pokemons(id + ":H")) {
-                id += ":H";
-            } else if (db.pokemons(id + ":M")) {
-                id += ":M";
-            } else if (db.pokemons(id + ":B")) {
-                id += ":B";
+        } else {
+            for (var a in db.releasedPokes(gen)) {
+                id = db.releasedPokes(gen, a);
+                if (db.pokemons(id + ":H")) {
+                    id += ":H";
+                } else if (db.pokemons(id + ":M")) {
+                    continue;
+                } else if (db.pokemons(id + ":B")) {
+                    id += ":B";
+                }
+                if (redundantForms.indexOf(id) > -1
+                    || (onlyZero.indexOf(id.substring(0, id.indexOf(":"))) > -1 && id.charAt(id.indexOf(":") + 1) !== "0")
+                    || (id.indexOf("670:") === 0 && id.charAt(4) !== "0" && id.charAt(4) !== "5")) {
+                    continue;
+                }
+                arr = insertOpOrder(arr, [id, db.pokemons(id)]);
             }
-            if (redundantForms.indexOf(id) > -1
-                || (onlyZero.indexOf(id.substring(0, id.indexOf(":"))) > -1 && id.charAt(id.indexOf(":") + 1) !== "0")
-                || (id.indexOf("670:") === 0 && id.charAt(4) !== "0" && id.charAt(4) !== "5")) {
-                continue;
+        }
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i][0].charAt(arr[i][0].lastIndexOf(":") + 1) === "H") {
+                var j = 0;
+                var s = arr[i][0].substr(0, arr[i][0].indexOf(":"));
+                while (db.releasedPokes(gen, s + ":" + ++j) !== undefined // stay positive
+                       || (gen === 6 && db.pokemons(s + ":" + j + ":M") !== undefined)) { // comment gen 6 cond when fully released
+                    arr.splice(++i, 0, [s + ":" + j + ":M", db.pokemons(s + ":" + j + ":M")]);
+                }
             }
-            arr = insertOpOrder(arr, [id, db.pokemons(id)]);
         }
         arr.splice(0, 0, ["0:0", "Missingno"]);
         pokemons[gen] = getOptions(arr);
@@ -814,8 +833,10 @@ function changeGen(n) {
     if (moves[gen] === null || cacheDisabled) {
         arr = [];
         for (var a in db.releasedMoves(gen)) {
-            id = db.releasedMoves(gen, a);
-            arr = insertOpOrder(arr, [id, db.moves(id)]);
+            if (!isUseless(a)) {
+                id = db.releasedMoves(gen, a);
+                arr = insertOpOrder(arr, [id, db.moves(id)]);
+            }
         }
         moves[gen] = getOptions(arr);
         replaceHtml("move", moves[gen]);
@@ -898,7 +919,7 @@ function sortOptions(id) {
     return str;
 }
 
-function sortSelect(selElem) {
+function sortSelect (selElem) {
         var tmpAry = new Array();
         for (var i=0;i<selElem.options.length;i++) {
             tmpAry[i] = new Array();
@@ -916,18 +937,18 @@ function sortSelect(selElem) {
         return;
     }
 
-function pokeForm(id) {
+function pokeForm (id) {
     if (id.indexOf(":") !== id.lastIndexOf(":")) {
         return id.substring(id.indexOf(":")+1, id.lastIndexOf(":"));
     }
     return id.substring(id.indexOf(":")+1);
 }
 
-function pokeSpecies(id) {
+function pokeSpecies (id) {
     return id.substring(0, id.indexOf(":"));
 }
 
-function options(j) {
+function options (j) {
     var str="";
     for (var a in j) {
         str += "<option value='" + a + "'>" + j[a] + "</option>";
@@ -935,7 +956,7 @@ function options(j) {
     return str;
 }
 
-function options8000(j) {
+function options8000 (j) {
     var str="";
     for (var a in j) {
         str += "<option value='" + (parseInt(a, 10)+8000) + "'>" + j[a] + "</option>";
@@ -943,7 +964,7 @@ function options8000(j) {
     return str;
 }
 
-function getEvs(p) {
+function getEvs (p) {
     return [ parseInt(document.getElementById(p + "HpEv").value, 10),
              parseInt(document.getElementById(p + "AtkEv").value, 10),
              parseInt(document.getElementById(p + "DefEv").value, 10),
@@ -952,7 +973,7 @@ function getEvs(p) {
              parseInt(document.getElementById(p + "SpdEv").value, 10)];
 }
 
-function getIvs(p) {
+function getIvs (p) {
     return [ parseInt(document.getElementById(p + "HpIv").value, 10),
              parseInt(document.getElementById(p + "AtkIv").value, 10),
              parseInt(document.getElementById(p + "DefIv").value, 10),
@@ -961,18 +982,17 @@ function getIvs(p) {
              parseInt(document.getElementById(p + "SpdIv").value, 10)];
 }
 
-function getBoosts(p) {
+function getBoosts (p) {
     return [ 0,
              parseInt(document.getElementById(p + "AtkBoost").value, 10),
              parseInt(document.getElementById(p + "DefBoost").value, 10),
              gen > 1 ? parseInt(document.getElementById(p + "SatkBoost").value, 10) : parseInt(document.getElementById(p + "SpcBoost").value, 10),
              gen > 1 ? parseInt(document.getElementById(p + "SdefBoost").value, 10) : parseInt(document.getElementById(p + "SpcBoost").value, 10),
              parseInt(document.getElementById(p + "SpdBoost").value, 10),
-             0,
-             0];
+             0, 0];
 }
     
-function setEvs(p, e) {
+function setEvs (p, e) {
     document.getElementById(p + "HpEv").value = e[Sulcalc.Stats.HP];
     document.getElementById(p + "AtkEv").value = e[Sulcalc.Stats.ATK];
     document.getElementById(p + "DefEv").value = e[Sulcalc.Stats.DEF];
@@ -982,7 +1002,7 @@ function setEvs(p, e) {
     document.getElementById(p + "SpdEv").value = e[Sulcalc.Stats.SPD];
 }
 
-function setIvs(p, i) {
+function setIvs (p, i) {
     document.getElementById(p + "HpIv").value = (gen > 2) ? i[Sulcalc.Stats.HP] : (i[1] & 1) << 3 | (i[2] & 1) << 2 | (i[5] & 1) << 1 | (i[3] & 1);
     document.getElementById(p + "AtkIv").value = i[Sulcalc.Stats.ATK];
     document.getElementById(p + "DefIv").value = i[Sulcalc.Stats.DEF];
@@ -1058,10 +1078,14 @@ function updatePoke (p) {
 
 function updateHpPercent(p) {
     var poke = new Sulcalc.Pokemon();
+    poke.id = document.getElementById(p + "Poke").value;
+    if (poke.id === "0:0") {
+        document.getElementById(p + "HP").value = "";
+        return;
+    }
     poke.level = parseInt(document.getElementById(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
-    poke.id = document.getElementById(p + "Poke").value;
     var total = poke.stat(Sulcalc.Stats.HP);
     var currentPoints = document.getElementById(p + "HP").value;
     if (currentPoints.match(/[^0-9]/g) !== null) {
@@ -1075,10 +1099,14 @@ function updateHpPercent(p) {
     
 function updateHpPoints(p) {
     var poke = new Sulcalc.Pokemon();
+    poke.id = document.getElementById(p + "Poke").value;
+    if (poke.id === "0:0") {
+        document.getElementById(p + "HPp").value = "";
+        return;
+    }
     poke.level = parseInt(document.getElementById(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
-    poke.id = document.getElementById(p + "Poke").value;
     var total = poke.stat(Sulcalc.Stats.HP);
     var currentPercent = document.getElementById(p + "HPp").value;
     if (currentPercent.match(/[^0-9]/g) !== null) {
@@ -1090,7 +1118,7 @@ function updateHpPoints(p) {
     document.getElementById(p + "HPp").value = Math.max(1, Math.min(100, currentPercent));
 }
 
-function updateStats(p) {
+function updateStats (p) {
     // ev and iv are unified in a "special" stat, but the base stats are different.
     // I recall reading it was because GSC and RBY used the same data structures.
     if (gen === 2) {
@@ -1123,21 +1151,30 @@ function updateStats(p) {
         poke.ivs[i] = Math.max(0, Math.min(gen > 2 ? 31 : 15, isNaN(poke.ivs[i]) ? (gen > 2 ? 31 : 15) : poke.ivs[i]));
     }
     // correct the EVs and IVs by setting them after doing the above checks.
-    // Javascript won't enter infinite loops since it can't trigger user events.
     setEvs(p, poke.evs);
     setIvs(p, poke.ivs);
     poke.boosts = getBoosts(p);
     poke.nature = parseInt(document.getElementById(p + "Nature").value, 10);
     poke.id = document.getElementById(p + "Poke").value;
-    setText(p + "TotalHP", poke.stat(Sulcalc.Stats.HP));
-    document.getElementById(p + "HP").value = poke.stat(Sulcalc.Stats.HP);
-    document.getElementById(p + "HPp").value = "100";
+    setText(p + "TotalHP", poke.id === "0:0" ? "" : poke.stat(Sulcalc.Stats.HP));
+    document.getElementById(p + "HP").value = poke.id === "0:0" ? "" : poke.stat(Sulcalc.Stats.HP);
+    document.getElementById(p + "HPp").value = poke.id === "0:0" ? "" : "100";
     var strs = [["Hp", 0], ["Atk", 1], ["Def", 2], ["Satk", 3], ["Spc", 3], ["Sdef", 4], ["Spd", 5]];
-    for (var i = 0; i < strs.length; i++) {
-        if (gen > 2) {
-            setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
-        } else {
-            setText(p + strs[i][0] + "Stat", Math.min(999, poke.boostedStat(strs[i][1])));
+    if (poke.id === "0:0") {
+        setText(p + "HpStat", "");
+        setText(p + "AtkStat", "");
+        setText(p + "DefStat", "");
+        setText(p + "SatkStat", "");
+        setText(p + "SpcStat", "");
+        setText(p + "SdefStat", "");
+        setText(p + "SpdStat", "");
+    } else {
+        for (var i = 0; i < strs.length; i++) {
+            if (gen > 2) {
+                setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
+            } else {
+               setText(p + strs[i][0] + "Stat", Math.min(999, poke.boostedStat(strs[i][1])));
+            }
         }
     }
 }
@@ -1475,7 +1512,7 @@ function importableToPokemon (importText) {
     var item = lines[0].substring(tempIdx + 3);
     poke.setName(name);
     poke.gender = gender;
-    for (var i = 1; i < lines.length; ++i) {
+    for (var i = 1; i < lines.length; i++) {
         if (lines[i].substr(0, 6).toLowerCase() === "level:") {
             poke.level = parseInt(lines[i].substr(6).trim(), 10);
         } else if (lines[i].substr(0, 6).toLowerCase() === "trait:") {
@@ -1515,7 +1552,7 @@ function importableToMoveset (importText) {
     });
     var foundOne = false;
     var moveset = [];
-    for (var i = 0; i < lines.length; ++i) {
+    for (var i = 0; i < lines.length; i++) {
         if (lines[i][0] === "-"
             || lines[i][0] === "~") {
             var move = new Sulcalc.Move();
