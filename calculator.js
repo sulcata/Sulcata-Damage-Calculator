@@ -1158,7 +1158,8 @@ function Field() {
     this.ionDeluge = false;
     this.invertedBattle = false; // inverts type matchups if true
     this.pledgeBoost = false;
-    this.parentalBond = false; // do not touch
+    this.secondHit = false; // do not touch
+    this.brokenMultiscale = false; // also no touching
 }
     
 function hiddenPowerP (ivs) {
@@ -1645,7 +1646,7 @@ function Calculator() {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         } else if (aAbilityName === "Mega Launcher" && this.move.pulse()) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
-        } else if (aAbilityName === "Parental Bond" && this.field.parentalBond) {
+        } else if (aAbilityName === "Parental Bond" && this.field.secondHit) {
             movePowerMod = this.chainMod(0x800, movePowerMod); // also probably where this goes
         }
         if (dAbilityName === "Heatproof" && moveType === Types.FIRE) {
@@ -1972,7 +1973,7 @@ function Calculator() {
                                           && aAbilityName !== "Infiltrator") {
             finalMod = this.chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         }
-        if (dAbilityName === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
+        if (dAbilityName === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP) && !this.field.brokenMultiscale) {
             finalMod = this.chainMod(0x800, finalMod);
         }
         if (aAbilityName === "Tinted Lens" && eff < 64) {
@@ -3545,7 +3546,7 @@ function Calculator() {
                                           && aAbilityName !== "Infiltrator") {
             finalMod = this.chainMod(this.field.multiBattle ? 0xA8F : 0x800, finalMod);
         }
-        if (dAbilityName === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
+        if (dAbilityName === "Multiscale" && this.defender.currentHP === this.defender.stat(Stats.HP) && !this.field.brokenMultiscale) {
             finalMod = this.chainMod(0x800, finalMod);
         }
         if (aAbilityName === "Tinted Lens" && eff < 4) {
@@ -3602,7 +3603,7 @@ function Calculator() {
         return damages;
     }
     
-    this.selCalc = function() {
+    this.selCalc = function() { // pick the formula
         if (gen === 1) {
             return this.rby_calculate();
         } else if (gen === 2) {
@@ -3619,7 +3620,7 @@ function Calculator() {
         return [0]; // ok
     }
     
-    this.calculate = function() {
+    this._calculate = function() { // helper
         if (this.move.name() === "(No Move)") {
             return new WeightedArray([0]);
         } else if (this.move.name() === "Triple Kick") {
@@ -3659,10 +3660,15 @@ function Calculator() {
             // Fling, Self-Destruct, Explosion, Final Gambit, and Endeavor are excluded from the effect
             // Hits once at full power, and once at half power.
             var first = new WeightedArray(this.selCalc());
-            this.field.parentalBond = true;
+            this.field.secondHit = true;
             var second = new WeightedArray(this.selCalc());
-            this.field.parentalBond = false;
-            return first.combine(second); // Combine the first with the second hit.
+            this.field.secondHit = false;
+            return first.combine(second);
+        } else if (this.defender.ability.name() === "Multiscale") {
+            var first = new WeightedArray(this.selCalc());
+            this.field.brokenMultiscale = true;
+            var second = new WeightedArray(this.selCalc());
+            return first.combine(second);
         } else if (this.move.maxHits() !== 1 && gen !== 1) {
             // Generic Multi Hit moves
             var dmg = new WeightedArray([0]);
@@ -3689,6 +3695,51 @@ function Calculator() {
         }
         // Simple move; default case.
         return new WeightedArray(this.selCalc());
+    }
+    
+    this.calculate = function() { // multiturn variance
+        var dmg = [];
+        if (this.move.name() === "Fury Cutter") {
+            while (this.field.furyCutter <= 5) {
+                dmg.push(this._calculate());
+                this.field.furyCutter++;
+            }
+            dmg.push(1);
+        } else if (this.move.name() === "Echoed Voice") {
+            while (this.field.echoedVoice <= 4) {
+                dmg.push(this._calculate());
+                this.field.echoedVoice++;
+            }
+            dmg.push(1);
+        } else if (this.move.name() === "Trump Card") {
+            dmg.push(this._calculate());
+            while (this.field.trumpPP > 0) {
+                this.field.trumpPP -= this.defender.ability.name() === "Pressure" ? 2 : 1;
+                dmg.push(this._calculate());
+            }
+            dmg.push(0);
+        } else if (this.move.name() === "Explosion" || this.move.name() === "Self-Destruct") {
+            dmg.push(this._calculate());
+            dmg.push(0);
+        } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
+            while (this.field.rollout <= 4) {
+                dmg.push(this._calculate());
+                this.field.rollout++;
+            }
+            dmg.push(2);
+        } else {
+            var t1 = this._calculate();
+            var t2 = this._calculate();
+            if (t1.warray === t2.warray) {
+                dmg.push(t1);
+            } else {
+                dmg.push(t1);
+                dmg.push(t2);
+            }
+            dmg.push(1);
+        }
+        this.brokenMultiscale = false;
+        return dmg;
     }
 }
 
