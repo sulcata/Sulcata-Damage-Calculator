@@ -2047,7 +2047,7 @@ function Calculator() {
             return [65535];
         } else if (moveName === "Psywave") {
             var range = [];
-            for (var i = 1; i <= Math.floor(this.attacker.level*3/2-1); i++) {
+            for (var i = 1; i <= Math.floor(this.attacker.level * 3 / 2 - 1); i++) {
                 range[i-1] = i;
             }
             return range;

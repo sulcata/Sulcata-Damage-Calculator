@@ -38,27 +38,46 @@ var pokeToItem = {
     "142:1:M" : "Aerodactylite", // Mega Aerodactyl
     "306:1:M" : "Aggronite", // Mega Aggron
     "65:1:M" : "Alakazite", // Mega Alakazam
+    "334:1:M" : "Altarianite", // Mega Altaria
     "181:1:M" : "Ampharosite", // Mega Ampharos
+    "531:1:M" : "Audinite", // Mega Audino
     "354:1:M" : "Banettite", // Mega Banette
+    "15:1:M" : "Beedrillite", // Mega Beedrill
     "9:1:M" : "Blastoisinite", // Mega Blastoise
     "257:1:M" : "Blazikenite", // Mega Blaziken
+    "323:1:M" : "Cameruptite", // Mega Camerupt
     "6:1:M" : "Charizardite X", // Mega Charizard X
     "6:2:M" : "Charizardite Y", // Mega Charizard Y
+    "719:1:M" : "Diancite", // Mega Diancie
+    "475:1:M" : "Galladite", // Mega Gallade
     "445:1:M" : "Garchompite", // Mega Garchomp
     "282:1:M" : "Gardevoirite", // Mega Gardevoir
     "94:1:M" : "Gengarite", // Mega Gengar
+    "362:1:M" : "Glalitite", // Mega Glalie
     "130:1:M" : "Gyaradosite", // Mega Gyarados
     "214:1:M" : "Heracronite", // Mega Heracross
     "229:1:M" : "Houndoominite", // Mega Houndoom
     "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
+    "380:1:M" : "Latiasite", // Mega Latias
+    "381:1:M" : "Latiosite", // Mega Latios
+    "428:1:M" : "Lopunnity", // Mega Lopunny
     "448:1:M" : "Lucarionite", // Mega Lucario
     "310:1:M" : "Manectite", // Mega Manectric
     "303:1:M" : "Mawilite", // Mega Mawile
     "308:1:M" : "Medichamite", // Mega Medicham
+    "376:1:M" : "Metagrossite", // Mega Metagross
     "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
     "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+    "18:1:M" : "Pidgeotite", // Mega Pidgeot
     "127:1:M" : "Pinsirite", // Mega Pinsir
+    "302:1:M" : "Sablenite", // Mega Sableye
+    "373:1:M" : "Salamencite", // Mega Salamence
+    "254:1:M" : "Sceptilite", // Mega Sceptile
     "212:1:M" : "Scizorite", // Mega Scizor
+    "319:1:M" : "Sharpedonite", // Mega Sharpedo
+    "80:1:M" : "Slowbronite", // Mega Slowbro
+    "208:1:M" : "Steelixite", // Mega Steelix
+    "260:1:M" : "Swampertite", // Mega Swampert
     "248:1:M" : "Tyranitarite", // Mega Tyranitar
     "3:1:M" : "Venusaurite", // Mega Venusaur
     "383:1:M" : "Red Orb", // Primal Groudon
@@ -801,8 +820,8 @@ function changeGen(n) {
             if (arr[i][0].charAt(arr[i][0].lastIndexOf(":") + 1) === "H") {
                 var j = 0;
                 var s = arr[i][0].substr(0, arr[i][0].indexOf(":"));
-                while (db.releasedPokes(gen, s + ":" + ++j) !== undefined // stay positive
-                       || (gen === 6 && db.pokemons(s + ":" + j + ":M") !== undefined)) { // comment gen 6 cond when fully released
+                while ((db.releasedPokes(gen).indexOf(s + ":" + ++j) > -1 || gen === 6) // stay positive and bypass released pokes
+                       && db.pokemons(s + ":" + j + ":M") !== undefined) {
                     arr.splice(++i, 0, [s + ":" + j + ":M", db.pokemons(s + ":" + j + ":M")]);
                 }
             }
@@ -2003,38 +2022,57 @@ window.onload = function() {
             rpt += (a === Sulcalc.Stats.SATK ? " SpAtk" : " Atk");
         }
         var itemIgnoreList = { // don't exclude plates & orbs as those affect damage
-            "649:1": "Douse Drive", // Genesect-D
-            "649:2": "Shock Drive", // Genesect-S
-            "649:3": "Burn Drive", // Genesect-B
-            "649:4": "Chill Drive", // Genesect-C
-            "460:1:M": "Abomasite", // Mega Abomasnow
-            "359:1:M": "Absolite", // Mega Absol
-            "142:1:M": "Aerodactylite", // Mega Aerodactyl
-            "306:1:M": "Aggronite", // Mega Aggron
-            "65:1:M": "Alakazite", // Mega Alakazam
-            "181:1:M": "Ampharosite", // Mega Ampharos
-            "354:1:M": "Banettite", // Mega Banette
-            "9:1:M": "Blastoisinite", // Mega Blastoise
-            "257:1:M": "Blazikenite", // Mega Blaziken
-            "6:1:M": "Charizardite X", // Mega Charizard X
-            "6:2:M": "Charizardite Y", // Mega Charizard Y
-            "445:1:M": "Garchompite", // Mega Garchomp
-            "282:1:M": "Gardevoirite", // Mega Gardevoir
-            "94:1:M": "Gengarite", // Mega Gengar
-            "130:1:M": "Gyaradosite", // Mega Gyarados
-            "214:1:M": "Heracronite", // Mega Heracross
-            "229:1:M": "Houndoominite", // Mega Houndoom
-            "115:1:M": "Kangaskhanite", // Mega Kangaskhan
-            "448:1:M": "Lucarionite", // Mega Lucario
-            "310:1:M": "Manectite", // Mega Manectric
-            "303:1:M": "Mawilite", // Mega Mawile
-            "308:1:M": "Medichamite", // Mega Medicham
-            "150:1:M": "Mewtwonite X", // Mega Mewtwo X
-            "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
-            "127:1:M": "Pinsirite", // Mega Pinsir
-            "212:1:M": "Scizorite", // Mega Scizor
-            "248:1:M": "Tyranitarite", // Mega Tyranitar
-            "3:1:M": "Venusaurite", // Mega Venusaur
+            "649:1" : "Douse Drive", // Genesect-D
+            "649:2" : "Shock Drive", // Genesect-S
+            "649:3" : "Burn Drive", // Genesect-B
+            "649:4" : "Chill Drive", // Genesect-C
+            "460:1:M" : "Abomasite", // Mega Abomasnow
+            "359:1:M" : "Absolite", // Mega Absol
+            "142:1:M" : "Aerodactylite", // Mega Aerodactyl
+            "306:1:M" : "Aggronite", // Mega Aggron
+            "65:1:M" : "Alakazite", // Mega Alakazam
+            "334:1:M" : "Altarianite", // Mega Altaria
+            "181:1:M" : "Ampharosite", // Mega Ampharos
+            "531:1:M" : "Audinite", // Mega Audino
+            "354:1:M" : "Banettite", // Mega Banette
+            "15:1:M" : "Beedrillite", // Mega Beedrill
+            "9:1:M" : "Blastoisinite", // Mega Blastoise
+            "257:1:M" : "Blazikenite", // Mega Blaziken
+            "323:1:M" : "Cameruptite", // Mega Camerupt
+            "6:1:M" : "Charizardite X", // Mega Charizard X
+            "6:2:M" : "Charizardite Y", // Mega Charizard Y
+            "719:1:M" : "Diancite", // Mega Diancie
+            "475:1:M" : "Galladite", // Mega Gallade
+            "445:1:M" : "Garchompite", // Mega Garchomp
+            "282:1:M" : "Gardevoirite", // Mega Gardevoir
+            "94:1:M" : "Gengarite", // Mega Gengar
+            "362:1:M" : "Glalitite", // Mega Glalie
+            "130:1:M" : "Gyaradosite", // Mega Gyarados
+            "214:1:M" : "Heracronite", // Mega Heracross
+            "229:1:M" : "Houndoominite", // Mega Houndoom
+            "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
+            "380:1:M" : "Latiasite", // Mega Latias
+            "381:1:M" : "Latiosite", // Mega Latios
+            "428:1:M" : "Lopunnity", // Mega Lopunny
+            "448:1:M" : "Lucarionite", // Mega Lucario
+            "310:1:M" : "Manectite", // Mega Manectric
+            "303:1:M" : "Mawilite", // Mega Mawile
+            "308:1:M" : "Medichamite", // Mega Medicham
+            "376:1:M" : "Metagrossite", // Mega Metagross
+            "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
+            "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+            "18:1:M" : "Pidgeotite", // Mega Pidgeot
+            "127:1:M" : "Pinsirite", // Mega Pinsir
+            "302:1:M" : "Sablenite", // Mega Sableye
+            "373:1:M" : "Salamencite", // Mega Salamence
+            "254:1:M" : "Sceptilite", // Mega Sceptile
+            "212:1:M" : "Scizorite", // Mega Scizor
+            "319:1:M" : "Sharpedonite", // Mega Sharpedo
+            "80:1:M" : "Slowbronite", // Mega Slowbro
+            "208:1:M" : "Steelixite", // Mega Steelix
+            "260:1:M" : "Swampertite", // Mega Swampert
+            "248:1:M" : "Tyranitarite", // Mega Tyranitar
+            "3:1:M" : "Venusaurite", // Mega Venusaur
             "383:1:M" : "Red Orb", // Primal Groudon
             "382:1:M" : "Blue Orb" // Primal Kyogre
         }
@@ -2122,7 +2160,7 @@ window.onload = function() {
         }
         
         var chanceToKO = function (turns, damageRange, remainingHP, eff) {
-            if (turns < 7 && (c.move.maxHits() === 1 || gen === 1)) {
+            if (turns < 7 && (damageRange <= 16 || gen === 1)) {
                 return _chanceToKO(turns, damageRange, remainingHP, eff, 0);
             }
             var maxDamage = 0, minDamage = 0;
