@@ -9,6 +9,10 @@ var items = [null, null, null, null, null, null, null];
 var moves = [null, null, null, null, null, null, null];
 var cacheDisabled = false;
 
+// to get the old values
+var attackerOldAbility = "(No Ability)";
+var defenderOldAbility = "(No Ability)";
+
 // a nice little conversion chart
 var pokeToItem = {
     "649:1" : "Douse Drive", // Genesect-D
@@ -1443,7 +1447,7 @@ function updateMoveOptions() {
     // maybe toggle health and speed based inputs, idk
 }
 
-var weatherAbilities = [null, "Snow Warning", "Drizzle", "Sand Stream", "Drought", "Primordial Sea", "Desolate Land", "Delta Stream"];
+var weatherAbilities = ["(No Ability)", "Snow Warning", "Drizzle", "Sand Stream", "Drought", "Primordial Sea", "Desolate Land", "Delta Stream"];
 
 function updateAttackerAbilityOptions() {
     var a = document.getElementsByTagName("div");
@@ -1465,9 +1469,13 @@ function updateAttackerAbilityOptions() {
     } else if (ability === "Flare Boost" || ability === "Guts") {
         setSelectByText("attackerStatus", "Burned");
     }
-    if (weatherAbilities.indexOf(ability) > -1) {
+    if (weatherAbilities.indexOf(ability) > 0 || weatherAbilities.indexOf(attackerOldAbility) > 0) {
         updateWeatherOptions("attacker");
     }
+    if (["Toxic Boost", "Flare Boost", "Guts"].indexOf(attackerOldAbility) > -1) {
+        setSelectByValue("attackerStatus", "0");
+    }
+    attackerOldAbility = ability;
 }
 
 function updateDefenderAbilityOptions() {
@@ -1481,18 +1489,19 @@ function updateDefenderAbilityOptions() {
     var showInput = function (id) {
         document.getElementById(id).parentElement.style.display = "";
     }
-    if (weatherAbilities.indexOf(ability) > -1) {
+    if (weatherAbilities.indexOf(ability) > 0 || weatherAbilities.indexOf(defenderOldAbility) > 0) {
         updateWeatherOptions("defender");
     }
+    defenderOldAbility = ability;
 }
 
 function updateWeatherOptions (p) {
-    var weatherWeights = [null, 1, 1, 1, 1, 2, 2, 3];
+    var weatherWeights = [0, 1, 1, 1, 1, 2, 2, 3];
     var aWeather = weatherAbilities.indexOf(db.abilities(document.getElementById("attackerAbility").value));
     var dWeather = weatherAbilities.indexOf(db.abilities(document.getElementById("defenderAbility").value));
-    /*if (weatherAbilities.indexOf(ability) > -1) {
+    if (aWeather | dWeather === 0) {
         setSelectByValue("weather",  + "");
-    }*/
+    }
     if (weatherWeights[aWeather] > weatherWeights[dWeather]) {
         setSelectByValue("weather", aWeather + "");
     } else if (weatherWeights[dWeather] > weatherWeights[aWeather]) {
@@ -1715,12 +1724,12 @@ window.onload = function() {
     document.getElementById("attackerPoke").onchange = function() {
         updatePoke("attacker");
         updateSets("attacker");
-        updateAttackerAbilityOptions(oldAbility);
+        updateAttackerAbilityOptions();
     };
     document.getElementById("defenderPoke").onchange = function() {
         updatePoke("defender");
         updateSets("defender");
-        updateDefenderAbilityOptions(oldAbility);
+        updateDefenderAbilityOptions();
     };
     document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
     document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
