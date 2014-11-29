@@ -1960,46 +1960,8 @@ window.onload = function() {
         c.field.airLock = c.attacker.ability.name() === "Air Lock"
                           || c.defender.ability.name() === "Air Lock";
         
-        dmg = [];
-        if (c.move.name() === "Fury Cutter") {
-            while (c.field.furyCutter <= 5) {
-                dmg.push(c.calculate());
-                c.field.furyCutter++;
-            }
-            dmg.push(1);
-        } else if (c.move.name() === "Echoed Voice") {
-            while (c.field.echoedVoice <= 4) {
-                dmg.push(c.calculate());
-                c.field.echoedVoice++;
-            }
-            dmg.push(1);
-        } else if (c.move.name() === "Trump Card") {
-            dmg.push(c.calculate());
-            while (c.field.trumpPP > 0) {
-                c.field.trumpPP -= c.defender.ability.name() === "Pressure" ? 2 : 1;
-                dmg.push(c.calculate());
-            }
-            dmg.push(0);
-        } else if (c.move.name() === "Explosion" || c.move.name() === "Self-Destruct") {
-            dmg.push(c.calculate());
-            dmg.push(0);
-        } else if (c.move.name() === "Rollout" || c.move.name() === "Ice Ball") {
-            while (c.field.rollout <= 4) {
-                dmg.push(c.calculate());
-                c.field.rollout++;
-            }
-            dmg.push(2);
-        } else {
-            var t1 = c.calculate();
-            var t2 = c.calculate();
-            if (t1.warray === t2.warray) {
-                dmg.push(t1);
-            } else {
-                dmg.push(t1);
-                dmg.push(t2);
-            }
-            dmg.push(1);
-        }
+        var dmg = c.calculate();
+        
         var minPercent = Math.round(dmg[0].warray[0][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
         var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
         rpt = "";
