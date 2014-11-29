@@ -1966,8 +1966,6 @@ window.onload = function() {
         var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
         rpt = "";
         var dclass = 0;
-        /*var type = c.move.type();
-        var power = c.move.power();*/
         if (gen <= 3) {
             dclass = db.typeDamageClass()[c.move.type()];
         } else {
