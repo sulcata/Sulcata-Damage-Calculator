@@ -614,7 +614,7 @@ function updateFormatting() {
     }
 }
 
-function changeGen(n) {
+function changeGen (n) {
     var oldgen = gen;
     gen = n;
     // reset form first
@@ -662,13 +662,66 @@ function changeGen(n) {
     document.getElementById("defenderAutotomize").checked = false;
     document.getElementById("defenderFlowerGift").checked = false;
     document.getElementById("defenderPowerTrick").checked = false;
-    document.getElementById("screens").checked = false;
-    document.getElementById("friendGuard").checked = false;
-    document.getElementById("critical").checked = false;
-    document.getElementById("flashFire").checked = false;
-    document.getElementById("helpingHand").checked = false;
-    document.getElementById("charge").checked = false;
-    document.getElementById("multiBattle").checked = false;
+    function makeCheckbox (id, label) {
+        return "<label><input type='checkbox' id='" + id + "' />" + label + "</label>";
+    }
+    document.getElementById("col1").innerHTML = "";
+    document.getElementById("col2").innerHTML = "";
+    document.getElementById("col3").innerHTML = "";
+    if (gen <= 2) {
+        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
+                                                  + makeCheckbox("screens", "Light Screen/Reflect");
+    } else if (gen === 3) {
+        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
+                                                  + makeCheckbox("screens", "Light Screen/Reflect")
+                                                  + makeCheckbox("charge", "Charge");
+        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles Battle")
+                                                  + makeCheckbox("helpingHand", "Helping Hand");
+        document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
+                                                  + makeCheckbox("mudSport", "Mud Sport");
+    } else if (gen === 4) {
+        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
+                                                  + makeCheckbox("screens", "Light Screen/Reflect")
+                                                  + makeCheckbox("charge", "Charge")
+        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
+                                                  + makeCheckbox("helpingHand", "Helping Hand")
+                                                  + makeCheckbox("meFirst", "Me First");
+        document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
+                                                  + makeCheckbox("mudSport", "Mud Sport");
+    } else if (gen === 5) {
+        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
+                                                  + makeCheckbox("screens", "Light Screen/Reflect")
+                                                  + makeCheckbox("charge", "Charge")
+                                                  + makeCheckbox("meFirst", "Me First");
+        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
+                                                  + makeCheckbox("helpingHand", "Helping Hand")
+                                                  + makeCheckbox("waterSport", "Water Sport")
+                                                  + makeCheckbox("mudSport", "Mud Sport");
+        document.getElementById("col3").innerHTML = makeCheckbox("friendGuard", "Friend Guard")
+                                                  + makeCheckbox("magicRoom", "Magic Room")
+                                                  + makeCheckbox("wonderRoom", "Wonder Room");
+    } else if (gen === 6) {
+        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
+                                                  + makeCheckbox("screens", "Light Screen/Reflect")
+                                                  + makeCheckbox("invertedBattle", "Inverted Battle")
+                                                  + makeCheckbox("charge", "Charge")
+                                                  + makeCheckbox("meFirst", "Me First")
+                                                  + makeCheckbox("electrify", "Electrify")
+                                                  + makeCheckbox("ionDeluge", "Ion Deluge");
+        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
+                                                  + makeCheckbox("helpingHand", "Helping Hand")
+                                                  + makeCheckbox("friendGuard", "Friend Guard")
+                                                  + makeCheckbox("waterSport", "Water Sport")
+                                                  + makeCheckbox("mudSport", "Mud Sport")
+                                                  + makeCheckbox("magicRoom", "Magic Room")
+                                                  + makeCheckbox("wonderRoom", "Wonder Room");
+        document.getElementById("col3").innerHTML = makeCheckbox("grassyTerrain", "Grassy Terrain")
+                                                  + makeCheckbox("mistyTerrain", "Misty Terrain")
+                                                  + makeCheckbox("electricTerrain", "Electric Terrain")
+                                                  + makeCheckbox("fairyAura", "Fairy Aura")
+                                                  + makeCheckbox("darkAura", "Dark Aura")
+                                                  + makeCheckbox("auraBreak", "Aura Break");
+    }
     document.getElementById("metronome").selectedIndex = 0;
     document.getElementById("minimize").checked = false;
     document.getElementById("dig").checked = false;
@@ -691,19 +744,6 @@ function changeGen(n) {
     document.getElementById("fusionBolt").checked = false;
     document.getElementById("fusionFlare").checked = false;
     document.getElementById("multiHits").selectedIndex = 0;
-    document.getElementById("meFirst").checked = false;
-    document.getElementById("waterSport").checked = false;
-    document.getElementById("mudSport").checked = false;
-    document.getElementById("grassyTerrain").checked = false;
-    document.getElementById("mistyTerrain").checked = false;
-    document.getElementById("fairyAura").checked = false;
-    document.getElementById("darkAura").checked = false;
-    document.getElementById("auraBreak").checked = false;
-    document.getElementById("magicRoom").checked = false;
-    document.getElementById("wonderRoom").checked = false;
-    document.getElementById("electrify").checked = false;
-    document.getElementById("ionDeluge").checked = false;
-    document.getElementById("invertedBattle").checked = false;
     document.getElementById("weather").selectedIndex = 0;
     document.getElementById("move").selectedIndex = 0;
     updateMoveOptions();
@@ -1425,7 +1465,9 @@ function updateMoveOptions() {
         var moveInfo = new Sulcalc.Move(),
             multiOps = "";
         moveInfo.id = moveId;
-        for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
+        if (db.abilities(document.getElementById("attackerAbility").value) === "Skill Link") {
+            multiOps = "<option value='" + moveInfo.maxHits() + "'>" + moveInfo.maxHits() + " hits</option>";
+        } else for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
             multiOps += "<option value='" + h + "'>" + h + " hits</option>";
         }
         var eMultiHits = document.getElementById("multiHits");
@@ -1474,6 +1516,11 @@ function updateAttackerAbilityOptions() {
     }
     if (["Toxic Boost", "Flare Boost", "Guts"].indexOf(attackerOldAbility) > -1) {
         setSelectByValue("attackerStatus", "0");
+    }
+    if (db.minMaxHits(gen, document.getElementById("move").value) !== undefined) {
+        var oldHits = document.getElementById("multiHits").value;
+        updateMoveOptions();
+        setSelectByValue("multiHits", oldHits);
     }
     attackerOldAbility = ability;
 }
@@ -1900,14 +1947,32 @@ window.onload = function() {
         
         c.move.id = document.getElementById("move").value;
 
-        c.field.lightScreen = document.getElementById("screens").checked;
-        c.field.reflect = document.getElementById("screens").checked;
-        c.field.friendGuard = document.getElementById("friendGuard").checked;
         c.field.critical = document.getElementById("critical").checked;
+        c.field.lightScreen = document.getElementById("screens").checked;
+        if (gen >= 3) {
+            c.field.helpingHand = document.getElementById("helpingHand").checked;
+            c.field.charge = document.getElementById("charge").checked;
+            c.field.multiBattle = document.getElementById("multiBattle").checked;
+            c.field.waterSport = document.getElementById("waterSport").checked;
+            c.field.mudSport = document.getElementById("mudSport").checked;
+        } else if (gen >= 4) {
+            c.field.meFirst = document.getElementById("meFirst").checked;
+        } else if (gen >= 5) {
+            c.field.friendGuard = document.getElementById("friendGuard").checked;
+            c.field.magicRoom = document.getElementById("magicRoom").checked;
+            c.field.wonderRoom = document.getElementById("wonderRoom").checked;
+        } else if (gen >= 6) {
+            c.field.grassyTerrain = document.getElementById("grassyTerrain").checked;
+            c.field.mistyTerrain = document.getElementById("mistyTerrain").checked;
+            c.field.electricTerrain = document.getElementById("electricTerrain").checked;
+            c.field.fairyAura = document.getElementById("fairyAura").checked;
+            c.field.darkAura = document.getElementById("darkAura").checked;
+            c.field.auraBreak = document.getElementById("auraBreak").checked;
+            c.field.electrify = document.getElementById("electrify").checked;
+            c.field.ionDeluge = document.getElementById("ionDeluge").checked;
+            c.field.invertedBattle = document.getElementById("invertedBattle").checked;
+        }
         c.field.flashFire = document.getElementById("flashFire").checked;
-        c.field.helpingHand = document.getElementById("helpingHand").checked;
-        c.field.charge = document.getElementById("charge").checked;
-        c.field.multiBattle = document.getElementById("multiBattle").checked;
         c.field.metronome = parseInt(document.getElementById("metronome").value, 10);
         c.field.minimize = document.getElementById("minimize").checked;
         c.field.dig = document.getElementById("dig").checked;
@@ -1939,26 +2004,14 @@ window.onload = function() {
         c.field.fusionBolt = document.getElementById("fusionBolt").checked;
         c.field.fusionFlare = document.getElementById("fusionFlare").checked;
         c.field.multiHits = parseInt(document.getElementById("multiHits").value, 10);
-        c.field.meFirst = document.getElementById("meFirst").checked;
-        c.field.waterSport = document.getElementById("waterSport").checked;
-        c.field.mudSport = document.getElementById("mudSport").checked;
         c.field.slowStart = db.abilities(document.getElementById("attackerAbility").value) === "Slow Start";
-        c.field.grassyTerrain = document.getElementById("grassyTerrain").checked;
-        c.field.mistyTerrain = document.getElementById("mistyTerrain").checked;
-        c.field.fairyAura = document.getElementById("fairyAura").checked;
-        c.field.darkAura = document.getElementById("darkAura").checked;
-        c.field.auraBreak = document.getElementById("auraBreak").checked;
-        c.field.plus = document.getElementById("attackerAbility").value === "58";
-        c.field.minus = document.getElementById("attackerAbility").value === "57";
-        c.field.magicRoom = document.getElementById("magicRoom").checked;
-        c.field.wonderRoom = document.getElementById("wonderRoom").checked;
-        c.field.electrify = document.getElementById("electrify").checked;
-        c.field.ionDeluge = document.getElementById("ionDeluge").checked;
-        c.field.invertedBattle = document.getElementById("invertedBattle").checked;
+        c.field.plus = db.abilities(document.getElementById("attackerAbility").value) === "Minus";
+        c.field.minus = db.abilities(document.getElementById("attackerAbility").value) === "Plus";
         c.field.pledge = document.getElementById("pledge").checked;
         c.field.weather = parseInt(document.getElementById("weather").value, 10);
         c.field.airLock = c.attacker.ability.name() === "Air Lock"
                           || c.defender.ability.name() === "Air Lock";
+        
         
         var dmg = c.calculate();
         

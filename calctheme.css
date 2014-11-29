@@ -144,7 +144,7 @@ label {
     vertical-align: center;
 }
 
-.col1>label, .col2>label, .col3>label, .weather {
+#col1>label, #col2>label, #col3>label, .weather {
     display: block;
     clear: left;
     float: left;
@@ -155,12 +155,12 @@ label {
     float: left;
 }
 
-.col1, .col2 {
+#col1, #col2 {
     width: 33%;
     float: left;
 }
 
-.col3 {
+#col3 {
     width: 34%;
     float: left;
 }

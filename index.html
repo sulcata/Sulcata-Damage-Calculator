@@ -478,13 +478,6 @@
                 </div>
             </div>
             <div id="battleOptions">
-                <div class="AA_RIVALRY">
-                    <select id="rivalryGenders" title="Neutral gendered Pok&eacute;mon are not affected by Rivalry.">
-                        <option value="opposite">Different Genders</option>
-                        <option value="same">Same Genders</option>
-                    </select>
-                </div>
-                <div class="AA_FLASHFIRE"><input type="checkbox" id="flashFire" />Flash Fire</div>
                 <div class="move endSection">Attack: <select id="move"></select></div>
                 <div class="M_MULTIHIT"><select id="multiHits"></select></div>
                 <div class="M_FURYCUTTER"><select id="furyCutter"></select></div>
@@ -575,6 +568,14 @@
                         <option value="0">31-31-31-31-31-31</option>
                     </select>
                 </div>
+                <div class="clear AA_RIVALRY">
+                    Rivalry: <select id="rivalryGenders" title="Neutral gendered Pok&eacute;mon are not affected by Rivalry.">
+                        <option value="opposite">Different Genders</option>
+                        <option value="same">Same Genders</option>
+                    </select>
+                </div>
+                <div class="clear AA_FLASHFIRE"><input type="checkbox" id="flashFire" />Flash Fire</div>
+                <div class="clear I_METRONOME">Metronome: <select id="metronome"></select></div>
                 <div class="weather G_23456">Weather: <select id="weather">
                     <option value="0">(No Weather)</option>
                     <option value="4">Sun</option>
@@ -585,9 +586,8 @@
                     <option value="5">Heavy Rain</option>
                     <option value="7">Strong Winds</option>
                 </select></div>
-                <div class="clear I_METRONOME">Metronome: <select id="metronome"></select></div>
                 <div class="clear"></div>
-                <div class="col1">
+                <div id="col1">
                     <label><input type="checkbox" id="critical" />Critical Hit</label>
                     <label><input type="checkbox" id="screens" />Light Screen/Reflect</label>
                     <label class="G_3456"><input type="checkbox" id="helpingHand" />Helping Hand</label>
@@ -596,7 +596,7 @@
                     <label class="G_3456"><input type="checkbox" id="waterSport" />Water Sport</label>
                     <label class="G_3456"><input type="checkbox" id="mudSport" />Mud Sport</label>
                 </div>
-                <div class="col2">
+                <div id="col2">
                     <label class="G_456"><input type="checkbox" id="meFirst" />Me First</label>
                     <label class="G_56"><input type="checkbox" id="friendGuard" />Friend Guard</label>
                     <label class="G_56"><input type="checkbox" id="magicRoom" />Magic Room</label>
@@ -605,7 +605,7 @@
                     <label class="G_6"><input type="checkbox" id="mistyTerrain" />Misty Terrain</label>
                     <label class="G_6"><input type="checkbox" id="electricTerrain" />Electric Terrain</label>
                 </div>
-                <div class="col3">
+                <div id="col3">
                     <label class="G_6"><input type="checkbox" id="invertedBattle" />Inverted Battle</label>
                     <label class="G_6"><input type="checkbox" id="fairyAura" />Fairy Aura</label>
                     <label class="G_6"><input type="checkbox" id="darkAura" />Dark Aura</label>
