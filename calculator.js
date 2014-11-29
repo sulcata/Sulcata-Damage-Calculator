@@ -3630,6 +3630,7 @@ function Calculator() {
             for (var i = 0; i < 3; i++) {
                 this.field.tripleKickCount = i + 1; // Determine which turn it is.
                 hits[i] = new WeightedArray(this.selCalc()); // Let the gen's function figure out the base power and damage.
+                this.brokenMultiscale = true;
             }
             this.field.tripleKickCount = 1; // Reset count for next calculation.
             for (var i = 0; i < hits.length; i++) {
@@ -3644,6 +3645,7 @@ function Calculator() {
                 this.field.beatUpHit = i;
                 // Leave calculation to the gen's calc, the formula varies quite a bit over the generations.
                 hits[i] = new WeightedArray(this.selCalc());
+                this.brokenMultiscale = true;
             }
             this.field.beatUpHit = 0;
             for (var i = 0; i < hits.length; i++) {
@@ -3661,19 +3663,16 @@ function Calculator() {
             // Hits once at full power, and once at half power.
             var first = new WeightedArray(this.selCalc());
             this.field.secondHit = true;
-            var second = new WeightedArray(this.selCalc());
-            this.field.secondHit = false;
-            return first.combine(second);
-        } else if (this.defender.ability.name() === "Multiscale") {
-            var first = new WeightedArray(this.selCalc());
             this.field.brokenMultiscale = true;
             var second = new WeightedArray(this.selCalc());
+            this.field.secondHit = false;
             return first.combine(second);
         } else if (this.move.maxHits() !== 1 && gen !== 1) {
             // Generic Multi Hit moves
             var dmg = new WeightedArray([0]);
             var tempdmg = new WeightedArray(this.selCalc());
-            // Skill Link maxes out hits all Multi Hit moves
+            this.brokenMultiscale = true;
+            // Skill Link maxes out hits on Multi Hit moves
             var nHits = (this.attacker.ability.name() === "Skill Link") ? this.move.maxHits()
                                                                         : Math.min(this.move.maxHits(),
                                                                                    Math.max(this.move.minHits(),
