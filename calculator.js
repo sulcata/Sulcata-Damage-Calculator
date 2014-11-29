@@ -3630,7 +3630,7 @@ function Calculator() {
             for (var i = 0; i < 3; i++) {
                 this.field.tripleKickCount = i + 1; // Determine which turn it is.
                 hits[i] = new WeightedArray(this.selCalc()); // Let the gen's function figure out the base power and damage.
-                this.brokenMultiscale = true;
+                this.field.brokenMultiscale = true;
             }
             this.field.tripleKickCount = 1; // Reset count for next calculation.
             for (var i = 0; i < hits.length; i++) {
@@ -3645,7 +3645,7 @@ function Calculator() {
                 this.field.beatUpHit = i;
                 // Leave calculation to the gen's calc, the formula varies quite a bit over the generations.
                 hits[i] = new WeightedArray(this.selCalc());
-                this.brokenMultiscale = true;
+                this.field.brokenMultiscale = true;
             }
             this.field.beatUpHit = 0;
             for (var i = 0; i < hits.length; i++) {
@@ -3671,7 +3671,7 @@ function Calculator() {
             // Generic Multi Hit moves
             var dmg = new WeightedArray([0]);
             var tempdmg = new WeightedArray(this.selCalc());
-            this.brokenMultiscale = true;
+            this.field.brokenMultiscale = true;
             // Skill Link maxes out hits on Multi Hit moves
             var nHits = (this.attacker.ability.name() === "Skill Link") ? this.move.maxHits()
                                                                         : Math.min(this.move.maxHits(),
@@ -3680,6 +3680,7 @@ function Calculator() {
             for (var i = 0; i < nHits; i++) { // Combine all the hits.
                 dmg = dmg.combine(tempdmg);
                 tempdmg = new WeightedArray(this.selCalc());
+                alert(tempdmg);
             }
             return dmg;
         } else if (this.move.maxHits() !== 1) {
@@ -3737,7 +3738,7 @@ function Calculator() {
             }
             dmg.push(1);
         }
-        this.brokenMultiscale = false;
+        this.field.brokenMultiscale = false;
         return dmg;
     }
 }
