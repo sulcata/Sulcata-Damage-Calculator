@@ -1109,6 +1109,7 @@ function Field() {
     this.reflect = false;
     this.friendGuard = false;
     this.critical = false;
+    this.foresight = false;
     this.weather = Weathers.CLEAR; // CLEAR, SUN, RAIN, SAND, HAIL, HARSH_SUN, HEAVY_RAIN
     this.metronome = 0;
     this.minimize = false;
@@ -1939,10 +1940,8 @@ function Calculator() {
                                          [this.defender.type1(), this.defender.type2(), this.defender.addedType],
                                          moveName === "Freeze-Dry");
         } else {
-            eff = this.effective(attackTypes,
-                                 [this.defender.type1(), this.defender.type2(), this.defender.addedType],
-                                 this.field.foresight || attackerAbility.name() === "Scrappy",
-                                 moveName === "Freeze-Dry");
+            eff = this.effective(attackTypes, [this.defender.type1(), this.defender.type2(), this.defender.addedType],
+                                 this.field.foresight || attackerAbility.name() === "Scrappy", moveName === "Freeze-Dry");
         }
         if (eff === 0 || attackTypes.indexOf(defenderAbility.immunityType()) > -1) {
             return [0];
@@ -2262,10 +2261,7 @@ function Calculator() {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
-        var eff = this.effective([moveType],
-                                 [this.defender.type1(), this.defender.type2()],
-                                 this.field.foresight,
-                                 false);
+        var eff = this.effective([moveType], [this.defender.type1(), this.defender.type2()], this.field.foresight, false);
         if (eff === 0) {
             return [0];
         }
@@ -2519,10 +2515,7 @@ function Calculator() {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
-        var eff = this.effective([moveType],
-                                 [this.defender.type1(), this.defender.type2()],
-                                 this.field.foresight,
-                                 false);
+        var eff = this.effective([moveType], [this.defender.type1(), this.defender.type2()], this.field.foresight, false);
         if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
         }
@@ -2956,10 +2949,8 @@ function Calculator() {
             }
         }
         
-        var eff = this.effective([moveType],
-                                 [this.defender.type1(), this.defender.type2()],
-                                 this.field.foresight || attackerAbility.name() === "Scrappy",
-                                 false);
+        var eff = this.effective([moveType], [this.defender.type1(), this.defender.type2()],
+                                 this.field.foresight || attackerAbility.name() === "Scrappy", false);
         if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
         }
@@ -3509,10 +3500,8 @@ function Calculator() {
             }
         }
 
-        var eff = this.effective([moveType],
-                                 [this.defender.type1(), this.defender.type2()],
-                                 this.field.foresight || aAbilityName === "Scrappy",
-                                 false);
+        var eff = this.effective([moveType], [this.defender.type1(), this.defender.type2()],
+                                 this.field.foresight || aAbilityName === "Scrappy", false);
         if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
         }
@@ -3680,7 +3669,6 @@ function Calculator() {
             for (var i = 0; i < nHits; i++) { // Combine all the hits.
                 dmg = dmg.combine(tempdmg);
                 tempdmg = new WeightedArray(this.selCalc());
-                alert(tempdmg);
             }
             return dmg;
         } else if (this.move.maxHits() !== 1) {

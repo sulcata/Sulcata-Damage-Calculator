@@ -671,40 +671,46 @@ function changeGen (n) {
     if (gen <= 2) {
         document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
                                                   + makeCheckbox("screens", "Light Screen/Reflect");
+        if (gen === 2) {
+            document.getElementById("col2").innerHTML = makeCheckbox("foresight", "Foresight");
+        }
     } else if (gen === 3) {
         document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
                                                   + makeCheckbox("screens", "Light Screen/Reflect")
-                                                  + makeCheckbox("charge", "Charge");
+                                                  + makeCheckbox("foresight", "Foresight");
         document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles Battle")
-                                                  + makeCheckbox("helpingHand", "Helping Hand");
+                                                  + makeCheckbox("helpingHand", "Helping Hand")
+                                                  + makeCheckbox("charge", "Charge");
         document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
                                                   + makeCheckbox("mudSport", "Mud Sport");
     } else if (gen === 4) {
         document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
                                                   + makeCheckbox("screens", "Light Screen/Reflect")
-                                                  + makeCheckbox("charge", "Charge")
+                                                  + makeCheckbox("foresight", "Foresight");
         document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
                                                   + makeCheckbox("helpingHand", "Helping Hand")
                                                   + makeCheckbox("meFirst", "Me First");
         document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
-                                                  + makeCheckbox("mudSport", "Mud Sport");
+                                                  + makeCheckbox("mudSport", "Mud Sport")
+                                                  + makeCheckbox("charge", "Charge");
     } else if (gen === 5) {
         document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
                                                   + makeCheckbox("screens", "Light Screen/Reflect")
-                                                  + makeCheckbox("charge", "Charge")
+                                                  + makeCheckbox("foresight", "Foresight")
                                                   + makeCheckbox("meFirst", "Me First");
         document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
                                                   + makeCheckbox("helpingHand", "Helping Hand")
-                                                  + makeCheckbox("waterSport", "Water Sport")
-                                                  + makeCheckbox("mudSport", "Mud Sport");
-        document.getElementById("col3").innerHTML = makeCheckbox("friendGuard", "Friend Guard")
+                                                  + makeCheckbox("friendGuard", "Friend Guard")
+                                                  + makeCheckbox("charge", "Charge");
+        document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
+                                                  + makeCheckbox("mudSport", "Mud Sport")
                                                   + makeCheckbox("magicRoom", "Magic Room")
                                                   + makeCheckbox("wonderRoom", "Wonder Room");
     } else if (gen === 6) {
         document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
                                                   + makeCheckbox("screens", "Light Screen/Reflect")
                                                   + makeCheckbox("invertedBattle", "Inverted Battle")
-                                                  + makeCheckbox("charge", "Charge")
+                                                  + makeCheckbox("foresight", "Foresight")
                                                   + makeCheckbox("meFirst", "Me First")
                                                   + makeCheckbox("electrify", "Electrify")
                                                   + makeCheckbox("ionDeluge", "Ion Deluge");
@@ -715,7 +721,8 @@ function changeGen (n) {
                                                   + makeCheckbox("mudSport", "Mud Sport")
                                                   + makeCheckbox("magicRoom", "Magic Room")
                                                   + makeCheckbox("wonderRoom", "Wonder Room");
-        document.getElementById("col3").innerHTML = makeCheckbox("grassyTerrain", "Grassy Terrain")
+        document.getElementById("col3").innerHTML = makeCheckbox("charge", "Charge")
+                                                  + makeCheckbox("grassyTerrain", "Grassy Terrain")
                                                   + makeCheckbox("mistyTerrain", "Misty Terrain")
                                                   + makeCheckbox("electricTerrain", "Electric Terrain")
                                                   + makeCheckbox("fairyAura", "Fairy Aura")
@@ -1219,7 +1226,7 @@ function updateStats (p) {
     poke.boosts = getBoosts(p);
     poke.nature = parseInt(document.getElementById(p + "Nature").value, 10);
     poke.id = document.getElementById(p + "Poke").value;
-    setText(p + "TotalHP", poke.id === "0:0" ? "" : poke.stat(Sulcalc.Stats.HP));
+    setText(p + "TotalHP", poke.id === "0:0" ? "???" : poke.stat(Sulcalc.Stats.HP));
     document.getElementById(p + "HP").value = poke.id === "0:0" ? "" : poke.stat(Sulcalc.Stats.HP);
     document.getElementById(p + "HPp").value = poke.id === "0:0" ? "" : "100";
     var strs = [["Hp", 0], ["Atk", 1], ["Def", 2], ["Satk", 3], ["Spc", 3], ["Sdef", 4], ["Spd", 5]];
@@ -1949,19 +1956,25 @@ window.onload = function() {
 
         c.field.critical = document.getElementById("critical").checked;
         c.field.lightScreen = document.getElementById("screens").checked;
+        if (gen >= 2) {
+            c.field.foresight = document.getElementById("foresight").checked;
+        }
         if (gen >= 3) {
             c.field.helpingHand = document.getElementById("helpingHand").checked;
             c.field.charge = document.getElementById("charge").checked;
             c.field.multiBattle = document.getElementById("multiBattle").checked;
             c.field.waterSport = document.getElementById("waterSport").checked;
             c.field.mudSport = document.getElementById("mudSport").checked;
-        } else if (gen >= 4) {
+        }
+        if (gen >= 4) {
             c.field.meFirst = document.getElementById("meFirst").checked;
-        } else if (gen >= 5) {
+        }
+        if (gen >= 5) {
             c.field.friendGuard = document.getElementById("friendGuard").checked;
             c.field.magicRoom = document.getElementById("magicRoom").checked;
             c.field.wonderRoom = document.getElementById("wonderRoom").checked;
-        } else if (gen >= 6) {
+        }
+        if (gen >= 6) {
             c.field.grassyTerrain = document.getElementById("grassyTerrain").checked;
             c.field.mistyTerrain = document.getElementById("mistyTerrain").checked;
             c.field.electricTerrain = document.getElementById("electricTerrain").checked;
