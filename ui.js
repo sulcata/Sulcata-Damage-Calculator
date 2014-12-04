@@ -755,7 +755,8 @@ function changeGen (n) {
     document.getElementById("move").selectedIndex = 0;
     updateMoveOptions();
     document.getElementById("pledge").checked = false;
-    updateSets();
+    updateAttackerSets();
+    updateDefenderSets();
 
     if (gen >= 3) {
         document.getElementById("attackerSdefIv").disabled = false;
@@ -1647,36 +1648,41 @@ function importableToMoveset (importText) {
     return moveset;
 }
 
-function updateSets (p, setTypes) {
-    var offensiveSets, defensiveSets;
-    offensiveSets = defensiveSets = "<option value='No set'>No set</option>";
+function updateAttackerSets() {
+    var offensiveSets = "<option value='No set'>No set</option>";
     if (gen <= 2) {
-        document.getElementById("attackerSets").parentNode.style.display = document.getElementById("defenderSets").parentNode.style.display = "none";
+        document.getElementById("attackerSets").parentNode.style.display = "none";
+        return;
     } else {
-        document.getElementById("attackerSets").parentNode.style.display = document.getElementById("defenderSets").parentNode.style.display = "";
+        document.getElementById("attackerSets").parentNode.style.display = "";
     }
-    var a = document.getElementById("attackerPoke").value,
-        d = document.getElementById("defenderPoke").value;
-    if (gen >= 3) {
-        offensiveSets += "<option value='Physical attacker'>Physical attacker</option>";
-        offensiveSets += "<option value='Special attacker'>Special attacker</option>";
-        if (!(a in pokeToItem)) {
-            offensiveSets += "<option value='Choice Band'>Choice Band</option>";
-        }
-        
-        defensiveSets += "<option value='Physical wall'>Physical wall</option>";
-        defensiveSets += "<option value='Special wall'>Special wall</option>";
-        defensiveSets += "<option value='Mixed wall'>Mixed wall</option>";
-        defensiveSets += "<option value='Bulky'>Bulky</option>";
-    }
-    if (gen >= 4) {
-        if (!(a in pokeToItem)) {
+    var a = document.getElementById("attackerPoke").value;
+    offensiveSets += "<option value='Physical attacker'>Physical attacker</option>";
+    offensiveSets += "<option value='Special attacker'>Special attacker</option>";
+    if (!(a in pokeToItem)) {
+        offensiveSets += "<option value='Choice Band'>Choice Band</option>";
+        if (gen >= 4) {
             offensiveSets += "<option value='Choice Specs'>Choice Specs</option>";
             offensiveSets += "<option value='Physical Life Orb'>Physical Life Orb</option>";
             offensiveSets += "<option value='Special Life Orb'>Special Life Orb</option>";
         }
     }
-    document.getElementById("attackerSets").innerHTML = offensiveSets;
+    document.getElementById("attackerSets").innerHTML = offensiveSets; 
+}
+
+function updateDefenderSets() {
+    var defensiveSets;
+    defensiveSets = "<option value='No set'>No set</option>";
+    if (gen <= 2) {
+        document.getElementById("defenderSets").parentNode.style.display = "none";
+    } else {
+        document.getElementById("defenderSets").parentNode.style.display = "";
+    }
+    var d = document.getElementById("defenderPoke").value;
+    defensiveSets += "<option value='Physical wall'>Physical wall</option>";
+    defensiveSets += "<option value='Special wall'>Special wall</option>";
+    defensiveSets += "<option value='Mixed wall'>Mixed wall</option>";
+    defensiveSets += "<option value='Bulky'>Bulky</option>";
     document.getElementById("defenderSets").innerHTML = defensiveSets;
 }
 
@@ -1777,12 +1783,12 @@ window.onload = function() {
     document.getElementById("move").onchange = updateMoveOptions;
     document.getElementById("attackerPoke").onchange = function() {
         updatePoke("attacker");
-        updateSets("attacker");
+        updateAttackerSets();
         updateAttackerAbilityOptions();
     };
     document.getElementById("defenderPoke").onchange = function() {
         updatePoke("defender");
-        updateSets("defender");
+        updateDefenderSets();
         updateDefenderAbilityOptions();
     };
     document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
@@ -1990,7 +1996,7 @@ window.onload = function() {
         c.field.minimize = document.getElementById("minimize").checked;
         c.field.dig = document.getElementById("dig").checked;
         c.field.dive = document.getElementById("dive").checked;
-        c.field.targetMoved = document.getElementById("moved").checked;
+        c.field.targetMoved = document.getElementById("moved").checked || c.attacker.ability.name() === "Analytic";
         c.field.attackerDamaged = document.getElementById("damaged").checked;
         c.field.furyCutter = parseInt(document.getElementById("furyCutter").value, 10);
         c.field.echoedVoice = parseInt(document.getElementById("echoedVoice").value, 10);
