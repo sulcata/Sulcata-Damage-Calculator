@@ -2034,8 +2034,8 @@ window.onload = function() {
         
         var dmg = c.calculate();
         
-        var minPercent = Math.round(dmg[0].warray[0][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
-        var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length-1][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
+        var minPercent = Math.round(dmg[0].values[0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
+        var maxPercent = Math.round(dmg[0].values[dmg[0].values.length-1] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
         rpt = "";
         var dclass = 0;
         if (gen <= 3) {
@@ -2173,63 +2173,36 @@ window.onload = function() {
         if (c.field.critical) {
             rpt += " on a critical hit";
         }
-        rpt += ": " + dmg[0].warray[0][0] + " - " + dmg[0].warray[dmg[0].warray.length - 1][0] + " (" + minPercent + " - " + maxPercent + "%) -- ";
+        rpt += ": " + dmg[0].values[0] + " - " + dmg[0].values[dmg[0].values.length - 1] + " (" + minPercent + " - " + maxPercent + "%) -- ";
         
-        var _chanceToKO = function (turns, damageRange, remainingHP, eff, t) {
-            var totalChance = 0;
-            if (remainingHP <= 0) {
-                return 1;
-            }
-            for (var i = 0; i < eff.length && t !== 0; i++) {
-                remainingHP += eff[i];
-                if (remainingHP <= 0) {
-                    return 1;
+        var chanceToKO = function (damageRanges, remainingHP, effects, maxTurns) { // not even recursive
+            var chances = [];
+            var dmg = new Sulcalc.WeightedArray([0]);
+            maxTurns = 5;
+            for (var turn = 0, i = 0; turn < maxTurns; turn++, i++) {
+                if (damageRanges[i] === 0) {
+                    break;
+                } else if (damageRanges[i] === 1) {
+                    i--;
+                } else if (damageRanges[i] === 2) {
+                    i = 0;
                 }
-            }
-            if (turns === 0 || damageRange[t] === 0) {
-                return 0;
-            }
-            if (damageRange[t] === 1) {
-                t--;
-            } else if (damageRange[t] === 2) {
-                t %= (damageRange.length - 1);
-            }
-            for (var i = 0; i < damageRange[t].warray.length; i++) {
-                totalChance += _chanceToKO(turns - 1, damageRange, remainingHP - damageRange[t].warray[i][0], eff, t + 1) * damageRange[t].warray[i][1];
-            }
-            return totalChance / damageRange[t].total();
-        }
-        
-        var chanceToKO = function (turns, damageRange, remainingHP, eff) {
-            if (turns < 7 && (damageRange <= 16 || gen === 1)) {
-                return _chanceToKO(turns, damageRange, remainingHP, eff, 0);
-            }
-            var maxDamage = 0, minDamage = 0;
-            for (var i = 0, d = 0; i < turns && damageRange[d] !== 0; i++, d++) {
-                if (damageRange[d] === 1) {
-                    d--;
-                } else if (damageRange[d] === 2) {
-                    d %= (damageRange.length - 1);
+                dmg = dmg.combine(damageRanges[i]);
+                var s = 0, least = 0; // positive heals, negative steals~
+                for (var e = 0; e < effects.length; e++) {
+                    s += effects[e];
+                    least = Math.min(s, least);
                 }
-                maxDamage += damageRange[d].warray[damageRange[d].warray.length-1][0];
-                minDamage += damageRange[d].warray[0][0];
-                for (var j = 0; j < eff.length; j++) {
-                    minDamage -= eff[j];
-                    maxDamage -= eff[j];
-                    if (minDamage >= remainingHP) {
-                        return 1;
-                    }
+                chances.push(dmg.count(function (val, weight) {
+                    return remainingHP + least <= val;
+                }) / dmg.count());
+                if (chances[chances.length - 1] === 1) {
+                    return chances;
                 }
+                dmg.addAll(-s); // flip for damage
             }
-            return Math.min(1, (maxDamage - remainingHP + 1)/(maxDamage - minDamage + 1));
-        }
-        
-        /*for (var i=0; i<dmg.length; i++) {
-            r += dmg[i];
-            if (i!==dmg.length-1) {
-                r += ", ";
-            }
-        }*/
+            return chances;
+        };
         var effects = [0];
         var effectMsgs = [""];
         if (gen === 2) { // gen 2 after effects
@@ -2486,28 +2459,17 @@ window.onload = function() {
                 effectMsgs.push("Sticky Barb");
             }
         }
-        
-        for (var i = 1, cko = 0, hasPrevious = false; cko < 1; i++) {
-            cko = chanceToKO(i, dmg, c.defender.currentHP, effects);
-            if (dmg[dmg.length-1] === 0 && i !== 1) {
-                break;
-            } else if (i === 20 || dmg[0][dmg[0].length-1] === 0) {
-                rpt += "That's probably not going to KO...";
-                break;
-            } else if (cko >= 1) {
-                if (!hasPrevious) {
-                    rpt += "guaranteed " + (i === 1 ? "O" : i) + "HKO";
+        var chances = chanceToKO(dmg, c.defender.currentHP, effects, 7);
+        for (var i = 0, hasPrevious = false; i < chances.length; i++) {
+            if (chances[i] > 0) {
+                if (chances[i] < 1) {
+                    rpt += (hasPrevious ? ", " : "") + Math.round(chances[i]*1000)/10 + "% chance to "
+                           + (i > 0 ? (i + 1) : "O") + "HKO";
+                    hasPrevious = true;
+                } else if (!hasPrevious) {
+                    rpt += "guaranteed " + (i > 0 ? (i + 1) : "O") + "HKO";
+                    break;
                 }
-                break;
-            }
-            var decimalPlaces = 1;
-            if (cko > 0) {
-                if (hasPrevious) {
-                    rpt += ", "
-                }
-                rpt += Math.floor(cko * Math.pow(10, decimalPlaces+2)) / Math.pow(10, decimalPlaces) + "% chance to ";
-                rpt += (i === 1 ? "O" : i) + "HKO";
-                hasPrevious = true;
             }
         }
         if (effectMsgs.length > 1) {
@@ -2522,17 +2484,21 @@ window.onload = function() {
                 rpt += ", "
             }
         }
+        var defenderCurrentHp = parseInt(document.getElementById("defenderHPp").value, 10);
+        if (defenderCurrentHp < 100) {
+            rpt += " from " + defenderCurrentHp + "%";
+        }
         setText("results", rpt);
         var totalWidth = document.getElementById("hpDisplay").clientWidth;
-        var minWidth = Math.round(totalWidth * dmg[0].warray[0][0] / c.defender.stat(Sulcalc.Stats.HP));
+        var minWidth = Math.round(totalWidth * dmg[0].values[0] / c.defender.stat(Sulcalc.Stats.HP));
         minWidth = Math.min(totalWidth, minWidth);
-        var maxWidth = Math.round(totalWidth * dmg[0].warray[dmg[0].warray.length-1][0] / c.defender.stat(Sulcalc.Stats.HP))
+        var maxWidth = Math.round(totalWidth * dmg[0].values[dmg[0].values.length-1] / c.defender.stat(Sulcalc.Stats.HP))
                        - minWidth;
         maxWidth = Math.min(totalWidth-minWidth, maxWidth);
         document.getElementById("minDamageBar").style.width = minWidth + "px";
         document.getElementById("maxDamageBar").style.width = maxWidth + "px";
         document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
-        var maxPercent = Math.round(dmg[0].warray[dmg[0].warray.length - 1][0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
+        var maxPercent = Math.round(dmg[0].values[dmg[0].values.length - 1] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
     };
     
     var q = document.location.href;

@@ -517,7 +517,8 @@ Database.prototype.getJSON = function (file) {
 var Sulcalc = (function() {
 
 function WeightedArray (a) {
-    this.warray = [];
+    this.values = [];
+    this.weights = [];
     
     // begin init
     if (a.length !== 0) { // check for an empty array
@@ -525,39 +526,41 @@ function WeightedArray (a) {
             return a - b;
         });
         // initial entry; all values will be stored as an ordered pair: [value, occurences]
-        var temp = [a[0], 0];
+        var value = a[0], weight = 0;
         for (var i = 0; i < a.length; i++) {
             /* 
              * Because the array is ordered, as soon as a different value is encountered
              * we will know that there are no more of the value we were counting.
              */
-            if (a[i] !== temp[0]) {
-                this.warray.push(temp); // add the count 
-                temp = [a[i], 1];
+            if (a[i] !== value) {
+                this.values.push(value);
+                this.weights.push(weight);
+                value = a[i];
+                weight = 1;
             } else { // a new value is not encountered
-                // increment the count of the current value in the temporary pair.
-                temp[1]++;
+                weight++;
             }
         }
-        this.warray.push(temp); // make sure we don't lose the last value
+        this.values.push(value);
+        this.weights.push(weight);
     }
     // end init
 
     this.add = function (val, inc) {
-        for (var i = 0; i < this.warray.length; i++) {
-            if (val === this.warray[i][0]) { // the element exists
-                // add it to the appropriate pair and stop
-                this.warray[i][1] += inc; // add n values to the ordered pair in the set
+        for (var i = 0; i < this.values.length; i++) {
+            if (val === this.values[i]) {
+                this.weights[i] += inc; // add n values to the ordered pair in the set
                 return;
-            } else if (val < this.warray[i][0]) {
+            } else if (val < this.values[i]) {
                 // the array is ordered, so the value cannot be after this point
-                // insert 
-                this.warray.splice(i, [val, inc]); // insert an ordered pair with n values
+                this.values.splice(i, 0, val);
+                this.weights.splice(i, 0, inc);
                 return;
             }
         }
         // the value's possible location was never passed and must be inserted at the end to be in order
-        this.warray.push([val, inc]);
+        this.values.push(val);
+        this.weights.push(inc);
     }
     
     this.combine = function (w) {
@@ -570,24 +573,34 @@ function WeightedArray (a) {
          * such as 1 and 4 so the add method is used to prevent similar ordered pairs.
          */
         var temp = new WeightedArray([]);
-        for (var i = 0; i < this.warray.length; i++) {
-            for (var j = 0; j < w.warray.length; j++) {
+        for (var i = 0; i < this.values.length; i++) {
+            for (var j = 0; j < w.values.length; j++) {
                 // Pair A combine Pair B: (value A + value B, count A * count B)
-                temp.add(this.warray[i][0] + w.warray[j][0],
-                         this.warray[i][1] * w.warray[j][1]);
+                temp.add(this.values[i] + w.values[j],
+                         this.weights[i] * w.weights[j]);
             }
         }
         return temp;
     }
     
-    this.total = function() {
+    this.count = function (f) {
         // elements are stored as a weighted array in which the weights are the count of the element
         // summed together would be the length of the set
         var t = 0;
-        for (var i = 0; i < this.warray.length; i++) {
-            t += this.warray[i][1];
+        if (f === undefined) {
+            f = function (val, weight) {return true;}
+        }
+        for (var i = 0; i < this.values.length; i++) {
+            if (f(this.values[i], this.weights[i])) {
+                t += this.weights[i];
+            }
         }
         return t;
+    }
+    this.addAll = function (n) {
+        for (var i = 0; i < this.values.length; i++) {
+            this.values[i] += n;
+        }
     }
 }
 
@@ -822,7 +835,16 @@ function Pokemon() {
     }
     
     this.hasEvolution = function() {
-        return !!db.evolutions(this.species());
+        var evos = db.evolutions(this.species());
+        var released = db.releasedPokes(gen);
+        if (!!evos) {
+            for (var i = 0; i < evos.length; i++) {
+                if (released.indexOf(evos[i] + ":0") > -1) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     this.possibleGenders = function () {
@@ -1419,12 +1441,12 @@ function Calculator() {
         var crit = this.field.critical;
         var attackerSpeed = this.attacker.boostedStat(Stats.SPD);
         var defenderSpeed = this.defender.boostedStat(Stats.SPD);
-        if (([weather === Weathers.RAIN, Weathers.HEAVY_RAIN].indexOf(weather) > -1 && aAbilityName === "Swift Swim")
-            || ([weather === Weathers.SUN, Weathers.HARSH_SUN].indexOf(weather) > -1 && aAbilityName === "Chlorophyll")) {
+        if (([Weathers.RAIN, Weathers.HEAVY_RAIN].indexOf(weather) > -1 && aAbilityName === "Swift Swim")
+            || ([Weathers.SUN, Weathers.HARSH_SUN].indexOf(weather) > -1 && aAbilityName === "Chlorophyll")) {
             attackerSpeed *= 2;
         }
-        if (([weather === Weathers.RAIN, Weathers.HEAVY_RAIN].indexOf(weather) > -1 && dAbilityName === "Swift Swim")
-            || ([weather === Weathers.SUN, Weathers.HARSH_SUN].indexOf(weather) > -1 && dAbilityName === "Chlorophyll")) {
+        if (([Weathers.RAIN, Weathers.HEAVY_RAIN].indexOf(weather) > -1 && dAbilityName === "Swift Swim")
+            || ([Weathers.SUN, Weathers.HARSH_SUN].indexOf(weather) > -1 && dAbilityName === "Chlorophyll")) {
             defenderSpeed *= 2;
         }
         var aItemName = attackerItem.name();
@@ -1902,7 +1924,7 @@ function Calculator() {
             if (moveType === Types.WATER) {
                 return [0];
             } else if (moveType === Types.FIRE) {
-                baseDamage = this.applyMod(0x800, baseDamage);
+                baseDamage = this.applyMod(0x1800, baseDamage);
             }
         } else if (weather === Weathers.HEAVY_RAIN) {
             if (moveType === Types.WATER) {
@@ -3750,6 +3772,7 @@ return { Database : Database,
          hiddenPowerP : hiddenPowerP,
          hiddenPowerT : hiddenPowerT,
          hiddenPowerP2 : hiddenPowerP2,
-         hiddenPowerT2 : hiddenPowerT2
+         hiddenPowerT2 : hiddenPowerT2,
+         WeightedArray : WeightedArray
        };
 }());
