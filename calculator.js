@@ -516,6 +516,108 @@ Database.prototype.getJSON = function (file) {
 
 var Sulcalc = (function() {
 
+// we gon' need a lot of math
+// ok maybe not that much math; I only need addition, multiplication, and division of nonneg strings
+// "3".charCodeAt(0) - 48 sounds faster!
+function addStrs (a, b) {
+    var carry = 0;
+    var s = 0;
+    var sum = "";
+    var bigNum = a.length > b.length ? a : b;
+    var lilNum = a.length > b.length ? b : a;
+    while (bigNum.length !== lilNum.length) {
+        lilNum = "0" + lilNum;
+    }
+    for (var i = bigNum.length - 1; i >= 0; i--) {
+        s = bigNum.charCodeAt(i) + lilNum.charCodeAt(i) + carry - 96;
+        carry = Math.floor(s / 10);
+        sum = (s % 10) + sum;
+    }
+    return carry > 0 ? carry + sum : sum;
+}
+
+function subtractStrs (a, b) { // a >= b >= 0
+    var borrow = 0;
+    var d = 0;
+    var diff = "";
+    while (a.length > b.length) {
+        b = "0" + b;
+    }
+    while (b.length > a.length) {
+        a = "0" + a;
+    }
+    for (var i = a.length - 1; i >= 0; i--) {
+        d = a.charCodeAt(i) - b.charCodeAt(i) - borrow;
+        borrow = d < 0 ? 1 : 0;
+        diff = (d < 0 ? 10+d : d) + diff;
+    }
+    var i = 0;
+    while (diff.charAt(i) === "0") i++;
+    return i === diff.length ? "0" : diff.substr(i);
+}
+
+function multiplyStrs (a, b) {
+    var zeroes = "";
+    var carry = 0;
+    var p = 0;
+    var temp = "";
+    var product = "0";
+    for (var i = a.length - 1; i >= 0; i--) {
+        for (var j = b.length - 1; j >= 0; j--) {
+            p = (a.charCodeAt(i) - 48) * (b.charCodeAt(j) - 48) + carry;
+            carry = Math.floor(p / 10);
+            temp = (p % 10) + temp;
+        }
+        product = addStrs((carry > 0 ? carry : "") + temp + zeroes, product);
+        zeroes += "0";
+        temp = "";
+        carry = 0;
+    }
+    return product;
+}
+
+function gtStr (a, b) {
+    if (a.length > b.length) {
+        return true;
+    } else if (b.length > a.length) {
+        return false;
+    }
+    for (var i = 0; i < a.length; i++) {
+        if (a.charCodeAt(i) < b.charCodeAt(i)) {
+            return false;
+        } else if (a.charCodeAt(i) > b.charCodeAt(i)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function divideStrs (a, b) { // what am i doing with my life
+    if (b === "0") {
+        return ["NaN", "NaN"];
+    } else if (gtStr(b, a)) {
+        return ["0", a];
+    }
+    var quotient = "";
+    var q = 0;
+    var r = a.substr(0, b.length);
+    for (var i = b.length; i <= a.length; i++) {
+        while (gtStr(r, b) || r === b) {
+            r = subtractStrs(r, b);
+            q++;
+        }
+        quotient += q;
+        q = 0;
+        r += a.charAt(i);
+        var j = 0;
+        while (r.charAt(j) === "0") j++;
+        r = j === r.length ? "0" : r.substr(j);
+    }
+    var i = 0;
+    while (quotient.charAt(i) === "0") i++;
+    return [i === quotient.length ? "0" : quotient.substr(i), r];
+}
+
 function WeightedArray (a) {
     this.values = [];
     this.weights = [];
@@ -534,7 +636,7 @@ function WeightedArray (a) {
              */
             if (a[i] !== value) {
                 this.values.push(value);
-                this.weights.push(weight);
+                this.weights.push(weight+"");
                 value = a[i];
                 weight = 1;
             } else { // a new value is not encountered
@@ -542,25 +644,25 @@ function WeightedArray (a) {
             }
         }
         this.values.push(value);
-        this.weights.push(weight);
+        this.weights.push(weight+"");
     }
     // end init
 
     this.add = function (val, inc) {
         for (var i = 0; i < this.values.length; i++) {
             if (val === this.values[i]) {
-                this.weights[i] += inc; // add n values to the ordered pair in the set
+                this.weights[i] = addStrs(this.weights[i], inc+""); // add n values to the ordered pair in the set
                 return;
             } else if (val < this.values[i]) {
                 // the array is ordered, so the value cannot be after this point
                 this.values.splice(i, 0, val);
-                this.weights.splice(i, 0, inc);
+                this.weights.splice(i, 0, inc+"");
                 return;
             }
         }
         // the value's possible location was never passed and must be inserted at the end to be in order
         this.values.push(val);
-        this.weights.push(inc);
+        this.weights.push(inc+"");
     }
     
     this.combine = function (w) {
@@ -577,7 +679,7 @@ function WeightedArray (a) {
             for (var j = 0; j < w.values.length; j++) {
                 // Pair A combine Pair B: (value A + value B, count A * count B)
                 temp.add(this.values[i] + w.values[j],
-                         this.weights[i] * w.weights[j]);
+                         multiplyStrs(this.weights[i], w.weights[j]));
             }
         }
         return temp;
@@ -586,13 +688,13 @@ function WeightedArray (a) {
     this.count = function (f) {
         // elements are stored as a weighted array in which the weights are the count of the element
         // summed together would be the length of the set
-        var t = 0;
+        var t = "0";
         if (f === undefined) {
             f = function (val, weight) {return true;}
         }
         for (var i = 0; i < this.values.length; i++) {
             if (f(this.values[i], this.weights[i])) {
-                t += this.weights[i];
+                t = addStrs(t, this.weights[i]);
             }
         }
         return t;
@@ -607,8 +709,8 @@ function WeightedArray (a) {
 WeightedArray.prototype.toString = function() {
     // not super pretty, but it works for debugging
     var accstr = "";
-    for(var i = 0; i < this.warray.length; i++) {
-        accstr += this.warray[i][0] + ":" + this.warray[i][1] + ", ";
+    for(var i = 0; i < this.values.length; i++) {
+        accstr += this.values[i] + ":" + this.weights[i] + ", ";
     }
     return accstr;
 }
@@ -3773,6 +3875,11 @@ return { Database : Database,
          hiddenPowerT : hiddenPowerT,
          hiddenPowerP2 : hiddenPowerP2,
          hiddenPowerT2 : hiddenPowerT2,
-         WeightedArray : WeightedArray
+         WeightedArray : WeightedArray,
+         addStrs : addStrs,
+         subtractStrs : subtractStrs,
+         multiplyStrs : multiplyStrs,
+         divideStrs : divideStrs,
+         gtStr : gtStr
        };
 }());
