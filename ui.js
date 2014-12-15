@@ -2459,9 +2459,13 @@ window.onload = function() {
                 effectMsgs.push("Sticky Barb");
             }
         }
-        var chances = chanceToKO(dmg, c.defender.currentHP, effects, 9);
-        for (var i = 0; i < chances.length; i++) {
-            chances[i] = parseInt(Sulcalc.divideStrs(chances[i][0] + "0000000000", chances[i][1]), 10) / 10000000000;
+        var chancesInt = chanceToKO(dmg, c.defender.currentHP, effects, 9);
+        var chances = [];
+        for (var i = 0; i < chancesInt.length; i++) {
+            chances.push(parseInt(Sulcalc.divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1]), 10) / 10000);
+            if (chances[i] === 0 && chancesInt[i][0] > 0) {
+                chances[i] = -1; // just 
+            }
         }
         for (var i = 0, hasPrevious = false; i < chances.length; i++) {
             if (chances[i] > 0) {
@@ -2473,8 +2477,10 @@ window.onload = function() {
                     rpt += "guaranteed " + (i > 0 ? (i + 1) : "O") + "HKO";
                     break;
                 }
+            } else if (chances[i] < -1) {
+                rpt += "possible " + (i > 0 ? (i + 1) : "O") + "HKO";
             } else if (i + 1 === chances.length) {
-                rpt += " this might take a while..."
+                rpt += "this might take a while..."
             }
         }
         if (effectMsgs.length > 1) {
