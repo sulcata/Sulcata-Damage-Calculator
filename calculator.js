@@ -1672,7 +1672,7 @@ function Calculator() {
         } else if (moveName === "Hex" && this.defender.status !== Statuses.NOSTATUS) {
             movePower *= 2;
         } else if (["Wring Out", "Crush Grip"].indexOf(moveName) > -1) {
-            var r = 120 * defender.currentHP / defender.getStat(Stats.HP);
+            var r = 120 * this.defender.currentHP / this.defender.stat(Stats.HP);
             r = (r - Math.floor(r) > 0.5) ? 1 + Math.floor(r) : Math.floor(r);
             movePower = Math.max(1, r);
         } else if (["Heavy Slam", "Heat Crash"].indexOf(moveName) > -1) {
@@ -3272,7 +3272,7 @@ function Calculator() {
         } else if (moveName === "Hex" && this.defender.status !== Statuses.NOSTATUS) {
             movePower *= 2;
         } else if (moveName === "Wring Out" || moveName === "Crush Grip") {
-            var r = 120 * defender.currentHP / defender.getStat(Stats.HP);
+            var r = 120 * this.defender.currentHP / this.defender.stat(Stats.HP);
             r = (r - Math.floor(r) > 0.5) ? 1 + Math.floor(r) : Math.floor(r);
             movePower = Math.max(1, r);
         } else if (moveName === "Heavy Slam" || moveName === "Heat Crash") {

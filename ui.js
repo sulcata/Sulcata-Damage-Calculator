@@ -2175,10 +2175,10 @@ window.onload = function() {
         }
         rpt += ": " + dmg[0].values[0] + " - " + dmg[0].values[dmg[0].values.length - 1] + " (" + minPercent + " - " + maxPercent + "%) -- ";
         
-        var chanceToKO = function (damageRanges, remainingHP, effects, maxTurns) { // not even recursive
+        var chanceToKO = function (damageRanges, remainingHP, totalHP, effects, maxTurns) { // not even recursive
             var chances = [];
             var dmg = new Sulcalc.WeightedArray([0]);
-            maxTurns = 5;
+            var toxicCounter = 0;
             for (var turn = 0, i = 0; turn < maxTurns; turn++, i++) {
                 if (damageRanges[i] === 0) {
                     break;
@@ -2190,7 +2190,11 @@ window.onload = function() {
                 dmg = dmg.combine(damageRanges[i]);
                 var s = 0, least = 0; // positive heals, negative steals~
                 for (var e = 0; e < effects.length; e++) {
-                    s += effects[e];
+                    if (effects[e] === "toxic") {
+                        s -= Math.floor((++toxicCounter) * totalHP / 16);
+                    } else {
+                        s += effects[e];
+                    }
                     least = Math.min(s, least);
                 }
                 chances.push([dmg.count(function (val, weight) {
@@ -2213,7 +2217,8 @@ window.onload = function() {
                 effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                // to-do
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
             }
             // leech seed
             // nightmare
@@ -2259,7 +2264,8 @@ window.onload = function() {
                 effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                // to-do
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
             }
             // nightmare
             // curse
@@ -2309,7 +2315,8 @@ window.onload = function() {
                 effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                // to-do
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
             }
             // nightmare
             // curse
@@ -2377,7 +2384,8 @@ window.onload = function() {
                 effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                // to-do
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
             }
             // nightmare
             // curse
@@ -2445,7 +2453,8 @@ window.onload = function() {
                 effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                // to-do
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
             }
             // nightmare
             // curse
@@ -2459,7 +2468,7 @@ window.onload = function() {
                 effectMsgs.push("Sticky Barb");
             }
         }
-        var chancesInt = chanceToKO(dmg, c.defender.currentHP, effects, 9);
+        var chancesInt = chanceToKO(dmg, c.defender.currentHP, c.defender.stat(Sulcalc.Stats.HP), effects, 9);
         var chances = [];
         for (var i = 0; i < chancesInt.length; i++) {
             chances.push(parseInt(Sulcalc.divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1]), 10) / 10000);
