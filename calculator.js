@@ -18,17 +18,17 @@ function Database() {
     // The directories of generation specific information such as stats, type tables, and released items
     this.gens = [null, "db/rby/", "db/gsc/", "db/adv/", "db/hgss/", "db/b2w2/", "db/oras/"];
     this._damageClass = null;
-    this.damageClass = function (pokeId) {
+    this.damageClass = function (moveId) {
         if (this._damageClass === null) {
             this._damageClass = this.getJSON("db/damageClass.json");
         }
-        if (typeof pokeId === "undefined") {
+        if (typeof moveId === "undefined") {
             return this._damageClass;
-        } else if (pokeId in this._damageClass) {
-            return this._damageClass[pokeId];
+        } else if (moveId in this._damageClass) {
+            return this._damageClass[moveId];
         }
         return 0;
-    };
+    }
     
     this._typeDamageClass = null;
     this.typeDamageClass = function (typeId) {
@@ -41,7 +41,7 @@ function Database() {
             return this._typeDamageClass[typeId];
         }
         return 0;
-    };
+    }
     
     this._pokemons = null;
     this.pokemons = function (pokeId) {
@@ -52,7 +52,7 @@ function Database() {
             return this._pokemons;
         }
         return this._pokemons[pokeId];
-    };
+    }
     
     this._natures = null;
     this.natures = function (natureId) {
@@ -63,7 +63,7 @@ function Database() {
             return this._natures;
         }
         return this._natures[natureId];
-    };
+    }
     
     this._abilities = null;
     this.abilities = function (abilityId) {
@@ -74,7 +74,7 @@ function Database() {
             return this._abilities;
         }
         return this._abilities[abilityId];
-    };
+    }
     
     this._items = null;
     this.items = function (itemId) {
@@ -85,7 +85,7 @@ function Database() {
             return this._items;
         }
         return this._items[itemId];
-    };
+    }
     
     this._moves = null;
     this.moves = function (moveId) {
@@ -96,7 +96,7 @@ function Database() {
             return this._moves;
         }
         return this._moves[moveId];
-    };
+    }
     
     this._berryEffects = null;
     this.berryEffects = function (berryId) {
@@ -107,7 +107,7 @@ function Database() {
             return this._berryEffects;
         }
         return this._berryEffects[berryId];
-    };
+    }
     
     this._itemEffects = null;
     this.itemEffects = function (itemId) {
@@ -118,7 +118,7 @@ function Database() {
             return this._itemEffects;
         }
         return this._itemEffects[itemId];
-    };
+    }
     
     this._berryType = null;
     this.berryType = function (berryId) {
@@ -129,7 +129,7 @@ function Database() {
             return this._berryType;
         }
         return this._berryType[berryId];
-    };
+    }
     
     this._berryPower = null;
     this.berryPower = function (berryId) {
@@ -140,7 +140,7 @@ function Database() {
             return this._berryPower;
         }
         return this._berryPower[berryId];
-    };
+    }
     
     this._flingPower = null;
     this.flingPower = function (itemId) {
@@ -153,7 +153,7 @@ function Database() {
             return this._flingPower[itemId];
         }
         return 10;
-    };
+    }
     
     this._weight = null;
     this.weight = function (pokeId) {
@@ -164,7 +164,7 @@ function Database() {
             return this._weight;
         }
         return this._weight[pokeId];
-    };
+    }
     
     this._berries = null;
     this.berries = function (berryId) {
@@ -175,7 +175,7 @@ function Database() {
             return this._berries;
         }
         return this._berries[berryId];
-    };
+    }
     
     this._recoil = null;
     this.recoil = function (id) {
@@ -186,7 +186,7 @@ function Database() {
             return this._recoil;
         }
         return this._recoil[id];
-    };
+    }
     
     this._moveFlags = null;
     this.moveFlags = function (moveId) {
@@ -197,7 +197,7 @@ function Database() {
             return this._moveFlags;
         }
         return this._moveFlags[moveId];
-    };
+    }
     
     this._flinch = null;
     this.flinch = function (moveId) {
@@ -208,7 +208,7 @@ function Database() {
             return this._flinch;
         }
         return this._flinch[moveId];
-    };
+    }
     
     this._moveEffects = null;
     this.moveEffects = function (moveId) {
@@ -219,7 +219,7 @@ function Database() {
             return this._moveEffects;
         }
         return this._moveEffects[moveId];
-    };
+    }
     
     this._abilityEffects = null;
     this.abilityEffects = function (abilityId) {
@@ -230,7 +230,7 @@ function Database() {
             return this._abilityEffects;
         }
         return this._abilityEffects[abilityId];
-    };
+    }
     
     this._evolutions = null;
     this.evolutions = function (pokeId) {
@@ -241,7 +241,7 @@ function Database() {
             return this._evolutions;
         }
         return this._evolutions[pokeId];
-    };
+    }
     
     this._stats = [];
     this.stats = function (generation, pokeId) {
@@ -252,7 +252,7 @@ function Database() {
             return this._stats[generation];
         }
         return this._stats[generation][pokeId];
-    };
+    }
     
     this._movePowers = [];
     this.movePowers = function (generation, pokeId) {
@@ -263,7 +263,7 @@ function Database() {
             return this._movePowers[generation];
         }
         return this._movePowers[generation][pokeId];
-    };
+    }
     
     this._moveTypes = [];
     this.moveTypes = function (generation, pokeId) {
@@ -274,7 +274,7 @@ function Database() {
             return this._moveTypes[generation];
         }
         return this._moveTypes[generation][pokeId];
-    };
+    }
     
     this._pokeType1 = [];
     this.pokeType1 = function (generation, pokeId) {
@@ -285,7 +285,7 @@ function Database() {
             return this._pokeType1[generation];
         }
         return this._pokeType1[generation][pokeId];
-    };
+    }
     
     this._pokeType2 = [];
     this.pokeType2 = function (generation, pokeId) {
@@ -296,7 +296,7 @@ function Database() {
             return this._pokeType2[generation];
         }
         return this._pokeType2[generation][pokeId];
-    };
+    }
     
     this._typesTable = [];
     this.typesTable = function (generation, attackingType, defendingType) {
@@ -307,7 +307,7 @@ function Database() {
             return this._typesTable[generation];
         }
         return this._typesTable[generation][attackingType][defendingType];
-    };
+    }
     
     this._minMaxHits = [];
     this.minMaxHits = function (generation, moveId) {
@@ -318,7 +318,7 @@ function Database() {
             return this._minMaxHits[generation];
         }
         return this._minMaxHits[generation][moveId];
-    };
+    }
     
     this._ranges = [];
     this.ranges = function (generation, moveId) {
@@ -332,7 +332,7 @@ function Database() {
             return this._ranges[generation]
         }
         return this._ranges[generation][moveId];
-    };
+    }
     
     // the functions below are unneeded for calculations and will not load files unless explicitly called
     this._releasedPokes = null;
@@ -344,7 +344,7 @@ function Database() {
             return this._releasedPokes[generation];
         }
         return this._releasedPokes[generation][index];
-    };
+    }
     
     this._releasedMoves = null;
     this.releasedMoves = function (generation, index) {
@@ -355,7 +355,7 @@ function Database() {
             return this._releasedMoves[generation];
         }
         return this._releasedMoves[generation][index];
-    };
+    }
     
     this._releasedItems = null;
     this.releasedItems = function (generation, index) {
@@ -366,7 +366,7 @@ function Database() {
             return this._releasedItems[generation];
         }
         return this._releasedItems[generation][index];
-    };
+    }
     
     this._releasedBerries = null;
     this.releasedBerries= function (generation, index) {
@@ -377,10 +377,10 @@ function Database() {
             return this._releasedBerries[generation];
         }
         return this._releasedBerries[generation][index];
-    };
+    }
     
     this._genders = null;
-    this.genders = function(pokeId) {
+    this.genders = function (pokeId) {
         if (this._genders === null) {
             this._genders = this.getJSON("db/gender.json");
         }
@@ -477,7 +477,7 @@ function Database() {
         }
         return -1;
     }
-};
+}
 
 Database.prototype.getJSON = function (file) {
     var httpreq;
@@ -512,7 +512,7 @@ Database.prototype.getJSON = function (file) {
         console.log(e.name, e.message, file);
     }
     return result;
-};
+}
 
 var Sulcalc = (function() {
 
@@ -749,6 +749,7 @@ function Pokemon() {
     this.addedType = Types.CURSE; // GHOST: Trick or Treat, GRASS: Forest's Curse, CURSE: Nothing; They can't exist simultaneously
     this.overrideTypes = [Types.CURSE, Types.CURSE]; // curse should be used for "no type"
     this.override = false;
+    this.moves = [new Move(), new Move(), new Move(), new Move()];
     
     this.setNatureName = function (n) {
         for (nat in db.natures()) {
@@ -757,6 +758,7 @@ function Pokemon() {
                 return;
             }
         }
+        this.nature = 0;
     }
     
     this.natureName = function() {
@@ -770,6 +772,7 @@ function Pokemon() {
                 return;
             }
         }
+        this.id = "0:0";
     }
     
     this.name = function() {
@@ -923,10 +926,7 @@ function Pokemon() {
     }
     
     this.stab = function (t) {
-        return (t === this.type1()
-                || t === this.type2()
-                || t === this.addedType)
-               && t !== Types.CURSE; // no stab on curse-type
+        return [this.type1(), this.type2(), this.addedType].indexOf(t) > -1 && t !== Types.CURSE; // no stab on curse-type
     }
     
     this.weight = function() {// kg
@@ -949,11 +949,129 @@ function Pokemon() {
         return false;
     }
     
-    this.possibleGenders = function () {
+    this.possibleGenders = function() {
         if (db.genders(this.species() + this.form())) {
             return db.genders(this.species() + ":" + this.form());
         }
         return db.genders(this.species() + ":0");
+    }
+    
+    this.fromImportable = function (importText) {
+        var statMatches = {"hp": 0, "atk": 1, "def": 2, "satk": 3, "spatk": 3, "sdef": 4, "spdef": 4, "spd": 5, "spc": 3};
+        var lines = importText.split("\n");
+        lines.forEach(function (val, idx, arr) {
+            arr[idx] = val.trim();
+        });
+        var tempIdx = lines[0].indexOf(" @ ");
+        tempIdx = tempIdx < 0 ? tempIdx.length : tempIdx;
+        this.gender = ["(N)", "(M)", "(F)"].indexOf(lines[0].substring(tempIdx - 3, tempIdx));
+        var name;
+        if (this.gender > -1) {
+            name = lines[0].substring(0, tempIdx - 4);
+        } else {
+            name = lines[0].substring(0, tempIdx);
+            this.gender = 0;
+        }
+        if (name.indexOf("(") > -1) {
+            name = name.substring(name.indexOf("(") + 1, name.indexOf(")"));
+        }
+        this.setName(name);
+        this.item.setName(lines[0].substring(tempIdx + 3));
+        for (var i = 1; i < lines.length; i++) {
+            if (lines[i].substr(0, 6).toLowerCase() === "level:") {
+                this.level = parseInt(lines[i].substr(6).trim(), 10);
+                this.level = isNaN(this.level) ? 100 : Math.max(0, Math.min(level, 100));
+            } else if (lines[i].substr(0, 6).toLowerCase() === "trait:") {
+                this.ability.setName(lines[i].substr(6).trim());
+            } else if (lines[i].substr(0, 8).toLowerCase() === "ability:") {
+                this.ability.setName(lines[i].substr(8).trim());
+            } else if (lines[i].substr(0, 4).toLowerCase() === "evs:") {
+                lines[i].substr(4).split("/").forEach(function(val, idx, arr) {
+                    var v = val.trim();
+                    var ev = parseInt(v.substring(0, v.indexOf(" ")), 10);
+                    var stat = v.substring(v.indexOf(" ") + 1);
+                    this.evs[statMatches[stat.toLowerCase()]] = Math.max(0, Math.min(ev, 255));
+                }, this);
+            } else if (lines[i].substr(0, 4).toLowerCase() === "ivs:" || lines[i].substr(0, 4).toLowerCase() === "dvs:") {
+                var ivs = lines[i].substr(4).split("/").forEach(function(val, idx, arr) {
+                    var v = val.trim();
+                    var iv = parseInt(v.substring(0, v.indexOf(" ")), 10);
+                    var stat = v.substring(v.indexOf(" ") + 1);
+                    this.ivs[statMatches[stat.toLowerCase()]] = Math.max(0, Math.min(iv, gen > 2 ? 31 : 15));
+                }, this);
+            } else if (lines[i][0] === "-" || lines[i][0] === "-") {
+                var m = 0;
+                while (m < this.moves.length && this.moves[m].id !== "0") {
+                    m++;
+                }
+                this.moves[m].setName(lines[i].substr(1).trim());
+            } else if (lines[i].substr(lines[i].indexOf(" ") + 1, 6).toLowerCase() === "nature") { // doing moves first prevents 2x trigger
+                this.setNatureName(lines[i].substring(0, lines[i].indexOf(" ")));
+            }
+        }
+    }
+    
+    this.toImportable = function() {
+        var stats = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
+        var e = this.name();
+        if (gen > 2) {
+            e += ["", " (M)", " (F)"][this.gender];;
+        }
+        if (gen > 1) {
+            e += " @ " + this.item.name()
+        }
+        if (gen > 2) {
+            e += "\nTrait: " + this.ability.name();
+        }
+        for (var i = 0, hasPrevious = false; i < 6; i++) {
+            if (gen > 2 && this.evs[i] > 0) {
+                e += (hasPrevious ? "" : "\nEVs: ") + (hasPrevious ? " / " : "") + this.evs[i] + " " + stats[i];
+                hasPrevious = true;
+            } else if (gen === 2) {
+                if (i === 4 && this.evs[3] < 252) {
+                    e += (hasPrevious ? "" : "\nEVs: ") + (hasPrevious ? " / " : "") + this.evs[3] + " Sdef";
+                    hasPrevious = true;
+                } else if (this.evs[i] < 252) {
+                    e += (hasPrevious ? "" : "\nEVs: ") + (hasPrevious ? " / " : "") + this.evs[i] + " " + stats[i];
+                    hasPrevious = true;
+                }
+            } else if (gen === 1 && i !== 4 && this.evs[i] < 252) {
+                e += (hasPrevious ? "" : "\nEVs: ") + (hasPrevious ? " / " : "") + this.evs[i] + " " + (i === 3 ? "Spc" : stats[i]);
+                hasPrevious = true;
+            }
+        }
+        for (var i = 0, hasPrevious = false; i < 6; i++) {
+            if (gen > 2 && this.ivs[i] < 31) {
+                e += (hasPrevious ? "" : "\nIVs: ") + (hasPrevious ? " / " : "") + this.ivs[i] + " " + stats[i];
+                hasPrevious = true;
+            } else if (gen === 2) {
+                if (i === 4 && this.ivs[3] < 15) {
+                    e += (hasPrevious ? "" : "\nIVs: ") + (hasPrevious ? " / " : "") + this.ivs[3] + " Sdef";
+                    hasPrevious = true;
+                } else if (this.ivs[i] < 15) {
+                    e += (hasPrevious ? "" : "\nIVs: ") + (hasPrevious ? " / " : "") + this.ivs[i] + " " + stats[i];
+                    hasPrevious = true;
+                }
+            } else if (gen === 1 && i !== 4 && this.ivs[i] < 15) {
+                e += (hasPrevious ? "" : "\nIVs: ") + (hasPrevious ? " / " : "") + this.ivs[i] + " " + (i === 3 ? "Spc" : stats[i]);
+                hasPrevious = true;
+            }
+        }
+        if (gen > 2) {
+            e += "\n" + this.natureName() + " Nature";
+        }
+        var m = 0, hasMove = false;
+        while (m < this.moves.length) {
+            if (this.moves[m].id !== "0") {
+                e += "\n- " + this.moves[m].name();
+                hasMove = true;
+            }
+            m++;
+        }
+        if (!hasMove) {
+            e += "- (No Move)";
+        }
+        return e;
     }
     
     this.ability1 = function() { // ui purposes, same for ability2 and ability3
@@ -991,6 +1109,7 @@ function Move() {
                 return;
             }
         }
+        this.id = "0";
     }
     
     this.name = function() {
@@ -1002,7 +1121,7 @@ function Move() {
     }
     
     this.damageClass = function() {
-        return db.damageClass(this.id);
+        return gen > 3 ? db.damageClass(this.id) : db.typeDamageClass(this.type());
     }
     
     this.type = function() {
@@ -1072,6 +1191,7 @@ function Ability() {
                 return;
             }
         }
+        this.id = "0";
     }
     
     this.name = function() {
@@ -1114,20 +1234,20 @@ function Ability() {
             return parseInt(v, 10);
         }
         if (db.abilityEffects(this.id) === "120") { // levitate
-            return Sulcalc.Types.GROUND;
+            return Types.GROUND;
         }
         if (db.abilityEffects(this.id) === "41") { // motor drive
-            return Sulcalc.Types.ELECTRIC;
+            return Types.ELECTRIC;
         }
         var v = this.flagToValue("68"); // sap sipper, etc.
         if (v !== null) {
             return parseInt(v, 10);
         }
         if (db.abilityEffects(this.id) === "19") { // flash fire
-            return Sulcalc.Types.FIRE;
+            return Types.FIRE;
         }
         if (db.abilityEffects(this.id) === "15") { // dry skin
-            return Sulcalc.Types.Water;
+            return Types.Water;
         }
         return -1;
     }
@@ -1158,6 +1278,7 @@ function Item() {
         for (i in db.items()) {
             if (db.items(i) === n) {
                 this.id = i;
+                return;
             }
         }
         for (b in db.berries()) {
@@ -1166,6 +1287,7 @@ function Item() {
                 return;
             }
         }
+        this.id = 0;
     }
     
     this.name = function() {
@@ -2203,10 +2325,10 @@ function Calculator() {
         }
         
         var a, d;
-        if (db.typeDamageClass(this.move.type()) === DamageClasses.PHYSICAL) {
+        if (this.move.damageClass() === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else if (db.typeDamageClass(this.move.type()) === DamageClasses.SPECIAL) {
+        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
             a = spc_a;
             d = spc_d;
         } else {
@@ -2218,6 +2340,7 @@ function Calculator() {
             d = (d >> 2) & 0xFF;
         }
         
+        a = Math.max(1, a);
         d = Math.max(1, d);
         
         var baseDamage = Math.min(997, Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * a * this.move.power() / d) / 50)) + 2;
@@ -2330,10 +2453,10 @@ function Calculator() {
         }
         
         var a, d;
-        if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
+        if (this.move.damageClass() === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else if (db.typeDamageClass(moveType) === DamageClasses.SPECIAL) {
+        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
             a = satk;
             d = sdef;
         } else {
@@ -2345,6 +2468,7 @@ function Calculator() {
             d = (d >> 2) & 0xFF;
         }
         // in-game Crystal would repeat the process without &0xFF, but not in link battles
+        a = Math.max(1, a);
         d = Math.max(1, d);
         
         if (moveName === "Beat Up") {
@@ -2483,7 +2607,7 @@ function Calculator() {
             atk *= 2;
         }
         if (attackerItem.typeBoosted() === moveType) {
-            if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) { // make sure we are boosting the right stat
+            if (this.move.damageClass() === DamageClasses.PHYSICAL) { // make sure we are boosting the right stat
                 atk = Math.floor(atk * 11 / 10);
             } else {
                 satk = Math.floor(satk * (attackerItem.name() === "Sea Incense" ? 105 : 110) / 100); // sea incense is 1.05
@@ -2555,10 +2679,10 @@ function Calculator() {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
-        } else if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
+        } else if (this.move.damageClass() === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else if (db.typeDamageClass(moveType) === DamageClasses.SPECIAL) {
+        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
             a = satk;
             d = sdef;
         } else {
@@ -2570,7 +2694,7 @@ function Calculator() {
         if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && moveName !== "Beat Up") {
             baseDamage >>= 1;
         }
-        if ((this.field.reflect && db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) || (this.field.lightScreen && db.typeDamageClass(moveType) === DamageClasses.SPECIAL)) {
+        if ((this.field.reflect && this.move.damageClass() === DamageClasses.PHYSICAL) || (this.field.lightScreen && this.move.damageClass() === DamageClasses.SPECIAL)) {
             if (!crit && moveName !== "Beat Up") {
                 if (this.field.multiBattle) {
                     baseDamage = Math.floor(baseDamage * 2 / 3);
@@ -2605,7 +2729,7 @@ function Calculator() {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
-        if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
+        if (this.move.damageClass() === DamageClasses.PHYSICAL) {
             baseDamage = Math.max(1, baseDamage);
         }
         
@@ -3852,6 +3976,491 @@ function Calculator() {
         }
         this.field.brokenMultiscale = false;
         return dmg;
+    }
+    
+    this.chanceToKO = function (damageRanges, remainingHP, totalHP, effects, maxTurns) { // not even recursive
+        var chances = [];
+        var dmg = new WeightedArray([0]);
+        var toxicCounter = 0;
+        for (var turn = 0, i = 0; turn < maxTurns; turn++, i++) {
+            if (damageRanges[i] === 0) {
+                break;
+            } else if (damageRanges[i] === 1) {
+                i--;
+            } else if (damageRanges[i] === 2) {
+                i = 0;
+            }
+            dmg = dmg.combine(damageRanges[i]);
+            var s = 0, least = 0; // positive heals, negative steals~
+            for (var e = 0; e < effects.length; e++) {
+                if (effects[e] === "toxic") {
+                    s -= Math.floor((++toxicCounter) * totalHP / 16);
+                } else {
+                    s += effects[e];
+                }
+                least = Math.min(s, least);
+            }
+            chances.push([dmg.count(function (val, weight) {
+                return remainingHP + least <= val;
+            }), dmg.count()]);
+            if (chances[chances.length - 1][0] === chances[chances.length - 1][1]) {
+                return chances;
+            }
+            dmg.addAll(-s); // flip for damage
+        }
+        return chances;
+    }
+    
+    this.endOfTurnEffects = function() {
+        var effects = [0];
+        var effectMsgs = [""];
+        if (gen === 1) {
+            
+        } else if (gen === 2) { // gen 2 after effects
+            if (this.defender.status === Statuses.BURNED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Burn");
+            } else if (this.defender.status === Statuses.POISONED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Poison");
+            } else if (this.defender.status === Statuses.BADLYPOISONED) {
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
+            }
+            // leech seed
+            // nightmare
+            // curse
+            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
+                                                               || this.defender.type2() === Types.GROUND
+                                                               || this.defender.type1() === Types.ROCK
+                                                               || this.defender.type2() === Types.ROCK
+                                                               || this.defender.type1() === Types.STEEL
+                                                               || this.defender.type2() === Types.STEEL)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Sandstorm");
+            }
+            if (this.defender.item.name() === "Leftovers") {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Leftovers");
+            }
+        } else if (gen === 3) { // gen 3 after effects
+            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
+                                                               || this.defender.type2() === Types.GROUND
+                                                               || this.defender.type1() === Types.ROCK
+                                                               || this.defender.type2() === Types.ROCK
+                                                               || this.defender.type1() === Types.STEEL
+                                                               || this.defender.type2() === Types.STEEL)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Sandstorm");
+            }
+            if (this.field.weather === Weathers.HAIL && !(this.defender.type1() === Types.ICE || this.defender.type2() === Types.ICE)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Hail");
+            }
+            // ingrain
+            // rain dish
+            if (this.defender.item.name() === "Leftovers") {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Leftovers");
+            }
+            // leech seed
+            if (this.defender.status === Statuses.BURNED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Burn");
+            } else if (this.defender.status === Statuses.POISONED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Poison");
+            } else if (this.defender.status === Statuses.BADLYPOISONED) {
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
+            }
+            // nightmare
+            // curse
+            // multi turns -- whirlpool, flame wheel, etc
+        } else if (gen === 4) { // gen 4 after effects
+            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
+                                                               || this.defender.type2() === Types.GROUND
+                                                               || this.defender.type1() === Types.ROCK
+                                                               || this.defender.type2() === Types.ROCK
+                                                               || this.defender.type1() === Types.STEEL
+                                                               || this.defender.type2() === Types.STEEL)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Sandstorm");
+            }
+            if (this.field.weather === Weathers.HAIL && !(this.defender.type1() === Types.ICE || this.defender.type2() === Types.ICE)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Hail");
+            }
+            if (this.defender.ability.name() === "Dry Skin") {
+                if (this.field.weather === Weathers.SUN) {
+                    effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                    effectMsgs.push("Dry Skin");
+                } else if (this.field.weather === Weathers.RAIN) {
+                    effects.push(this.defender.stat(Stats.HP) >> 3);
+                    effectMsgs.push("Dry Skin");
+                }
+            }
+            if (this.defender.ability.name() === "Rain Dish" && this.field.weather === Weathers.RAIN) {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Rain Dish");
+            }
+            if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Ice Body");
+            }
+            // ingrain
+            // aqua ring
+            if (this.defender.item.name() === "Leftovers") {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Leftovers");
+            }
+            // leech seed
+            if (this.defender.status === Statuses.BURNED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Burn");
+            } else if (this.defender.status === Statuses.POISONED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Poison");
+            } else if (this.defender.status === Statuses.BADLYPOISONED) {
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
+            }
+            // nightmare
+            // curse
+            // multi turns -- whirlpool, flame wheel, etc
+            if (this.defender.status === Statuses.ASLEEP && this.attacker.ability.name() === "Bad Dreams") {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Bad Dreams");
+            }
+            if (this.defender.item.name() === "Sticky Barb") {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Sticky Barb");
+            }
+        } else if (gen === 5) { // gen 5 after effects
+            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
+                                                               || this.defender.type2() === Types.GROUND
+                                                               || this.defender.type1() === Types.ROCK
+                                                               || this.defender.type2() === Types.ROCK
+                                                               || this.defender.type1() === Types.STEEL
+                                                               || this.defender.type2() === Types.STEEL)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Sandstorm");
+            }
+            if (this.field.weather === Weathers.HAIL && !(this.defender.type1() === Types.ICE || this.defender.type2() === Types.ICE)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Hail");
+            }
+            if (this.defender.ability.name() === "Dry Skin") {
+                if (this.field.weather === Weathers.SUN) {
+                    effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                    effectMsgs.push("Dry Skin");
+                } else if (this.field.weather === Weathers.RAIN) {
+                    effects.push(this.defender.stat(Stats.HP) >> 3);
+                    effectMsgs.push("Dry Skin");
+                }
+            }
+            if (this.defender.ability.name() === "Rain Dish" && this.field.weather === Weathers.RAIN) {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Rain Dish");
+            }
+            if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Ice Body");
+            }
+            // fire pledge + grass pledge damage
+            if (this.defender.item.name() === "Leftovers") {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Leftovers");
+            }
+            if (this.defender.item.name() === "Black Sludge") {
+                if (this.defender.type1() === Types.POISON || this.defender.type2() === Types.POISON) {
+                    effects.push(this.defender.stat(Stats.HP) >> 4);
+                    effectMsgs.push("Black Sludge");
+                } else {
+                    effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                    effectMsgs.push("Black Sludge");
+                }
+            }
+            // aqua ring
+            // ingrain
+            // leech seed
+            if (this.defender.status === Statuses.BURNED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Burn");
+            } else if (this.defender.status === Statuses.POISONED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Poison");
+            } else if (this.defender.status === Statuses.BADLYPOISONED) {
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
+            }
+            // nightmare
+            // curse
+            // multi turns -- whirlpool, flame wheel, etc
+            if (this.defender.status === Statuses.ASLEEP && this.attacker.ability.name() === "Bad Dreams") {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Bad Dreams");
+            }
+            if (this.defender.item.name() === "Sticky Barb") {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Sticky Barb");
+            }
+        } else if (gen === 6) { // gen 6 after effects
+            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
+                                                               || this.defender.type2() === Types.GROUND
+                                                               || this.defender.type1() === Types.ROCK
+                                                               || this.defender.type2() === Types.ROCK
+                                                               || this.defender.type1() === Types.STEEL
+                                                               || this.defender.type2() === Types.STEEL)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Sandstorm");
+            }
+            if (this.field.weather === Weathers.HAIL && !(this.defender.type1() === Types.ICE || this.defender.type2() === Types.ICE)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effectMsgs.push("Hail");
+            }
+            if (this.defender.ability.name() === "Dry Skin") {
+                if ([Weathers.SUN, Weathers.HARSH_SUN].indexOf(this.field.weather) > -1) {
+                    effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                    effectMsgs.push("Dry Skin");
+                } else if ([Weathers.RAIN, Weathers.HEAVY_RAIN].indexOf(this.field.weather) > -1) {
+                    effects.push(this.defender.stat(Stats.HP) >> 3);
+                    effectMsgs.push("Dry Skin");
+                }
+            }
+            if (this.defender.ability.name() === "Rain Dish" && [Weathers.RAIN, Weathers.HEAVY_RAIN].indexOf(this.field.weather) > -1) {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Rain Dish");
+            }
+            if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Ice Body");
+            }
+            // fire pledge + grass pledge damage
+            if (this.defender.item.name() === "Leftovers") {
+                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effectMsgs.push("Leftovers");
+            }
+            if (this.defender.item.name() === "Black Sludge") {
+                if (this.defender.type1() === Types.POISON || this.defender.type2() === Types.POISON) {
+                    effects.push(this.defender.stat(Stats.HP) >> 4);
+                    effectMsgs.push("Black Sludge");
+                } else {
+                    effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                    effectMsgs.push("Black Sludge");
+                }
+            }
+            // aqua ring
+            // ingrain
+            // leech seed
+            if (this.defender.status === Statuses.BURNED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Burn");
+            } else if (this.defender.status === Statuses.POISONED) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Poison");
+            } else if (this.defender.status === Statuses.BADLYPOISONED) {
+                effects.push("toxic");
+                effectMsgs.push("Toxic");
+            }
+            // nightmare
+            // curse
+            // multi turns -- whirlpool, flame wheel, etc
+            if (this.defender.status === Statuses.ASLEEP && this.attacker.ability.name() === "Bad Dreams") {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Bad Dreams");
+            }
+            if (this.defender.item.name() === "Sticky Barb") {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effectMsgs.push("Sticky Barb");
+            }
+        }
+        return {effects: effects, messages: effectMsgs};
+    }
+    
+    this.report = function() {
+        var dmg = this.calculate();
+        var minPercent = Math.round(dmg[0].values[0] / this.defender.stat(Stats.HP) * 1000) / 10;
+        var maxPercent = Math.round(dmg[0].values[dmg[0].values.length-1] / this.defender.stat(Stats.HP) * 1000) / 10;
+        rpt = "";
+        var a = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SATK : Stats.ATK;
+        var d = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SDEF : Stats.DEF;
+        if (["Psyshock", "Psystrike", "Secret Sword"].indexOf(this.move.name()) > -1) {
+            a = Stats.SATK;
+            d = Stats.DEF;
+        }
+        if (this.attacker.boosts[a] !== 0) {
+            rpt += (this.attacker.boosts[a] > 0 ? "+" : "-") + Math.abs(this.attacker.boosts[a]) + " ";
+        }
+        if (gen > 2 || this.attacker.evs[a] < 252) {
+            rpt += this.attacker.evs[a];
+            if (this.attacker.natureMultiplier(a) === 1 && gen > 2) {
+                rpt += "+";
+            } else if (this.attacker.natureMultiplier(a) === -1 && gen > 2) {
+                rpt += "-";
+            }
+            rpt += (a === Stats.SATK ? " SpAtk" : " Atk");
+        }
+        var itemIgnoreList = { // don't exclude plates & orbs as those affect damage
+            "649:1" : "Douse Drive", // Genesect-D
+            "649:2" : "Shock Drive", // Genesect-S
+            "649:3" : "Burn Drive", // Genesect-B
+            "649:4" : "Chill Drive", // Genesect-C
+            "460:1:M" : "Abomasite", // Mega Abomasnow
+            "359:1:M" : "Absolite", // Mega Absol
+            "142:1:M" : "Aerodactylite", // Mega Aerodactyl
+            "306:1:M" : "Aggronite", // Mega Aggron
+            "65:1:M" : "Alakazite", // Mega Alakazam
+            "334:1:M" : "Altarianite", // Mega Altaria
+            "181:1:M" : "Ampharosite", // Mega Ampharos
+            "531:1:M" : "Audinite", // Mega Audino
+            "354:1:M" : "Banettite", // Mega Banette
+            "15:1:M" : "Beedrillite", // Mega Beedrill
+            "9:1:M" : "Blastoisinite", // Mega Blastoise
+            "257:1:M" : "Blazikenite", // Mega Blaziken
+            "323:1:M" : "Cameruptite", // Mega Camerupt
+            "6:1:M" : "Charizardite X", // Mega Charizard X
+            "6:2:M" : "Charizardite Y", // Mega Charizard Y
+            "719:1:M" : "Diancite", // Mega Diancie
+            "475:1:M" : "Galladite", // Mega Gallade
+            "445:1:M" : "Garchompite", // Mega Garchomp
+            "282:1:M" : "Gardevoirite", // Mega Gardevoir
+            "94:1:M" : "Gengarite", // Mega Gengar
+            "362:1:M" : "Glalitite", // Mega Glalie
+            "130:1:M" : "Gyaradosite", // Mega Gyarados
+            "214:1:M" : "Heracronite", // Mega Heracross
+            "229:1:M" : "Houndoominite", // Mega Houndoom
+            "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
+            "380:1:M" : "Latiasite", // Mega Latias
+            "381:1:M" : "Latiosite", // Mega Latios
+            "428:1:M" : "Lopunnity", // Mega Lopunny
+            "448:1:M" : "Lucarionite", // Mega Lucario
+            "310:1:M" : "Manectite", // Mega Manectric
+            "303:1:M" : "Mawilite", // Mega Mawile
+            "308:1:M" : "Medichamite", // Mega Medicham
+            "376:1:M" : "Metagrossite", // Mega Metagross
+            "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
+            "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+            "18:1:M" : "Pidgeotite", // Mega Pidgeot
+            "127:1:M" : "Pinsirite", // Mega Pinsir
+            "302:1:M" : "Sablenite", // Mega Sableye
+            "373:1:M" : "Salamencite", // Mega Salamence
+            "254:1:M" : "Sceptilite", // Mega Sceptile
+            "212:1:M" : "Scizorite", // Mega Scizor
+            "319:1:M" : "Sharpedonite", // Mega Sharpedo
+            "80:1:M" : "Slowbronite", // Mega Slowbro
+            "208:1:M" : "Steelixite", // Mega Steelix
+            "260:1:M" : "Swampertite", // Mega Swampert
+            "248:1:M" : "Tyranitarite", // Mega Tyranitar
+            "3:1:M" : "Venusaurite", // Mega Venusaur
+            "383:1:M" : "Red Orb", // Primal Groudon
+            "382:1:M" : "Blue Orb" // Primal Kyogre
+        }
+        if (gen >= 2 && this.attacker.item.id !== "0" && itemIgnoreList[this.attacker.id] !== this.attacker.item.name()) {
+            rpt += " " + this.attacker.item.name();
+        }
+        if (gen > 2 && this.attacker.ability.id !== "0") {
+            rpt += " " + this.attacker.ability.name();
+        }
+        rpt += this.attacker.status === Statuses.BURNED ? " Burned " : " ";
+        rpt += this.attacker.name() + " " + this.move.name();
+        if (this.move.name() === "Hidden Power") {
+            if (gen <= 2) {
+                rpt += " [" + db.types(hiddenPowerT2(this.attacker.ivs))
+                       + " " + hiddenPowerP2(this.attacker.ivs) + "]";
+            } else if (gen <= 5) {
+                rpt += " [" + db.types(hiddenPowerT(this.attacker.ivs))
+                       + " " + hiddenPowerP(this.attacker.ivs) + "]";
+            } else {
+                rpt += " [" + db.types(hiddenPowerT(this.attacker.ivs)) + "]";
+            }
+        }
+        rpt += " vs. ";
+        if (this.defender.boosts[d] !== 0) {
+            rpt += (this.defender.boosts[d] > 0 ? "+" : "-") + Math.abs(this.defender.boosts[d]) + " ";
+        }
+        if (gen > 2 || this.defender.evs[d] < 252 || this.defender.evs[Stats.HP] < 252) {
+            rpt += this.defender.evs[Stats.HP] + " HP/";
+            rpt += this.defender.evs[d];
+            if (this.defender.natureMultiplier(d) === 1 && gen > 2) {
+                rpt += "+";
+            } else if (this.defender.natureMultiplier(d) === -1 && gen > 2) {
+                rpt += "-";
+            }
+            rpt += (d===Stats.SDEF ? " SpDef" : " Def");
+        }
+        if (gen >= 2 && this.defender.item.id !== "0" && itemIgnoreList[this.defender.id] !== this.defender.item.name()) {
+            rpt += " " + this.defender.item.name();
+        }
+        if (gen > 2 && this.defender.ability.id !== "0") {
+            rpt += " " + this.defender.ability.name();
+        }
+        rpt += " " + this.defender.name();
+        if (this.field.weather === Weathers.RAIN) {
+            rpt += " in Rain";
+        } else if (this.field.weather === Weathers.SUN) {
+            rpt += " in Sun";
+        } else if (this.field.weather === Weathers.HAIL) {
+            rpt += " in Hail";
+        } else if (this.field.weather === Weathers.SAND) {
+            rpt += " in Sand";
+        } else if (this.field.weather === Weathers.HEAVY_RAIN) {
+            rpt += " in Heavy Rain";
+        } else if (this.field.weather === Weathers.HARSH_SUN) {
+            rpt += " in Harsh Sun";
+        }
+        if (this.field.critical) {
+            rpt += " on a critical hit";
+        }
+        rpt += ": " + dmg[0].values[0] + " - " + dmg[0].values[dmg[0].values.length - 1] + " (" + minPercent + " - " + maxPercent + "%) -- ";
+        var effects = this.endOfTurnEffects();
+        var chancesInt = this.chanceToKO(dmg, this.defender.currentHP, this.defender.stat(Stats.HP), effects, 9);
+        var chances = [];
+        for (var i = 0; i < chancesInt.length; i++) {
+            chances.push(parseInt(divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1]), 10) / 10000);
+            if (chances[i] === 0 && chancesInt[i][0] > 0) {
+                chances[i] = "possible"; // sometimes we get "0" probability even though there is a "chance"
+            }
+        }
+        for (var i = 0, hasPrevious = false; i < chances.length; i++) {
+            if (chances[i] === "possible" || (Math.round(chances[i]*1000) === 0 && chances[i] > 0)) {
+                rpt += (hasPrevious ? ", " : "") + "possible " + (i > 0 ? (i + 1) : "O") + "HKO";
+                hasPrevious = true;
+            } else if (chances[i] > 0) {
+                if (chances[i] < 1) {
+                    rpt += (hasPrevious ? ", " : "") + Math.round(chances[i]*1000)/10 + "% chance to "
+                           + (i > 0 ? (i + 1) : "O") + "HKO";
+                    hasPrevious = true;
+                } else if (!hasPrevious) {
+                    rpt += "guaranteed " + (i > 0 ? (i + 1) : "O") + "HKO";
+                    break;
+                }
+            } else if (i + 1 === chances.length) {
+                rpt += "this might take a while..."
+            }
+        }
+        if (effects.messages.length > 1) {
+            rpt += " after ";
+        } 
+        for (var i = 1; i < effects.messages.length; i++) {
+            rpt += effects.messages[i];
+            if (effects.messages.length === i+2) {
+                rpt += effects.messages.length === 3 ? "" : ",";
+                rpt += " and "
+            } else if (effects.messages.length !== i+1) {
+                rpt += ", "
+            }
+        }
+        var defenderCurrentHp = parseInt(document.getElementById("defenderHPp").value, 10);
+        if (defenderCurrentHp < 100) {
+            rpt += " from " + defenderCurrentHp + "%";
+        }
+        return {
+            report: rpt,
+            minPercent: minPercent,
+            maxPercent: maxPercent,
+            damage: dmg
+        };
     }
 }
 
