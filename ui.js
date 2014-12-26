@@ -121,8 +121,6 @@ function convertToBaseN (n, base, paddingLength) {
     return result;
 }
 
-
-
 function convertFromBaseN (n, base) {
     // this is a lot easier
     var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -219,8 +217,8 @@ function pokeToBinary (p) {
     }
     q += convertToBaseN(document.getElementById(p + "Level").value, 2, 7);
     var stats = gen > 2 ? ["Hp", "Atk", "Def", "Satk", "Sdef", "Spd"]
-                        : gen === 2 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
-                                    : ["Hp", "Atk", "Def", "Spc", "Spd"];
+                        : gen > 1 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
+                                  : ["Hp", "Atk", "Def", "Spc", "Spd"];
     for (var i = 0; i < stats.length; i++) {//
         var ev = parseInt(document.getElementById(p + stats[i] + "Ev").value, 10) >> 2;
         var iv = parseInt(document.getElementById(p + stats[i] + "Iv").value, 10);
@@ -334,8 +332,8 @@ function binaryToPoke(p, str) {
     document.getElementById(p + "Level").value = convertFromBaseN(str.substr(ptr, 7), 2);
     ptr += 7;
     var stats = gen > 2 ? ["Hp", "Atk", "Def", "Satk", "Sdef", "Spd"]
-                        : gen === 2 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
-                                    : ["Hp", "Atk", "Def", "Spc", "Spd"];
+                        : gen > 1 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
+                                  : ["Hp", "Atk", "Def", "Spc", "Spd"];
     for (var i = 0; i < stats.length; i++) {
         document.getElementById(p + stats[i] + "Ev").value = convertFromBaseN(str.substr(ptr, 6), 2) << 2;
         ptr += 6;
@@ -1566,88 +1564,6 @@ function updateWeatherOptions (p) {
     }
 }
 
-function importableToPokemon (importText) {
-    var statMatches = {
-        "hp" : 0,
-        "atk" : 1,
-        "def" : 2,
-        "satk" : 3,
-        "sdef" : 4,
-        "spd" : 5,
-        "spc" : 3
-    };
-    var poke = new Sulcalc.Pokemon();
-    var lines = importText.split("\n");
-    lines.forEach(function (val, idx, arr) {
-        arr[idx] = val.trim();
-    });
-    var tempIdx = lines[0].indexOf(" @ ");
-    var gender = ["(N)", "(M)", "(F)"].indexOf(lines[0].substring(tempIdx - 3, tempIdx));
-    var name;
-    if (gender > -1) {
-        name = lines[0].substring(0, tempIdx - 4);
-    } else {
-        name = lines[0].substring(0, tempIdx);
-    }
-    if (name.indexOf("(") > -1) {
-        name = name.substring(name.indexOf("(") + 1, name.indexOf(")"))
-    }
-    var item = lines[0].substring(tempIdx + 3);
-    poke.setName(name);
-    poke.gender = gender;
-    for (var i = 1; i < lines.length; i++) {
-        if (lines[i].substr(0, 6).toLowerCase() === "level:") {
-            poke.level = parseInt(lines[i].substr(6).trim(), 10);
-        } else if (lines[i].substr(0, 6).toLowerCase() === "trait:") {
-            poke.ability.setName(lines[i].substr(6).trim());
-        } else if (lines[i].substr(0, 8).toLowerCase() === "ability:") {
-            poke.ability.setName(lines[i].substr(8).trim());
-        } else if (lines[i].substr(0, 4).toLowerCase() === "evs:") {
-            lines[i].substr(4).split("/").forEach(function(val, idx, arr) {
-                var v = val.trim();
-                var ev = parseInt(v.substring(0, v.indexOf(" ")), 10);
-                var stat = v.substring(v.indexOf(" ") + 1);
-                poke.evs[statMatches[stat.toLowerCase()]] = Math.max(0, Math.min(ev, 255));
-            });
-        } else if (lines[i].substr(0, 4).toLowerCase() === "ivs:") {
-            var ivs = lines[i].substr(4).split("/").forEach(function(val, idx, arr) {
-                var v = val.trim();
-                var iv = parseInt(v.substring(0, v.indexOf(" ")), 10);
-                var stat = v.substring(v.indexOf(" ") + 1);
-                poke.ivs[statMatches[stat.toLowerCase()]] = Math.max(0, Math.min(iv, gen > 2 ? 31 : 15));
-            });
-        } else if (lines[i].substr(0, 6).toLowerCase() === "level:") {
-            poke.level = parseInt(lines[i].substr(6).trim(), 10);
-        } else if (lines[i].substr(lines[i].indexOf(" ") + 1, 6).toLowerCase() === "nature"
-                   && lines[i][0] !== "-" // ignore nature power, etc.
-                   && lines[i][0] !== "~") {
-            // it's important that this is last since ability potentially can trigger "nature"
-            poke.setNatureName(lines[i].substring(0, lines[i].indexOf(" ")));
-        }
-    }
-    return poke;
-}
-
-function importableToMoveset (importText) {
-    var lines = importText.split("\n");
-    lines.forEach(function (val, idx, arr) {
-       arr[idx] = val.trim(); 
-    });
-    var foundOne = false;
-    var moveset = [];
-    for (var i = 0; i < lines.length; i++) {
-        if (lines[i][0] === "-"
-            || lines[i][0] === "~") {
-            var move = new Sulcalc.Move();
-            move.setName(lines[i].substring(1).trim());
-            moveset.push(move);
-        } else if (foundOne) {
-            break;
-        }
-    }
-    return moveset;
-}
-
 function updateAttackerSets() {
     var offensiveSets = "<option value='No set'>No set</option>";
     if (gen <= 2) {
@@ -1909,7 +1825,7 @@ window.onload = function() {
         c.attacker.item.id = document.getElementById("attackerItem").value;
         c.attacker.status = parseInt(document.getElementById("attackerStatus").value, 10);
         c.attacker.currentHP = parseInt(document.getElementById("attackerHP").value, 10);
-        if (c.attacker.currentHP === NaN) {
+        if (isNaN(c.attacker.currentHP)) {
             c.attacker.currentHP = c.attacker.stat(Sulcalc.Stats.HP);
         }
         c.attacker.level = parseInt(document.getElementById("attackerLevel").value, 10);
@@ -1934,7 +1850,7 @@ window.onload = function() {
         c.defender.item.id = document.getElementById("defenderItem").value;
         c.defender.status = parseInt(document.getElementById("defenderStatus").value, 10);
         c.defender.currentHP = parseInt(document.getElementById("defenderHP").value, 10);
-        if (c.defender.currentHP === NaN) {
+        if (isNaN(c.defender.currentHP)) {
             c.defender.currentHP = c.defender.stat(Sulcalc.Stats.HP);
         }
         c.defender.level = parseInt(document.getElementById("defenderLevel").value, 10);
@@ -2031,494 +1947,18 @@ window.onload = function() {
         c.field.airLock = c.attacker.ability.name() === "Air Lock"
                           || c.defender.ability.name() === "Air Lock";
         
-        
-        var dmg = c.calculate();
-        
-        var minPercent = Math.round(dmg[0].values[0] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
-        var maxPercent = Math.round(dmg[0].values[dmg[0].values.length-1] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
-        rpt = "";
-        var dclass = 0;
-        if (gen <= 3) {
-            dclass = db.typeDamageClass()[c.move.type()];
-        } else {
-            dclass = c.move.damageClass();
-        }
-        var a = dclass === Sulcalc.DamageClasses.SPECIAL ? Sulcalc.Stats.SATK : Sulcalc.Stats.ATK;
-        var d = dclass === Sulcalc.DamageClasses.SPECIAL ? Sulcalc.Stats.SDEF : Sulcalc.Stats.DEF;
-        if (c.move.name() === "Psyshock" || c.move.name() === "Psystrike" || c.move.name() === "Secret Sword") {
-            a = Sulcalc.Stats.SATK;
-            d = Sulcalc.Stats.DEF;
-        }
-        
-        if (c.attacker.boosts[a] !== 0) {
-            rpt += (c.attacker.boosts[a] > 0 ? "+" : "-") + Math.abs(c.attacker.boosts[a]) + " ";
-        }
-        if (gen > 2 || c.attacker.evs[a] < 252) {
-            rpt += c.attacker.evs[a];
-            if (c.attacker.natureMultiplier(a) === 1 && gen > 2) {
-                rpt += "+";
-            } else if (c.attacker.natureMultiplier(a) === -1 && gen > 2) {
-                rpt += "-";
-            }
-            rpt += (a === Sulcalc.Stats.SATK ? " SpAtk" : " Atk");
-        }
-        var itemIgnoreList = { // don't exclude plates & orbs as those affect damage
-            "649:1" : "Douse Drive", // Genesect-D
-            "649:2" : "Shock Drive", // Genesect-S
-            "649:3" : "Burn Drive", // Genesect-B
-            "649:4" : "Chill Drive", // Genesect-C
-            "460:1:M" : "Abomasite", // Mega Abomasnow
-            "359:1:M" : "Absolite", // Mega Absol
-            "142:1:M" : "Aerodactylite", // Mega Aerodactyl
-            "306:1:M" : "Aggronite", // Mega Aggron
-            "65:1:M" : "Alakazite", // Mega Alakazam
-            "334:1:M" : "Altarianite", // Mega Altaria
-            "181:1:M" : "Ampharosite", // Mega Ampharos
-            "531:1:M" : "Audinite", // Mega Audino
-            "354:1:M" : "Banettite", // Mega Banette
-            "15:1:M" : "Beedrillite", // Mega Beedrill
-            "9:1:M" : "Blastoisinite", // Mega Blastoise
-            "257:1:M" : "Blazikenite", // Mega Blaziken
-            "323:1:M" : "Cameruptite", // Mega Camerupt
-            "6:1:M" : "Charizardite X", // Mega Charizard X
-            "6:2:M" : "Charizardite Y", // Mega Charizard Y
-            "719:1:M" : "Diancite", // Mega Diancie
-            "475:1:M" : "Galladite", // Mega Gallade
-            "445:1:M" : "Garchompite", // Mega Garchomp
-            "282:1:M" : "Gardevoirite", // Mega Gardevoir
-            "94:1:M" : "Gengarite", // Mega Gengar
-            "362:1:M" : "Glalitite", // Mega Glalie
-            "130:1:M" : "Gyaradosite", // Mega Gyarados
-            "214:1:M" : "Heracronite", // Mega Heracross
-            "229:1:M" : "Houndoominite", // Mega Houndoom
-            "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
-            "380:1:M" : "Latiasite", // Mega Latias
-            "381:1:M" : "Latiosite", // Mega Latios
-            "428:1:M" : "Lopunnity", // Mega Lopunny
-            "448:1:M" : "Lucarionite", // Mega Lucario
-            "310:1:M" : "Manectite", // Mega Manectric
-            "303:1:M" : "Mawilite", // Mega Mawile
-            "308:1:M" : "Medichamite", // Mega Medicham
-            "376:1:M" : "Metagrossite", // Mega Metagross
-            "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
-            "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
-            "18:1:M" : "Pidgeotite", // Mega Pidgeot
-            "127:1:M" : "Pinsirite", // Mega Pinsir
-            "302:1:M" : "Sablenite", // Mega Sableye
-            "373:1:M" : "Salamencite", // Mega Salamence
-            "254:1:M" : "Sceptilite", // Mega Sceptile
-            "212:1:M" : "Scizorite", // Mega Scizor
-            "319:1:M" : "Sharpedonite", // Mega Sharpedo
-            "80:1:M" : "Slowbronite", // Mega Slowbro
-            "208:1:M" : "Steelixite", // Mega Steelix
-            "260:1:M" : "Swampertite", // Mega Swampert
-            "248:1:M" : "Tyranitarite", // Mega Tyranitar
-            "3:1:M" : "Venusaurite", // Mega Venusaur
-            "383:1:M" : "Red Orb", // Primal Groudon
-            "382:1:M" : "Blue Orb" // Primal Kyogre
-        }
-        if (gen >= 2 && c.attacker.item.id !== "0" && itemIgnoreList[c.attacker.id] !== c.attacker.item.name()) {
-            rpt += " " + c.attacker.item.name();
-        }
-        if (gen > 2 && c.attacker.ability.id !== "0") {
-            rpt += " " + c.attacker.ability.name();
-        }
-        rpt += c.attacker.status === Sulcalc.Statuses.BURNED ? " Burned " : " ";
-        rpt += c.attacker.name() + " " + c.move.name();
-        if (c.move.name() === "Hidden Power") {
-            if (gen <= 2) {
-                rpt += " [" + db.types(Sulcalc.hiddenPowerT2(c.attacker.ivs))
-                       + " " + Sulcalc.hiddenPowerP2(c.attacker.ivs) + "]";
-            } else if (gen <= 5) {
-                rpt += " [" + db.types(Sulcalc.hiddenPowerT(c.attacker.ivs))
-                       + " " + Sulcalc.hiddenPowerP(c.attacker.ivs) + "]";
-            } else {
-                rpt += " [" + db.types(Sulcalc.hiddenPowerT(c.attacker.ivs)) + "]";
-            }
-        }
-        rpt += " vs. ";
-        if (c.defender.boosts[d] !== 0) {
-            rpt += (c.defender.boosts[d] > 0 ? "+" : "-") + Math.abs(c.defender.boosts[d]) + " ";
-        }
-        if (gen > 2 || c.defender.evs[d] < 252 || c.defender.evs[Sulcalc.Stats.HP] < 252) {
-            rpt += c.defender.evs[Sulcalc.Stats.HP] + " HP/";
-            rpt += c.defender.evs[d];
-            if (c.defender.natureMultiplier(d) === 1 && gen > 2) {
-                rpt += "+";
-            } else if (c.defender.natureMultiplier(d) === -1 && gen > 2) {
-                rpt += "-";
-            }
-            rpt += (d===Sulcalc.Stats.SDEF ? " SpDef" : " Def");
-        }
-        if (gen >= 2 && c.defender.item.id !== "0" && itemIgnoreList[c.defender.id] !== c.defender.item.name()) {
-            rpt += " " + c.defender.item.name();
-        }
-        if (gen > 2 && c.defender.ability.id !== "0") {
-            rpt += " " + c.defender.ability.name();
-        }
-        rpt += " " + c.defender.name();
-        if (c.field.weather === Sulcalc.Weathers.RAIN) {
-            rpt += " in Rain";
-        } else if (c.field.weather === Sulcalc.Weathers.SUN) {
-            rpt += " in Sun";
-        } else if (c.field.weather === Sulcalc.Weathers.HAIL) {
-            rpt += " in Hail";
-        } else if (c.field.weather === Sulcalc.Weathers.SAND) {
-            rpt += " in Sand";
-        } else if (c.field.weather === Sulcalc.Weathers.HEAVY_RAIN) {
-            rpt += " in Heavy Rain";
-        } else if (c.field.weather === Sulcalc.Weathers.HARSH_SUN) {
-            rpt += " in Harsh Sun";
-        }
-        if (c.field.critical) {
-            rpt += " on a critical hit";
-        }
-        rpt += ": " + dmg[0].values[0] + " - " + dmg[0].values[dmg[0].values.length - 1] + " (" + minPercent + " - " + maxPercent + "%) -- ";
-        
-        var chanceToKO = function (damageRanges, remainingHP, totalHP, effects, maxTurns) { // not even recursive
-            var chances = [];
-            var dmg = new Sulcalc.WeightedArray([0]);
-            var toxicCounter = 0;
-            for (var turn = 0, i = 0; turn < maxTurns; turn++, i++) {
-                if (damageRanges[i] === 0) {
-                    break;
-                } else if (damageRanges[i] === 1) {
-                    i--;
-                } else if (damageRanges[i] === 2) {
-                    i = 0;
-                }
-                dmg = dmg.combine(damageRanges[i]);
-                var s = 0, least = 0; // positive heals, negative steals~
-                for (var e = 0; e < effects.length; e++) {
-                    if (effects[e] === "toxic") {
-                        s -= Math.floor((++toxicCounter) * totalHP / 16);
-                    } else {
-                        s += effects[e];
-                    }
-                    least = Math.min(s, least);
-                }
-                chances.push([dmg.count(function (val, weight) {
-                    return remainingHP + least <= val;
-                }), dmg.count()]);
-                if (chances[chances.length - 1][0] === chances[chances.length - 1][1]) {
-                    return chances;
-                }
-                dmg.addAll(-s); // flip for damage
-            }
-            return chances;
-        };
-        var effects = [0];
-        var effectMsgs = [""];
-        if (gen === 2) { // gen 2 after effects
-            if (c.defender.status === Sulcalc.Statuses.BURNED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Burn");
-            } else if (c.defender.status === Sulcalc.Statuses.POISONED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Poison");
-            } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                effects.push("toxic");
-                effectMsgs.push("Toxic");
-            }
-            // leech seed
-            // nightmare
-            // curse
-            if (c.field.weather === Sulcalc.Weathers.SAND && !(c.defender.type1() === Sulcalc.Types.GROUND
-                                                               || c.defender.type2() === Sulcalc.Types.GROUND
-                                                               || c.defender.type1() === Sulcalc.Types.ROCK
-                                                               || c.defender.type2() === Sulcalc.Types.ROCK
-                                                               || c.defender.type1() === Sulcalc.Types.STEEL
-                                                               || c.defender.type2() === Sulcalc.Types.STEEL)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Sandstorm");
-            }
-            if (c.defender.item.name() === "Leftovers") {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Leftovers");
-            }
-        } else if (gen === 3) { // gen 3 after effects
-            if (c.field.weather === Sulcalc.Weathers.SAND && !(c.defender.type1() === Sulcalc.Types.GROUND
-                                                               || c.defender.type2() === Sulcalc.Types.GROUND
-                                                               || c.defender.type1() === Sulcalc.Types.ROCK
-                                                               || c.defender.type2() === Sulcalc.Types.ROCK
-                                                               || c.defender.type1() === Sulcalc.Types.STEEL
-                                                               || c.defender.type2() === Sulcalc.Types.STEEL)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Sandstorm");
-            }
-            if (c.field.weather === Sulcalc.Weathers.HAIL && !(c.defender.type1() === Sulcalc.Types.ICE || c.defender.type2() === Sulcalc.Types.ICE)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Hail");
-            }
-            // ingrain
-            // rain dish
-            if (c.defender.item.name() === "Leftovers") {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Leftovers");
-            }
-            // leech seed
-            if (c.defender.status === Sulcalc.Statuses.BURNED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Burn");
-            } else if (c.defender.status === Sulcalc.Statuses.POISONED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Poison");
-            } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                effects.push("toxic");
-                effectMsgs.push("Toxic");
-            }
-            // nightmare
-            // curse
-            // multi turns -- whirlpool, flame wheel, etc
-        } else if (gen === 4) { // gen 4 after effects
-            if (c.field.weather === Sulcalc.Weathers.SAND && !(c.defender.type1() === Sulcalc.Types.GROUND
-                                                               || c.defender.type2() === Sulcalc.Types.GROUND
-                                                               || c.defender.type1() === Sulcalc.Types.ROCK
-                                                               || c.defender.type2() === Sulcalc.Types.ROCK
-                                                               || c.defender.type1() === Sulcalc.Types.STEEL
-                                                               || c.defender.type2() === Sulcalc.Types.STEEL)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Sandstorm");
-            }
-            if (c.field.weather === Sulcalc.Weathers.HAIL && !(c.defender.type1() === Sulcalc.Types.ICE || c.defender.type2() === Sulcalc.Types.ICE)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Hail");
-            }
-            if (c.defender.ability.name() === "Dry Skin") {
-                if (c.field.weather === Sulcalc.Weathers.SUN) {
-                    effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                    effectMsgs.push("Dry Skin");
-                } else if (c.field.weather === Sulcalc.Weathers.RAIN) {
-                    effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 3);
-                    effectMsgs.push("Dry Skin");
-                }
-            }
-            if (c.defender.ability.name() === "Rain Dish" && c.field.weather === Sulcalc.Weathers.RAIN) {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Rain Dish");
-            }
-            if (c.defender.ability.name() === "Ice Body" && c.field.weather === Sulcalc.Weathers.HAIL) {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Ice Body");
-            }
-            // ingrain
-            // aqua ring
-            if (c.defender.item.name() === "Leftovers") {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Leftovers");
-            }
-            // leech seed
-            if (c.defender.status === Sulcalc.Statuses.BURNED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Burn");
-            } else if (c.defender.status === Sulcalc.Statuses.POISONED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Poison");
-            } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                effects.push("toxic");
-                effectMsgs.push("Toxic");
-            }
-            // nightmare
-            // curse
-            // multi turns -- whirlpool, flame wheel, etc
-            if (c.defender.status === Sulcalc.Statuses.ASLEEP && c.attacker.ability.name() === "Bad Dreams") {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Bad Dreams");
-            }
-            if (c.defender.item.name() === "Sticky Barb") {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Sticky Barb");
-            }
-        } else if (gen === 5) { // gen 5 after effects
-            if (c.field.weather === Sulcalc.Weathers.SAND && !(c.defender.type1() === Sulcalc.Types.GROUND
-                                                               || c.defender.type2() === Sulcalc.Types.GROUND
-                                                               || c.defender.type1() === Sulcalc.Types.ROCK
-                                                               || c.defender.type2() === Sulcalc.Types.ROCK
-                                                               || c.defender.type1() === Sulcalc.Types.STEEL
-                                                               || c.defender.type2() === Sulcalc.Types.STEEL)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Sandstorm");
-            }
-            if (c.field.weather === Sulcalc.Weathers.HAIL && !(c.defender.type1() === Sulcalc.Types.ICE || c.defender.type2() === Sulcalc.Types.ICE)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Hail");
-            }
-            if (c.defender.ability.name() === "Dry Skin") {
-                if (c.field.weather === Sulcalc.Weathers.SUN) {
-                    effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                    effectMsgs.push("Dry Skin");
-                } else if (c.field.weather === Sulcalc.Weathers.RAIN) {
-                    effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 3);
-                    effectMsgs.push("Dry Skin");
-                }
-            }
-            if (c.defender.ability.name() === "Rain Dish" && c.field.weather === Sulcalc.Weathers.RAIN) {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Rain Dish");
-            }
-            if (c.defender.ability.name() === "Ice Body" && c.field.weather === Sulcalc.Weathers.HAIL) {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Ice Body");
-            }
-            // fire pledge + grass pledge damage
-            if (c.defender.item.name() === "Leftovers") {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Leftovers");
-            }
-            if (c.defender.item.name() === "Black Sludge") {
-                if (c.defender.type1() === Sulcalc.Types.POISON || c.defender.type2() === Sulcalc.Types.POISON) {
-                    effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                    effectMsgs.push("Black Sludge");
-                } else {
-                    effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                    effectMsgs.push("Black Sludge");
-                }
-            }
-            // aqua ring
-            // ingrain
-            // leech seed
-            if (c.defender.status === Sulcalc.Statuses.BURNED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Burn");
-            } else if (c.defender.status === Sulcalc.Statuses.POISONED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Poison");
-            } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                effects.push("toxic");
-                effectMsgs.push("Toxic");
-            }
-            // nightmare
-            // curse
-            // multi turns -- whirlpool, flame wheel, etc
-            if (c.defender.status === Sulcalc.Statuses.ASLEEP && c.attacker.ability.name() === "Bad Dreams") {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Bad Dreams");
-            }
-            if (c.defender.item.name() === "Sticky Barb") {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Sticky Barb");
-            }
-        } else if (gen === 6) { // gen 6 after effects
-            if (c.field.weather === Sulcalc.Weathers.SAND && !(c.defender.type1() === Sulcalc.Types.GROUND
-                                                               || c.defender.type2() === Sulcalc.Types.GROUND
-                                                               || c.defender.type1() === Sulcalc.Types.ROCK
-                                                               || c.defender.type2() === Sulcalc.Types.ROCK
-                                                               || c.defender.type1() === Sulcalc.Types.STEEL
-                                                               || c.defender.type2() === Sulcalc.Types.STEEL)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Sandstorm");
-            }
-            if (c.field.weather === Sulcalc.Weathers.HAIL && !(c.defender.type1() === Sulcalc.Types.ICE || c.defender.type2() === Sulcalc.Types.ICE)) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                effectMsgs.push("Hail");
-            }
-            if (c.defender.ability.name() === "Dry Skin") {
-                if (c.field.weather === Sulcalc.Weathers.SUN) {
-                    effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                    effectMsgs.push("Dry Skin");
-                } else if (c.field.weather === Sulcalc.Weathers.RAIN) {
-                    effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 3);
-                    effectMsgs.push("Dry Skin");
-                }
-            }
-            if (c.defender.ability.name() === "Rain Dish" && c.field.weather === Sulcalc.Weathers.RAIN) {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Rain Dish");
-            }
-            if (c.defender.ability.name() === "Ice Body" && c.field.weather === Sulcalc.Weathers.HAIL) {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Ice Body");
-            }
-            // fire pledge + grass pledge damage
-            if (c.defender.item.name() === "Leftovers") {
-                effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                effectMsgs.push("Leftovers");
-            }
-            if (c.defender.item.name() === "Black Sludge") {
-                if (c.defender.type1() === Sulcalc.Types.POISON || c.defender.type2() === Sulcalc.Types.POISON) {
-                    effects.push(c.defender.stat(Sulcalc.Stats.HP) >> 4);
-                    effectMsgs.push("Black Sludge");
-                } else {
-                    effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 4));
-                    effectMsgs.push("Black Sludge");
-                }
-            }
-            // aqua ring
-            // ingrain
-            // leech seed
-            if (c.defender.status === Sulcalc.Statuses.BURNED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Burn");
-            } else if (c.defender.status === Sulcalc.Statuses.POISONED) {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Poison");
-            } else if (c.defender.status === Sulcalc.Statuses.BADLYPOISONED) {
-                effects.push("toxic");
-                effectMsgs.push("Toxic");
-            }
-            // nightmare
-            // curse
-            // multi turns -- whirlpool, flame wheel, etc
-            if (c.defender.status === Sulcalc.Statuses.ASLEEP && c.attacker.ability.name() === "Bad Dreams") {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Bad Dreams");
-            }
-            if (c.defender.item.name() === "Sticky Barb") {
-                effects.push(-(c.defender.stat(Sulcalc.Stats.HP) >> 3));
-                effectMsgs.push("Sticky Barb");
-            }
-        }
-        var chancesInt = chanceToKO(dmg, c.defender.currentHP, c.defender.stat(Sulcalc.Stats.HP), effects, 9);
-        var chances = [];
-        for (var i = 0; i < chancesInt.length; i++) {
-            chances.push(parseInt(Sulcalc.divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1]), 10) / 10000);
-            if (chances[i] === 0 && chancesInt[i][0] > 0) {
-                chances[i] = -1; // just 
-            }
-        }
-        for (var i = 0, hasPrevious = false; i < chances.length; i++) {
-            if (chances[i] > 0) {
-                if (chances[i] < 1) {
-                    rpt += (hasPrevious ? ", " : "") + Math.round(chances[i]*1000)/10 + "% chance to "
-                           + (i > 0 ? (i + 1) : "O") + "HKO";
-                    hasPrevious = true;
-                } else if (!hasPrevious) {
-                    rpt += "guaranteed " + (i > 0 ? (i + 1) : "O") + "HKO";
-                    break;
-                }
-            } else if (chances[i] < -1) {
-                rpt += "possible " + (i > 0 ? (i + 1) : "O") + "HKO";
-            } else if (i + 1 === chances.length) {
-                rpt += "this might take a while..."
-            }
-        }
-        if (effectMsgs.length > 1) {
-            rpt += " after ";
-        } 
-        for (var i = 1; i < effectMsgs.length; i++) {
-            rpt += effectMsgs[i];
-            if (effectMsgs.length === i+2) {
-                rpt += effectMsgs.length === 3 ? "" : ",";
-                rpt += " and "
-            } else if (effectMsgs.length !== i+1) {
-                rpt += ", "
-            }
-        }
-        var defenderCurrentHp = parseInt(document.getElementById("defenderHPp").value, 10);
-        if (defenderCurrentHp < 100) {
-            rpt += " from " + defenderCurrentHp + "%";
-        }
-        setText("results", rpt);
+        var rpt = c.report();
+        setText("results", rpt.report);
         var totalWidth = document.getElementById("hpDisplay").clientWidth;
-        var minWidth = Math.round(totalWidth * dmg[0].values[0] / c.defender.stat(Sulcalc.Stats.HP));
+        var minWidth = Math.round(totalWidth * rpt.damage[0].values[0] / c.defender.stat(Sulcalc.Stats.HP));
         minWidth = Math.min(totalWidth, minWidth);
-        var maxWidth = Math.round(totalWidth * dmg[0].values[dmg[0].values.length-1] / c.defender.stat(Sulcalc.Stats.HP))
+        var maxWidth = Math.round(totalWidth * rpt.damage[0].values[rpt.damage[0].values.length-1] / c.defender.stat(Sulcalc.Stats.HP))
                        - minWidth;
         maxWidth = Math.min(totalWidth-minWidth, maxWidth);
         document.getElementById("minDamageBar").style.width = minWidth + "px";
         document.getElementById("maxDamageBar").style.width = maxWidth + "px";
         document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
-        var maxPercent = Math.round(dmg[0].values[dmg[0].values.length - 1] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
+        var maxPercent = Math.round(rpt.damage[0].values[rpt.damage[0].values.length - 1] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
     };
     
     var q = document.location.href;
