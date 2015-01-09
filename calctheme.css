@@ -1,5 +1,6 @@
 html {
     font: 1em "Calibri", "Helvetica", "Arial", sans-serif;
+    /* background-color: #ACF; */
 }
 
 #results {
@@ -16,6 +17,7 @@ html {
     float: left;
     clear: left;
     text-align: center;
+    font-size: 1.1em;
 }
 
 .selectedGen {
@@ -99,7 +101,7 @@ input[type="text"] {
 
 .textLabel {
     float: left;
-    width: 5.5em;
+    width: 5em;
 }
 
 .stat {
@@ -124,7 +126,7 @@ select, input {
 #exportText {
     width: 8.5em;
     display: block;
-    font-size: 1em;
+    font-size: 1.1em;
     margin: 0.4em 0 0 0.5em;
     padding: 2px 4px;
     float: left;
@@ -177,6 +179,7 @@ label {
 
 .togglebox, #swap, #export {
     width: 8em;
+    font-size: 1.1em;
 }
 
 .levelButton:hover, #calc:hover, .togglebox:hover, #swap:hover, #export:hover {
@@ -266,4 +269,8 @@ label {
 
 .endSection {
     margin-bottom: 1em;
+}
+
+#col1>label, #col2>label, #col3>label {
+    font-size: 1.1em;
 }

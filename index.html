@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="description" content="A Pok&eacute;mon Damage Calculator for all generations of Pok&eacute;mon games. The most accurate calculator to date!" />
-        <meta name="keywords" content="damage,pokemon,calculator,sulcata,more accurate" />
+        <meta name="keywords" content="damage,pokemon,calculator,calc,omega ruby,alpha sapphire,oras,xy,black,white,bw,adv,gsc,rby" />
         <title>The More Accurate Damage Calculator</title>
         <link rel="stylesheet" type="text/css" href="reset.css" />
         <link rel="stylesheet" type="text/css" href="calctheme.css" />
@@ -122,7 +122,7 @@
                     </div>
 
                     <div class="clear G_23456">
-                        <div class="textLabel">Sp. Attack</div>
+                        <div class="textLabel">Sp. Atk</div>
                         <input type="text" value="0" id="attackerSatkEv" /><input type="text" value="0" id="attackerSatkIv" /><select id="attackerSatkBoost">
                             <option value="6">+6</option>
                             <option value="5">+5</option>
@@ -141,7 +141,7 @@
                     </div>
 
                     <div class="clear G_23456">
-                        <div class="textLabel">Sp. Defense</div>
+                        <div class="textLabel">Sp. Def</div>
                         <input type="text" value="0" id="attackerSdefEv" /><input type="text" value="0" id="attackerSdefIv" /><select id="attackerSdefBoost">
                             <option value="6">+6</option>
                             <option value="5">+5</option>
@@ -206,7 +206,7 @@
                     <div class="clear">
                         <div class="textLabel">Status</div>
                         <select id="attackerStatus">
-                            <option value="0">(No Status)</option>
+                            <option value="0">Healthy</option>
                             <option value="1">Poisoned</option>
                             <option value="2">Badly Poisoned</option>
                             <option value="3">Burned</option>
@@ -226,7 +226,7 @@
                         <div class="clear G_6">
                             <div class="textLabel">Type Effects</div>
                             <select id="attackerTypeAdded">
-                                <option value="18">(None)</option>
+                                <option value="18">None</option>
                                 <option value="7">Trick-or-Treat</option>
                                 <option value="11">Forest's Curse</option>
                             </select>
@@ -347,7 +347,7 @@
                     </div>
 
                     <div class="clear G_23456">
-                        <div class="textLabel">Sp. Attack</div>
+                        <div class="textLabel">Sp. Atk</div>
                         <input type="text" value="0" id="defenderSatkEv" /><input type="text" value="0" id="defenderSatkIv" /><select id="defenderSatkBoost">
                             <option value="6">+6</option>
                             <option value="5">+5</option>
@@ -366,7 +366,7 @@
                     </div>
 
                     <div class="clear G_23456">
-                        <div class="textLabel">Sp. Defense</div>
+                        <div class="textLabel">Sp. Def</div>
                         <input type="text" value="0" id="defenderSdefEv" /><input type="text" value="0" id="defenderSdefIv" /><select id="defenderSdefBoost">
                             <option value="6">+6</option>
                             <option value="5">+5</option>
@@ -431,7 +431,7 @@
                     <div class="clear">
                         <div class="textLabel">Status</div>
                         <select id="defenderStatus">
-                            <option value="0">(No Status)</option>
+                            <option value="0">Healthy</option>
                             <option value="1">Poisoned</option>
                             <option value="2">Badly Poisoned</option>
                             <option value="3">Burned</option>
@@ -451,7 +451,7 @@
                         <div class="clear G_6">
                             <div class="textLabel">Type Effects</div>
                             <select id="defenderTypeAdded">
-                                <option value="18">(None)</option>
+                                <option value="18">None</option>
                                 <option value="7">Trick-or-Treat</option>
                                 <option value="11">Forest's Curse</option>
                             </select>
@@ -577,7 +577,7 @@
                 <div class="clear AA_FLASHFIRE"><input type="checkbox" id="flashFire" />Flash Fire</div>
                 <div class="clear I_METRONOME">Metronome: <select id="metronome"></select></div>
                 <div class="weather G_23456">Weather: <select id="weather">
-                    <option value="0">(No Weather)</option>
+                    <option value="0">Clear</option>
                     <option value="4">Sun</option>
                     <option value="2">Rain</option>
                     <option value="3">Sand</option>
@@ -617,11 +617,11 @@
             </div>
         </div>
         <div id="calc">Calculate</div>
-        <div id="hpDisplay">
+        <!-- <div id="hpDisplay">
             <div id="minDamageBar"></div>
             <div id="maxDamageBar"></div>
             <div id="blankBar"></div>
-        </div>
+        </div> -->
         <div id="results"></div>
     </body>
 </html>

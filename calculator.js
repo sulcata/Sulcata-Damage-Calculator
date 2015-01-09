@@ -30,11 +30,13 @@ function Database() {
         return 0;
     }
     
-    this._typeDamageClass = null;
+    this._typeDamageClass = {
+        "0": 1,  "1": 1,  "2": 1,  "3": 1,  "4": 1,
+        "5": 1,  "6": 1,  "7": 1,  "8": 1,  "9": 2,
+        "10": 2, "11": 2, "12": 2, "13": 2, "14": 2,
+        "15": 2, "16": 2, "17": 2,  "18": 1
+    };
     this.typeDamageClass = function (typeId) {
-        if (this._typeDamageClass === null) {
-            this._typeDamageClass = this.getJSON("db/typeDamageClass.json");
-        }
         if (typeof typeId === "undefined") {
             return this._typeDamageClass;
         } else if (typeId in this._typeDamageClass) {
@@ -54,11 +56,14 @@ function Database() {
         return this._pokemons[pokeId];
     }
     
-    this._natures = null;
+    this._natures = {
+        "0": "Hardy",   "1": "Lonely",  "2": "Brave",    "3": "Adamant",  "4": "Naughty",
+        "5": "Bold",    "6": "Docile",  "7": "Relaxed",  "8": "Impish",   "9": "Lax",
+        "10": "Timid",  "11": "Hasty",  "12": "Serious", "13": "Jolly",   "14": "Naive",
+        "15": "Modest", "16": "Mild",   "17": "Quiet",   "18": "Bashful", "19": "Rash",
+        "20": "Calm",   "21": "Gentle", "22": "Sassy",   "23": "Careful", "24": "Quirky"
+    };
     this.natures = function (natureId) {
-        if (this._natures === null) {
-            this._natures = this.getJSON("db/natures.json");
-        }
         if (typeof natureId === "undefined") {
             return this._natures;
         }
@@ -298,15 +303,73 @@ function Database() {
         return this._pokeType2[generation][pokeId];
     }
     
-    this._typesTable = [];
+    this._typesTable = [
+        {
+            "0":  [2,2,2,2,2,1,2,0,1,2,2,2,2,2,2,2,2,2,2],
+            "1":  [4,2,1,1,2,4,1,0,4,2,2,2,2,1,4,2,4,2,2],
+            "2":  [2,4,2,2,2,1,4,2,1,2,2,4,1,2,2,2,2,2,2],
+            "3":  [2,2,2,1,1,1,4,1,0,2,2,4,2,2,2,2,2,2,2],
+            "4":  [2,2,0,4,2,4,1,2,4,4,2,1,4,2,2,2,2,2,2],
+            "5":  [2,1,4,2,1,2,4,2,1,4,2,2,2,2,4,2,2,2,2],
+            "6":  [2,1,1,4,2,2,2,2,1,1,2,4,2,4,2,2,4,2,2],
+            "7":  [0,2,2,2,2,2,2,4,1,2,2,2,2,0,2,2,1,2,2],
+            "9":  [2,2,2,2,2,1,4,2,4,1,1,4,2,2,4,1,2,2,2],
+            "10": [2,2,2,2,4,4,2,2,2,4,1,1,2,2,2,1,2,2,2],
+            "11": [2,2,1,1,4,4,1,2,1,1,4,1,2,2,2,1,2,2,2],
+            "12": [2,2,4,2,0,2,2,2,2,2,4,1,1,2,2,1,2,2,2],
+            "13": [2,4,2,4,2,2,2,2,1,2,2,2,2,1,2,2,0,2,2],
+            "14": [2,2,4,2,4,2,2,2,1,2,1,4,2,2,1,4,2,2,2],
+            "15": [2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,4,2,2,2],
+            "18": [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+        },
+        {
+            "0":  [2,2,2,2,2,1,2,0,1,2,2,2,2,2,2,2,2,2,2],
+            "1":  [4,2,1,1,2,4,1,0,4,2,2,2,2,1,4,2,4,2,2],
+            "2":  [2,4,2,2,2,1,4,2,1,2,2,4,1,2,2,2,2,2,2],
+            "3":  [2,2,2,1,1,1,2,1,0,2,2,4,2,2,2,2,2,2,2],
+            "4":  [2,2,0,4,2,4,1,2,4,4,2,1,4,2,2,2,2,2,2],
+            "5":  [2,1,4,2,1,2,4,2,1,4,2,2,2,2,4,2,2,2,2],
+            "6":  [2,1,1,1,2,2,2,1,1,1,2,4,2,4,2,2,4,2,2],
+            "7":  [0,2,2,2,2,2,2,4,1,2,2,2,2,4,2,2,1,2,2],
+            "8":  [2,2,2,2,2,4,2,2,1,1,1,2,1,2,4,2,2,2,2],
+            "9":  [2,2,2,2,2,1,4,2,4,1,1,4,2,2,4,1,2,2,2],
+            "10": [2,2,2,2,4,4,2,2,2,4,1,1,2,2,2,1,2,2,2],
+            "11": [2,2,1,1,4,4,1,2,1,1,4,1,2,2,2,1,2,2,2],
+            "12": [2,2,4,2,0,2,2,2,2,2,4,1,1,2,2,1,2,2,2],
+            "13": [2,4,2,4,2,2,2,2,1,2,2,2,2,1,2,2,0,2,2],
+            "14": [2,2,4,2,4,2,2,2,1,1,1,4,2,2,1,4,2,2,2],
+            "15": [2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,4,2,2,2],
+            "16": [2,1,2,2,2,2,2,4,1,2,2,2,2,4,2,2,1,2,2],
+            "18": [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+        },
+        {
+            "0":  [2,2,2,2,2,1,2,0,1,2,2,2,2,2,2,2,2,2,2],
+            "1":  [4,2,1,1,2,4,1,0,4,2,2,2,2,1,4,2,4,1,2],
+            "2":  [2,4,2,2,2,1,4,2,1,2,2,4,1,2,2,2,2,2,2],
+            "3":  [2,2,2,1,1,1,2,1,0,2,2,4,2,2,2,2,2,4,2],
+            "4":  [2,2,0,4,2,4,1,2,4,4,2,1,4,2,2,2,2,2,2],
+            "5":  [2,1,4,2,1,2,4,2,1,4,2,2,2,2,4,2,2,2,2],
+            "6":  [2,1,1,1,2,2,2,1,1,1,2,4,2,4,2,2,4,1,2],
+            "7":  [0,2,2,2,2,2,2,4,2,2,2,2,2,4,2,2,1,2,2],
+            "8":  [2,2,2,2,2,4,2,2,1,1,1,2,1,2,4,2,2,4,2],
+            "9":  [2,2,2,2,2,1,4,2,4,1,1,4,2,2,4,1,2,2,2],
+            "10": [2,2,2,2,4,4,2,2,2,4,1,1,2,2,2,1,2,2,2],
+            "11": [2,2,1,1,4,4,1,2,1,1,4,1,2,2,2,1,2,2,2],
+            "12": [2,2,4,2,0,2,2,2,2,2,4,1,1,2,2,1,2,2,2],
+            "13": [2,4,2,4,2,2,2,2,1,2,2,2,2,1,2,2,0,2,2],
+            "14": [2,2,4,2,4,2,2,2,1,1,1,4,2,2,1,4,2,2,2],
+            "15": [2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,4,2,0,2],
+            "16": [2,1,2,2,2,2,2,4,2,2,2,2,2,4,2,2,1,1,2],
+            "17": [2,4,2,1,2,2,2,2,1,1,2,2,2,2,2,4,4,2,2],
+            "18": [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+        }
+    ];
     this.typesTable = function (generation, attackingType, defendingType) {
-        if (!(generation in this._typesTable)) {
-            this._typesTable[generation] = this.getJSON(this.gens[generation] + "typesTable.json");
-        }
+        var gen2table = [0, 0, 1, 1, 1, 1, 2];
         if (typeof attackingType === "undefined" || typeof defendingType === "undefined") {
-            return this._typesTable[generation];
+            return this._typesTable[gen2table[generation]];
         }
-        return this._typesTable[generation][attackingType][defendingType];
+        return this._typesTable[gen2table[generation]][attackingType][defendingType];
     }
     
     this._minMaxHits = [];
@@ -390,11 +453,28 @@ function Database() {
         return this._genders[pokeId];
     }
     
-    this._types = null;
+    this._types = {
+        "0": "Normal",
+        "1": "Fighting",
+        "2":"Flying",
+        "3":"Poison",
+        "4":"Ground",
+        "5":"Rock",
+        "6":"Bug",
+        "7":"Ghost",
+        "8":"Steel",
+        "9":"Fire",
+        "10":"Water",
+        "11":"Grass",
+        "12":"Electric",
+        "13":"Psychic",
+        "14":"Ice",
+        "15":"Dragon",
+        "16":"Dark",
+        "17":"Fairy",
+        "18":"???"
+    };
     this.types = function (typeId) {
-        if (this._types === null) {
-            this._types = this.getJSON("db/types.json");
-        }
         if (typeof typeId === "undefined") {
             return this._types;
         }
@@ -649,20 +729,28 @@ function WeightedArray (a) {
     // end init
 
     this.add = function (val, inc) {
-        for (var i = 0; i < this.values.length; i++) {
-            if (val === this.values[i]) {
-                this.weights[i] = addStrs(this.weights[i], inc+""); // add n values to the ordered pair in the set
-                return;
-            } else if (val < this.values[i]) {
-                // the array is ordered, so the value cannot be after this point
-                this.values.splice(i, 0, val);
-                this.weights.splice(i, 0, inc+"");
+        // it's a binary search insertion!
+        var low = 0,
+            mid = this.values.length >> 1,
+            high = this.values.length - 1;
+        if (high < 0) {
+            this.values.push(val);
+            this.weights.push(inc+"");
+            return;
+        }
+        while (low < high) {
+            if (this.values[mid] < val) {
+                low = mid + 1;
+            } else if (this.values[mid] > val) {
+                high = mid - 1;
+            } else {
+                this.weights[mid] = addStrs(this.weights[mid], inc+"");
                 return;
             }
+            mid = (low + high) >> 1;
         }
-        // the value's possible location was never passed and must be inserted at the end to be in order
-        this.values.push(val);
-        this.weights.push(inc+"");
+        this.values.splice(mid + (this.values[mid] < val ? 1 : 0), 0, val);
+        this.weights.splice(mid + (this.values[mid] < val ? 1 : 0), 0, inc+"");
     }
     
     this.combine = function (w) {
@@ -699,9 +787,16 @@ function WeightedArray (a) {
         }
         return t;
     }
+    
     this.addAll = function (n) {
         for (var i = 0; i < this.values.length; i++) {
             this.values[i] += n;
+        }
+    }
+    
+    this.map = function (f) {
+        for (var i = 0; i < this.values.length; i++) {
+            this.values[i] = f(this.values[i]);
         }
     }
 }
@@ -710,7 +805,7 @@ WeightedArray.prototype.toString = function() {
     // not super pretty, but it works for debugging
     var accstr = "";
     for(var i = 0; i < this.values.length; i++) {
-        accstr += this.values[i] + ":" + this.weights[i] + ", ";
+        accstr += (i !== 0 ? ", " : "") + this.values[i] + ":" + this.weights[i];
     }
     return accstr;
 }
@@ -845,7 +940,7 @@ function Pokemon() {
                 // (2*(iv+base) + ev/4) * level/100 + level + 10
                 return Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + this.level + 10;
             }
-            if (this.id === "292:0") { // shedinja has 1 HP no matter what
+            if (this.id === "292:0:1") { // shedinja has 1 HP no matter what
                 return 1;
             }
             // (iv + 2*base + ev/4 + 100 ) * level/100 + 10
@@ -2444,13 +2539,6 @@ function Calculator() {
         if ((this.attacker.name() === "Marowak" || this.attacker.name() === "Cubone") && this.attacker.item.name() === "Thick Club") {
             atk *= 2;
         }
-        if (moveName === "Explosion" || moveName === "Self-Destruct") {
-            def >>= 1;
-        }
-        if (this.attacker.name() === "Ditto" && this.attacker.item.name() === "Metal Powder") {
-            sdef = (spc_d * 3) >> 1;
-            def = (def * 3) >> 1;
-        }
         
         var a, d;
         if (this.move.damageClass() === DamageClasses.PHYSICAL) {
@@ -2468,8 +2556,20 @@ function Calculator() {
             d = (d >> 2) & 0xFF;
         }
         // in-game Crystal would repeat the process without &0xFF, but not in link battles
-        a = Math.max(1, a);
         d = Math.max(1, d);
+        
+        if (this.attacker.name() === "Ditto" && this.attacker.item.name() === "Metal Powder") {
+            d = (d * 3) >> 1;
+            if (d > 255) {
+                a = (a >> 1) & 0xFF;
+                d = (d >> 1) & 0xFF;
+            }
+            d = Math.max(1, d);
+        }
+        
+        if (moveName === "Explosion" || moveName === "Self-Destruct") {
+            d = Math.max(1, d >> 1);
+        }
         
         if (moveName === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
@@ -2501,10 +2601,6 @@ function Calculator() {
             }
         }
         
-        if (moveName === "Pursuit" && this.field.switchOut) {
-            baseDamage *= 2;
-        }
-        
         if (this.attacker.stab(moveType)) {
             baseDamage = (baseDamage * 3) >> 1;
         }
@@ -2523,6 +2619,13 @@ function Calculator() {
         for (var i = 0; i < 39; i++) {
             damages[i] = Math.floor(baseDamage * (217 + i) / 255);
         }
+        
+        if (moveName === "Pursuit" && this.field.switchOut) {
+            for (var i = 0; i < 39; i++) {
+                damages[i] *= 2;
+            }
+        }
+        
         return damages;
     }
     
@@ -3991,14 +4094,14 @@ function Calculator() {
                 i = 0;
             }
             dmg = dmg.combine(damageRanges[i]);
-            var s = 0, least = 0; // positive heals, negative steals~
+            var resid = 0, least = 0; // positive heals, negative steals~
             for (var e = 0; e < effects.length; e++) {
                 if (effects[e] === "toxic") {
-                    s -= Math.floor((++toxicCounter) * totalHP / 16);
+                    resid -= Math.floor((++toxicCounter) * totalHP / 16);
                 } else {
-                    s += effects[e];
+                    resid += effects[e];
                 }
-                least = Math.min(s, least);
+                least = Math.min(resid, least);
             }
             chances.push([dmg.count(function (val, weight) {
                 return remainingHP + least <= val;
@@ -4006,7 +4109,9 @@ function Calculator() {
             if (chances[chances.length - 1][0] === chances[chances.length - 1][1]) {
                 return chances;
             }
-            dmg.addAll(-s); // flip for damage
+            dmg.map(function (v) {
+                return Math.max(v - resid, remainingHP - totalHP);//look shit
+            }); // flip for damage
         }
         return chances;
     }

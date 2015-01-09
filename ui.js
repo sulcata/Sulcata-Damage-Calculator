@@ -1,5 +1,10 @@
 db = new Database();
 
+// make the file size a little smaller
+function getId (id) {
+    return document.getElementById(id);
+}
+
 // I cache these so I don't need to go through the slow procedure of determining which pokemon/item/etc. goes in which gen
 // Without the cache this would require looking up a database for each element in the list.
 // For example: Gen 5
@@ -87,13 +92,6 @@ var pokeToItem = {
     "383:1:M" : "Red Orb", // Primal Groudon
     "382:1:M" : "Blue Orb" // Primal Kyogre
 };
-
-function isUseless (m) {
-    if (db.movePowers(6, m) > 0) {
-        return false;
-    }
-    return ["0", "267"].indexOf(m) < 0;
-}
 
 function convertToBaseN (n, base, paddingLength) {
     if (typeof n === "string" || n instanceof String) {
@@ -186,7 +184,7 @@ function pokeToBinary (p) {
      * gen 6 : 174 bits
      */
     var q = "";
-    var poke = document.getElementById(p + "Poke").value;
+    var poke = getId(p + "Poke").value;
     var species = pokeSpecies(poke);
     var form = pokeForm(poke);
     if (gen <= 2) {
@@ -201,52 +199,52 @@ function pokeToBinary (p) {
     }
     //released abilities (gen:num) - 3:76, 4:123, 5:164, 6:191
     if (gen === 3 || gen === 4) {
-        q += convertToBaseN(document.getElementById(p + "Ability").value, 2, 7);
+        q += convertToBaseN(getId(p + "Ability").value, 2, 7);
     } else if (gen === 5 || gen === 6) {
-        q += convertToBaseN(document.getElementById(p + "Ability").value, 2, 8);
+        q += convertToBaseN(getId(p + "Ability").value, 2, 8);
     }
     if (gen >= 3) {
-        q += convertToBaseN(document.getElementById(p + "Nature").value, 2, 5);
+        q += convertToBaseN(getId(p + "Nature").value, 2, 5);
     }
     if (gen >= 2) {
-        var item = parseInt(document.getElementById(p + "Item").value, 10);
+        var item = parseInt(getId(p + "Item").value, 10);
         if (item >= 8000) {
             item = (item - 8000) | 0x1000;
         }
         q += convertToBaseN(item, 2, 13);
     }
-    q += convertToBaseN(document.getElementById(p + "Level").value, 2, 7);
+    q += convertToBaseN(getId(p + "Level").value, 2, 7);
     var stats = gen > 2 ? ["Hp", "Atk", "Def", "Satk", "Sdef", "Spd"]
                         : gen > 1 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
                                   : ["Hp", "Atk", "Def", "Spc", "Spd"];
     for (var i = 0; i < stats.length; i++) {//
-        var ev = parseInt(document.getElementById(p + stats[i] + "Ev").value, 10) >> 2;
-        var iv = parseInt(document.getElementById(p + stats[i] + "Iv").value, 10);
-        var boost = 6 + parseInt(document.getElementById(p + stats[i] + "Boost").value, 10);
+        var ev = parseInt(getId(p + stats[i] + "Ev").value, 10) >> 2;
+        var iv = parseInt(getId(p + stats[i] + "Iv").value, 10);
+        var boost = 6 + parseInt(getId(p + stats[i] + "Boost").value, 10);
         q += convertToBaseN(ev, 2, 6);
         q += convertToBaseN(iv, 2, gen <= 2 ? 5 : 6);
         if (i !== 0) {
             q += convertToBaseN(boost, 2, 4);
         } else if (i === 3 && gen === 2) {
-            q += convertToBaseN(6 + parseInt(document.getElementById(p + "SdefBoost").value, 10), 2, 4);
+            q += convertToBaseN(6 + parseInt(getId(p + "SdefBoost").value, 10), 2, 4);
         }
     }
-    q += convertToBaseN(document.getElementById(p + "HP").value, 2, 10);
-    q += convertToBaseN(document.getElementById(p + "Status").value, 2, 3);
-    q += convertToBaseN(document.getElementById(p + "Type1").value, 2, 5);
-    q += convertToBaseN(document.getElementById(p + "Type2").value, 2, 5);
+    q += convertToBaseN(getId(p + "HP").value, 2, 10);
+    q += convertToBaseN(getId(p + "Status").value, 2, 3);
+    q += convertToBaseN(getId(p + "Type1").value, 2, 5);
+    q += convertToBaseN(getId(p + "Type2").value, 2, 5);
     if (gen >= 6) {
-        q += convertToBaseN(document.getElementById(p + "TypeAdded").value, 2, 5);
+        q += convertToBaseN(getId(p + "TypeAdded").value, 2, 5);
     }
     if (gen >= 4) {
-        q += document.getElementById(p + "FlowerGift").checked ? 1 : 0;
-        q += document.getElementById(p + "Grounded").checked ? 1 : 0;
-        q += document.getElementById(p + "PowerTrick").checked ? 1 : 0;
-        q += document.getElementById(p + "Tailwind").checked ? 1 : 0;
-        q += document.getElementById(p + "Unburden").checked ? 1 : 0;
+        q += getId(p + "FlowerGift").checked ? 1 : 0;
+        q += getId(p + "Grounded").checked ? 1 : 0;
+        q += getId(p + "PowerTrick").checked ? 1 : 0;
+        q += getId(p + "Tailwind").checked ? 1 : 0;
+        q += getId(p + "Unburden").checked ? 1 : 0;
     }
     if (gen >= 5) {
-        q += document.getElementById(p + "Autotomize").checked ? 1 : 0;
+        q += getId(p + "Autotomize").checked ? 1 : 0;
     }
     return q;
 }
@@ -256,35 +254,42 @@ function calcToQueryString() {
     q += convertToBaseN(gen, 2, 4);
     q += pokeToBinary("attacker");
     q += pokeToBinary("defender");
-    q += convertToBaseN(document.getElementById("move").value, 2, 10);
-    q += document.getElementById("critical").checked ? 1 : 0;
-    q += document.getElementById("flashFire").checked ? 1 : 0;
-    q += document.getElementById("screens").checked ? 1 : 0;
+    q += convertToBaseN(getId("move").value, 2, 10);
+    q += getId("critical").checked ? 1 : 0;
+    q += getId("flashFire").checked ? 1 : 0;
+    q += getId("screens").checked ? 1 : 0;
     if (gen >= 3) {
-        q += document.getElementById("helpingHand").checked ? 1 : 0;
-        q += document.getElementById("charge").checked ? 1 : 0;
-        q += document.getElementById("multiBattle").checked ? 1 : 0;
-        q += document.getElementById("waterSport").checked ? 1 : 0;
-        q += document.getElementById("mudSport").checked ? 1 : 0;
+        q += getId("helpingHand").checked ? 1 : 0;
+        q += getId("charge").checked ? 1 : 0;
+        q += getId("multiBattle").checked ? 1 : 0;
+        q += getId("waterSport").checked ? 1 : 0;
+        q += getId("mudSport").checked ? 1 : 0;
     }
     if (gen >= 4) {
-        q += document.getElementById("meFirst").checked ? 1 : 0;
+        q += getId("meFirst").checked ? 1 : 0;
     }
     if (gen >= 5) {
-        q += document.getElementById("friendGuard").checked ? 1 : 0;
-        q += document.getElementById("magicRoom").checked ? 1 : 0;
-        q += document.getElementById("wonderRoom").checked ? 1 : 0;
+        q += getId("friendGuard").checked ? 1 : 0;
+        q += getId("magicRoom").checked ? 1 : 0;
+        q += getId("wonderRoom").checked ? 1 : 0;
     }
     if (gen >= 6) {
-        q += document.getElementById("grassyTerrain").checked ? 1 : 0;
-        q += document.getElementById("mistyTerrain").checked ? 1 : 0;
-        q += document.getElementById("electricTerrain").checked ? 1 : 0;
-        q += document.getElementById("invertedBattle").checked ? 1 : 0;
-        q += document.getElementById("fairyAura").checked ? 1 : 0;
-        q += document.getElementById("darkAura").checked ? 1 : 0;
-        q += document.getElementById("auraBreak").checked ? 1 : 0;
-        q += document.getElementById("electrify").checked ? 1 : 0;
-        q += document.getElementById("ionDeluge").checked ? 1 : 0;
+        q += getId("grassyTerrain").checked ? 1 : 0;
+        q += getId("mistyTerrain").checked ? 1 : 0;
+        q += getId("electricTerrain").checked ? 1 : 0;
+        q += getId("invertedBattle").checked ? 1 : 0;
+        q += getId("fairyAura").checked ? 1 : 0;
+        q += getId("darkAura").checked ? 1 : 0;
+        q += getId("auraBreak").checked ? 1 : 0;
+        q += getId("electrify").checked ? 1 : 0;
+        q += getId("ionDeluge").checked ? 1 : 0;
+    }
+    if (gen === 2) {
+        q += convertToBaseN(parseInt(getId("weather").value, 10), 2, 2);
+    } else if (gen > 2 && gen < 6) {
+        q += convertToBaseN(parseInt(getId("weather").value, 10), 2, 3);
+    } else if (gen >= 6) {
+        q += convertToBaseN(parseInt(getId("weather").value, 10), 2, 4);
     }
     while (q.length % 6 !== 0) {
         q += "0";
@@ -329,15 +334,16 @@ function binaryToPoke(p, str) {
         }
         setSelectByValue(p + "Item", itemNum + "");
     }
-    document.getElementById(p + "Level").value = convertFromBaseN(str.substr(ptr, 7), 2);
+    getId(p + "Level").value = convertFromBaseN(str.substr(ptr, 7), 2);
     ptr += 7;
     var stats = gen > 2 ? ["Hp", "Atk", "Def", "Satk", "Sdef", "Spd"]
                         : gen > 1 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
                                   : ["Hp", "Atk", "Def", "Spc", "Spd"];
     for (var i = 0; i < stats.length; i++) {
-        document.getElementById(p + stats[i] + "Ev").value = convertFromBaseN(str.substr(ptr, 6), 2) << 2;
+        var temp = convertFromBaseN(str.substr(ptr, 6), 2) << 2;
+        getId(p + stats[i] + "Ev").value = gen < 3 && temp >= 252 ? 255 : temp;
         ptr += 6;
-        document.getElementById(p + stats[i] + "Iv").value = convertFromBaseN(str.substr(ptr, gen <= 2 ? 5 : 6), 2);
+        getId(p + stats[i] + "Iv").value = convertFromBaseN(str.substr(ptr, gen <= 2 ? 5 : 6), 2);
         ptr += gen <= 2 ? 5 : 6;
         if (i !== 0) {
             setSelectByValue(p + stats[i] + "Boost", (convertFromBaseN(str.substr(ptr, 4), 2) - 6) + "");
@@ -347,7 +353,7 @@ function binaryToPoke(p, str) {
             ptr += 4;
         }
     }
-    document.getElementById(p + "HP").value = convertFromBaseN(str.substr(ptr, 10), 2);
+    getId(p + "HP").value = convertFromBaseN(str.substr(ptr, 10), 2);
     ptr += 10;
     setSelectByValue(p + "Status", convertFromBaseN(str.substr(ptr, 3), 2) + "");
     ptr += 3;
@@ -360,21 +366,21 @@ function binaryToPoke(p, str) {
         ptr += 5;
     }
     if (gen >= 4) {
-        document.getElementById(p + "FlowerGift").checked = str[ptr++] === "1";
-        document.getElementById(p + "Grounded").checked = str[ptr++] === "1";
-        document.getElementById(p + "PowerTrick").checked = str[ptr++] === "1";
-        document.getElementById(p + "Tailwind").checked = str[ptr++] === "1";
-        document.getElementById(p + "Unburden").checked = str[ptr++] === "1";
+        getId(p + "FlowerGift").checked = str[ptr++] === "1";
+        getId(p + "Grounded").checked = str[ptr++] === "1";
+        getId(p + "PowerTrick").checked = str[ptr++] === "1";
+        getId(p + "Tailwind").checked = str[ptr++] === "1";
+        getId(p + "Unburden").checked = str[ptr++] === "1";
     }
     if (gen >= 5) {
-        document.getElementById(p + "Autotomize").checked = str[ptr++] === "1";
+        getId(p + "Autotomize").checked = str[ptr++] === "1";
     }
     updateStats(p);
     changeSprite(p + "Sprite", poke);
 }
 
 function loadQueryString(q) {
-    /* format info
+    /* poke format info
      * gen 1 : 109 bits
      * gen 2 : 127 bits
      * gen 3 : 161 bits
@@ -394,34 +400,44 @@ function loadQueryString(q) {
     
     setSelectByValue("move", convertFromBaseN(q.substr(ptr, 10), 2) + "");
     ptr += 10;
-    document.getElementById("critical").checked = q[ptr++] === "1";
-    document.getElementById("flashFire").checked = q[ptr++] === "1";
-    document.getElementById("screens").checked = q[ptr++] === "1";
+    getId("critical").checked = q[ptr++] === "1";
+    getId("flashFire").checked = q[ptr++] === "1";
+    getId("screens").checked = q[ptr++] === "1";
     if (gen >= 3) {
-        document.getElementById("helpingHand").checked = q[ptr++] === "1";
-        document.getElementById("charge").checked = q[ptr++] === "1";
-        document.getElementById("multiBattle").checked = q[ptr++] === "1";
-        document.getElementById("waterSport").checked = q[ptr++] === "1";
-        document.getElementById("mudSport").checked = q[ptr++] === "1";
+        getId("helpingHand").checked = q[ptr++] === "1";
+        getId("charge").checked = q[ptr++] === "1";
+        getId("multiBattle").checked = q[ptr++] === "1";
+        getId("waterSport").checked = q[ptr++] === "1";
+        getId("mudSport").checked = q[ptr++] === "1";
     }
     if (gen >= 4) {
-        document.getElementById("meFirst").checked = q[ptr++] === "1";
+        getId("meFirst").checked = q[ptr++] === "1";
     }
     if (gen >= 5) {
-        document.getElementById("friendGuard").checked = q[ptr++] === "1";
-        document.getElementById("magicRoom").checked = q[ptr++] === "1";
-        document.getElementById("wonderRoom").checked = q[ptr++] === "1";
+        getId("friendGuard").checked = q[ptr++] === "1";
+        getId("magicRoom").checked = q[ptr++] === "1";
+        getId("wonderRoom").checked = q[ptr++] === "1";
     }
     if (gen >= 6) {
-        document.getElementById("grassyTerrain").checked = q[ptr++] === "1";
-        document.getElementById("mistyTerrain").checked = q[ptr++] === "1";
-        document.getElementById("electricTerrain").checked = q[ptr++] === "1";
-        document.getElementById("invertedBattle").checked = q[ptr++] === "1";
-        document.getElementById("fairyAura").checked = q[ptr++] === "1";
-        document.getElementById("darkAura").checked = q[ptr++] === "1";
-        document.getElementById("auraBreak").checked = q[ptr++] === "1";
-        document.getElementById("electrify").checked = q[ptr++] === "1";
-        document.getElementById("ionDeluge").checked = q[ptr++] === "1";
+        getId("grassyTerrain").checked = q[ptr++] === "1";
+        getId("mistyTerrain").checked = q[ptr++] === "1";
+        getId("electricTerrain").checked = q[ptr++] === "1";
+        getId("invertedBattle").checked = q[ptr++] === "1";
+        getId("fairyAura").checked = q[ptr++] === "1";
+        getId("darkAura").checked = q[ptr++] === "1";
+        getId("auraBreak").checked = q[ptr++] === "1";
+        getId("electrify").checked = q[ptr++] === "1";
+        getId("ionDeluge").checked = q[ptr++] === "1";
+    }
+    if (gen === 2 && q.substr(ptr).length >= 2) {
+        setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 2), 2) + "");
+        ptr += 2;
+    } else if (gen > 2 && gen < 6 && q.substr(ptr).length >= 3) {
+        setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 3), 2) + "");
+        ptr += 3;
+    } else if (gen >= 6 && q.substr(ptr).length >= 4) {
+        setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 4), 2) + "");
+        ptr += 4;
     }
 }
 
@@ -461,10 +477,22 @@ function changeSprite(img, id) {
    preloader.src = imgurl + ".png";*/
 }
 
-function setText (e, txt) {
-    if ((typeof e === "string") || (e instanceof String)) {
-        e = document.getElementById(e);
+function setText (id, txt) {
+    if ("textContent" in document.body) {
+        getId(id).textContent = txt;
+    } else {
+        getId(id).innerText = txt;
     }
+}
+
+function getText (id) {
+    if ("textContent" in document.body) {
+        return getId(id).textContent;
+    }
+    return getId(id).innerText;
+}
+
+function setTextE (e, txt) {
     if ("textContent" in document.body) {
         e.textContent = txt;
     } else {
@@ -472,11 +500,8 @@ function setText (e, txt) {
     }
 }
 
-function getText (e) {
-    if (typeof(e) === "string" || (e instanceof String)) {
-        e = document.getElementById(e);
-    }
-    if ("textContent" in document.body) { // Is it compliant?
+function getTextE (e) {
+    if ("textContent" in document.body) {
         return e.textContent;
     }
     return e.innerText;
@@ -488,8 +513,22 @@ function getText (e) {
  * Very useful snippet of code. I've adapted it slightly as needed for my purposes.
  * Also, it's a good thing this code is compatible with GPLv3.
  */
-function replaceHtml(e, html) {
-    var oldE = (typeof e === "string") || (e instanceof String) ? document.getElementById(e) : e;
+function replaceHtml (id, html) {
+    var oldE = getId(id);
+    /*@cc_on
+        oldE.innerHTML = html;
+        return;
+    @*/
+    var newE = oldE.cloneNode(false);
+    ["onclick", "onchange"].forEach(function (val, idx, arr) { // I don't feel like finding them all
+        newE[val] = oldE[val];
+    });
+    newE.innerHTML = html;
+    oldE.parentNode.replaceChild(newE, oldE);
+};
+
+
+function replaceHtmlE (oldE, html) {
     /*@cc_on
         oldE.innerHTML = html;
         return;
@@ -504,7 +543,7 @@ function replaceHtml(e, html) {
 
 function setPoke(e, p) {
     if ((typeof e === "string") || (e instanceof String)) {
-        e = document.getElementById(e);
+        e = getId(e);
     }
     for (var i = 0; i < e.options.length; i++) {
         if (e.options[i].value.substr(0, p.length) === p) {
@@ -517,7 +556,7 @@ function setPoke(e, p) {
 
 function setSelectByValue(e, value) {
     if ((typeof e === "string") || (e instanceof String)) {
-        e = document.getElementById(e);
+        e = getId(e);
     }
     for (var i = 0; i < e.options.length; i++) {
         if (e.options[i].value === value) {
@@ -530,7 +569,7 @@ function setSelectByValue(e, value) {
 
 function setSelectByText(e, text) {
     if ((typeof e === "string") || (e instanceof String)) {
-        e = document.getElementById(e);
+        e = getId(e);
     }
     for (var i = 0; i < e.options.length; i++) {
         if (e.options[i].text === text) {
@@ -550,23 +589,11 @@ function updateFormatting() {
         originalDisplay[i] = toggleElements[i].style.display;
         toggleElements[i].style.display = "";
     }
-    var speedElements = document.getElementsByClassName("M_SPEED"),
-        speedDisplay = [];
-    for (var i = 0; i < speedElements.length; i++) {
-        speedDisplay[i] = speedElements[i].style.display;
-        speedElements[i].style.display = "";
-    }
-    var healthElements = document.getElementsByClassName("M_HEALTH"),
-        healthDisplay = [];
-    for (var i = 0; i < healthElements.length; i++) {
-        healthDisplay[i] = healthElements[i].style.display;
-        healthElements[i].style.display = "";
-    }
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
-        var e = document.getElementById("attacker" + strs[i] + "Stat");
+        var e = getId("attacker" + strs[i] + "Stat");
         e.style.lineHeight = e.parentNode.offsetHeight + "px";
-        e = document.getElementById("defender" + strs[i] + "Stat");
+        e = getId("defender" + strs[i] + "Stat");
         e.style.lineHeight = e.parentNode.offsetHeight + "px";
     }
     
@@ -586,29 +613,23 @@ function updateFormatting() {
     }
     
     for (var i = 0; i < 6; i++) {
-        document.getElementById("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
+        getId("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
     }
-    document.getElementById("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
+    getId("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
     
-    var w = Math.max(document.getElementById("attacker").offsetWidth, document.getElementById("defender").offsetWidth) * 2;
-    document.getElementById("calculator").style.width = w + "px";
-    document.getElementById("calculator").style.marginLeft = "auto";
-    document.getElementById("calculator").style.marginRight = "auto";
-    document.getElementById("calculator").style.cssFloat = "none";
-    document.getElementById("hpDisplay").style.width = w + "px";
-    document.getElementById("minDamageBar").style.width = "0";
-    document.getElementById("maxDamageBar").style.width = "0";
-    document.getElementById("blankBar").style.width = "0";
-    document.getElementById("calc").style.width = w + "px";
+    var w = Math.max(getId("attacker").offsetWidth, getId("defender").offsetWidth) * 2;
+    getId("calculator").style.width = w + "px";
+    getId("calculator").style.marginLeft = "auto";
+    getId("calculator").style.marginRight = "auto";
+    getId("calculator").style.cssFloat = "none";
+    /* getId("hpDisplay").style.width = w + "px";
+    getId("minDamageBar").style.width = "0";
+    getId("maxDamageBar").style.width = "0";
+    getId("blankBar").style.width = "0"; */
+    getId("calc").style.width = w + "px";
     // possibly rehide
     for (var i = 0; i < toggleElements.length; i++) {
         toggleElements[i].style.display = originalDisplay[i];
-    }
-    for (var i = 0; i < speedElements.length; i++) {
-        speedElements[i].style.display = speedDisplay[i];
-    }
-    for (var i = 0; i < healthElements.length; i++) {
-        healthElements[i].style.display = healthDisplay[i];
     }
 }
 
@@ -621,162 +642,162 @@ function changeGen (n) {
     for (var i = sprites.length-1; i >= 0; i--) {
         sprites[i].className = "sprite" + gen;
     }
-    document.getElementById("attackerPoke").selectedIndex = 0;
+    getId("attackerPoke").selectedIndex = 0;
     changeSprite("attackerSprite", "0:0");
-    document.getElementById("attackerNature").selectedIndex = 0;
-    document.getElementById("attackerAbility").selectedIndex = 0;
-    document.getElementById("attackerItem").selectedIndex = 0;
+    getId("attackerNature").selectedIndex = 0;
+    getId("attackerAbility").selectedIndex = 0;
+    getId("attackerItem").selectedIndex = 0;
     updateAttackerItemOptions();
-    document.getElementById("attackerLevel").value = 100;
-    document.getElementById("attackerHP").value = "";
-    document.getElementById("attackerHPp").value = "";
+    getId("attackerLevel").value = 100;
+    getId("attackerHP").value = "";
+    getId("attackerHPp").value = "";
     setText("attackerTotalHP", "???");
-    document.getElementById("attackerStatus").selectedIndex = 0;
-    document.getElementById("attackerType1").selectedIndex = 0;
-    document.getElementById("attackerType2").selectedIndex = 0;
-    document.getElementById("attackerTypeAdded").selectedIndex = 0;
-    document.getElementById("attackerGrounded").checked = false;
-    document.getElementById("attackerTailwind").checked = false;
-    document.getElementById("attackerUnburden").checked = false;
-    document.getElementById("attackerAutotomize").checked = false;
-    document.getElementById("attackerFlowerGift").checked = false;
-    document.getElementById("attackerPowerTrick").checked = false;
-    document.getElementById("defenderPoke").selectedIndex = 0;
+    getId("attackerStatus").selectedIndex = 0;
+    getId("attackerType1").selectedIndex = 0;
+    getId("attackerType2").selectedIndex = 0;
+    getId("attackerTypeAdded").selectedIndex = 0;
+    getId("attackerGrounded").checked = false;
+    getId("attackerTailwind").checked = false;
+    getId("attackerUnburden").checked = false;
+    getId("attackerAutotomize").checked = false;
+    getId("attackerFlowerGift").checked = false;
+    getId("attackerPowerTrick").checked = false;
+    getId("defenderPoke").selectedIndex = 0;
     changeSprite("defenderSprite", "0:0");
-    document.getElementById("defenderNature").selectedIndex = 0;
-    document.getElementById("defenderAbility").selectedIndex = 0;
-    document.getElementById("defenderItem").selectedIndex = 0;
-    document.getElementById("defenderLevel").value = 100;
-    document.getElementById("defenderHP").value = "";
-    document.getElementById("defenderHPp").value = "";
+    getId("defenderNature").selectedIndex = 0;
+    getId("defenderAbility").selectedIndex = 0;
+    getId("defenderItem").selectedIndex = 0;
+    getId("defenderLevel").value = 100;
+    getId("defenderHP").value = "";
+    getId("defenderHPp").value = "";
     setText("defenderTotalHP", "???");
-    document.getElementById("defenderStatus").selectedIndex = 0;
-    document.getElementById("defenderType1").selectedIndex = 0;
-    document.getElementById("defenderType2").selectedIndex = 0;
-    document.getElementById("defenderTypeAdded").selectedIndex = 0;
-    document.getElementById("defenderGrounded").checked = false;
-    document.getElementById("defenderTailwind").checked = false;
-    document.getElementById("defenderUnburden").checked = false;
-    document.getElementById("defenderAutotomize").checked = false;
-    document.getElementById("defenderFlowerGift").checked = false;
-    document.getElementById("defenderPowerTrick").checked = false;
+    getId("defenderStatus").selectedIndex = 0;
+    getId("defenderType1").selectedIndex = 0;
+    getId("defenderType2").selectedIndex = 0;
+    getId("defenderTypeAdded").selectedIndex = 0;
+    getId("defenderGrounded").checked = false;
+    getId("defenderTailwind").checked = false;
+    getId("defenderUnburden").checked = false;
+    getId("defenderAutotomize").checked = false;
+    getId("defenderFlowerGift").checked = false;
+    getId("defenderPowerTrick").checked = false;
     function makeCheckbox (id, label) {
         return "<label><input type='checkbox' id='" + id + "' />" + label + "</label>";
     }
-    document.getElementById("col1").innerHTML = "";
-    document.getElementById("col2").innerHTML = "";
-    document.getElementById("col3").innerHTML = "";
     if (gen <= 2) {
-        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
-                                                  + makeCheckbox("screens", "Light Screen/Reflect");
+        replaceHtml("col1", makeCheckbox("critical", "Critical Hit")
+                            + makeCheckbox("screens", "Light Screen/Reflect"));
         if (gen === 2) {
-            document.getElementById("col2").innerHTML = makeCheckbox("foresight", "Foresight");
+            replaceHtml("col2", makeCheckbox("foresight", "Foresight"));
+        } else {
+            replaceHtml("col2", "");
         }
+        replaceHtml("col3", "");
     } else if (gen === 3) {
-        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
-                                                  + makeCheckbox("screens", "Light Screen/Reflect")
-                                                  + makeCheckbox("foresight", "Foresight");
-        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles Battle")
-                                                  + makeCheckbox("helpingHand", "Helping Hand")
-                                                  + makeCheckbox("charge", "Charge");
-        document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
-                                                  + makeCheckbox("mudSport", "Mud Sport");
+        replaceHtml("col1", makeCheckbox("critical", "Critical Hit")
+                            + makeCheckbox("screens", "Light Screen/Reflect")
+                            + makeCheckbox("foresight", "Foresight"));
+        replaceHtml("col2", makeCheckbox("multiBattle", "Doubles Battle")
+                            + makeCheckbox("helpingHand", "Helping Hand")
+                            + makeCheckbox("charge", "Charge"));
+        replaceHtml("col3", makeCheckbox("waterSport", "Water Sport")
+                            + makeCheckbox("mudSport", "Mud Sport"));
     } else if (gen === 4) {
-        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
-                                                  + makeCheckbox("screens", "Light Screen/Reflect")
-                                                  + makeCheckbox("foresight", "Foresight");
-        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
-                                                  + makeCheckbox("helpingHand", "Helping Hand")
-                                                  + makeCheckbox("meFirst", "Me First");
-        document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
-                                                  + makeCheckbox("mudSport", "Mud Sport")
-                                                  + makeCheckbox("charge", "Charge");
+        replaceHtml("col1", makeCheckbox("critical", "Critical Hit")
+                            + makeCheckbox("screens", "Light Screen/Reflect")
+                            + makeCheckbox("foresight", "Foresight"));
+        replaceHtml("col2", makeCheckbox("multiBattle", "Doubles/Triples Battle")
+                            + makeCheckbox("helpingHand", "Helping Hand")
+                            + makeCheckbox("meFirst", "Me First"));
+        replaceHtml("col3", makeCheckbox("waterSport", "Water Sport")
+                            + makeCheckbox("mudSport", "Mud Sport")
+                            + makeCheckbox("charge", "Charge"));
     } else if (gen === 5) {
-        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
-                                                  + makeCheckbox("screens", "Light Screen/Reflect")
-                                                  + makeCheckbox("foresight", "Foresight")
-                                                  + makeCheckbox("meFirst", "Me First");
-        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
-                                                  + makeCheckbox("helpingHand", "Helping Hand")
-                                                  + makeCheckbox("friendGuard", "Friend Guard")
-                                                  + makeCheckbox("charge", "Charge");
-        document.getElementById("col3").innerHTML = makeCheckbox("waterSport", "Water Sport")
-                                                  + makeCheckbox("mudSport", "Mud Sport")
-                                                  + makeCheckbox("magicRoom", "Magic Room")
-                                                  + makeCheckbox("wonderRoom", "Wonder Room");
+        replaceHtml("col1", makeCheckbox("critical", "Critical Hit")
+                            + makeCheckbox("screens", "Light Screen/Reflect")
+                            + makeCheckbox("foresight", "Foresight")
+                            + makeCheckbox("meFirst", "Me First"));
+        replaceHtml("col2", makeCheckbox("multiBattle", "Doubles/Triples Battle")
+                            + makeCheckbox("helpingHand", "Helping Hand")
+                            + makeCheckbox("friendGuard", "Friend Guard")
+                            + makeCheckbox("charge", "Charge"));
+        replaceHtml("col3", makeCheckbox("waterSport", "Water Sport")
+                            + makeCheckbox("mudSport", "Mud Sport")
+                            + makeCheckbox("magicRoom", "Magic Room")
+                            + makeCheckbox("wonderRoom", "Wonder Room"));
     } else if (gen === 6) {
-        document.getElementById("col1").innerHTML = makeCheckbox("critical", "Critical Hit")
-                                                  + makeCheckbox("screens", "Light Screen/Reflect")
-                                                  + makeCheckbox("invertedBattle", "Inverted Battle")
-                                                  + makeCheckbox("foresight", "Foresight")
-                                                  + makeCheckbox("meFirst", "Me First")
-                                                  + makeCheckbox("electrify", "Electrify")
-                                                  + makeCheckbox("ionDeluge", "Ion Deluge");
-        document.getElementById("col2").innerHTML = makeCheckbox("multiBattle", "Doubles/Triples Battle")
-                                                  + makeCheckbox("helpingHand", "Helping Hand")
-                                                  + makeCheckbox("friendGuard", "Friend Guard")
-                                                  + makeCheckbox("waterSport", "Water Sport")
-                                                  + makeCheckbox("mudSport", "Mud Sport")
-                                                  + makeCheckbox("magicRoom", "Magic Room")
-                                                  + makeCheckbox("wonderRoom", "Wonder Room");
-        document.getElementById("col3").innerHTML = makeCheckbox("charge", "Charge")
-                                                  + makeCheckbox("grassyTerrain", "Grassy Terrain")
-                                                  + makeCheckbox("mistyTerrain", "Misty Terrain")
-                                                  + makeCheckbox("electricTerrain", "Electric Terrain")
-                                                  + makeCheckbox("fairyAura", "Fairy Aura")
-                                                  + makeCheckbox("darkAura", "Dark Aura")
-                                                  + makeCheckbox("auraBreak", "Aura Break");
+        replaceHtml("col1", makeCheckbox("critical", "Critical Hit")
+                            + makeCheckbox("screens", "Light Screen/Reflect")
+                            + makeCheckbox("invertedBattle", "Inverted Battle")
+                            + makeCheckbox("foresight", "Foresight")
+                            + makeCheckbox("meFirst", "Me First")
+                            + makeCheckbox("electrify", "Electrify")
+                            + makeCheckbox("ionDeluge", "Ion Deluge"));
+        replaceHtml("col2", makeCheckbox("multiBattle", "Doubles/Triples Battle")
+                            + makeCheckbox("helpingHand", "Helping Hand")
+                            + makeCheckbox("friendGuard", "Friend Guard")
+                            + makeCheckbox("waterSport", "Water Sport")
+                            + makeCheckbox("mudSport", "Mud Sport")
+                            + makeCheckbox("magicRoom", "Magic Room")
+                            + makeCheckbox("wonderRoom", "Wonder Room"));
+        replaceHtml("col3", makeCheckbox("charge", "Charge")
+                            + makeCheckbox("grassyTerrain", "Grassy Terrain")
+                            + makeCheckbox("mistyTerrain", "Misty Terrain")
+                            + makeCheckbox("electricTerrain", "Electric Terrain")
+                            + makeCheckbox("fairyAura", "Fairy Aura")
+                            + makeCheckbox("darkAura", "Dark Aura")
+                            + makeCheckbox("auraBreak", "Aura Break"));
     }
-    document.getElementById("metronome").selectedIndex = 0;
-    document.getElementById("minimize").checked = false;
-    document.getElementById("dig").checked = false;
-    document.getElementById("dive").checked = false;
-    document.getElementById("moved").checked = false;
-    document.getElementById("damaged").checked = false;
-    document.getElementById("furyCutter").selectedIndex = 0;
-    document.getElementById("echoedVoice").selectedIndex = 0;
-    document.getElementById("trumpCardPP").selectedIndex = 0;
-    document.getElementById("round").checked = false;
-    document.getElementById("fly").checked = false;
+    getId("metronome").selectedIndex = 0;
+    getId("minimize").checked = false;
+    getId("dig").checked = false;
+    getId("dive").checked = false;
+    getId("moved").checked = false;
+    getId("damaged").checked = false;
+    getId("furyCutter").selectedIndex = 0;
+    getId("echoedVoice").selectedIndex = 0;
+    getId("trumpCardPP").selectedIndex = 0;
+    getId("round").checked = false;
+    getId("fly").checked = false;
     resetBeatUp();
-    document.getElementById("stockpile").value = 0;
-    document.getElementById("switchOut").checked = false;
-    document.getElementById("present").selectedIndex = 0;
-    document.getElementById("magnitude").selectedIndex = 0;
-    document.getElementById("defenseCurl").checked = false;
-    document.getElementById("rollout").selectedIndex = 0;
-    document.getElementById("previouslyFainted").checked = false;
-    document.getElementById("fusionBolt").checked = false;
-    document.getElementById("fusionFlare").checked = false;
-    document.getElementById("multiHits").selectedIndex = 0;
-    document.getElementById("weather").selectedIndex = 0;
-    document.getElementById("move").selectedIndex = 0;
+    getId("stockpile").value = 0;
+    getId("switchOut").checked = false;
+    getId("present").selectedIndex = 0;
+    getId("magnitude").selectedIndex = 0;
+    getId("defenseCurl").checked = false;
+    getId("rollout").selectedIndex = 0;
+    getId("previouslyFainted").checked = false;
+    getId("fusionBolt").checked = false;
+    getId("fusionFlare").checked = false;
+    getId("multiHits").selectedIndex = 0;
+    getId("weather").selectedIndex = 0;
+    getId("move").selectedIndex = 0;
     updateMoveOptions();
-    document.getElementById("pledge").checked = false;
+    getId("pledge").checked = false;
     updateAttackerSets();
     updateDefenderSets();
 
     if (gen >= 3) {
-        document.getElementById("attackerSdefIv").disabled = false;
-        document.getElementById("attackerSdefEv").disabled = false;
-        document.getElementById("attackerHpIv").disabled = false;
-        document.getElementById("defenderSdefIv").disabled = false;
-        document.getElementById("defenderSdefEv").disabled = false;
-        document.getElementById("defenderHpIv").disabled = false;
+        getId("attackerSdefIv").disabled = false;
+        getId("attackerSdefEv").disabled = false;
+        getId("attackerHpIv").disabled = false;
+        getId("defenderSdefIv").disabled = false;
+        getId("defenderSdefEv").disabled = false;
+        getId("defenderHpIv").disabled = false;
         replaceHtml("hiddenPowerIvs", "<option value='0'>31-31-31-31-31-31</option>");
     } else if (gen === 2) {
-        document.getElementById("attackerSdefIv").disabled = true;
-        document.getElementById("attackerSdefEv").disabled = true;
-        document.getElementById("attackerHpIv").disabled = true;
-        document.getElementById("defenderSdefIv").disabled = true;
-        document.getElementById("defenderSdefEv").disabled = true;
-        document.getElementById("defenderHpIv").disabled = true;
+        getId("attackerSdefIv").disabled = true;
+        getId("attackerSdefEv").disabled = true;
+        getId("attackerHpIv").disabled = true;
+        getId("defenderSdefIv").disabled = true;
+        getId("defenderSdefEv").disabled = true;
+        getId("defenderHpIv").disabled = true;
         replaceHtml("hiddenPowerIvs", "<option value='0'>15-15-15-15-15-15</option>");
     } else {
-        document.getElementById("attackerHpIv").disabled = true;
-        document.getElementById("defenderHpIv").disabled = true;
+        getId("attackerHpIv").disabled = true;
+        getId("defenderHpIv").disabled = true;
     }
-    setSelectByText(document.getElementById("hiddenPowerType"), "Dark");
+    setSelectByText(getId("hiddenPowerType"), "Dark");
     
     var ops = "";
     var end = gen < 5 ? 10 : 5;
@@ -805,11 +826,11 @@ function changeGen (n) {
     var strs = [["attacker", "defender"], ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"]];
     for (var i = 0; i < strs[0].length; i++) {
         for (var j = 0; j < strs[1].length; j++) {
-            document.getElementById(strs[0][i] + strs[1][j] + "Ev").value = gen > 2 ? 0 : 255;
-            document.getElementById(strs[0][i] + strs[1][j] + "Iv").value = gen > 2 ? 31 : 15;
+            getId(strs[0][i] + strs[1][j] + "Ev").value = gen > 2 ? 0 : 255;
+            getId(strs[0][i] + strs[1][j] + "Iv").value = gen > 2 ? 31 : 15;
             setText(strs[0][i] + strs[1][j] + "Stat", "");
             if (strs[1][j] !== "Hp") {
-                document.getElementById(strs[0][i] + strs[1][j] + "Boost").selectedIndex = 6;
+                getId(strs[0][i] + strs[1][j] + "Boost").selectedIndex = 6;
             }
         }
     }
@@ -857,6 +878,8 @@ function changeGen (n) {
                     continue;
                 } else if (db.pokemons(id + ":B")) {
                     id += ":B";
+                } else if (id === "292:0") {
+                    id = "292:0:1";
                 }
                 if (redundantForms.indexOf(id) > -1
                     || (onlyZero.indexOf(id.substring(0, id.indexOf(":"))) > -1 && id.charAt(id.indexOf(":") + 1) !== "0")
@@ -899,6 +922,12 @@ function changeGen (n) {
         replaceHtml("defenderAbility", abilities[gen]);
     }
     
+    var isUseless = function (m) {
+        if (db.movePowers(6, m) > 0) {
+            return false;
+        }
+        return ["0", "267"].indexOf(m) < 0;
+    };
     if (moves[gen] === null || cacheDisabled) {
         arr = [];
         for (var a in db.releasedMoves(gen)) {
@@ -941,16 +970,16 @@ function changeGen (n) {
     }
     typeLists = document.getElementsByClassName("typeList");
     for (var i = 0; i < typeLists.length; i++) {
-        replaceHtml(typeLists[i], typeOps);
+        replaceHtmlE(typeLists[i], typeOps);
     }
     
-    str = "<option value='0'>(No Weather)</option><option value='4'>Sun</option><option value='2'>Rain</option><option value='3'>Sand</option>";
+    str = "<option value='0'>Clear</option><option value='4'>Sun</option><option value='2'>Rain</option><option value='3'>Sand</option>";
     str += gen >= 3 ? "<option value='1'>Hail</option>" : "";
     str += gen >= 6 ? "<option value='6'>Harsh Sun</option><option value='5'>Heavy Rain</option><option value='7'>Strong Winds</option>" : "";
     replaceHtml("weather", str);
     
     for (var i = 1; i <= 6; i++) {
-        document.getElementById("cgen" + i).className = (gen === i) ? "selectGen selectedGen" : "selectGen";
+        getId("cgen" + i).className = (gen === i) ? "selectGen selectedGen" : "selectGen";
     }
     
     
@@ -973,7 +1002,7 @@ function changeGen (n) {
 }
 
 function sortOptions(id) {
-    var e = document.getElementById(id).options;
+    var e = getId(id).options;
     var a = [];
     var str = "";
     for (var i = 0; i < e.length; i++) {
@@ -1034,67 +1063,67 @@ function options8000 (j) {
 }
 
 function getEvs (p) {
-    return [ parseInt(document.getElementById(p + "HpEv").value, 10),
-             parseInt(document.getElementById(p + "AtkEv").value, 10),
-             parseInt(document.getElementById(p + "DefEv").value, 10),
-             gen > 1 ? parseInt(document.getElementById(p + "SatkEv").value, 10) : parseInt(document.getElementById(p + "SpcEv").value, 10),
-             gen > 1 ? parseInt(document.getElementById(p + "SdefEv").value, 10) : parseInt(document.getElementById(p + "SpcEv").value, 10),
-             parseInt(document.getElementById(p + "SpdEv").value, 10)];
+    return [ parseInt(getId(p + "HpEv").value, 10),
+             parseInt(getId(p + "AtkEv").value, 10),
+             parseInt(getId(p + "DefEv").value, 10),
+             gen > 1 ? parseInt(getId(p + "SatkEv").value, 10) : parseInt(getId(p + "SpcEv").value, 10),
+             gen > 1 ? parseInt(getId(p + "SdefEv").value, 10) : parseInt(getId(p + "SpcEv").value, 10),
+             parseInt(getId(p + "SpdEv").value, 10) ];
 }
 
 function getIvs (p) {
-    return [ parseInt(document.getElementById(p + "HpIv").value, 10),
-             parseInt(document.getElementById(p + "AtkIv").value, 10),
-             parseInt(document.getElementById(p + "DefIv").value, 10),
-             gen > 1 ? parseInt(document.getElementById(p + "SatkIv").value, 10) : parseInt(document.getElementById(p + "SpcIv").value, 10),
-             gen > 1 ? parseInt(document.getElementById(p + "SdefIv").value, 10) : parseInt(document.getElementById(p + "SpcIv").value, 10),
-             parseInt(document.getElementById(p + "SpdIv").value, 10)];
+    return [ parseInt(getId(p + "HpIv").value, 10),
+             parseInt(getId(p + "AtkIv").value, 10),
+             parseInt(getId(p + "DefIv").value, 10),
+             gen > 1 ? parseInt(getId(p + "SatkIv").value, 10) : parseInt(getId(p + "SpcIv").value, 10),
+             gen > 1 ? parseInt(getId(p + "SdefIv").value, 10) : parseInt(getId(p + "SpcIv").value, 10),
+             parseInt(getId(p + "SpdIv").value, 10) ];
 }
 
 function getBoosts (p) {
     return [ 0,
-             parseInt(document.getElementById(p + "AtkBoost").value, 10),
-             parseInt(document.getElementById(p + "DefBoost").value, 10),
-             gen > 1 ? parseInt(document.getElementById(p + "SatkBoost").value, 10) : parseInt(document.getElementById(p + "SpcBoost").value, 10),
-             gen > 1 ? parseInt(document.getElementById(p + "SdefBoost").value, 10) : parseInt(document.getElementById(p + "SpcBoost").value, 10),
-             parseInt(document.getElementById(p + "SpdBoost").value, 10),
-             0, 0];
+             parseInt(getId(p + "AtkBoost").value, 10),
+             parseInt(getId(p + "DefBoost").value, 10),
+             gen > 1 ? parseInt(getId(p + "SatkBoost").value, 10) : parseInt(getId(p + "SpcBoost").value, 10),
+             gen > 1 ? parseInt(getId(p + "SdefBoost").value, 10) : parseInt(getId(p + "SpcBoost").value, 10),
+             parseInt(getId(p + "SpdBoost").value, 10),
+             0, 0 ];
 }
     
 function setEvs (p, e) {
-    document.getElementById(p + "HpEv").value = e[Sulcalc.Stats.HP];
-    document.getElementById(p + "AtkEv").value = e[Sulcalc.Stats.ATK];
-    document.getElementById(p + "DefEv").value = e[Sulcalc.Stats.DEF];
-    document.getElementById(p + "SatkEv").value = gen > 2 ? e[Sulcalc.Stats.SATK] : e[Sulcalc.Stats.SPC];
-    document.getElementById(p + "SdefEv").value = gen > 2 ? e[Sulcalc.Stats.SDEF] : e[Sulcalc.Stats.SPC];
-    document.getElementById(p + "SpcEv").value = e[Sulcalc.Stats.SPC];
-    document.getElementById(p + "SpdEv").value = e[Sulcalc.Stats.SPD];
+    getId(p + "HpEv").value = e[Sulcalc.Stats.HP];
+    getId(p + "AtkEv").value = e[Sulcalc.Stats.ATK];
+    getId(p + "DefEv").value = e[Sulcalc.Stats.DEF];
+    getId(p + "SatkEv").value = gen > 2 ? e[Sulcalc.Stats.SATK] : e[Sulcalc.Stats.SPC];
+    getId(p + "SdefEv").value = gen > 2 ? e[Sulcalc.Stats.SDEF] : e[Sulcalc.Stats.SPC];
+    getId(p + "SpcEv").value = e[Sulcalc.Stats.SPC];
+    getId(p + "SpdEv").value = e[Sulcalc.Stats.SPD];
 }
 
 function setIvs (p, i) {
-    document.getElementById(p + "HpIv").value = (gen > 2) ? i[Sulcalc.Stats.HP] : (i[1] & 1) << 3 | (i[2] & 1) << 2 | (i[5] & 1) << 1 | (i[3] & 1);
-    document.getElementById(p + "AtkIv").value = i[Sulcalc.Stats.ATK];
-    document.getElementById(p + "DefIv").value = i[Sulcalc.Stats.DEF];
-    document.getElementById(p + "SatkIv").value = i[Sulcalc.Stats.SATK];
-    document.getElementById(p + "SdefIv").value = i[Sulcalc.Stats.SDEF];
-    document.getElementById(p + "SpcIv").value = i[Sulcalc.Stats.SPC];
-    document.getElementById(p + "SpdIv").value = i[Sulcalc.Stats.SPD];
+    getId(p + "HpIv").value = (gen > 2) ? i[Sulcalc.Stats.HP] : (i[1] & 1) << 3 | (i[2] & 1) << 2 | (i[5] & 1) << 1 | (i[3] & 1);
+    getId(p + "AtkIv").value = i[Sulcalc.Stats.ATK];
+    getId(p + "DefIv").value = i[Sulcalc.Stats.DEF];
+    getId(p + "SatkIv").value = i[Sulcalc.Stats.SATK];
+    getId(p + "SdefIv").value = i[Sulcalc.Stats.SDEF];
+    getId(p + "SpcIv").value = i[Sulcalc.Stats.SPC];
+    getId(p + "SpdIv").value = i[Sulcalc.Stats.SPD];
 }
 
 function setBoosts (p, b) {
-    document.getElementById(p + "AtkBoost").value = b[Sulcalc.Stats.ATK];
-    document.getElementById(p + "DefBoost").value = b[Sulcalc.Stats.DEF];
-    document.getElementById(p + "SatkBoost").value = b[Sulcalc.Stats.SATK];
-    document.getElementById(p + "SdefBoost").value = b[Sulcalc.Stats.SDEF];
-    document.getElementById(p + "SpcBoost").value = b[Sulcalc.Stats.SPC];
-    document.getElementById(p + "SpdBoost").value = b[Sulcalc.Stats.SPD];
+    getId(p + "AtkBoost").value = b[Sulcalc.Stats.ATK];
+    getId(p + "DefBoost").value = b[Sulcalc.Stats.DEF];
+    getId(p + "SatkBoost").value = b[Sulcalc.Stats.SATK];
+    getId(p + "SdefBoost").value = b[Sulcalc.Stats.SDEF];
+    getId(p + "SpcBoost").value = b[Sulcalc.Stats.SPC];
+    getId(p + "SpdBoost").value = b[Sulcalc.Stats.SPD];
 }
 
 function updatePoke (p) {
-    changeSprite(p + "Sprite", document.getElementById(p + "Poke").value);
+    changeSprite(p + "Sprite", getId(p + "Poke").value);
     var poke = new Sulcalc.Pokemon();
-    poke.id = document.getElementById(p + "Poke").value;
-    document.getElementById(p + "Nature").selectedIndex = 0;
+    poke.id = getId(p + "Poke").value;
+    getId(p + "Nature").selectedIndex = 0;
     if (poke.id === "104:0" || poke.id === "105:0") {
         setSelectByText(p + "Item", "Thick Club");
     } else if (poke.id in pokeToItem) {
@@ -1102,9 +1131,9 @@ function updatePoke (p) {
     } else if (poke.hasEvolution()) {
         setSelectByText(p + "Item", "Eviolite");
     } else {
-        document.getElementById(p + "Item").selectedIndex = 0;
+        getId(p + "Item").selectedIndex = 0;
     }
-    document.getElementById(p + "Status").selectedIndex = 0;
+    getId(p + "Status").selectedIndex = 0;
     var hasPreEvo = false; // Little Cup check
     for (var e in db.evolutions()) {
         if (db.evolutions(e).indexOf(parseInt(poke.species(), 10)) > -1) {
@@ -1112,16 +1141,14 @@ function updatePoke (p) {
             break;
         }
     }
-    document.getElementById(p + "Level").value = !hasPreEvo && poke.hasEvolution() ? 5 : 100;
-    var type1e = document.getElementById(p + "Type1");
-    var type2e = document.getElementById(p + "Type2");
-    setSelectByValue(type1e, poke.type1() + "");
-    setSelectByValue(type2e, poke.type2() + "");
+    getId(p + "Level").value = !hasPreEvo && poke.hasEvolution() ? 5 : 100;
+    setSelectByValue(p + "Type1", poke.type1() + "");
+    setSelectByValue(p + "Type2", poke.type2() + "");
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
-        document.getElementById(p + strs[i] + "Ev").value = gen > 2 ? 0 : 255;
-        document.getElementById(p + strs[i] + "Iv").value = gen > 2 ? 31 : 15;
-        document.getElementById(p + strs[i] + "Boost").selectedIndex = 6;
+        getId(p + strs[i] + "Ev").value = gen > 2 ? 0 : 255;
+        getId(p + strs[i] + "Iv").value = gen > 2 ? 31 : 15;
+        getId(p + strs[i] + "Boost").selectedIndex = 6;
     }
     var suggestions = "";
     if (poke.ability1() > 0) {
@@ -1136,80 +1163,77 @@ function updatePoke (p) {
     if (suggestions !== "") {
         suggestions += "<option value='divider' disabled>─────────────</option>";
     }
-    eAbility = document.getElementById(p + "Ability");
-    replaceHtml(eAbility, suggestions + abilities[gen]);
+    eAbility = getId(p + "Ability");
+    replaceHtmlE(eAbility, suggestions + abilities[gen]);
     eAbility.selectedIndex = 0;
-    var disableAuto = {
-        
-    }
     updateStats(p);
 }
 
 function updateHpPercent(p) {
     var poke = new Sulcalc.Pokemon();
-    poke.id = document.getElementById(p + "Poke").value;
+    poke.id = getId(p + "Poke").value;
     if (poke.id === "0:0") {
-        document.getElementById(p + "HP").value = "";
+        getId(p + "HP").value = "";
         return;
     }
-    poke.level = parseInt(document.getElementById(p + "Level").value, 10);
+    poke.level = parseInt(getId(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
     var total = poke.stat(Sulcalc.Stats.HP);
-    var currentPoints = document.getElementById(p + "HP").value;
+    var currentPoints = getId(p + "HP").value;
     if (currentPoints.match(/[^0-9]/g) !== null) {
         currentPoints = total;
     } else {
         currentPoints = parseInt(currentPoints, 10);
     }
-    document.getElementById(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * currentPoints / total)));
-    document.getElementById(p + "HP").value = Math.max(1, Math.min(total, currentPoints));
+    getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * currentPoints / total)));
+    getId(p + "HP").value = Math.max(1, Math.min(total, currentPoints));
 }
     
 function updateHpPoints(p) {
     var poke = new Sulcalc.Pokemon();
-    poke.id = document.getElementById(p + "Poke").value;
+    poke.id = getId(p + "Poke").value;
     if (poke.id === "0:0") {
-        document.getElementById(p + "HPp").value = "";
+        getId(p + "HPp").value = "";
         return;
     }
-    poke.level = parseInt(document.getElementById(p + "Level").value, 10);
+    poke.level = parseInt(getId(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
     var total = poke.stat(Sulcalc.Stats.HP);
-    var currentPercent = document.getElementById(p + "HPp").value;
+    var currentPercent = getId(p + "HPp").value;
     if (currentPercent.match(/[^0-9]/g) !== null) {
         currentPercent = total;
     } else {
         currentPercent = parseInt(currentPercent, 10);
     }
-    document.getElementById(p + "HP").value = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100)));
-    document.getElementById(p + "HPp").value = Math.max(1, Math.min(100, currentPercent));
+    getId(p + "HP").value = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100)));
+    getId(p + "HPp").value = Math.max(1, Math.min(100, currentPercent));
 }
 
 function updateStats (p) {
     // ev and iv are unified in a "special" stat, but the base stats are different.
     // I recall reading it was because GSC and RBY used the same data structures.
     if (gen === 2) {
-        document.getElementById(p + "SdefEv").value = document.getElementById(p + "SatkEv").value;
-        document.getElementById(p + "SdefIv").value = document.getElementById(p + "SatkIv").value;
+        getId(p + "SdefEv").value = getId(p + "SatkEv").value;
+        getId(p + "SdefIv").value = getId(p + "SatkIv").value;
     }
     // there is no HP iv in gens 1 & 2, it is determined by other ivs
     if (gen <= 2) {
-        document.getElementById(p + "HpIv").value = (parseInt(document.getElementById(p + "AtkIv").value, 10) & 1) << 3
-                                                    | (parseInt(document.getElementById(p + "DefIv").value, 10) & 1) << 2
-                                                    | (parseInt(document.getElementById(p + "SpdIv").value, 10) & 1) << 1
-                                                    | (parseInt(document.getElementById(p + "SpcIv").value, 10) & 1);
+        getId(p + "HpIv").value = (parseInt(getId(p + "AtkIv").value, 10) & 1) << 3
+                                   | (parseInt(getId(p + "DefIv").value, 10) & 1) << 2
+                                   | (parseInt(getId(p + "SpdIv").value, 10) & 1) << 1
+                                   | (parseInt(getId(p + "SpcIv").value, 10) & 1);
     }
     // update the /??? for the HP and reset percentage to 100%
     var poke = new Sulcalc.Pokemon();
-    poke.level = document.getElementById(p + "Level").value;
+    poke.level = getId(p + "Level").value;
     if (poke.level.match(/[^0-9]/g) !== null) {
         poke.level = 100;
     } else {
         poke.level = Math.max(1, Math.min(100, parseInt(poke.level, 10)));
     }
-    document.getElementById(p + "Level").value = poke.level;
+    getId(p + "Level").value = poke.level;
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
     for (var i = 0; i < 6; i++) {
@@ -1223,11 +1247,11 @@ function updateStats (p) {
     setEvs(p, poke.evs);
     setIvs(p, poke.ivs);
     poke.boosts = getBoosts(p);
-    poke.nature = parseInt(document.getElementById(p + "Nature").value, 10);
-    poke.id = document.getElementById(p + "Poke").value;
+    poke.nature = parseInt(getId(p + "Nature").value, 10);
+    poke.id = getId(p + "Poke").value;
     setText(p + "TotalHP", poke.id === "0:0" ? "???" : poke.stat(Sulcalc.Stats.HP));
-    document.getElementById(p + "HP").value = poke.id === "0:0" ? "" : poke.stat(Sulcalc.Stats.HP);
-    document.getElementById(p + "HPp").value = poke.id === "0:0" ? "" : "100";
+    getId(p + "HP").value = poke.id === "0:0" ? "" : poke.stat(Sulcalc.Stats.HP);
+    getId(p + "HPp").value = poke.id === "0:0" ? "" : "100";
     var strs = [["Hp", 0], ["Atk", 1], ["Def", 2], ["Satk", 3], ["Spc", 3], ["Sdef", 4], ["Spd", 5]];
     if (poke.id === "0:0") {
         setText(p + "HpStat", "");
@@ -1242,7 +1266,7 @@ function updateStats (p) {
             if (gen > 2) {
                 setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
             } else {
-               setText(p + strs[i][0] + "Stat", Math.min(999, poke.boostedStat(strs[i][1])));
+                setText(p + strs[i][0] + "Stat", Math.min(999, poke.boostedStat(strs[i][1])));
             }
         }
     }
@@ -1256,13 +1280,13 @@ function updateHiddenPowerType() {
     } else {
         t = Sulcalc.hiddenPowerT2(ivs);
     }
-    setSelectByValue(document.getElementById("hiddenPowerType"), t + "");
+    setSelectByValue("hiddenPowerType", t + "");
     updatePossibleHiddenPowers();
 }
 
 function updatePossibleHiddenPowers() {
     var p = [];
-    var hpType = document.getElementById("hiddenPowerType").value;
+    var hpType = getId("hiddenPowerType").value;
     if (gen > 2) {
         p = db.hiddenPowers(hpType);
     } else {
@@ -1289,7 +1313,7 @@ function updatePossibleHiddenPowers() {
 function getBeatUpStats() {
     var s = [];
     for (var i = 0; i < 6; i++) {
-        var temp = document.getElementById("beatUpStat" + i).value;
+        var temp = getId("beatUpStat" + i).value;
         s[i] = (temp === "") ? null : parseInt(temp, 10);
     }
     return s;
@@ -1298,7 +1322,7 @@ function getBeatUpStats() {
 function getBeatUpLevels() {
     var l = [];
     for (var i = 0; i < 6; i++) {
-        var temp = document.getElementById("beatUpLevel" + i).value;
+        var temp = getId("beatUpLevel" + i).value;
         l[i] = (temp === "") ? null : parseInt(temp, 10);
     }
     return l;
@@ -1306,48 +1330,49 @@ function getBeatUpLevels() {
 
 function resetBeatUp() {
     for (var i = 0; i < 6; i++) {
-        document.getElementById("beatUpLevel" + i).value = ""
-        document.getElementById("beatUpStat" + i).value = ""
+        getId("beatUpLevel" + i).value = ""
+        getId("beatUpStat" + i).value = ""
     }
 }
 
 function toggleOptions() {
-    setText(this, getText(this) === "More Options" ? "Less Options" : "More Options");
+    var moreOptionsOn = getTextE(this) === "More Options";
+    setTextE(this, moreOptionsOn ? "Less Options" : "More Options");
     var toggleElements = document.getElementsByClassName("morePokeOptions");
     for (var i = 0; i < toggleElements.length; i++) {
-        toggleElements[i].style.display = getText(this) === "More Options" ? "none" : "";
+        toggleElements[i].style.display = moreOptionsOn ? "" : "none";
     }
 }
 
 function swapPokemon() {
     var swapIdx = ["Poke", "Nature", "Item", "Status", "Type1", "Type2", "TypeAdded"];
     for (var i = 0; i < swapIdx.length; i++) {
-        var a = document.getElementById("attacker" + swapIdx[i]);
-        var d = document.getElementById("defender" + swapIdx[i]);
+        var a = getId("attacker" + swapIdx[i]);
+        var d = getId("defender" + swapIdx[i]);
         var tempIdx = a.selectedIndex;
         a.selectedIndex = d.selectedIndex;
         d.selectedIndex = tempIdx;
     }
-    changeSprite("attackerSprite", document.getElementById("attackerPoke").value);
-    changeSprite("defenderSprite", document.getElementById("defenderPoke").value);
-    var a = document.getElementById("attackerAbility");
-    var d = document.getElementById("defenderAbility");
+    changeSprite("attackerSprite", getId("attackerPoke").value);
+    changeSprite("defenderSprite", getId("defenderPoke").value);
+    var a = getId("attackerAbility");
+    var d = getId("defenderAbility");
     var tempIdx = a.selectedIndex;
     var tempHtml = a.innerHTML;
-    a.innerHTML = d.innerHTML;
+    replaceHtmlE(a, d.innerHTML);
     a.selectedIndex = d.selectedIndex;
-    d.innerHTML = tempHtml;
+    replaceHtmlE(d, tempHtml);
     d.selectedIndex = tempIdx;
     var swapStats = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < swapStats.length; i++) {
-        var a = [document.getElementById("attacker" + swapStats[i] + "Ev"),
-                 document.getElementById("attacker" + swapStats[i] + "Iv"),
-                 document.getElementById("attacker" + swapStats[i] + "Boost"),
-                 document.getElementById("attacker" + swapStats[i] + "Stat")];
-        var d = [document.getElementById("defender" + swapStats[i] + "Ev"),
-                 document.getElementById("defender" + swapStats[i] + "Iv"),
-                 document.getElementById("defender" + swapStats[i] + "Boost"),
-                 document.getElementById("defender" + swapStats[i] + "Stat")];
+        var a = [ getId("attacker" + swapStats[i] + "Ev"),
+                  getId("attacker" + swapStats[i] + "Iv"),
+                  getId("attacker" + swapStats[i] + "Boost"),
+                  getId("attacker" + swapStats[i] + "Stat") ];
+        var d = [ getId("defender" + swapStats[i] + "Ev"),
+                  getId("defender" + swapStats[i] + "Iv"),
+                  getId("defender" + swapStats[i] + "Boost"),
+                  getId("defender" + swapStats[i] + "Stat") ];
         var temp = a[0].value;
         a[0].value = d[0].value;
         d[0].value = temp;
@@ -1357,47 +1382,47 @@ function swapPokemon() {
         temp = a[2].selectedIndex;
         a[2].selectedIndex = d[2].selectedIndex;
         d[2].selectedIndex = temp;
-        temp = getText(a[3]);
-        setText(a[3], getText(d[3]));
-        setText(d[3], temp);
+        temp = getTextE(a[3]);
+        setTextE(a[3], getTextE(d[3]));
+        setTextE(d[3], temp);
     }
     var swapCheckboxes = ["Grounded", "Tailwind", "Unburden", "Autotomize", "FlowerGift"];
     for (var i = 0; i < swapCheckboxes.length; i++) {
-        var a = document.getElementById("attacker" + swapCheckboxes[i]);
-        var d = document.getElementById("defender" + swapCheckboxes[i]);
+        var a = getId("attacker" + swapCheckboxes[i]);
+        var d = getId("defender" + swapCheckboxes[i]);
         var tempBool = a.checked;
         a.checked = d.checked;
         d.checked = tempBool;
     }
     var swapVals = ["HP", "HPp"];
     for (var i = 0; i < swapVals.length; i++) {
-        var a = document.getElementById("attacker" + swapVals[i]);
-        var d = document.getElementById("defender" + swapVals[i]);
+        var a = getId("attacker" + swapVals[i]);
+        var d = getId("defender" + swapVals[i]);
         var tempVal = a.value;
         a.value = d.value;
         d.value = tempVal;
     }
     var swapText = ["TotalHP"];
     for (var i = 0; i < swapText.length; i++) {
-        var a = "attacker" + swapText[i];
-        var d = "defender" + swapText[i];
-        var tempText = getText(a);
-        setText(a, getText(d));
-        setText(d, tempText);
+        var a = getId("attacker" + swapText[i]),
+            d = getId("defender" + swapText[i]);
+        var tempText = getTextE(a);
+        setTextE(a, getTextE(d));
+        setTextE(d, tempText);
     }
     updateHiddenPowerType();
 }
 
 function updateAttackerItemOptions() {
-    var a = document.getElementById("battleOptions").getElementsByTagName("div");
-    var item = db.items(document.getElementById("attackerItem").value);
+    var a = getId("battleOptions").getElementsByTagName("div");
+    var item = db.items(getId("attackerItem").value);
     for (var i = 0; i < a.length; i++) {
         if (a[i].className && a[i].className.indexOf("I_") > -1) {
             a[i].style.display = "none";
         }
     }
     var showInput = function (id) {
-        document.getElementById(id).parentElement.style.display = "";
+        getId(id).parentElement.style.display = "";
     }
     if (item === "Metronome") {
         showInput("metronome");
@@ -1406,15 +1431,15 @@ function updateAttackerItemOptions() {
 
 function updateMoveOptions() {
     var a = document.getElementsByTagName("div");
-    var move = db.moves(document.getElementById("move").value);
-    var moveId = document.getElementById("move").value;
+    var move = db.moves(getId("move").value);
+    var moveId = getId("move").value;
     for (var i = 0; i < a.length; i++) {
         if (a[i].className && a[i].className.indexOf("M_") > -1) {
             a[i].style.display = "none";
         }
     }
     var showInput = function (id) {
-        document.getElementById(id).parentElement.style.display = "";
+        getId(id).parentElement.style.display = "";
     }
     if (move === "Fury Cutter") {
         showInput("furyCutter");
@@ -1442,12 +1467,12 @@ function updateMoveOptions() {
     } else if (move === "Beat Up") {
         resetBeatUp();
         showInput("beatUpStat0");
-        document.getElementById("beatUpStatLabel").style.width = document.getElementById("beatUpStat0").offsetWidth + "px";
-        document.getElementById("beatUpLevelLabel").style.width = document.getElementById("beatUpLevel0").offsetWidth + "px";
+        getId("beatUpStatLabel").style.width = getId("beatUpStat0").offsetWidth + "px";
+        getId("beatUpLevelLabel").style.width = getId("beatUpLevel0").offsetWidth + "px";
         for (var n = 0; n < 6; n++) {
-            document.getElementById("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
+            getId("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
         }
-        document.getElementById("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
+        getId("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
     } else if (move === "Spit Up") {
         showInput("stockpile");
     } else if (move === "Pursuit") {
@@ -1471,23 +1496,23 @@ function updateMoveOptions() {
         var moveInfo = new Sulcalc.Move(),
             multiOps = "";
         moveInfo.id = moveId;
-        if (db.abilities(document.getElementById("attackerAbility").value) === "Skill Link") {
+        if (db.abilities(getId("attackerAbility").value) === "Skill Link") {
             multiOps = "<option value='" + moveInfo.maxHits() + "'>" + moveInfo.maxHits() + " hits</option>";
         } else for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
             multiOps += "<option value='" + h + "'>" + h + " hits</option>";
         }
-        var eMultiHits = document.getElementById("multiHits");
+        var eMultiHits = getId("multiHits");
         replaceHtml(eMultiHits, multiOps);
-        document.getElementById("multiHits").selectedIndex = 0;
+        eMultiHits.selectedIndex = 0;
         showInput("multiHits");
     } else if (["Fire Pledge", "Water Pledge", "Grass Pledge"].indexOf(move) > -1) {
         showInput("pledge");
     } else if (move === "Return") {
         showInput("happiness");
-        document.getElementById("happiness").value = 255;
+        getId("happiness").value = 255;
     } else if (move === "Frustration") {
         showInput("happiness");
-        document.getElementById("happiness").value = 0;
+        getId("happiness").value = 0;
     } else if (move === "Hidden Power") {
         showInput("hiddenPowerType");
         updateHiddenPowerType();
@@ -1499,14 +1524,14 @@ var weatherAbilities = ["(No Ability)", "Snow Warning", "Drizzle", "Sand Stream"
 
 function updateAttackerAbilityOptions() {
     var a = document.getElementsByTagName("div");
-    var ability = db.abilities(document.getElementById("attackerAbility").value);
+    var ability = db.abilities(getId("attackerAbility").value);
     for (var i = 0; i < a.length; i++) {
         if (a[i].className && a[i].className.indexOf("AA_") > -1) {
             a[i].style.display = "none";
         }
     }
     var showInput = function (id) {
-        document.getElementById(id).parentElement.style.display = "";
+        getId(id).parentElement.style.display = "";
     }
     if (ability === "Flash Fire") {
         showInput("flashFire");
@@ -1523,8 +1548,8 @@ function updateAttackerAbilityOptions() {
     if (["Toxic Boost", "Flare Boost", "Guts"].indexOf(attackerOldAbility) > -1) {
         setSelectByValue("attackerStatus", "0");
     }
-    if (db.minMaxHits(gen, document.getElementById("move").value) !== undefined) {
-        var oldHits = document.getElementById("multiHits").value;
+    if (db.minMaxHits(gen, getId("move").value) !== undefined) {
+        var oldHits = getId("multiHits").value;
         updateMoveOptions();
         setSelectByValue("multiHits", oldHits);
     }
@@ -1533,14 +1558,14 @@ function updateAttackerAbilityOptions() {
 
 function updateDefenderAbilityOptions() {
     var a = document.getElementsByTagName("div");
-    var ability = db.abilities(document.getElementById("defenderAbility").value);
+    var ability = db.abilities(getId("defenderAbility").value);
     for (var i = 0; i < a.length; i++) {
         if (a[i].className && a[i].className.indexOf("DA_") > -1) {
             a[i].style.display = "none";
         }
     }
     var showInput = function (id) {
-        document.getElementById(id).parentElement.style.display = "";
+        getId(id).parentElement.style.display = "";
     }
     if (weatherAbilities.indexOf(ability) > 0 || weatherAbilities.indexOf(defenderOldAbility) > 0) {
         updateWeatherOptions("defender");
@@ -1550,8 +1575,8 @@ function updateDefenderAbilityOptions() {
 
 function updateWeatherOptions (p) {
     var weatherWeights = [0, 1, 1, 1, 1, 2, 2, 3];
-    var aWeather = weatherAbilities.indexOf(db.abilities(document.getElementById("attackerAbility").value));
-    var dWeather = weatherAbilities.indexOf(db.abilities(document.getElementById("defenderAbility").value));
+    var aWeather = weatherAbilities.indexOf(db.abilities(getId("attackerAbility").value));
+    var dWeather = weatherAbilities.indexOf(db.abilities(getId("defenderAbility").value));
     if (aWeather | dWeather === 0) {
         setSelectByValue("weather",  + "");
     }
@@ -1567,12 +1592,12 @@ function updateWeatherOptions (p) {
 function updateAttackerSets() {
     var offensiveSets = "<option value='No set'>No set</option>";
     if (gen <= 2) {
-        document.getElementById("attackerSets").parentNode.style.display = "none";
+        getId("attackerSets").parentNode.style.display = "none";
         return;
     } else {
-        document.getElementById("attackerSets").parentNode.style.display = "";
+        getId("attackerSets").parentNode.style.display = "";
     }
-    var a = document.getElementById("attackerPoke").value;
+    var a = getId("attackerPoke").value;
     offensiveSets += "<option value='Physical attacker'>Physical attacker</option>";
     offensiveSets += "<option value='Special attacker'>Special attacker</option>";
     if (!(a in pokeToItem)) {
@@ -1583,28 +1608,28 @@ function updateAttackerSets() {
             offensiveSets += "<option value='Special Life Orb'>Special Life Orb</option>";
         }
     }
-    document.getElementById("attackerSets").innerHTML = offensiveSets; 
+    replaceHtml("attackerSets", offensiveSets); 
 }
 
 function updateDefenderSets() {
     var defensiveSets;
     defensiveSets = "<option value='No set'>No set</option>";
     if (gen <= 2) {
-        document.getElementById("defenderSets").parentNode.style.display = "none";
+        getId("defenderSets").parentNode.style.display = "none";
     } else {
-        document.getElementById("defenderSets").parentNode.style.display = "";
+        getId("defenderSets").parentNode.style.display = "";
     }
-    var d = document.getElementById("defenderPoke").value;
+    var d = getId("defenderPoke").value;
     defensiveSets += "<option value='Physical wall'>Physical wall</option>";
     defensiveSets += "<option value='Special wall'>Special wall</option>";
     defensiveSets += "<option value='Mixed wall'>Mixed wall</option>";
     defensiveSets += "<option value='Bulky'>Bulky</option>";
-    document.getElementById("defenderSets").innerHTML = defensiveSets;
+    replaceHtml("defenderSets", defensiveSets);
 }
 
 function changeSet (p, setName) {
     var poke = new Sulcalc.Pokemon();
-    poke.id = document.getElementById(p + "Poke").value;
+    poke.id = getId(p + "Poke").value;
     if (setName === "Choice Band") {
         setEvs(p, [0, 252, 0, 4, 0, 252]);
         setSelectByText(p + "Item", "Choice Band");
@@ -1680,55 +1705,203 @@ function natureOptions() {
     return acc;
 }
 
+
+function calculateResults() {
+    var c = new Sulcalc.Calculator();
+    c.attacker.id = getId("attackerPoke").value;
+    c.attacker.evs = getEvs("attacker");
+    c.attacker.ivs = getIvs("attacker");
+    c.attacker.boosts = getBoosts("attacker");
+    c.attacker.nature = getId("attackerNature").value;
+    c.attacker.ability.id = getId("attackerAbility").value;
+    c.attacker.item.id = getId("attackerItem").value;
+    c.attacker.status = parseInt(getId("attackerStatus").value, 10);
+    c.attacker.currentHP = parseInt(getId("attackerHP").value, 10);
+    if (isNaN(c.attacker.currentHP)) {
+        c.attacker.currentHP = c.attacker.stat(Sulcalc.Stats.HP);
+    }
+    c.attacker.level = parseInt(getId("attackerLevel").value, 10);
+    c.attacker.addedType = parseInt(getId("attackerTypeAdded").value, 10);
+    c.attacker.override = true;
+    c.attacker.overrideTypes = [parseInt(getId("attackerType1").value, 10), parseInt(getId("attackerType2").value, 10)];
+    c.attacker.grounded = getId("attackerGrounded").checked;
+    c.attacker.tailwind = getId("attackerTailwind").checked;
+    c.attacker.unburden = getId("attackerUnburden").checked;
+    c.attacker.autotomize = getId("attackerAutotomize").checked;
+    c.attacker.flowerGift = getId("attackerFlowerGift").checked;
+    c.attacker.powerTrick = getId("attackerPowerTrick").checked;
+    c.attacker.happiness = parseInt(getId("happiness").value, 10);
+
+    c.defender.id = getId("defenderPoke").value;
+    c.defender.evs = getEvs("defender");
+    c.defender.ivs = getIvs("defender");
+    c.defender.boosts = getBoosts("defender");
+    c.defender.nature = getId("defenderNature").value;
+    c.defender.ability.id = getId("defenderAbility").value;
+    c.defender.item.id = getId("defenderItem").value;
+    c.defender.status = parseInt(getId("defenderStatus").value, 10);
+    c.defender.currentHP = parseInt(getId("defenderHP").value, 10);
+    if (isNaN(c.defender.currentHP)) {
+        c.defender.currentHP = c.defender.stat(Sulcalc.Stats.HP);
+    }
+    c.defender.level = parseInt(getId("defenderLevel").value, 10);
+    c.defender.addedType = parseInt(getId("defenderTypeAdded").value, 10);
+    c.defender.override = true;
+    c.defender.overrideTypes = [parseInt(getId("defenderType1").value, 10), parseInt(getId("defenderType2").value, 10)];
+    c.defender.grounded = getId("defenderGrounded").checked;
+    c.defender.tailwind = getId("defenderTailwind").checked;
+    c.defender.unburden = getId("defenderUnburden").checked;
+    c.defender.autotomize = getId("defenderAutotomize").checked;
+    c.defender.flowerGift = getId("defenderFlowerGift").checked;
+    c.defender.powerTrick = getId("defenderPowerTrick").checked;
+
+    var g = getId("rivalryGenders").value;
+    if (g === "same") {
+        c.attacker.gender = Sulcalc.Genders.MALE;
+        c.defender.gender = Sulcalc.Genders.MALE;
+    } else {
+        c.attacker.gender = Sulcalc.Genders.MALE;
+        c.defender.gender = Sulcalc.Genders.FEMALE;
+    }
+
+    c.move.id = getId("move").value;
+
+    c.field.critical = getId("critical").checked;
+    c.field.lightScreen = getId("screens").checked;
+    if (gen >= 2) {
+        c.field.foresight = getId("foresight").checked;
+    }
+    if (gen >= 3) {
+        c.field.helpingHand = getId("helpingHand").checked;
+        c.field.charge = getId("charge").checked;
+        c.field.multiBattle = getId("multiBattle").checked;
+        c.field.waterSport = getId("waterSport").checked;
+        c.field.mudSport = getId("mudSport").checked;
+    }
+    if (gen >= 4) {
+        c.field.meFirst = getId("meFirst").checked;
+    }
+    if (gen >= 5) {
+        c.field.friendGuard = getId("friendGuard").checked;
+        c.field.magicRoom = getId("magicRoom").checked;
+        c.field.wonderRoom = getId("wonderRoom").checked;
+    }
+    if (gen >= 6) {
+        c.field.grassyTerrain = getId("grassyTerrain").checked;
+        c.field.mistyTerrain = getId("mistyTerrain").checked;
+        c.field.electricTerrain = getId("electricTerrain").checked;
+        c.field.fairyAura = getId("fairyAura").checked;
+        c.field.darkAura = getId("darkAura").checked;
+        c.field.auraBreak = getId("auraBreak").checked;
+        c.field.electrify = getId("electrify").checked;
+        c.field.ionDeluge = getId("ionDeluge").checked;
+        c.field.invertedBattle = getId("invertedBattle").checked;
+    }
+    c.field.flashFire = getId("flashFire").checked;
+    c.field.metronome = parseInt(getId("metronome").value, 10);
+    c.field.minimize = getId("minimize").checked;
+    c.field.dig = getId("dig").checked;
+    c.field.dive = getId("dive").checked;
+    c.field.targetMoved = getId("moved").checked || c.attacker.ability.name() === "Analytic";
+    c.field.attackerDamaged = getId("damaged").checked;
+    c.field.furyCutter = parseInt(getId("furyCutter").value, 10);
+    c.field.echoedVoice = parseInt(getId("echoedVoice").value, 10);
+    c.field.trumpPP = parseInt(getId("trumpCardPP").value, 10);
+    c.field.roundBoost = getId("round").checked;
+    c.field.fly = getId("fly").checked;
+    c.field.beatUpStats = [];
+    c.field.beatUpLevels = [];
+    var tempStats = getBeatUpStats();
+    var tempLevels = getBeatUpLevels();
+    for (var i = 0; i < 6; i++) {
+        if (tempStats[i] !== null && (tempLevels[i] !== null || gen > 4)) {
+            c.field.beatUpStats.push(tempStats[i]);
+            c.field.beatUpLevels.push(tempLevels[i]);
+        }
+    }
+    c.field.stockpile = getId("stockpile").value;
+    c.field.switchOut = getId("switchOut").checked;
+    c.field.present = parseInt(getId("present").value, 10);
+    c.field.magnitude = parseInt(getId("magnitude").value, 10);
+    c.field.defenseCurl = getId("defenseCurl").checked;
+    c.field.rollout = parseInt(getId("rollout").value, 10);
+    c.field.previouslyFainted = getId("previouslyFainted").checked;
+    c.field.fusionBolt = getId("fusionBolt").checked;
+    c.field.fusionFlare = getId("fusionFlare").checked;
+    c.field.multiHits = parseInt(getId("multiHits").value, 10);
+    c.field.slowStart = db.abilities(getId("attackerAbility").value) === "Slow Start";
+    c.field.plus = db.abilities(getId("attackerAbility").value) === "Minus";
+    c.field.minus = db.abilities(getId("attackerAbility").value) === "Plus";
+    c.field.pledge = getId("pledge").checked;
+    c.field.weather = parseInt(getId("weather").value, 10);
+    c.field.airLock = c.attacker.ability.name() === "Air Lock" || c.defender.ability.name() === "Air Lock";
+
+    var rpt = c.report();
+    setText("results", rpt.report);
+    /* var totalWidth = getId("hpDisplay").clientWidth;
+    var minWidth = Math.round(totalWidth * rpt.damage[0].values[0] / c.defender.stat(Sulcalc.Stats.HP));
+    minWidth = Math.min(totalWidth, minWidth);
+    var maxWidth = Math.round(totalWidth * rpt.damage[0].values[rpt.damage[0].values.length - 1] / c.defender.stat(Sulcalc.Stats.HP)) - minWidth;
+    maxWidth = Math.min(totalWidth - minWidth, maxWidth);
+    getId("minDamageBar").style.width = minWidth + "px";
+    getId("maxDamageBar").style.width = maxWidth + "px";
+    getId("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
+    var maxPercent = Math.round(rpt.damage[0].values[rpt.damage[0].values.length - 1] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10; */
+}
+
+
 window.onload = function() {
     var natOps = natureOptions();
     replaceHtml("attackerNature", natOps);
     replaceHtml("defenderNature", natOps);
     
     [1, 2, 3, 4, 5, 6].forEach(function (val, idx, array) {
-        document.getElementById("cgen" + val).onclick = function() {
+        getId("cgen" + val).onclick = function() {
             if (gen !== val) {
                 changeGen(val);
             }
         };
     });
     
-    document.getElementById("attackerItem").onchange = updateAttackerItemOptions;
-    document.getElementById("attackerAbility").onchange = updateAttackerAbilityOptions;
-    document.getElementById("defenderAbility").onchange = updateDefenderAbilityOptions;
-    document.getElementById("move").onchange = updateMoveOptions;
-    document.getElementById("attackerPoke").onchange = function() {
+    getId("attackerItem").onchange = updateAttackerItemOptions;
+    getId("attackerAbility").onchange = updateAttackerAbilityOptions;
+    getId("defenderAbility").onchange = updateDefenderAbilityOptions;
+    getId("move").onchange = updateMoveOptions;
+    getId("attackerPoke").onchange = function() {
         updatePoke("attacker");
         updateAttackerSets();
         updateAttackerAbilityOptions();
     };
-    document.getElementById("defenderPoke").onchange = function() {
+    getId("defenderPoke").onchange = function() {
         updatePoke("defender");
         updateDefenderSets();
         updateDefenderAbilityOptions();
+        if (gen === 2 && this.value !== "0:0") {
+            setSelectByText("defenderItem", "Leftovers");
+        }
     };
-    document.getElementById("attackerHP").onchange = function() {updateHpPercent("attacker");};
-    document.getElementById("attackerHPp").onchange = function() {updateHpPoints("attacker");};
-    document.getElementById("defenderHP").onchange = function() {updateHpPercent("defender");};
-    document.getElementById("defenderHPp").onchange = function() {updateHpPoints("defender");};
-    document.getElementById("attackerSets").onchange = function() {changeSet("attacker", this.value);};
-    document.getElementById("defenderSets").onchange = function() {changeSet("defender", this.value);};
-    document.getElementById("attackerNature").onchange = document.getElementById("attackerLevel").onchange = function() {updateStats("attacker");};
-    document.getElementById("defenderNature").onchange = document.getElementById("defenderLevel").onchange = function() {updateStats("defender");};
-    document.getElementById("toggleOptions").onclick = toggleOptions;
-    document.getElementById("swap").onclick = swapPokemon;
-    document.getElementById("export").onclick = function() {
+    getId("attackerHP").onchange = function() {updateHpPercent("attacker");};
+    getId("attackerHPp").onchange = function() {updateHpPoints("attacker");};
+    getId("defenderHP").onchange = function() {updateHpPercent("defender");};
+    getId("defenderHPp").onchange = function() {updateHpPoints("defender");};
+    getId("attackerSets").onchange = function() {changeSet("attacker", this.value);};
+    getId("defenderSets").onchange = function() {changeSet("defender", this.value);};
+    getId("attackerNature").onchange = getId("attackerLevel").onchange = function() {updateStats("attacker");};
+    getId("defenderNature").onchange = getId("defenderLevel").onchange = function() {updateStats("defender");};
+    getId("toggleOptions").onclick = toggleOptions;
+    getId("swap").onclick = swapPokemon;
+    getId("export").onclick = function() {
         var href = document.location.href;
         if (href.indexOf("?") > -1) {
             href = href.substr(0, href.indexOf("?"));
         }
-        document.getElementById("exportText").value = href + "?" + calcToQueryString();
+        getId("exportText").value = href + "?" + calcToQueryString();
     };
     
-    document.getElementById("happiness").onchange = function() {
+    getId("happiness").onchange = function() {
         // "216":"Return"
         if (this.value.match(/[^0-9]/g) !== null) {
-            this.value = document.getElementById("move").value === "216" ? 255 : 0;
+            this.value = getId("move").value === "216" ? 255 : 0;
         } else {
             this.value = Math.max(0, Math.min(255, parseInt(this.value)));
         }
@@ -1737,18 +1910,18 @@ window.onload = function() {
     ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"].forEach(function (val, idx, arr) {
         ["Ev", "Iv", "Boost"].forEach(function (val2, idx2, arr2) {
             if (val2 === "Iv") {
-                document.getElementById("attacker" + val + "Iv").onchange = function() {
+                getId("attacker" + val + "Iv").onchange = function() {
                     updateStats("attacker");
                     updateHiddenPowerType();
                 };
-                document.getElementById("defender" + val + "Iv").onchange = function() {
+                getId("defender" + val + "Iv").onchange = function() {
                     updateStats("defender");
                 };
             } else if (val !== "Hp" || val2 !== "Boost") {
-                document.getElementById("attacker" + val + val2).onchange = function() {
+                getId("attacker" + val + val2).onchange = function() {
                     updateStats("attacker");
                 };
-                document.getElementById("defender" + val + val2).onchange = function() {
+                getId("defender" + val + val2).onchange = function() {
                     updateStats("defender");
                 };
             }
@@ -1756,18 +1929,18 @@ window.onload = function() {
     });
     
     [5, 50, 100].forEach(function (val, idx, arr) {
-        document.getElementById("attackerLevel" + val).onclick = function() {
-            document.getElementById("attackerLevel").value = val;
+        getId("attackerLevel" + val).onclick = function() {
+            getId("attackerLevel").value = val;
             updateStats("attacker");
         };
-        document.getElementById("defenderLevel" + val).onclick = function() {
-            document.getElementById("defenderLevel").value = val;
+        getId("defenderLevel" + val).onclick = function() {
+            getId("defenderLevel").value = val;
             updateStats("defender");
         };
     });
     
     for (var i = 0; i < 6; i++) {
-        document.getElementById("beatUpLevel" + i).onchange = (function (n) {
+        getId("beatUpLevel" + i).onchange = (function (n) {
             return (function() {
                 if (this.value.match(/[^0-9]/g) !== null) {
                     this.value = "";
@@ -1777,7 +1950,7 @@ window.onload = function() {
                 }
             });
         }(i));
-        document.getElementById("beatUpStat" + i).onchange = (function (n) {
+        getId("beatUpStat" + i).onchange = (function (n) {
             return (function() {
                 if (this.value.match(/[^0-9]/g) !== null) {
                     this.value = "";
@@ -1789,7 +1962,7 @@ window.onload = function() {
         }(i));
     }
     
-    document.getElementById("hiddenPowerType").onchange = function() {
+    getId("hiddenPowerType").onchange = function() {
         updatePossibleHiddenPowers();
         if (gen > 2) {
             setIvs("attacker", db.hiddenPowers(this.value)[hiddenPowerIvs.value]);
@@ -1799,8 +1972,8 @@ window.onload = function() {
         updateStats("attacker");
     };
     
-    document.getElementById("hiddenPowerIvs").onchange = function() {
-        var hiddenPowerType = document.getElementById("hiddenPowerType");
+    getId("hiddenPowerIvs").onchange = function() {
+        var hiddenPowerType = getId("hiddenPowerType");
         if (gen > 2) {
             setIvs("attacker", db.hiddenPowers(hiddenPowerType.value)[parseInt(this.value, 10)]);
         } else {
@@ -1814,156 +1987,12 @@ window.onload = function() {
         toggleElements[i].style.display = "none";
     }
     
-    document.getElementById("calc").onclick = function() {
-        var c = new Sulcalc.Calculator();
-        c.attacker.id = document.getElementById("attackerPoke").value;
-        c.attacker.evs = getEvs("attacker");
-        c.attacker.ivs = getIvs("attacker");
-        c.attacker.boosts = getBoosts("attacker");
-        c.attacker.nature = document.getElementById("attackerNature").value;
-        c.attacker.ability.id = document.getElementById("attackerAbility").value;
-        c.attacker.item.id = document.getElementById("attackerItem").value;
-        c.attacker.status = parseInt(document.getElementById("attackerStatus").value, 10);
-        c.attacker.currentHP = parseInt(document.getElementById("attackerHP").value, 10);
-        if (isNaN(c.attacker.currentHP)) {
-            c.attacker.currentHP = c.attacker.stat(Sulcalc.Stats.HP);
-        }
-        c.attacker.level = parseInt(document.getElementById("attackerLevel").value, 10);
-        c.attacker.addedType = parseInt(document.getElementById("attackerTypeAdded").value, 10);
-        c.attacker.override = true;
-        c.attacker.overrideTypes = [parseInt(document.getElementById("attackerType1").value, 10),
-                                    parseInt(document.getElementById("attackerType2").value, 10)];
-        c.attacker.grounded = document.getElementById("attackerGrounded").checked;
-        c.attacker.tailwind = document.getElementById("attackerTailwind").checked;
-        c.attacker.unburden = document.getElementById("attackerUnburden").checked;
-        c.attacker.autotomize = document.getElementById("attackerAutotomize").checked;
-        c.attacker.flowerGift = document.getElementById("attackerFlowerGift").checked;
-        c.attacker.powerTrick = document.getElementById("attackerPowerTrick").checked;
-        c.attacker.happiness = parseInt(document.getElementById("happiness").value, 10);
-        
-        c.defender.id = document.getElementById("defenderPoke").value;
-        c.defender.evs = getEvs("defender");
-        c.defender.ivs = getIvs("defender");
-        c.defender.boosts = getBoosts("defender");
-        c.defender.nature = document.getElementById("defenderNature").value;
-        c.defender.ability.id = document.getElementById("defenderAbility").value;
-        c.defender.item.id = document.getElementById("defenderItem").value;
-        c.defender.status = parseInt(document.getElementById("defenderStatus").value, 10);
-        c.defender.currentHP = parseInt(document.getElementById("defenderHP").value, 10);
-        if (isNaN(c.defender.currentHP)) {
-            c.defender.currentHP = c.defender.stat(Sulcalc.Stats.HP);
-        }
-        c.defender.level = parseInt(document.getElementById("defenderLevel").value, 10);
-        c.defender.addedType = parseInt(document.getElementById("defenderTypeAdded").value, 10);
-        c.defender.override = true;
-        c.defender.overrideTypes = [parseInt(document.getElementById("defenderType1").value, 10),
-                                    parseInt(document.getElementById("defenderType2").value, 10)];
-        c.defender.grounded = document.getElementById("defenderGrounded").checked;
-        c.defender.tailwind = document.getElementById("defenderTailwind").checked;
-        c.defender.unburden = document.getElementById("defenderUnburden").checked;
-        c.defender.autotomize = document.getElementById("defenderAutotomize").checked;
-        c.defender.flowerGift = document.getElementById("defenderFlowerGift").checked;
-        c.defender.powerTrick = document.getElementById("defenderPowerTrick").checked;
-        
-        var g = document.getElementById("rivalryGenders").value;
-        if (g === "same") {
-            c.attacker.gender = Sulcalc.Genders.MALE;
-            c.defender.gender = Sulcalc.Genders.MALE;
-        } else {
-            c.attacker.gender = Sulcalc.Genders.MALE;
-            c.defender.gender = Sulcalc.Genders.FEMALE;
-        }
-        
-        c.move.id = document.getElementById("move").value;
-
-        c.field.critical = document.getElementById("critical").checked;
-        c.field.lightScreen = document.getElementById("screens").checked;
-        if (gen >= 2) {
-            c.field.foresight = document.getElementById("foresight").checked;
-        }
-        if (gen >= 3) {
-            c.field.helpingHand = document.getElementById("helpingHand").checked;
-            c.field.charge = document.getElementById("charge").checked;
-            c.field.multiBattle = document.getElementById("multiBattle").checked;
-            c.field.waterSport = document.getElementById("waterSport").checked;
-            c.field.mudSport = document.getElementById("mudSport").checked;
-        }
-        if (gen >= 4) {
-            c.field.meFirst = document.getElementById("meFirst").checked;
-        }
-        if (gen >= 5) {
-            c.field.friendGuard = document.getElementById("friendGuard").checked;
-            c.field.magicRoom = document.getElementById("magicRoom").checked;
-            c.field.wonderRoom = document.getElementById("wonderRoom").checked;
-        }
-        if (gen >= 6) {
-            c.field.grassyTerrain = document.getElementById("grassyTerrain").checked;
-            c.field.mistyTerrain = document.getElementById("mistyTerrain").checked;
-            c.field.electricTerrain = document.getElementById("electricTerrain").checked;
-            c.field.fairyAura = document.getElementById("fairyAura").checked;
-            c.field.darkAura = document.getElementById("darkAura").checked;
-            c.field.auraBreak = document.getElementById("auraBreak").checked;
-            c.field.electrify = document.getElementById("electrify").checked;
-            c.field.ionDeluge = document.getElementById("ionDeluge").checked;
-            c.field.invertedBattle = document.getElementById("invertedBattle").checked;
-        }
-        c.field.flashFire = document.getElementById("flashFire").checked;
-        c.field.metronome = parseInt(document.getElementById("metronome").value, 10);
-        c.field.minimize = document.getElementById("minimize").checked;
-        c.field.dig = document.getElementById("dig").checked;
-        c.field.dive = document.getElementById("dive").checked;
-        c.field.targetMoved = document.getElementById("moved").checked || c.attacker.ability.name() === "Analytic";
-        c.field.attackerDamaged = document.getElementById("damaged").checked;
-        c.field.furyCutter = parseInt(document.getElementById("furyCutter").value, 10);
-        c.field.echoedVoice = parseInt(document.getElementById("echoedVoice").value, 10);
-        c.field.trumpPP = parseInt(document.getElementById("trumpCardPP").value, 10);
-        c.field.roundBoost = document.getElementById("round").checked;
-        c.field.fly = document.getElementById("fly").checked;
-        c.field.beatUpStats = [];
-        c.field.beatUpLevels = [];
-        var tempStats = getBeatUpStats();
-        var tempLevels = getBeatUpLevels();
-        for (var i = 0; i < 6; i++) {
-            if (tempStats[i] !== null && (tempLevels[i] !== null || gen > 4)) {
-                c.field.beatUpStats.push(tempStats[i]);
-                c.field.beatUpLevels.push(tempLevels[i]);
-            }
-        }
-        c.field.stockpile = document.getElementById("stockpile").value;
-        c.field.switchOut = document.getElementById("switchOut").checked;
-        c.field.present = parseInt(document.getElementById("present").value, 10);
-        c.field.magnitude = parseInt(document.getElementById("magnitude").value, 10);
-        c.field.defenseCurl = document.getElementById("defenseCurl").checked;
-        c.field.rollout = parseInt(document.getElementById("rollout").value, 10);
-        c.field.previouslyFainted = document.getElementById("previouslyFainted").checked;
-        c.field.fusionBolt = document.getElementById("fusionBolt").checked;
-        c.field.fusionFlare = document.getElementById("fusionFlare").checked;
-        c.field.multiHits = parseInt(document.getElementById("multiHits").value, 10);
-        c.field.slowStart = db.abilities(document.getElementById("attackerAbility").value) === "Slow Start";
-        c.field.plus = db.abilities(document.getElementById("attackerAbility").value) === "Minus";
-        c.field.minus = db.abilities(document.getElementById("attackerAbility").value) === "Plus";
-        c.field.pledge = document.getElementById("pledge").checked;
-        c.field.weather = parseInt(document.getElementById("weather").value, 10);
-        c.field.airLock = c.attacker.ability.name() === "Air Lock"
-                          || c.defender.ability.name() === "Air Lock";
-        
-        var rpt = c.report();
-        setText("results", rpt.report);
-        var totalWidth = document.getElementById("hpDisplay").clientWidth;
-        var minWidth = Math.round(totalWidth * rpt.damage[0].values[0] / c.defender.stat(Sulcalc.Stats.HP));
-        minWidth = Math.min(totalWidth, minWidth);
-        var maxWidth = Math.round(totalWidth * rpt.damage[0].values[rpt.damage[0].values.length-1] / c.defender.stat(Sulcalc.Stats.HP))
-                       - minWidth;
-        maxWidth = Math.min(totalWidth-minWidth, maxWidth);
-        document.getElementById("minDamageBar").style.width = minWidth + "px";
-        document.getElementById("maxDamageBar").style.width = maxWidth + "px";
-        document.getElementById("blankBar").style.width = (totalWidth - minWidth - maxWidth) + "px";
-        var maxPercent = Math.round(rpt.damage[0].values[rpt.damage[0].values.length - 1] / c.defender.stat(Sulcalc.Stats.HP) * 1000) / 10;
-    };
+    getId("calc").onclick = calculateResults;
     
     var q = document.location.href;
     if (q.indexOf("?") > -1) {
         loadQueryString(q.substr(q.indexOf("?") + 1));
+        calculateResults();
     } else {
         changeGen(6);
     }
