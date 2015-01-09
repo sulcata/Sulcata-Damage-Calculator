@@ -57,33 +57,33 @@ input[type="text"] {
     float: left;
 }
 
-.sprite1, .sprite2, .sprite3, .sprite4, .sprite5, .sprite6 {
-    height: 142px; /* 138+4 */
-    width: 124px; /* 120+4 */
+/* .sprite1, .sprite2, .sprite3, .sprite4, .sprite5, .sprite6 {
+    height: 142px; /* 138+4 */ /*
+    width: 124px; /* 120+4 */ /*
     margin: 0 auto 0.2em auto;
     text-align: center;
     background-color: #FFF;
-    /* border: 1px solid #AAA; */
+    /* border: 1px solid #AAA; */ /*
     padding: 0.5em;
 }
 
 .sprite1, .sprite2 {
-    width: 60px; /* 56+4 */
+    width: 60px; /* 56+4 */ /*
     height: 60px;
 }
 
 .sprite3 {
-    width: 68px; /* 64+4 */
+    width: 68px; /* 64+4 */ /*
     height: 68px;
 }
 
 .sprite4 {
-    width: 84px; /* 80+4 */
+    width: 84px; /* 80+4 */ /*
     height: 84px;
 }
 
 .sprite5 {
-    width: 100px; /* 96+4 */
+    width: 100px; /* 96+4 */ /*
     height: 100px;
 }
 
@@ -97,7 +97,7 @@ input[type="text"] {
     vertical-align: middle;
     min-height: 40px;
     max-width: 120px;
-}
+} */
 
 .textLabel {
     float: left;
@@ -127,7 +127,7 @@ select, input {
     width: 8.5em;
     display: block;
     font-size: 1.1em;
-    margin: 0.4em 0 0 0.5em;
+    margin: 0.4em 0 0 0.4em;
     padding: 2px 4px;
     float: left;
     clear: both;
@@ -214,7 +214,7 @@ label {
     width: 8em;
 }
 
-#minDamageBar {
+/* #minDamageBar {
     width: 0;
     background-color: #0A0;
     height: 100%;
@@ -238,7 +238,7 @@ label {
     border: 1px solid #AAA;
     margin: 0 auto;
     clear: both;
-}
+} */
 
 #battleOptions {
     clear: both;
@@ -273,4 +273,13 @@ label {
 
 #col1>label, #col2>label, #col3>label {
     font-size: 1.1em;
+}
+
+#sourceCode {
+    margin-left: 0.4em;
+}
+
+a {
+    font-size: 1.2em;
+    color: #00F;
 }
