@@ -1502,7 +1502,6 @@ function updateMoveOptions() {
 var weatherAbilities = ["(No Ability)", "Snow Warning", "Drizzle", "Sand Stream", "Drought", "Primordial Sea", "Desolate Land", "Delta Stream"];
 
 function updateAttackerAbilityOptions() {
-    if (gen < 3) return;
     var a = document.getElementsByTagName("div");
     var ability = db.abilities(getId("attackerAbility").value);
     for (var i = 0; i < a.length; i++) {
