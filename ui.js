@@ -642,39 +642,25 @@ function changeGen (n) {
     for (var i = sprites.length-1; i >= 0; i--) {
         sprites[i].className = "sprite" + gen;
     }
-    getId("attackerPoke").selectedIndex = 0;
     changeSprite("attackerSprite", "0:0");
     getId("attackerNature").selectedIndex = 0;
-    getId("attackerAbility").selectedIndex = 0;
-    getId("attackerItem").selectedIndex = 0;
     updateAttackerItemOptions();
     getId("attackerLevel").value = 100;
     getId("attackerHP").value = "";
     getId("attackerHPp").value = "";
     setText("attackerTotalHP", "???");
-    getId("attackerStatus").selectedIndex = 0;
-    getId("attackerType1").selectedIndex = 0;
-    getId("attackerType2").selectedIndex = 0;
-    getId("attackerTypeAdded").selectedIndex = 0;
     getId("attackerGrounded").checked = false;
     getId("attackerTailwind").checked = false;
     getId("attackerUnburden").checked = false;
     getId("attackerAutotomize").checked = false;
     getId("attackerFlowerGift").checked = false;
     getId("attackerPowerTrick").checked = false;
-    getId("defenderPoke").selectedIndex = 0;
     changeSprite("defenderSprite", "0:0");
     getId("defenderNature").selectedIndex = 0;
-    getId("defenderAbility").selectedIndex = 0;
-    getId("defenderItem").selectedIndex = 0;
     getId("defenderLevel").value = 100;
     getId("defenderHP").value = "";
     getId("defenderHPp").value = "";
     setText("defenderTotalHP", "???");
-    getId("defenderStatus").selectedIndex = 0;
-    getId("defenderType1").selectedIndex = 0;
-    getId("defenderType2").selectedIndex = 0;
-    getId("defenderTypeAdded").selectedIndex = 0;
     getId("defenderGrounded").checked = false;
     getId("defenderTailwind").checked = false;
     getId("defenderUnburden").checked = false;
@@ -748,13 +734,11 @@ function changeGen (n) {
                             + makeCheckbox("darkAura", "Dark Aura")
                             + makeCheckbox("auraBreak", "Aura Break"));
     }
-    getId("metronome").selectedIndex = 0;
     getId("minimize").checked = false;
     getId("dig").checked = false;
     getId("dive").checked = false;
     getId("moved").checked = false;
     getId("damaged").checked = false;
-    getId("furyCutter").selectedIndex = 0;
     getId("echoedVoice").selectedIndex = 0;
     getId("trumpCardPP").selectedIndex = 0;
     getId("round").checked = false;
@@ -769,13 +753,7 @@ function changeGen (n) {
     getId("previouslyFainted").checked = false;
     getId("fusionBolt").checked = false;
     getId("fusionFlare").checked = false;
-    getId("multiHits").selectedIndex = 0;
-    getId("weather").selectedIndex = 0;
-    getId("move").selectedIndex = 0;
-    updateMoveOptions();
     getId("pledge").checked = false;
-    updateAttackerSets();
-    updateDefenderSets();
 
     if (gen >= 3) {
         getId("attackerSdefIv").disabled = false;
@@ -907,6 +885,8 @@ function changeGen (n) {
         replaceHtml("attackerPoke", pokemons[gen]);
         replaceHtml("defenderPoke", pokemons[gen]);
     }
+    updateAttackerSets();
+    updateDefenderSets();
 
     if (abilities[gen] === null || cacheDisabled) {
         arr = [];
@@ -960,7 +940,7 @@ function changeGen (n) {
         replaceHtml("defenderItem", items[gen]);
     }
     
-    var typeOps = "<option value='18'>---</option>";
+    var typeOps = "<option valu.e='18'>---</option>";
     for (var i = 0; i < 18; i++) {
         if ((gen === 1 && (i === 8 || i === 16))
             || (gen < 6 && i === 17)) {
@@ -996,6 +976,7 @@ function changeGen (n) {
         }
     }
     
+    updateMoveOptions();
     updateAttackerAbilityOptions();
     updateDefenderAbilityOptions();
     updateFormatting();
@@ -1414,6 +1395,7 @@ function swapPokemon() {
 }
 
 function updateAttackerItemOptions() {
+    if (gen )
     var a = getId("battleOptions").getElementsByTagName("div");
     var item = db.items(getId("attackerItem").value);
     for (var i = 0; i < a.length; i++) {
@@ -1421,11 +1403,8 @@ function updateAttackerItemOptions() {
             a[i].style.display = "none";
         }
     }
-    var showInput = function (id) {
-        getId(id).parentElement.style.display = "";
-    }
     if (item === "Metronome") {
-        showInput("metronome");
+        getId("metronome").parentElement.style.display = "";
     }
 }
 
@@ -1523,6 +1502,7 @@ function updateMoveOptions() {
 var weatherAbilities = ["(No Ability)", "Snow Warning", "Drizzle", "Sand Stream", "Drought", "Primordial Sea", "Desolate Land", "Delta Stream"];
 
 function updateAttackerAbilityOptions() {
+    if (gen < 3) return;
     var a = document.getElementsByTagName("div");
     var ability = db.abilities(getId("attackerAbility").value);
     for (var i = 0; i < a.length; i++) {
@@ -1557,6 +1537,7 @@ function updateAttackerAbilityOptions() {
 }
 
 function updateDefenderAbilityOptions() {
+    if (gen < 3) return;
     var a = document.getElementsByTagName("div");
     var ability = db.abilities(getId("defenderAbility").value);
     for (var i = 0; i < a.length; i++) {
@@ -1590,13 +1571,12 @@ function updateWeatherOptions (p) {
 }
 
 function updateAttackerSets() {
-    var offensiveSets = "<option value='No set'>No set</option>";
-    if (gen <= 2) {
+    if (gen < 3) {
         getId("attackerSets").parentNode.style.display = "none";
         return;
-    } else {
-        getId("attackerSets").parentNode.style.display = "";
     }
+    getId("attackerSets").parentNode.style.display = "";
+    var offensiveSets = "<option value='No set'>No set</option>";
     var a = getId("attackerPoke").value;
     offensiveSets += "<option value='Physical attacker'>Physical attacker</option>";
     offensiveSets += "<option value='Special attacker'>Special attacker</option>";
@@ -1612,22 +1592,22 @@ function updateAttackerSets() {
 }
 
 function updateDefenderSets() {
-    var defensiveSets;
-    defensiveSets = "<option value='No set'>No set</option>";
-    if (gen <= 2) {
+    if (gen < 3) {
         getId("defenderSets").parentNode.style.display = "none";
-    } else {
-        getId("defenderSets").parentNode.style.display = "";
+        return;
     }
-    var d = getId("defenderPoke").value;
-    defensiveSets += "<option value='Physical wall'>Physical wall</option>";
-    defensiveSets += "<option value='Special wall'>Special wall</option>";
-    defensiveSets += "<option value='Mixed wall'>Mixed wall</option>";
-    defensiveSets += "<option value='Bulky'>Bulky</option>";
+    var defensiveSets = "<option value='No set'>No set</option>"
+                      + "<option value='Physical wall'>Physical wall</option>"
+                      + "<option value='Special wall'>Special wall</option>"
+                      + "<option value='Mixed wall'>Mixed wall</option>"
+                      + "<option value='Bulky'>Bulky</option>";
     replaceHtml("defenderSets", defensiveSets);
 }
 
 function changeSet (p, setName) {
+    if (gen < 3) {
+        return;
+    }
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
     if (setName === "Choice Band") {

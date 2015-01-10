@@ -1885,7 +1885,7 @@ function Calculator() {
         } else if (["Low Kick", "Grass Knot"].indexOf(moveName) > -1) {
             movePower = this.grassKnot(defenderWeight);
         } else if (moveName === "Echoed Voice") {
-            movePower = Math.min(200, 40 + 40 * field.echoedVoice);
+            movePower = Math.min(200, 40 + 40 * this.field.echoedVoice);
         } else if (moveName === "Hex" && this.defender.status !== Statuses.NOSTATUS) {
             movePower *= 2;
         } else if (["Wring Out", "Crush Grip"].indexOf(moveName) > -1) {
@@ -3030,7 +3030,7 @@ function Calculator() {
         } else if (moveName === "Brine" && this.defender.currentHP * 2 <= this.defender.stat(Stats.HP)) {
             movePower *= 2;
         } else if (moveName === "Echoed Voice") {
-            movePower = Math.min(200, 40 + 40 * field.echoedVoice);
+            movePower = Math.min(200, 40 + 40 * this.field.echoedVoice);
         } else if (moveName === "Facade" && this.attacker.status !== Statuses.NOSTATUS) {
             movePower *= 2;
         } else if (moveName === "Trump Card") {
@@ -3495,7 +3495,7 @@ function Calculator() {
         } else if (moveName === "Low Kick" || moveName === "Grass Knot") { // very effective on zorodark
             movePower = this.grassKnot(defenderWeight);
         } else if (moveName === "Echoed Voice") {
-            movePower = Math.min(200, 40 + 40 * field.echoedVoice);
+            movePower = Math.min(200, 40 + 40 * this.field.echoedVoice);
         } else if (moveName === "Hex" && this.defender.status !== Statuses.NOSTATUS) {
             movePower *= 2;
         } else if (moveName === "Wring Out" || moveName === "Crush Grip") {
