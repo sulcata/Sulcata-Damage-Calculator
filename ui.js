@@ -940,7 +940,7 @@ function changeGen (n) {
         replaceHtml("defenderItem", items[gen]);
     }
     
-    var typeOps = "<option valu.e='18'>---</option>";
+    var typeOps = "<option value='18'>---</option>";
     for (var i = 0; i < 18; i++) {
         if ((gen === 1 && (i === 8 || i === 16))
             || (gen < 6 && i === 17)) {

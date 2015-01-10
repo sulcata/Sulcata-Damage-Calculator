@@ -369,7 +369,7 @@ function Database() {
         if (typeof attackingType === "undefined" || typeof defendingType === "undefined") {
             return this._typesTable[gen2table[generation]];
         }
-        return this._typesTable[gen2table[generation]][attackingType][defendingType];
+        return this._typesTable[gen2table[generation]][attackingType+""][defendingType];
     }
     
     this._minMaxHits = [];
@@ -522,7 +522,8 @@ function Database() {
         "13": [[11, 15, 12, 15, 15, 15]],
         "14": [[15, 15, 13, 15, 15, 15]],
         "15": [[11, 15, 14, 15, 15, 15]],
-        "16": [[15, 15, 15, 15, 15, 15]]};
+        "16": [[15, 15, 15, 15, 15, 15]]
+    };
     this.hiddenPowersGen2 = function (typeId) {
         if (typeof typeId === "undefined") {
             return this._hiddenPowersGen2;
