@@ -1595,6 +1595,7 @@ function updateDefenderSets() {
         getId("defenderSets").parentNode.style.display = "none";
         return;
     }
+    getId("defenderSets").parentNode.style.display = "";
     var defensiveSets = "<option value='No set'>No set</option>"
                       + "<option value='Physical wall'>Physical wall</option>"
                       + "<option value='Special wall'>Special wall</option>"
