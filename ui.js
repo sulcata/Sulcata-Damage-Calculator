@@ -12,7 +12,7 @@ var pokemons = [null, null, null, null, null, null, null];
 var abilities = [null, null, null, null, null, null, null];
 var items = [null, null, null, null, null, null, null];
 var moves = [null, null, null, null, null, null, null];
-var cacheDisabled = false;
+var cacheDisabled = true; // cache probably just uses up excess memory now with how fast the initial switches are
 
 // to get the old values
 var attackerOldAbility = "(No Ability)";
@@ -251,10 +251,11 @@ function pokeToBinary (p) {
 
 function calcToQueryString() {
     var q = "";
+    var moveId = getId("move").value;
     q += convertToBaseN(gen, 2, 4);
     q += pokeToBinary("attacker");
     q += pokeToBinary("defender");
-    q += convertToBaseN(getId("move").value, 2, 10);
+    q += convertToBaseN(moveId, 2, 10);
     q += getId("critical").checked ? 1 : 0;
     q += getId("flashFire").checked ? 1 : 0;
     q += getId("screens").checked ? 1 : 0;
@@ -290,6 +291,9 @@ function calcToQueryString() {
         q += convertToBaseN(parseInt(getId("weather").value, 10), 2, 3);
     } else if (gen >= 6) {
         q += convertToBaseN(parseInt(getId("weather").value, 10), 2, 4);
+    }
+    if (db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && db.moves(moveId) !== "Beat Up") {
+        q += convertToBaseN(parseInt(getId("minMaxHits").value, 10), 2, 3);
     }
     while (q.length % 6 !== 0) {
         q += "0";
@@ -390,7 +394,7 @@ function loadQueryString(q) {
      */
     q = base64ToBinary(q);
     var ptr = 0;
-    changeGen(convertFromBaseN(q.substr(ptr, 4), 2));
+    changeGen(convertFromBaseN(q.substr(ptr, 4), 2), true);
     ptr += 4;
     var size = [0, 109, 127, 161, 166, 169, 174];
     binaryToPoke("attacker", q.substr(ptr, size[gen]));
@@ -398,7 +402,8 @@ function loadQueryString(q) {
     binaryToPoke("defender", q.substr(ptr, size[gen]));
     ptr += size[gen];
     
-    setSelectByValue("move", convertFromBaseN(q.substr(ptr, 10), 2) + "");
+    var moveId = convertFromBaseN(q.substr(ptr, 10), 2) + "";
+    setSelectByValue("move", moveId);
     ptr += 10;
     getId("critical").checked = q[ptr++] === "1";
     getId("flashFire").checked = q[ptr++] === "1";
@@ -429,19 +434,27 @@ function loadQueryString(q) {
         getId("electrify").checked = q[ptr++] === "1";
         getId("ionDeluge").checked = q[ptr++] === "1";
     }
-    if (gen === 2 && q.substr(ptr).length >= 2) {
+    if (gen === 2 && q.length - ptr >= 2) {
         setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 2), 2) + "");
         ptr += 2;
-    } else if (gen > 2 && gen < 6 && q.substr(ptr).length >= 3) {
+    } else if (gen > 2 && gen < 6 && q.length - ptr >= 3) {
         setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 3), 2) + "");
         ptr += 3;
-    } else if (gen >= 6 && q.substr(ptr).length >= 4) {
+    } else if (gen >= 6 && q.length - ptr >= 4) {
         setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 4), 2) + "");
         ptr += 4;
     }
+    if (q.length - ptr >= 3 && db.minMaxHits(moveId) && db.minMaxHits(moveId) > 1 && db.moves(moveId) !== "Beat Up") {
+        setSelectByValue("minMaxHits", convertFromBaseN(q.substr(ptr, 3), 2) + "");
+        ptr += 3;
+    }
+    updateMoveOptions();
+    updateAttackerItemOptions();
+    updateAttackerAbilityOptions();
+    updateDefenderAbilityOptions();
 }
 
-function changeSprite(img, id) {
+function changeSprite (img, id) {
     /*var gens = [null, "RBY/", "GSC/", "ADV/", "HGSS/", "B2W2/", "ORAS/"];
     var imgurl = "sprites/" + gens[gen] + pokeSpecies(id);
     if (pokeForm(id) !== "0") {
@@ -545,7 +558,7 @@ function setPoke(e, p) {
     if ((typeof e === "string") || (e instanceof String)) {
         e = getId(e);
     }
-    for (var i = 0; i < e.options.length; i++) {
+    for (var i = e.options.length - 1; i >= 0; i--) {
         if (e.options[i].value.substr(0, p.length) === p) {
             e.selectedIndex = i;
             return true;
@@ -558,7 +571,7 @@ function setSelectByValue(e, value) {
     if ((typeof e === "string") || (e instanceof String)) {
         e = getId(e);
     }
-    for (var i = 0; i < e.options.length; i++) {
+    for (var i = e.options.length - 1; i >= 0; i--) {
         if (e.options[i].value === value) {
             e.selectedIndex = i;
             return true;
@@ -571,7 +584,7 @@ function setSelectByText(e, text) {
     if ((typeof e === "string") || (e instanceof String)) {
         e = getId(e);
     }
-    for (var i = 0; i < e.options.length; i++) {
+    for (var i = e.options.length - 1; i >= 0; i--) {
         if (e.options[i].text === text) {
             e.selectedIndex = i;
             return true;
@@ -585,7 +598,7 @@ function updateFormatting() {
     // make sure everything is displaying
     var toggleElements = document.getElementsByClassName("morePokeOptions"),
         originalDisplay = [];
-    for (var i = 0; i < toggleElements.length; i++) {
+    for (var i = toggleElements.length - 1; i >= 0; i--) {
         originalDisplay[i] = toggleElements[i].style.display;
         toggleElements[i].style.display = "";
     }
@@ -598,17 +611,17 @@ function updateFormatting() {
     }
     
     var levelButtons = document.getElementsByClassName("levelButton");
-    for (var i = 0; i < levelButtons.length; i++) {
+    for (var i = levelButtons.length - 1; i >= 0; i--) {
         levelButtons[i].style.lineHeight = (levelButtons[i].parentNode.clientHeight - 6) + "px";
     }
     
     var statNames = document.getElementsByClassName("textLabel");
-    for (var i = 0; i < statNames.length; i++) {
+    for (var i = statNames.length - 1; i >= 0; i--) {
         statNames[i].style.lineHeight = statNames[i].parentNode.offsetHeight + "px";
     }
     
     var h = document.getElementsByClassName("textLabel");
-    for (var i = 0; i < h.length; i++) {
+    for (var i = h.length - 1; i >= 0; i--) {
         h[i].style.lineHeight = h[i].parentNode.offsetHeight + "px";
     }
     
@@ -628,23 +641,24 @@ function updateFormatting() {
     getId("blankBar").style.width = "0"; */
     getId("calc").style.width = w + "px";
     // possibly rehide
-    for (var i = 0; i < toggleElements.length; i++) {
+    for (var i = toggleElements.length - 1; i >= 0; i--) {
         toggleElements[i].style.display = originalDisplay[i];
     }
 }
 
-function changeGen (n) {
+function changeGen (n, light) {
+    light = !!light;
     var oldgen = gen;
     gen = n;
     // reset form first
     setText("results", "");
     var sprites = document.getElementsByClassName("sprite" + oldgen);
-    for (var i = sprites.length-1; i >= 0; i--) {
+    for (var i = sprites.length - 1; i >= 0; i--) {
         sprites[i].className = "sprite" + gen;
     }
     changeSprite("attackerSprite", "0:0");
     getId("attackerNature").selectedIndex = 0;
-    updateAttackerItemOptions();
+    if (!light) updateAttackerItemOptions();
     getId("attackerLevel").value = 100;
     getId("attackerHP").value = "";
     getId("attackerHPp").value = "";
@@ -949,7 +963,7 @@ function changeGen (n) {
         typeOps += "<option value='" + i + "'>" + db.types(i) + "</option>";
     }
     typeLists = document.getElementsByClassName("typeList");
-    for (var i = 0; i < typeLists.length; i++) {
+    for (var i = typeLists.length - 1; i >= 0; i--) {
         replaceHtmlE(typeLists[i], typeOps);
     }
     
@@ -964,7 +978,7 @@ function changeGen (n) {
     
     
     var g = document.getElementsByTagName("*");
-    for (var i = 0; i < g.length; i++) {
+    for (var i = g.length - 1; i >= 0; i--) {
         if (g[i].className) {
             if (g[i].className.indexOf("G_") > -1) {
                 if (g[i].className.substring(g[i].className.indexOf("G_") + 2).indexOf(gen + "") > -1) {
@@ -976,51 +990,19 @@ function changeGen (n) {
         }
     }
     
-    updateMoveOptions();
-    updateAttackerAbilityOptions();
-    updateDefenderAbilityOptions();
+    if (!light) {
+        updateMoveOptions();
+        updateAttackerAbilityOptions();
+        updateDefenderAbilityOptions();
+    }
     updateFormatting();
 }
 
-function sortOptions(id) {
-    var e = getId(id).options;
-    var a = [];
-    var str = "";
-    for (var i = 0; i < e.length; i++) {
-        a[i] = [e[i].text, e[i].value];
-    }
-    a = a.sort(function (n, m) {
-       return n < m ? -1 : 1; 
-    });
-    for (var i = 0; i < a.length; i++) {
-        str += "<option value='" + a[i][1] + "'>" + a[i][0]
-    }
-    return str;
-}
-
-function sortSelect (selElem) {
-        var tmpAry = new Array();
-        for (var i=0;i<selElem.options.length;i++) {
-            tmpAry[i] = new Array();
-            tmpAry[i][0] = selElem.options[i].text;
-            tmpAry[i][1] = selElem.options[i].value;
-        }
-        tmpAry.sort();
-        while (selElem.options.length > 0) {
-            selElem.options[0] = null;
-        }
-        for (var i=0;i<tmpAry.length;i++) {
-            var op = new Option(tmpAry[i][0], tmpAry[i][1]);
-            selElem.options[i] = op;
-        }
-        return;
-    }
-
 function pokeForm (id) {
     if (id.indexOf(":") !== id.lastIndexOf(":")) {
-        return id.substring(id.indexOf(":")+1, id.lastIndexOf(":"));
+        return id.substring(id.indexOf(":") + 1, id.lastIndexOf(":"));
     }
-    return id.substring(id.indexOf(":")+1);
+    return id.substring(id.indexOf(":") + 1);
 }
 
 function pokeSpecies (id) {
@@ -1028,7 +1010,7 @@ function pokeSpecies (id) {
 }
 
 function options (j) {
-    var str="";
+    var str = "";
     for (var a in j) {
         str += "<option value='" + a + "'>" + j[a] + "</option>";
     }
@@ -1320,7 +1302,7 @@ function toggleOptions() {
     var moreOptionsOn = getTextE(this) === "More Options";
     setTextE(this, moreOptionsOn ? "Less Options" : "More Options");
     var toggleElements = document.getElementsByClassName("morePokeOptions");
-    for (var i = 0; i < toggleElements.length; i++) {
+    for (var i = toggleElements.length - 1; i >= 0; i--) {
         toggleElements[i].style.display = moreOptionsOn ? "" : "none";
     }
 }
@@ -1395,14 +1377,14 @@ function swapPokemon() {
 }
 
 function updateAttackerItemOptions() {
-    if (gen )
     var a = getId("battleOptions").getElementsByTagName("div");
     var item = db.items(getId("attackerItem").value);
-    for (var i = 0; i < a.length; i++) {
+    for (var i = a.length - 1; i >= 0; i--) {
         if (a[i].className && a[i].className.indexOf("I_") > -1) {
             a[i].style.display = "none";
         }
     }
+    if (gen < 3) return;
     if (item === "Metronome") {
         getId("metronome").parentElement.style.display = "";
     }
@@ -1412,7 +1394,7 @@ function updateMoveOptions() {
     var a = document.getElementsByTagName("div");
     var move = db.moves(getId("move").value);
     var moveId = getId("move").value;
-    for (var i = 0; i < a.length; i++) {
+    for (var i = a.length - 1; i >= 0; i--) {
         if (a[i].className && a[i].className.indexOf("M_") > -1) {
             a[i].style.display = "none";
         }
@@ -1481,7 +1463,7 @@ function updateMoveOptions() {
             multiOps += "<option value='" + h + "'>" + h + " hits</option>";
         }
         var eMultiHits = getId("multiHits");
-        replaceHtml(eMultiHits, multiOps);
+        replaceHtmlE(eMultiHits, multiOps);
         eMultiHits.selectedIndex = 0;
         showInput("multiHits");
     } else if (["Fire Pledge", "Water Pledge", "Grass Pledge"].indexOf(move) > -1) {
@@ -1504,11 +1486,12 @@ var weatherAbilities = ["(No Ability)", "Snow Warning", "Drizzle", "Sand Stream"
 function updateAttackerAbilityOptions() {
     var a = document.getElementsByTagName("div");
     var ability = db.abilities(getId("attackerAbility").value);
-    for (var i = 0; i < a.length; i++) {
+    for (var i = a.length - 1; i >= 0; i--) {
         if (a[i].className && a[i].className.indexOf("AA_") > -1) {
             a[i].style.display = "none";
         }
     }
+    if (gen < 3) return;
     var showInput = function (id) {
         getId(id).parentElement.style.display = "";
     }
@@ -1539,7 +1522,7 @@ function updateDefenderAbilityOptions() {
     if (gen < 3) return;
     var a = document.getElementsByTagName("div");
     var ability = db.abilities(getId("defenderAbility").value);
-    for (var i = 0; i < a.length; i++) {
+    for (var i = a.length - 1; i >= 0; i--) {
         if (a[i].className && a[i].className.indexOf("DA_") > -1) {
             a[i].style.display = "none";
         }
@@ -1856,7 +1839,7 @@ window.onload = function() {
         updatePoke("defender");
         updateDefenderSets();
         updateDefenderAbilityOptions();
-        if (gen === 2 && this.value !== "0:0") {
+        if (gen === 2 && this.value !== "0:0" && getId("defenderItem").value === "0") {
             setSelectByText("defenderItem", "Leftovers");
         }
     };
@@ -1963,7 +1946,7 @@ window.onload = function() {
     };
 
     var toggleElements = document.getElementsByClassName("morePokeOptions");
-    for (var i = 0; i < toggleElements.length; i++) {
+    for (var i = toggleElements.length - 1; i >= 0; i--) {
         toggleElements[i].style.display = "none";
     }
     
