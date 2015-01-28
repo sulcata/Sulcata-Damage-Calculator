@@ -745,27 +745,36 @@ function WeightedArray (a) {
 
     this.add = function (val, inc) {
         // it's a binary search insertion!
-        var low = 0,
-            mid = this.values.length >> 1,
-            high = this.values.length - 1;
-        if (high < 0) {
+        var low = 0, mid = 0, high = this.values.length;
+        if (high < 1) {
             this.values.push(val);
             this.weights.push(inc+"");
             return;
         }
         while (low < high) {
-            if (this.values[mid] < val) {
+            mid = (low + high) >> 1;
+            if (val > this.values[mid]) {
                 low = mid + 1;
-            } else if (this.values[mid] > val) {
+            } else if (val < this.values[mid]) {
                 high = mid - 1;
             } else {
                 this.weights[mid] = addStrs(this.weights[mid], inc+"");
                 return;
             }
-            mid = (low + high) >> 1;
         }
-        this.values.splice(mid + (this.values[mid] < val ? 1 : 0), 0, val);
-        this.weights.splice(mid + (this.values[mid] < val ? 1 : 0), 0, inc+"");
+        mid = (low + high) >> 1;
+        if (val === this.values[low]) { // if it's out of bounds test is false (!== undefined)
+            this.weights[low] = addStrs(this.weights[low], inc+"");
+            return;
+        } else if (val === this.values[mid]) { // same as above
+            this.weights[mid] = addStrs(this.weights[mid], inc+"");
+            return;
+        } else if (val === this.values[high]) { // same as above
+            this.weights[high] = addStrs(this.weights[high], inc+"");
+            return;
+        }
+        this.values.splice(mid + (val > this.values[mid] ? 1 : 0), 0, val);
+        this.weights.splice(mid + (val > this.values[mid] ? 1 : 0), 0, inc+"");
     }
     
     this.combine = function (w) {
@@ -1231,7 +1240,7 @@ function Move() {
     }
     
     this.damageClass = function() {
-        return gen > 3 ? db.damageClass(this.id) : db.typeDamageClass(this.type());
+        return db.damageClass(this.id);
     }
     
     this.type = function() {
@@ -2435,10 +2444,10 @@ function Calculator() {
         }
         
         var a, d;
-        if (this.move.damageClass() === DamageClasses.PHYSICAL) {
+        if (db.typeDamageClass(this.move.type()) === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
+        } else if (db.typeDamageClass(this.move.type()) === DamageClasses.SPECIAL) {
             a = spc_a;
             d = spc_d;
         } else {
@@ -2454,9 +2463,11 @@ function Calculator() {
         d = Math.max(1, d);
         
         var baseDamage = Math.min(997, Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * a * this.move.power() / d) / 50)) + 2;
+        
         if (this.attacker.stab(this.move.type())) {
             baseDamage = (baseDamage * 3) >> 1;
         }
+        
         var eff = this.effective([this.move.type()],
                                  [this.defender.type1(), this.defender.type2()],
                                  false,
@@ -2465,6 +2476,7 @@ function Calculator() {
             return [0];
         }
         baseDamage = (baseDamage * eff) >> 2;
+        
         // 768+ not having damage variance seems to be proven false.
         damages = [];
         for (var i = 0; i < 39; i++) {
@@ -2556,10 +2568,10 @@ function Calculator() {
         }
         
         var a, d;
-        if (this.move.damageClass() === DamageClasses.PHYSICAL) {
+        if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
+        } else if (db.typeDamageClass(moveType) === DamageClasses.SPECIAL) {
             a = satk;
             d = sdef;
         } else {
@@ -2625,7 +2637,7 @@ function Calculator() {
             return [0];
         }
         baseDamage = (baseDamage * eff) >> 2;
-        // 768+ not having damage variance seems to be proven false.
+        
         if (moveName === "Reversal" || moveName === "Flail") { // these don't have damage variance
             return [baseDamage];
         }
@@ -2725,7 +2737,7 @@ function Calculator() {
             atk *= 2;
         }
         if (attackerItem.typeBoosted() === moveType) {
-            if (this.move.damageClass() === DamageClasses.PHYSICAL) { // make sure we are boosting the right stat
+            if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) { // make sure we are boosting the right stat
                 atk = Math.floor(atk * 11 / 10);
             } else {
                 satk = Math.floor(satk * (attackerItem.name() === "Sea Incense" ? 105 : 110) / 100); // sea incense is 1.05
@@ -2789,7 +2801,7 @@ function Calculator() {
             atk = Math.floor(atk * (this.attacker.boosts[Stats.ATK] > 0 ? 2 + this.attacker.boosts[Stats.ATK] : 2) / (this.attacker.boosts[Stats.ATK] < 0 ? 2 - this.attacker.boosts[Stats.ATK] : 2));
             satk = Math.floor(satk * (this.attacker.boosts[Stats.SATK] > 0 ? 2 + this.attacker.boosts[Stats.SATK] : 2) / (this.attacker.boosts[Stats.SATK] < 0 ? 2 - this.attacker.boosts[Stats.SATK] : 2));
             def = Math.floor(def * (this.defender.boosts[Stats.DEF] > 0 ? 2 + this.defender.boosts[Stats.DEF] : 2) / (this.defender.boosts[Stats.DEF] < 0 ? 2 - this.defender.boosts[Stats.DEF] : 2));
-            sdef = Math.floor(sdef*(this.defender.boosts[Stats.SDEF] > 0 ? 2 + this.defender.boosts[Stats.SDEF] : 2) / (this.defender.boosts[Stats.SDEF] < 0 ? 2 - this.defender.boosts[Stats.SDEF] : 2));
+            sdef = Math.floor(sdef * (this.defender.boosts[Stats.SDEF] > 0 ? 2 + this.defender.boosts[Stats.SDEF] : 2) / (this.defender.boosts[Stats.SDEF] < 0 ? 2 - this.defender.boosts[Stats.SDEF] : 2));
         }
 
         var a, d;
@@ -2797,10 +2809,10 @@ function Calculator() {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
-        } else if (this.move.damageClass() === DamageClasses.PHYSICAL) {
+        } else if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
             a = atk;
             d = def;
-        } else if (this.move.damageClass() === DamageClasses.SPECIAL) {
+        } else if (db.typeDamageClass(moveType) === DamageClasses.SPECIAL) {
             a = satk;
             d = sdef;
         } else {
