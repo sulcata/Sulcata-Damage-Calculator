@@ -751,12 +751,12 @@ function WeightedArray (a) {
             this.weights.push(inc+"");
             return;
         }
-        while (high - low > 4) {
-            mid = (low + high) >> 1;
+        while (high - low > 1) {
+            mid = (low + high) >> 1; // it *could* overflow, but if it does I think we have a bigger problem anyway
             if (val > this.values[mid]) {
-                low = mid + 1;
+                low = mid;
             } else if (val < this.values[mid]) {
-                high = mid - 1;
+                high = mid;
             } else {
                 this.weights[mid] = addStrs(this.weights[mid], inc+"");
                 return;
