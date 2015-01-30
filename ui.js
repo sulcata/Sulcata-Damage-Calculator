@@ -828,13 +828,26 @@ function changeGen (n, light) {
     }
     
     var insertOpOrder = function (arr, a) {
-        for (var i = 0; i < arr.length; i++) {
-            if (a[1] < arr[i][1]) {
-                arr.splice(i, 0, a);
+        var low = 0, mid = 0, high = arr.length;
+        if (high < 1) {
+            arr.push(a);
+            return arr;
+        }
+        while (high - low > 4) {
+            mid = (low + high) >> 1;
+            if (a[1] > arr[mid][1]) {
+                low = mid + 1;
+            } else if (a[1] < arr[mid][1]) {
+                high = mid - 1;
+            } else {
+                arr.splice(mid, 0, a);
                 return arr;
             }
         }
-        arr.splice(arr.length, 0, a);
+        while (low < high && a[1] > arr[low][1]) {
+            ++low;
+        }
+        arr.splice(low, 0, a);
         return arr;
     };
     

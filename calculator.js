@@ -751,7 +751,7 @@ function WeightedArray (a) {
             this.weights.push(inc+"");
             return;
         }
-        while (low < high) {
+        while (high - low > 4) {
             mid = (low + high) >> 1;
             if (val > this.values[mid]) {
                 low = mid + 1;
@@ -762,19 +762,11 @@ function WeightedArray (a) {
                 return;
             }
         }
-        mid = (low + high) >> 1;
-        if (val === this.values[low]) { // if it's out of bounds test is false (!== undefined)
-            this.weights[low] = addStrs(this.weights[low], inc+"");
-            return;
-        } else if (val === this.values[mid]) { // same as above
-            this.weights[mid] = addStrs(this.weights[mid], inc+"");
-            return;
-        } else if (val === this.values[high]) { // same as above
-            this.weights[high] = addStrs(this.weights[high], inc+"");
-            return;
+        while (low < high && val > this.values[low]) {
+            ++low;
         }
-        this.values.splice(mid + (val > this.values[mid] ? 1 : 0), 0, val);
-        this.weights.splice(mid + (val > this.values[mid] ? 1 : 0), 0, inc+"");
+        this.values.splice(low, 0, val);
+        this.weights.splice(low, 0, inc+"");
     }
     
     this.combine = function (w) {
@@ -1975,7 +1967,7 @@ function Calculator() {
             gemBoost = true;
         }
         if (moveName === "Acrobatics") {
-            if (attackerItem.id === 0) { // gems are "used" earlier in calc and item set to 0
+            if (attackerItem.id === "0") { // gems are "used" earlier in calc and item set to 0
                 movePower *= 2;
             }
         }
@@ -3586,7 +3578,7 @@ function Calculator() {
             gemBoost = true;
         }
         if (moveName === "Acrobatics") {
-            if (aItemName === "(No Item)") { // gems are "used" earlier in calc and item set to 0
+            if (attackerItem.id === "0") { // gems are "used" earlier in calc and item set to 0
                 movePower *= 2;
             }
         }
