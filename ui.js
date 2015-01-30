@@ -833,12 +833,12 @@ function changeGen (n, light) {
             arr.push(a);
             return arr;
         }
-        while (high - low > 4) {
+        while (high - low > 1) {
             mid = (low + high) >> 1;
             if (a[1] > arr[mid][1]) {
-                low = mid + 1;
+                low = mid;
             } else if (a[1] < arr[mid][1]) {
-                high = mid - 1;
+                high = mid;
             } else {
                 arr.splice(mid, 0, a);
                 return arr;
