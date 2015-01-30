@@ -765,6 +765,9 @@ function WeightedArray (a) {
         while (low < high && val > this.values[low]) {
             ++low;
         }
+        if (val === this.values[low]) {
+            this.weights[low] = addStrs(this.weights[low], inc+"");
+        }
         this.values.splice(low, 0, val);
         this.weights.splice(low, 0, inc+"");
     }
