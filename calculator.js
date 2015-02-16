@@ -16,7 +16,43 @@ var gen = 6, db = null;
  */
 function Database() {
     // The directories of generation specific information such as stats, type tables, and released items
-    this.gens = [null, "db/rby/", "db/gsc/", "db/adv/", "db/hgss/", "db/b2w2/", "db/oras/"];
+    // 0 is multi gen
+    this.gens = ["db/", "db/rby/", "db/gsc/", "db/adv/", "db/hgss/", "db/b2w2/", "db/oras/"];
+    
+    this.preload = function (varName, g, file, callback) { // used in UI only, but belongs here probably
+        var httpreq;
+        try {
+            httpreq = new XMLHttpRequest();
+        } catch (e) {
+            try {
+                httpreq = new ActiveXObject("Msxml2.XMLHTTP");
+            } catch (f) {
+                try {
+                    httpreq = new ActiveXObject("Microsoft.XMLHTTP");
+                } catch (g) {
+                    alert("potato!!");
+                    return -1;
+                }
+            }
+        }
+        if (this["_" + varName] === null || this["_" + varName][g] === null) {
+            httpreq.onreadystatechange = (function (d) {return function() {
+                if (httpreq.readyState === 4) {
+                    if (g > 0) {
+                        d["_" + varName][g] = JSON.parse(httpreq.responseText);
+                    } else {
+                        d["_" + varName] = JSON.parse(httpreq.responseText);
+                    }
+                    callback();
+                }
+            };})(this);
+            httpreq.open("GET", this.gens[g] + file, true);
+            httpreq.send();
+            return;
+        }
+        callback();
+    }
+    
     this._damageClass = null;
     this.damageClass = function (moveId) {
         if (this._damageClass === null) {
@@ -57,11 +93,11 @@ function Database() {
     }
     
     this._natures = {
-        "0": "Hardy",   "1": "Lonely",  "2": "Brave",    "3": "Adamant",  "4": "Naughty",
-        "5": "Bold",    "6": "Docile",  "7": "Relaxed",  "8": "Impish",   "9": "Lax",
-        "10": "Timid",  "11": "Hasty",  "12": "Serious", "13": "Jolly",   "14": "Naive",
-        "15": "Modest", "16": "Mild",   "17": "Quiet",   "18": "Bashful", "19": "Rash",
-        "20": "Calm",   "21": "Gentle", "22": "Sassy",   "23": "Careful", "24": "Quirky"
+        "0" : "Hardy" ,  "1" : "Lonely",  "2" : "Brave"  ,  "3" : "Adamant",  "4" : "Naughty",
+        "5" : "Bold"  ,  "6" : "Docile",  "7" : "Relaxed",  "8" : "Impish" ,  "9" : "Lax",
+        "10": "Timid" ,  "11": "Hasty" ,  "12": "Serious",  "13": "Jolly"  ,  "14": "Naive",
+        "15": "Modest",  "16": "Mild"  ,  "17": "Quiet"  ,  "18": "Bashful",  "19": "Rash",
+        "20": "Calm"  ,  "21": "Gentle",  "22": "Sassy"  ,  "23": "Careful",  "24": "Quirky"
     };
     this.natures = function (natureId) {
         if (typeof natureId === "undefined") {
@@ -248,9 +284,9 @@ function Database() {
         return this._evolutions[pokeId];
     }
     
-    this._stats = [];
+    this._stats = [null, null, null, null, null, null, null];
     this.stats = function (generation, pokeId) {
-        if (!(generation in this._stats)) {
+        if (this._stats[generation] === null) {
             this._stats[generation] = this.getJSON(this.gens[generation] + "stats.json");
         }
         if (typeof pokeId === "undefined") {
@@ -259,9 +295,9 @@ function Database() {
         return this._stats[generation][pokeId];
     }
     
-    this._movePowers = [];
+    this._movePowers = [null, null, null, null, null, null, null];
     this.movePowers = function (generation, pokeId) {
-        if (!(generation in this._movePowers)) {
+        if (this._movePowers[generation] === null) {
             this._movePowers[generation] = this.getJSON(this.gens[generation] + "power.json");
         }
         if (typeof pokeId === "undefined") {
@@ -270,9 +306,9 @@ function Database() {
         return this._movePowers[generation][pokeId];
     }
     
-    this._moveTypes = [];
+    this._moveTypes = [null, null, null, null, null, null, null];
     this.moveTypes = function (generation, pokeId) {
-        if (!(generation in this._moveTypes)) {
+        if (this._moveTypes[generation] === null) {
             this._moveTypes[generation] = this.getJSON(this.gens[generation] + "moveTypes.json");
         }
         if (typeof pokeId === "undefined") {
@@ -281,9 +317,9 @@ function Database() {
         return this._moveTypes[generation][pokeId];
     }
     
-    this._pokeType1 = [];
+    this._pokeType1 = [null, null, null, null, null, null, null];
     this.pokeType1 = function (generation, pokeId) {
-        if (!(generation in this._pokeType1)) {
+        if (this._pokeType1[generation] === null) {
             this._pokeType1[generation] = this.getJSON(this.gens[generation] + "pokeType1.json");
         }
         if (typeof pokeId === "undefined") {
@@ -292,9 +328,9 @@ function Database() {
         return this._pokeType1[generation][pokeId];
     }
     
-    this._pokeType2 = [];
+    this._pokeType2 = [null, null, null, null, null, null, null];
     this.pokeType2 = function (generation, pokeId) {
-        if (!(generation in this._pokeType2)) {
+        if (this._pokeType2[generation] === null) {
             this._pokeType2[generation] = this.getJSON(this.gens[generation] + "pokeType2.json");
         }
         if (typeof pokeId === "undefined") {
@@ -372,9 +408,9 @@ function Database() {
         return this._typesTable[gen2table[generation]][attackingType+""][defendingType];
     }
     
-    this._minMaxHits = [];
+    this._minMaxHits = [null, null, null, null, null, null, null];
     this.minMaxHits = function (generation, moveId) {
-        if (!(generation in this._minMaxHits)) {
+        if (this._minMaxHits[generation] === null) {
             this._minMaxHits[generation] = this.getJSON(this.gens[generation] + "minMaxHits.json");
         }
         if (typeof moveId === "undefined") {
@@ -383,12 +419,12 @@ function Database() {
         return this._minMaxHits[generation][moveId];
     }
     
-    this._ranges = [];
+    this._ranges = [null, null, null, null, null, null, null];
     this.ranges = function (generation, moveId) {
         if (generation <= 1) { // no file for gen 1, although to be honest I think only gens >= 3 need this.
             return null;
         }
-        if (!(generation in this._ranges)) {
+        if (this._ranges[generation] === null) {
             this._ranges[generation] = this.getJSON(this.gens[generation] + "range.json");
         }
         if (typeof moveId === "undefined") {
@@ -454,25 +490,25 @@ function Database() {
     }
     
     this._types = {
-        "0": "Normal",
-        "1": "Fighting",
-        "2":"Flying",
-        "3":"Poison",
-        "4":"Ground",
-        "5":"Rock",
-        "6":"Bug",
-        "7":"Ghost",
-        "8":"Steel",
-        "9":"Fire",
-        "10":"Water",
-        "11":"Grass",
-        "12":"Electric",
-        "13":"Psychic",
-        "14":"Ice",
-        "15":"Dragon",
-        "16":"Dark",
-        "17":"Fairy",
-        "18":"???"
+        "0" : "Normal",
+        "1" : "Fighting",
+        "2" : "Flying",
+        "3" : "Poison",
+        "4" : "Ground",
+        "5" : "Rock",
+        "6" : "Bug",
+        "7" : "Ghost",
+        "8" : "Steel",
+        "9" : "Fire",
+        "10": "Water",
+        "11": "Grass",
+        "12": "Electric",
+        "13": "Psychic",
+        "14": "Ice",
+        "15": "Dragon",
+        "16": "Dark",
+        "17": "Fairy",
+        "18": "???"
     };
     this.types = function (typeId) {
         if (typeof typeId === "undefined") {
@@ -588,8 +624,8 @@ Database.prototype.getJSON = function (file) {
                 // older
                 httpreq = new ActiveXObject("Microsoft.XMLHTTP");
             } catch (g) {
-                // May want to advise installing the rifle plugin for defending against that time period's Velociraptors.
-                alert("potato!!");
+                alert("potato!!"); // May want to advise installing the rifle plugin for defending against the Velociraptors.
+                return -1; // just break everything
             }
         }
     }
@@ -2607,7 +2643,7 @@ function Calculator() {
             baseDamage = Math.floor(baseDamage * 110 / 100);
         }
         
-        baseDamage = Math.min(997, baseDamage)+2;
+        baseDamage = Math.min(997, baseDamage) + 2;
         
         if (this.field.weather === Weathers.SUN) {
             if (moveType === Types.FIRE) {
@@ -4406,6 +4442,21 @@ function Calculator() {
     }
     
     this.report = function() {
+        if (this.attacker.id === "0:0" || this.defender.id === "0:0") {
+            return {
+                report: "One of your Pokémon is Missingno!",
+                minPercent: 0,
+                maxPercent: 0,
+                damage: 0
+            };
+        } else if (this.move.id === "0") {
+            return {
+                report: "You need to select a Move!",
+                minPercent: 0,
+                maxPercent: 0,
+                damage: 0
+            };
+        }
         var dmg = this.calculate();
         var minPercent = Math.round(dmg[0].values[0] / this.defender.stat(Stats.HP) * 1000) / 10;
         var maxPercent = Math.round(dmg[0].values[dmg[0].values.length-1] / this.defender.stat(Stats.HP) * 1000) / 10;
