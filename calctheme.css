@@ -275,7 +275,7 @@ label {
     font-size: 1.1em;
 }
 
-#sourceCode {
+#sourceCode, #bugReports {
     margin-left: 0.4em;
 }
 
