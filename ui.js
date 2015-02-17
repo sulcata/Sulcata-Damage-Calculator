@@ -1721,7 +1721,6 @@ function calculateResults() {
     }
     c.attacker.level = parseInt(getId("attackerLevel").value, 10);
     c.attacker.addedType = parseInt(getId("attackerTypeAdded").value, 10);
-    c.attacker.override = true;
     c.attacker.overrideTypes = [parseInt(getId("attackerType1").value, 10), parseInt(getId("attackerType2").value, 10)];
     c.attacker.grounded = getId("attackerGrounded").checked;
     c.attacker.tailwind = getId("attackerTailwind").checked;
@@ -1745,7 +1744,6 @@ function calculateResults() {
     }
     c.defender.level = parseInt(getId("defenderLevel").value, 10);
     c.defender.addedType = parseInt(getId("defenderTypeAdded").value, 10);
-    c.defender.override = true;
     c.defender.overrideTypes = [parseInt(getId("defenderType1").value, 10), parseInt(getId("defenderType2").value, 10)];
     c.defender.grounded = getId("defenderGrounded").checked;
     c.defender.tailwind = getId("defenderTailwind").checked;
