@@ -175,6 +175,7 @@ label {
     border-radius: 3px;
     margin: 2px 2px;
     cursor: pointer;
+    color: #222;
 }
 
 .togglebox, #swap, #export {
