@@ -897,8 +897,8 @@ function Pokemon() {
     this.powerTrick = false;
     this.gender = Genders.NOGENDER; // NOGENDER, MALE, FEMALE
     this.addedType = Types.CURSE; // GHOST: Trick or Treat, GRASS: Forest's Curse, CURSE: Nothing; They can't exist simultaneously
-    this.overrideTypes = [Types.CURSE, Types.CURSE]; // curse should be used for "no type"
-    this.override = false;
+    this.overrideTypes = [-1, -1]; // curse should be used for "no type"
+    this.overrideStats = [-1, -1, -1, -1, -1, -1]; // anything > -1 will trigger an override
     this.moves = [new Move(), new Move(), new Move(), new Move()];
     
     this.setNatureName = function (n) {
@@ -961,6 +961,9 @@ function Pokemon() {
     }
     
     this.stat = function (s) {
+        if (this.overrideStats[s] > -1) {
+            return this.overrideStats[s];
+        }
         // as a simplification to the gen 1/2 stat calculation I enter the EVs as /255 rather than /65535
         // the stats are exactly the same (can't get higher/lower or somewhere impossibly inbetween)
         // this makes it much easier for the user to enter them, as well as the programmer.
@@ -1054,7 +1057,7 @@ function Pokemon() {
     }
     
     this.type1 = function() {
-        if (this.override) {
+        if (this.overrideTypes[0] > -1) {
             return this.overrideTypes[0];
         }
         if (db.pokeType1(gen, this.species() + ":" + this.form())) {
@@ -1064,7 +1067,7 @@ function Pokemon() {
     }
     
     this.type2 = function() {
-        if (this.override) {
+        if (this.overrideTypes[1] > -1) {
             return this.overrideTypes[1];
         }
         if (db.pokeType2(gen, this.species() + ":" + this.form())) {
