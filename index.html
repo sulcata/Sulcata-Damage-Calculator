@@ -4,11 +4,11 @@
         <meta charset="utf-8" />
         <meta name="description" content="A Pok&eacute;mon Damage Calculator for all generations of Pok&eacute;mon games. The most accurate calculator to date!" />
         <meta name="keywords" content="damage,pokemon,calculator,calc,omega ruby,alpha sapphire,oras,xy,black,white,bw,adv,gsc,rby" />
-        <title>The More Accurate Damage Calculator</title>
-        <link rel="stylesheet" type="text/css" href="reset.css" />
-        <link rel="stylesheet" type="text/css" href="calctheme.css" />
-        <script type="text/javascript" src="calculator.js"></script>
-        <script type="text/javascript" src="ui.js"></script>
+        <title>Sulcalculator</title>
+        <link rel="stylesheet" type="text/css" href="style/reset.css" />
+        <link rel="stylesheet" type="text/css" href="style/calctheme.css" />
+        <script type="text/javascript" src="js/calculator.js"></script>
+        <script type="text/javascript" src="js/ui.js"></script>
     </head>
     <body>
         <div id="menu">
@@ -31,11 +31,6 @@
         <div id="calculator">
             <div id="attacker">
                 <div class="pokeContainer">
-                    <!-- <div class="sprite6">
-                        <span class="helper"></span>
-                        <img id="attackerSprite" src="sprites/XY/0.png" />
-                    </div> -->
-
                     <div class="clear">
                         <div class="textLabel">Pok&eacute;mon</div>
                         <select id="attackerPoke" class="largeSelect"></select>
@@ -256,11 +251,6 @@
             </div>
             <div id="defender">
                 <div class="pokeContainer">
-                    <!-- <div class="sprite6">
-                        <span class="helper"></span>
-                        <img id="defenderSprite" src="sprites/XY/0.png" />
-                    </div> -->
-
                     <div class="clear">
                         <div class="textLabel">Pok&eacute;mon</div>
                         <select id="defenderPoke" class="largeSelect"></select>
@@ -618,11 +608,6 @@
             </div>
         </div>
         <div id="calc">Calculate</div>
-        <!-- <div id="hpDisplay">
-            <div id="minDamageBar"></div>
-            <div id="maxDamageBar"></div>
-            <div id="blankBar"></div>
-        </div> -->
         <div id="results"></div>
     </body>
 </html>
