@@ -57,48 +57,6 @@ input[type="text"] {
     float: left;
 }
 
-/* .sprite1, .sprite2, .sprite3, .sprite4, .sprite5, .sprite6 {
-    height: 142px; /* 138+4 */ /*
-    width: 124px; /* 120+4 */ /*
-    margin: 0 auto 0.2em auto;
-    text-align: center;
-    background-color: #FFF;
-    /* border: 1px solid #AAA; */ /*
-    padding: 0.5em;
-}
-
-.sprite1, .sprite2 {
-    width: 60px; /* 56+4 */ /*
-    height: 60px;
-}
-
-.sprite3 {
-    width: 68px; /* 64+4 */ /*
-    height: 68px;
-}
-
-.sprite4 {
-    width: 84px; /* 80+4 */ /*
-    height: 84px;
-}
-
-.sprite5 {
-    width: 100px; /* 96+4 */ /*
-    height: 100px;
-}
-
-.helper {
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-}
-
-#attackerSprite, #defenderSprite {
-    vertical-align: middle;
-    min-height: 40px;
-    max-width: 120px;
-} */
-
 .textLabel {
     float: left;
     width: 5em;
