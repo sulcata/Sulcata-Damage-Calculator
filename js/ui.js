@@ -221,7 +221,14 @@ function pokeToBinary (p) {
             q += convertToBaseN(6 + parseInt(getId(p + "SdefBoost").value, 10), 2, 4);
         }
     }
-    q += convertToBaseN(getId(p + "HP").value, 2, 10);
+    var tempHp = getId(p + "HP").value;
+    if (tempHp.indexOf("-") > -1) {
+        q += convertToBaseN(tempHp.substr(0, tempHp.indexOf("-") - 1), 2, 10);
+    } else if (tempHp.indexOf(",") > -1) {
+        q += convertToBaseN(tempHp.substr(0, tempHp.indexOf(",")), 2, 10);
+    } else {
+        q += convertToBaseN(tempHp, 2, 10);
+    }
     q += convertToBaseN(getId(p + "Status").value, 2, 3);
     q += convertToBaseN(getId(p + "Type1").value, 2, 5);
     q += convertToBaseN(getId(p + "Type2").value, 2, 5);
@@ -435,7 +442,7 @@ function loadQueryString (q) {
         setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 4), 2) + "");
         ptr += 4;
     }
-    if (q.length - ptr >= 3 && db.minMaxHits(moveId) && db.minMaxHits(moveId) > 1 && db.moves(moveId) !== "Beat Up") {
+    if (q.length - ptr >= 3 && db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && db.moves(moveId) !== "Beat Up") {
         setSelectByValue("minMaxHits", convertFromBaseN(q.substr(ptr, 3), 2) + "");
         ptr += 3;
     }
@@ -1083,6 +1090,8 @@ function updatePoke (p) {
         getId(p + strs[i] + "Boost").selectedIndex = 6;
     }
     
+    getId(p + "HP").value = getId(p + "HPp").value = "";
+    
     db.preload("ability1", 0, "ability1.json", function() {
     db.preload("ability2", 0, "ability2.json", function() {
         var suggestions = "";
@@ -1122,7 +1131,7 @@ function updatePoke (p) {
     updateStats(p);
 }
 
-function updateHpPercent(p) {
+function updateHpPercent (p, ranged) {
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
     if (poke.id === "0:0") {
@@ -1134,16 +1143,76 @@ function updateHpPercent(p) {
     poke.ivs = getIvs(p);
     var total = poke.stat(Sulcalc.Stats.HP);
     var currentPoints = getId(p + "HP").value;
-    if (currentPoints.match(/[^0-9]/g) !== null) {
-        currentPoints = total;
-    } else {
-        currentPoints = parseInt(currentPoints, 10);
+    if (currentPoints.length === 0) {
+        getId(p + "HPp").value = "100";
+        getId(p + "HP").value = total;
+        return;
     }
-    getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * currentPoints / total)));
-    getId(p + "HP").value = Math.max(1, Math.min(total, currentPoints));
+    if (ranged && currentPoints.indexOf("-") > -1) {
+        // ranged, not a damage roll
+        if (currentPoints.indexOf("-") !== currentPoints.lastIndexOf("-")) {
+            getId(p + "HPp").value = "100";
+            getId(p + "HP").value = total;
+            return;
+        }
+        currentPoints = currentPoints.replace(/\s/g, "").split("-");
+        if (currentPoints[0].match(/[^0-9]/g) !== null || currentPoints[1].match(/[^0-9]/g) !== null) {
+            // one side of the range is not a number, so just default to max hp
+            getId(p + "HPp").value = "100";
+            getId(p + "HP").value = total;
+            return;
+        }
+        currentPoints[0] = Math.max(1, Math.min(total, parseInt(currentPoints[0], 10)));
+        currentPoints[1] = Math.max(1, Math.min(total, parseInt(currentPoints[1], 10)));
+        if (currentPoints[1] === currentPoints[0]) {
+            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * currentPoints[0] / total)));
+            getId(p + "HP").value = Math.max(1, Math.min(total, currentPoints[0]));
+        } else {
+            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * Math.min(currentPoints[0], currentPoints[1]) / total)));
+            getId(p + "HP").value = Math.min(currentPoints[0], currentPoints[1]) + " - " + Math.max(currentPoints[0], currentPoints[1]);
+        }
+    } else if (ranged && currentPoints.indexOf(",") > -1) {
+        // ranged, damage roll
+        currentPoints = currentPoints.replace(/\s/g, "");
+        var tempAcc = "";
+        var numArr = [];
+        for (var i = 0; i < currentPoints.length; i++) {
+            if (currentPoints.charCodeAt(i) >= 48 && currentPoints.charCodeAt(i) <= 57) {
+                tempAcc += currentPoints.charAt(i);
+            } else if (currentPoints.charAt(i) === "," && tempAcc.length > 0) {
+                numArr.push(parseInt(tempAcc, 10));
+                tempAcc = "";
+            } else {
+                getId(p + "HPp").value = "100";
+                getId(p + "HP").value = total;
+                return;
+            }
+        }
+        if (tempAcc.length > 0) {
+            numArr.push(parseInt(tempAcc, 10));
+        }
+        numArr.sort(function (a, b) {
+            return a - b;
+        });
+        var strList = "";
+        for (var i = 0; i < numArr.length; i++) {
+            strList += (i > 0 ? ", " : "") + numArr[i];
+        }
+        getId(p + "HP").value = strList;
+        getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(numArr[0] * 100 / total)));
+    } else {
+        // either not ranged, or not supposed to be ranged
+        if (currentPoints.match(/[^0-9]/g) !== null) {
+            currentPoints = total;
+        } else {
+            currentPoints = parseInt(currentPoints, 10);
+        }
+        getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * currentPoints / total)));
+        getId(p + "HP").value = Math.max(1, Math.min(total, currentPoints));
+    }
 }
     
-function updateHpPoints(p) {
+function updateHpPoints (p, ranged) {
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
     if (poke.id === "0:0") {
@@ -1156,12 +1225,19 @@ function updateHpPoints(p) {
     var total = poke.stat(Sulcalc.Stats.HP);
     var currentPercent = getId(p + "HPp").value;
     if (currentPercent.match(/[^0-9]/g) !== null) {
-        currentPercent = total;
+        currentPercent = 100;
     } else {
         currentPercent = parseInt(currentPercent, 10);
     }
-    getId(p + "HP").value = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100)));
     getId(p + "HPp").value = Math.max(1, Math.min(100, currentPercent));
+    var hpLow = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100)));
+    var hpHigh = Math.max(1, Math.min(total, (Math.ceil(total / 100) - 1 + hpLow)));
+    if (ranged && hpLow < hpHigh) {
+        getId(p + "HP").value = hpLow + " - " + Math.max(1, Math.min(total, Math.ceil(total / 100) - 1 + hpLow));
+    } else {
+        getId(p + "HP").value = hpLow;
+    }
+    
 }
 
 function updateStats (p) {
@@ -1193,7 +1269,7 @@ function updateStats (p) {
     for (var i = 0; i < 6; i++) {
         poke.evs[i] = Math.max(0, Math.min(255, isNaN(poke.evs[i]) ? (gen > 2 ? 0 : 255) : poke.evs[i]));
         if (!(gen <= 2 && poke.evs[i] === 255)) {
-            poke.evs[i] = (poke.evs[i] >> 2) << 2;
+            poke.evs[i] = (poke.evs[i] / 4) << 2;
         }
         poke.ivs[i] = Math.max(0, Math.min(gen > 2 ? 31 : 15, isNaN(poke.ivs[i]) ? (gen > 2 ? 31 : 15) : poke.ivs[i]));
     }
@@ -1204,8 +1280,18 @@ function updateStats (p) {
     poke.nature = parseInt(getId(p + "Nature").value, 10);
     poke.id = getId(p + "Poke").value;
     setText(p + "TotalHP", poke.id === "0:0" ? "???" : poke.stat(Sulcalc.Stats.HP));
-    getId(p + "HP").value = poke.id === "0:0" ? "" : poke.stat(Sulcalc.Stats.HP);
-    getId(p + "HPp").value = poke.id === "0:0" ? "" : "100";
+    var tempHp = getId(p + "HP").value, hpN = 0;
+    if (tempHp.indexOf("-") > -1) {
+        hpN = Math.min(parseInt(tempHp.substr(0, tempHp.indexOf("-") - 1), 10), poke.stat(Sulcalc.Stats.HP));
+    } else if (tempHp.indexOf(",") > -1) {
+        hpN = Math.min(parseInt(tempHp.substr(0, tempHp.indexOf(",")), 10), poke.stat(Sulcalc.Stats.HP));
+    } else if (tempHp.length === 0) {
+        hpN = poke.stat(Sulcalc.Stats.HP);
+    } else {
+        hpN = Math.min(parseInt(tempHp, 10), poke.stat(Sulcalc.Stats.HP));
+    }
+    getId(p + "HP").value = poke.id === "0:0" ? "" : hpN;
+    getId(p + "HPp").value = poke.id === "0:0" ? "" : Math.max(1, Math.floor(hpN * 100 / poke.stat(Sulcalc.Stats.HP)));
     var strs = [["Hp", 0], ["Atk", 1], ["Def", 2], ["Satk", 3], ["Spc", 3], ["Sdef", 4], ["Spd", 5]];
     if (poke.id === "0:0") {
         setText(p + "HpStat", "");
@@ -1302,16 +1388,16 @@ function toggleOptions() {
 function swapPokemon() {
     var swapIdx = ["Poke", "Nature", "Item", "Status", "Type1", "Type2", "TypeAdded"];
     for (var i = 0; i < swapIdx.length; i++) {
-        var a = getId("attacker" + swapIdx[i]);
-        var d = getId("defender" + swapIdx[i]);
+        var a = getId("attacker" + swapIdx[i]),
+            d = getId("defender" + swapIdx[i]);
         var tempIdx = a.selectedIndex;
         a.selectedIndex = d.selectedIndex;
         d.selectedIndex = tempIdx;
     }
-    var a = getId("attackerAbility");
-    var d = getId("defenderAbility");
-    var tempIdx = a.selectedIndex;
-    var tempHtml = a.innerHTML;
+    var a = getId("attackerAbility"),
+        d = getId("defenderAbility");
+    var tempIdx = a.selectedIndex,
+        tempHtml = a.innerHTML;
     replaceHtmlE(a, d.innerHTML);
     a.selectedIndex = d.selectedIndex;
     replaceHtmlE(d, tempHtml);
@@ -1321,8 +1407,8 @@ function swapPokemon() {
         var a = [ getId("attacker" + swapStats[i] + "Ev"),
                   getId("attacker" + swapStats[i] + "Iv"),
                   getId("attacker" + swapStats[i] + "Boost"),
-                  getId("attacker" + swapStats[i] + "Stat") ];
-        var d = [ getId("defender" + swapStats[i] + "Ev"),
+                  getId("attacker" + swapStats[i] + "Stat") ],
+            d = [ getId("defender" + swapStats[i] + "Ev"),
                   getId("defender" + swapStats[i] + "Iv"),
                   getId("defender" + swapStats[i] + "Boost"),
                   getId("defender" + swapStats[i] + "Stat") ];
@@ -1341,16 +1427,16 @@ function swapPokemon() {
     }
     var swapCheckboxes = ["Grounded", "Tailwind", "Unburden", "Autotomize", "FlowerGift"];
     for (var i = 0; i < swapCheckboxes.length; i++) {
-        var a = getId("attacker" + swapCheckboxes[i]);
-        var d = getId("defender" + swapCheckboxes[i]);
+        var a = getId("attacker" + swapCheckboxes[i]),
+            d = getId("defender" + swapCheckboxes[i]);
         var tempBool = a.checked;
         a.checked = d.checked;
         d.checked = tempBool;
     }
-    var swapVals = ["HP", "HPp"];
+    var swapVals = ["HPp", "Level"];
     for (var i = 0; i < swapVals.length; i++) {
-        var a = getId("attacker" + swapVals[i]);
-        var d = getId("defender" + swapVals[i]);
+        var a = getId("attacker" + swapVals[i]),
+            d = getId("defender" + swapVals[i]);
         var tempVal = a.value;
         a.value = d.value;
         d.value = tempVal;
@@ -1362,6 +1448,17 @@ function swapPokemon() {
         var tempText = getTextE(a);
         setTextE(a, getTextE(d));
         setTextE(d, tempText);
+    }
+    var a = getId("attackerHP"),
+        d = getId("defenderHP");
+    var tempD = d.value;
+    d.value = a.value;
+    if (tempD.indexOf("-") > -1) {
+        a.value = tempD.substr(0, tempD.indexOf("-") - 1);
+    } else if (tempD.indexOf(",") > -1) {
+        a.value = tempD.substr(0, tempD.indexOf(","));
+    } else {
+        a.value = tempD;
     }
     updateHiddenPowerType();
 }
@@ -1659,9 +1756,6 @@ function calculateResults() {
     c.attacker.item.id = getId("attackerItem").value;
     c.attacker.status = parseInt(getId("attackerStatus").value, 10);
     c.attacker.currentHP = parseInt(getId("attackerHP").value, 10);
-    if (isNaN(c.attacker.currentHP)) {
-        c.attacker.currentHP = c.attacker.stat(Sulcalc.Stats.HP);
-    }
     c.attacker.level = parseInt(getId("attackerLevel").value, 10);
     c.attacker.addedType = parseInt(getId("attackerTypeAdded").value, 10);
     c.attacker.overrideTypes = [parseInt(getId("attackerType1").value, 10), parseInt(getId("attackerType2").value, 10)];
@@ -1682,8 +1776,25 @@ function calculateResults() {
     c.defender.item.id = getId("defenderItem").value;
     c.defender.status = parseInt(getId("defenderStatus").value, 10);
     c.defender.currentHP = parseInt(getId("defenderHP").value, 10);
-    if (isNaN(c.defender.currentHP)) {
-        c.defender.currentHP = c.defender.stat(Sulcalc.Stats.HP);
+    var tempHp = getId("defenderHP").value;
+    if (tempHp.indexOf("-") > -1) {
+        // ranged, not a damage roll (i.e. a comma separated list)
+        c.defender.currentHPRange = [];
+        tempHp = tempHp.replace(/\s/g, "").split("-");
+        tempHp[0] = parseInt(tempHp[0], 10);
+        tempHp[1] = parseInt(tempHp[1], 10);
+        for (var i = tempHp[0]; i <= tempHp[1]; i++) {
+            c.defender.currentHPRange.push(i);
+        }
+    } else if (tempHp.indexOf(",") > -1) {
+        // ranged, damage roll
+        c.defender.currentHPRange = [];
+        tempHp = tempHp.replace(/\s/g, "").split(",");
+        for (var i = 0; i < tempHp.length; i++) {
+            c.defender.currentHPRange.push(parseInt(tempHp[i], 10));
+        }
+    } else {
+        c.defender.currentHP = parseInt(tempHp, 10);
     }
     c.defender.level = parseInt(getId("defenderLevel").value, 10);
     c.defender.addedType = parseInt(getId("defenderTypeAdded").value, 10);
@@ -1708,6 +1819,7 @@ function calculateResults() {
 
     c.field.critical = getId("critical").checked;
     c.field.lightScreen = getId("screens").checked;
+    c.field.reflect = getId("screens").checked;
     if (gen >= 2) {
         c.field.foresight = getId("foresight").checked;
     }
@@ -1777,7 +1889,15 @@ function calculateResults() {
     c.field.airLock = c.attacker.ability.name() === "Air Lock" || c.defender.ability.name() === "Air Lock";
 
     var rpt = c.report();
-    setText("results", rpt.report);
+    
+    if (rpt.damage === null) { // some error or whatever
+        replaceHtml("results", rpt.report);
+    } else {
+        var comma = false, tempr = "";
+        replaceHtml("results", rpt.report
+                               + "<br /><div style='font-size: 0.7em;'>Damage: " + rpt.damage[0].print() + "</div>"
+                               + "<div style='font-size: 0.7em;'>Health: " + rpt.damage[0].mapPrint(function (v) {return Math.max(0, c.defender.stat(Sulcalc.Stats.HP) - v);}, true) + "</div>");
+    }
 }
 
 
@@ -1811,10 +1931,10 @@ window.onload = function() {
             setSelectByText("defenderItem", "Leftovers");
         }
     };
-    getId("attackerHP").onchange = function() {updateHpPercent("attacker");};
-    getId("attackerHPp").onchange = function() {updateHpPoints("attacker");};
-    getId("defenderHP").onchange = function() {updateHpPercent("defender");};
-    getId("defenderHPp").onchange = function() {updateHpPoints("defender");};
+    getId("attackerHP").onchange = function() {updateHpPercent("attacker", false);};
+    getId("attackerHPp").onchange = function() {updateHpPoints("attacker", false);};
+    getId("defenderHP").onchange = function() {updateHpPercent("defender", true);};
+    getId("defenderHPp").onchange = function() {updateHpPoints("defender", true);};
     getId("attackerSets").onchange = function() {changeSet("attacker", this.value);};
     getId("defenderSets").onchange = function() {changeSet("defender", this.value);};
     getId("attackerNature").onchange = getId("attackerLevel").onchange = function() {updateStats("attacker");};
@@ -1864,7 +1984,7 @@ window.onload = function() {
     [5, 50, 100].forEach(function (val, idx, arr) {
         getId("attackerLevel" + val).onclick = function() {
             getId("attackerLevel").value = val;
-            updateStats("attac/ker");
+            updateStats("attacker");
         };
         getId("defenderLevel" + val).onclick = function() {
             getId("defenderLevel").value = val;

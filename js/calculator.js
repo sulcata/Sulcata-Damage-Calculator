@@ -253,15 +253,26 @@ function Database() {
         return this._flinch[moveId];
     }
     
-    this._moveEffects = null;
-    this.moveEffects = function (moveId) {
-        if (this._moveEffects === null) {
-            this._moveEffects = this.getJSON(this.location + "db/effect.json");
+    this._category = null;
+    this.category = function (moveId) {
+        if (this._category === null) {
+            this._category = this.getJSON(this.location + "db/category.json");
         }
         if (typeof moveId === "undefined") {
-            return this._moveEffects;
+            return this._category;
         }
-        return this._moveEffects[moveId];
+        return this._category[moveId];
+    }
+    
+    this._statboost = null;
+    this.statboost = function (moveId) {
+        if (this._statboost === null) {
+            this._statboost = this.getJSON(this.location + "db/statboost.json");
+        }
+        if (typeof moveId === "undefined") {
+            return this._statboost;
+        }
+        return this._statboost[moveId];
     }
     
     this._abilityEffects = null;
@@ -767,7 +778,7 @@ function WeightedArray (a) {
     
     // begin init
     if (a.length !== 0) { // check for an empty array
-        a = a.sort(function (a, b) { // sort the array into ascending order
+        a.sort(function (a, b) { // sort the array into ascending order
             return a - b;
         });
         // initial entry; all values will be stored as an ordered pair: [value, occurences]
@@ -794,13 +805,13 @@ function WeightedArray (a) {
     this.add = function (val, inc) {
         // it's a binary search insertion!
         var low = 0, mid = 0, high = this.values.length;
-        if (high < 1) {
+        if (high < 1) { // empty array
             this.values.push(val);
             this.weights.push(inc+"");
             return;
         }
         while (high - low > 1) {
-            mid = (low + high) >> 1; // it *could* overflow, but if it does I think we have a bigger problem anyway
+            mid = Math.floor((low + high) / 2); // it *could* overflow, but if it does I think we have a bigger problem anyway
             if (val > this.values[mid]) {
                 low = mid;
             } else if (val < this.values[mid]) {
@@ -815,9 +826,10 @@ function WeightedArray (a) {
         }
         if (val === this.values[low]) {
             this.weights[low] = addStrs(this.weights[low], inc+"");
+        } else {
+            this.values.splice(low, 0, val);
+            this.weights.splice(low, 0, inc+"");
         }
-        this.values.splice(low, 0, val);
-        this.weights.splice(low, 0, inc+"");
     }
     
     this.combine = function (w) {
@@ -830,8 +842,8 @@ function WeightedArray (a) {
          * such as 1 and 4 so the add method is used to prevent similar ordered pairs.
          */
         var temp = new WeightedArray([]);
-        for (var i = 0; i < this.values.length; i++) {
-            for (var j = 0; j < w.values.length; j++) {
+        for (var i = this.values.length - 1; i >= 0; --i) {
+            for (var j = w.values.length - 1; j >= 0; --j) {
                 // Pair A combine Pair B: (value A + value B, count A * count B)
                 temp.add(this.values[i] + w.values[j],
                          multiplyStrs(this.weights[i], w.weights[j]));
@@ -847,7 +859,7 @@ function WeightedArray (a) {
         if (f === undefined) {
             f = function (val, weight) {return true;}
         }
-        for (var i = 0; i < this.values.length; i++) {
+        for (var i = this.values.length - 1; i >= 0; --i) {
             if (f(this.values[i], this.weights[i])) {
                 t = addStrs(t, this.weights[i]);
             }
@@ -856,7 +868,7 @@ function WeightedArray (a) {
     }
     
     this.addAll = function (n) {
-        for (var i = 0; i < this.values.length; i++) {
+        for (var i = this.values.length - 1; i >= 0; --i) {
             this.values[i] += n;
         }
     }
@@ -866,19 +878,43 @@ function WeightedArray (a) {
         this.values = [];
         this.weights = [];
         // allows for concatenation in the case that function f is not a one-to-one function
-        for (var i = 0; i < tempVals.length; i++) {
+        for (var i = tempVals.length - 1; i >= 0; --i) {
             if ((temp = f(tempVals[i], tempWeights[i])) !== null) {
                 this.add(temp, tempWeights[i]);
             }
         }
+    }
+    
+    this.print = function() {
+        var accstr = "";
+        for (var i = 0; i < this.values.length; i++) {
+            for (var j = 0; j < this.weights[i]; j++) {
+                accstr += (i + j > 0 ? ", " : "") + this.values[i];
+            }
+        }
+        return accstr;
+    }
+    
+    this.mapPrint = function (f) {
+        var temp = new WeightedArray([]);
+        temp.values = this.values.slice();
+        temp.weights = this.weights.slice();
+        temp.map(f);
+        var accstr = "";
+        for (var i = 0; i < temp.values.length; i++) {
+            for (var j = 0; j < temp.weights[i]; j++) {
+                accstr += (i + j > 0 ? ", " : "") + temp.values[i];
+            }
+        }
+        return accstr;
     }
 }
 
 WeightedArray.prototype.toString = function() {
     // not super pretty, but it works for debugging
     var accstr = "";
-    for(var i = 0; i < this.values.length; i++) {
-        accstr += (i !== 0 ? ", " : "") + this.values[i] + ":" + this.weights[i];
+    for (var i = 0; i < this.values.length; i++) {
+        accstr += (i > 0 ? ", " : "") + this.values[i] + ":" + this.weights[i];
     }
     return accstr;
 }
@@ -893,7 +929,8 @@ function Pokemon() {
     this.level = 100; // competitive standard
     this.nature = 0; // hardy nature
     this.status = Statuses.NOSTATUS; // NOSTATUS, POISONED, BADLYPOISONED, BURNED, PARALYZED, ASLEEP, FROZEN
-    this.currentHP = 0; // no way to guess this
+    this.currentHP = 0; // no way to guess this.
+    this.currentHPRange = null; // only define this if you have a range of HP values
     this.ability = new Ability();
     this.item = new Item();
     this.happiness = 0; // maximum of 255
@@ -980,7 +1017,7 @@ function Pokemon() {
         } else if (this.powerTrick && s === Stats.DEF) {
             s = Stats.ATK;
         }
-        var ev, iv;
+        var ev, iv, stat;
         if (gen <= 2 && s === Stats.HP) {
             // gens 1 & 2 don't have an HP DV. It must be calculated from the other 4.
             // If the DV is even it's 0, if it's odd it's 1 (DV & 1)
@@ -1004,20 +1041,21 @@ function Pokemon() {
         if (s === Stats.HP) {
             if (gen <= 2) {
                 // (2*(iv+base) + ev/4) * level/100 + level + 10
-                return Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + this.level + 10;
+                stat = Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + this.level + 10;
+            } else if (this.id === "292:0:1") { // shedinja has 1 HP no matter what
+                stat = 1;
+            } else {
+                // (iv + 2*base + ev/4 + 100 ) * level/100 + 10
+                stat = Math.floor((iv + 2 * base + (ev >> 2) + 100) * this.level / 100) + 10;
             }
-            if (this.id === "292:0:1") { // shedinja has 1 HP no matter what
-                return 1;
-            }
-            // (iv + 2*base + ev/4 + 100 ) * level/100 + 10
-            return Math.floor((iv + 2 * base + (ev >> 2) + 100) * this.level / 100) + 10;
-        }
-        if (gen <= 2) {
+        } else if (gen <= 2) {
             // (2*(iv+base) + ev/4) * level/100 + 5
-            return Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + 5;
+            stat = Math.floor(((iv + base) * 2 + (ev >> 2)) * this.level / 100) + 5;
+        } else {
+            // [(iv + 2*base + ev/4) * level/100 + 5]*nature
+            stat = Math.floor((Math.floor((iv + 2 * base + (ev >> 2)) * this.level / 100) + 5) * (10 + n) / 10);
         }
-        // [(iv+2*base+ev/4)*level/100+5]*nature
-        return Math.floor((Math.floor((iv + 2 * base + (ev >> 2)) * this.level / 100) + 5) * (10 + n) / 10);
+        return Math.max(1, gen <= 2 ? Math.min(999, stat) : stat);
     }
     
     this.boost = function (s) {
@@ -1025,7 +1063,7 @@ function Pokemon() {
     }
     
     this.boostedStat = function (s) {
-        var boost = this.boost(s);
+        var boost = this.boost(s), stat;
         var num, den; // numerator and denominator
         if (gen > 2) {
             num = den = 2;
@@ -1040,7 +1078,8 @@ function Pokemon() {
             num = numerators[6 + boost];
             den = denominators[6 + boost];
         }
-        return Math.floor(this.stat(s) * num / den); // stat * (2+boost) / (2-drop)
+        stat = Math.floor(this.stat(s) * num / den); // stat * (2+boost) / (2-drop)
+        return Math.max(1, gen <= 2 ? Math.min(stat, 999) : stat);
     }
     
     this.simpleBoostedStat = function (s) {
@@ -1301,7 +1340,11 @@ function Move() {
     }
     
     this.sheerForce = function() {
-        return db.flinch(this.id) || db.moveEffects(this.id);
+        return db.category(this.id) === 6 // OffensiveStatChangingMove = 6
+               || db.category(this.id) === 4 // OffensiveStatusInducingMove = 4
+               || (db.category(this.id) === 7 // OffensiveSelfStatChangingMove = 7
+                   && ((db.statboost(this.id) >> 16) & 0x80) === 0) // Exclude stat drops, checking if an 8-bit int > 0
+               || !!db.flinch(this.id); // Flinch
     }
     
     this.contact = function() {
@@ -1922,7 +1965,7 @@ function Calculator() {
         } else if (["Guillotine", "Horn Drill", "Fissure", "Sheer Cold"].indexOf(moveName) > -1) {
             return [this.defender.stat(Stats.HP)];
         } else if (moveName === "Endeavor") {
-            return [this.attacker.currentHP >= this.defender.currentHP ? 0 : this.defender.currentHP-this.attacker.currentHP];
+            return [this.attacker.currentHP >= this.defender.currentHP ? 0 : this.defender.currentHP - this.attacker.currentHP];
         } else if (moveName === "Psywave") {
             var range = [];
             for (var i = 0; i <= 100; i++) {
@@ -1994,7 +2037,7 @@ function Calculator() {
         } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
+            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
         } else if (moveName === "Fling") {
             movePower = db.flingPower(attackerItem.id);
         } else if (["Fire Pledge", "Grass Pledge", "Water Pledge"].indexOf(moveName) > -1 && this.field.pledgeBoost) {
@@ -2065,7 +2108,8 @@ function Calculator() {
             movePowerMod = this.chainMod(0x800, movePowerMod);
         } else if (dAbilityName === "Dry Skin" && moveType === Types.FIRE) {
             movePowerMod = this.chainMod(0x1400, movePowerMod);
-        } else if (aAbilityName === "Sheer Force" && this.move.sheerForce()) {
+        }
+        if (aAbilityName === "Sheer Force" && this.move.sheerForce()) {
             movePowerMod = this.chainMod(0x14CD, movePowerMod);
         }
         if (attackerItem.typeBoosted() === moveType) {
@@ -2465,6 +2509,7 @@ function Calculator() {
         } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         }
+        
         var lvl, atk, def, spc_a, spc_d;
         if (this.field.critical) {
             lvl = this.attacker.level * 2;
@@ -2474,17 +2519,29 @@ function Calculator() {
             spc_d = this.defender.stat(Stats.SPC);
         } else {
             lvl = this.attacker.level;
-            atk = Math.min(999, this.attacker.boostedStat(Stats.ATK) >> (this.attacker.status === Statuses.BURNED ? 1 : 0));
-            def = Math.min(999, this.defender.boostedStat(Stats.DEF));
-            spc_a = Math.min(999, this.attacker.boostedStat(Stats.SPC));
-            spc_d = Math.min(999, this.defender.boostedStat(Stats.SPC));
+            atk = this.attacker.boostedStat(Stats.ATK) >> (this.attacker.status === Statuses.BURNED ? 1 : 0);
+            def = this.defender.boostedStat(Stats.DEF);
+            spc_a = this.attacker.boostedStat(Stats.SPC);
+            spc_d = this.defender.boostedStat(Stats.SPC);
         }
+        
         if (this.field.reflect && !this.field.critical) {
             def *= 2;
         }
         if (this.field.lightScreen && !this.field.critical) {
             spc_d *= 2;
         }
+        
+        if ((atk > 255) || (def > 255)) { // is attack or defense >255? Scale it.
+            // Divide by four and floor (round down), then only keep the first byte (%256 or &0xFF)
+            atk = Math.max(1, (atk >> 2) & 0xFF); // attack capped at 1
+            def = (def >> 2) & 0xFF;
+        }
+        if ((spc_a > 255) || (spc_d > 255)) { // is either special >255? Scale it.
+            spc_a = Math.max(1, (spc_a >> 2) & 0xFF); // attacking special capped at 1
+            spc_d = (spc_d >> 2) & 0xFF;
+        }
+        
         if (moveName === "Explosion" || moveName === "Self-Destruct") {
             def >>= 1;
         }
@@ -2500,15 +2557,10 @@ function Calculator() {
             return [0];
         }
         
-        if ((a > 255) || (d > 255)) { // is attack or defense greater than 255?
-            a = (a >> 2) & 0xFF;
-            d = (d >> 2) & 0xFF;
-        }
-        
-        a = Math.max(1, a);
+        // Technically the game would procede with division by zero and crash. I might add a case to notify for this.
         d = Math.max(1, d);
         
-        var baseDamage = Math.min(997, Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * a * this.move.power() / d) / 50)) + 2;
+        var baseDamage = Math.min(997, Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * this.move.power() * a / d) / 50)) + 2;
         
         if (this.attacker.stab(this.move.type())) {
             baseDamage = (baseDamage * 3) >> 1;
@@ -2521,7 +2573,7 @@ function Calculator() {
         baseDamage = (baseDamage * eff) >> 2;
         
         // 768+ not having damage variance seems to be proven false.
-        damages = [];
+        var damages = [];
         for (var i = 0; i < 39; i++) {
             damages[i] = Math.floor(baseDamage * (217 + i) / 255);
         }
@@ -2567,7 +2619,7 @@ function Calculator() {
         } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         } else if (moveName === "Rollout") {
-            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
+            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
         } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
         } else if (moveName === "Fury Cutter") {
@@ -2585,10 +2637,10 @@ function Calculator() {
         var crit = this.field.critical && ["Reversal", "Flail", "Future Sight"].indexOf(moveName) < 0; // moves can't crit
         var ignoreAtkBoosts = crit && !(this.attacker.boost(Stats.ATK) > this.defender.boost(Stats.DEF));
         var ignoreSpcBoosts = crit && !(this.attacker.boost(Stats.SATK) > this.defender.boost(Stats.SDEF));
-        var atk = Math.min(999, this.attacker.boostedStat(Stats.ATK) >> (this.attacker.status===Statuses.BURNED ? 1 : 0));
-        var def = Math.min(999, this.defender.boostedStat(Stats.DEF));
-        var satk = Math.min(999, this.attacker.boostedStat(Stats.SATK));
-        var sdef = Math.min(999, this.defender.boostedStat(Stats.SDEF));
+        var atk = this.attacker.boostedStat(Stats.ATK) >> (this.attacker.status === Statuses.BURNED ? 1 : 0);
+        var def = this.defender.boostedStat(Stats.DEF);
+        var satk = this.attacker.boostedStat(Stats.SATK);
+        var sdef = this.defender.boostedStat(Stats.SDEF);
         if (ignoreAtkBoosts) { // crits are weird. thanks to crystal_ and the gsc community on the mt. silver boards
             atk = this.attacker.stat(Stats.ATK);
             def = this.defender.stat(Stats.DEF);
@@ -2597,6 +2649,7 @@ function Calculator() {
             satk = this.attacker.stat(Stats.SATK);
             sdef = this.defender.stat(Stats.SDEF);
         }
+        
         if (this.field.reflect && !ignoreAtkBoosts) {
             def *= 2;
         }
@@ -2624,9 +2677,9 @@ function Calculator() {
         if ((a > 255) || (d > 255)) { // is attack or defense greater than 255?
             a = (a >> 2) & 0xFF;
             d = (d >> 2) & 0xFF;
+            d = Math.max(1, d);
         }
         // in-game Crystal would repeat the process without &0xFF, but not in link battles
-        d = Math.max(1, d);
         
         if (this.attacker.name() === "Ditto" && this.attacker.item.name() === "Metal Powder") {
             d = (d * 3) >> 1;
@@ -2647,7 +2700,8 @@ function Calculator() {
             d = this.defender.baseStat(Stats.DEF);
         }
         
-        var baseDamage = Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * a * movePower / d) / 50);
+        d = Math.max(1, d);
+        var baseDamage = Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * movePower * a / d) / 50);
         
         baseDamage *= crit ? 2 : 1;
         
@@ -2685,7 +2739,7 @@ function Calculator() {
             return [baseDamage];
         }
         
-        damages = [];
+        var damages = [];
         for (var i = 0; i < 39; i++) {
             damages[i] = Math.floor(baseDamage * (217 + i) / 255);
         }
@@ -2751,9 +2805,9 @@ function Calculator() {
         } else if (moveName === "Weather Ball") {
             moveType = this.weatherBall(weather);
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
+            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
         } else if (moveName === "Triple Kick") {
-            movePower = 10*this.field.tripleKickCount;
+            movePower = 10 * this.field.tripleKickCount;
         } else if (moveName === "Water Spout" || moveName === "Eruption") {
             movePower = Math.max(1, Math.floor(150 * this.attacker.currentHP / this.attacker.stat(Stats.HP)));
         } else if (moveName === "Fury Cutter") {
@@ -2862,7 +2916,7 @@ function Calculator() {
             return [0];
         }
         
-        var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * a * movePower / d) / 50);
+        var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * movePower * a / d) / 50);
         
         if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && moveName !== "Beat Up") {
             baseDamage >>= 1;
@@ -3088,7 +3142,7 @@ function Calculator() {
             moveType = this.weatherBall(weather);
             movePower = moveType === Types.NORMAL ? 50 : 100;
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
+            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
         } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
         } else if (((moveName === "Avalanche" && !this.field.painSplit) || (moveName === "Revenge" && !this.field.painSplit) || moveName === "Assurance") && this.field.attackerDamaged) {
@@ -3305,7 +3359,7 @@ function Calculator() {
             return [0];
         }
         
-        var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * a * movePower / d) / 50);
+        var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * movePower * a / d) / 50);
         
         if (this.attacker.status === Statuses.BURNED && aAbilityName !== "Guts" && this.move.damageClass() === DamageClasses.PHYSICAL && moveName !== "Beat Up") {
             baseDamage >>= 1;
@@ -3608,7 +3662,7 @@ function Calculator() {
         } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout%5 + this.field.defenseCurl);
+            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
         } else if (moveName === "Fling") {
             movePower = db.flingPower(attackerItem.id);
         } else if ((moveName === "Fire Pledge" || moveName === "Water Pledge" || moveName === "Grass Pledge") && this.field.pledgeBoost) {
@@ -4031,9 +4085,7 @@ function Calculator() {
     }
     
     this._calculate = function() { // helper
-        if (this.move.name() === "(No Move)") {
-            return new WeightedArray([0]);
-        } else if (this.move.name() === "Triple Kick") {
+        if (this.move.name() === "Triple Kick") {
             // Triple Kick hits three times; each time adding in power.
             var dmg = new WeightedArray([0]);
             var hits = [];
@@ -4108,7 +4160,10 @@ function Calculator() {
     
     this.calculate = function() { // multiturn variance
         var dmg = [];
-        if (this.move.name() === "Fury Cutter") {
+        if (this.move.name() === "(No Move)") {
+            dmg.push(new WeightedArray([0]));
+            dmg.push(0);
+        } else if (this.move.name() === "Fury Cutter") {
             while (this.field.furyCutter <= 5) {
                 dmg.push(this._calculate());
                 this.field.furyCutter++;
@@ -4151,9 +4206,9 @@ function Calculator() {
         return dmg;
     }
     
-    this.chanceToKO = function (damageRanges, remainingHP, totalHP, effects, berryHeal, maxTurns) { // not even recursive
+    this.chanceToKO = function (damageRanges, initDmgRange, totalHP, effects, berryHeal, maxTurns) { // not even recursive
         var chances = [];
-        var dmg = new WeightedArray([0]);
+        var dmg = new WeightedArray(initDmgRange);
         var berryDmg = new WeightedArray([]);
         var toxicCounter = 0;
         for (var turn = 0, i = 0; turn < maxTurns; turn++, i++) {
@@ -4174,14 +4229,15 @@ function Calculator() {
             // berries go first to prevent double effect application
             berryDmg.map(function (v, w) {
                 for (var e = 0; e < effects.length; e++) {
-                    if (v >= remainingHP) {
+                    if (v >= totalHP) {
+                        v = totalHP;
                         break; // poke fainted, nothing else matters
                     } else if (effects[e] === "toxic") {
                         // limit to at most enough to kill
-                        v = Math.min(remainingHP, v + Math.floor((++toxicCounter) * totalHP / 16));
+                        v = Math.min(totalHP, v + Math.floor((++toxicCounter) * totalHP / 16));
                     } else {
                         // limit to at most enough to kill, at least enough to fully heal
-                        v = Math.max(remainingHP - totalHP, Math.min(remainingHP, v - effects[e]));
+                        v = Math.max(0, Math.min(totalHP, v - effects[e]));
                     }
                 }
                 return v;
@@ -4189,16 +4245,17 @@ function Calculator() {
             dmg.map(function (v, w) {
                 var berryUsed = false;
                 for (var e = 0; e < effects.length; e++) {
-                    if (v >= remainingHP) {
+                    if (v >= totalHP) {
+                        v = totalHP;
                         break; // poke fainted, nothing else matters
                     } else if (effects[e] === "toxic") {
                         // limit to at most enough to kill
-                        v = Math.min(remainingHP, v + Math.floor((++toxicCounter) * totalHP / 16));
+                        v = Math.min(totalHP, v + Math.floor((++toxicCounter) * totalHP / 16));
                     } else {
                         // limit to at most enough to kill, at least enough to fully heal
-                        v = Math.max(remainingHP - totalHP, Math.min(remainingHP, v - effects[e]));
+                        v = Math.max(0, Math.min(totalHP, v - effects[e]));
                     }
-                    if (!berryUsed && berryHeal > 0 && ((remainingHP - v) * 2 <= totalHP)) {
+                    if (!berryUsed && berryHeal > 0 && (2 * v >= totalHP)) {
                         /* berry can be whatever amount for sitrus, oran, etc.
                          * gen 3, 4, 5, & 6: apply at 1/2 or below
                          * I've personally confirmed that for gens 3, 4, & 5 it
@@ -4206,7 +4263,7 @@ function Calculator() {
                          * tested with Emerald, Heart Gold, and White
                          * tl;dr bulba lies, it was never 1/3
                          */
-                        v = Math.max(remainingHP - totalHP, v - berryHeal);
+                        v = Math.max(0, v - berryHeal);
                         berryUsed = true;
                     }
                 }
@@ -4217,11 +4274,11 @@ function Calculator() {
                 }
                 return v;
             });
-            chances.push([addStrs(dmg.count(function (val, weight) {return remainingHP <= val;}),
-                                  berryDmg.count(function (val, weight) {return remainingHP <= val;})),
+            chances.push([addStrs(dmg.count(function (val, weight) {return val >= totalHP;}),
+                                  berryDmg.count(function (val, weight) {return val >= totalHP;})),
                           addStrs(dmg.count(), berryDmg.count())]);
-            if (chances[chances.length - 1][0] === chances[chances.length - 1][1]) {
-                return chances;
+            if (chances[chances.length - 1][0] === chances[chances.length - 1][1]) { // numerator = denominator
+                return chances; // if we reach 100% chance to KO, then it doesn't matter
             }
         }
         return chances;
@@ -4513,16 +4570,16 @@ function Calculator() {
         if (this.attacker.id === "0:0" || this.defender.id === "0:0") {
             return {
                 report: "One of your Pokémon is Missingno!",
-                minPercent: 0,
-                maxPercent: 0,
-                damage: 0
+                minPercent: null,
+                maxPercent: null,
+                damage: null
             };
         } else if (this.move.id === "0") {
             return {
                 report: "You need to select a Move!",
-                minPercent: 0,
-                maxPercent: 0,
-                damage: 0
+                minPercent: null,
+                maxPercent: null,
+                damage: null
             };
         }
         
@@ -4662,6 +4719,13 @@ function Calculator() {
         // print defender's name
         rpt += " " + this.defender.name();
         
+        // Light Screen & Reflect message
+        if (this.field.reflect && d === Stats.DEF) {
+            rpt += " behind Reflect";
+        } else if (this.field.lightScreen && d === Stats.SDEF) {
+            rpt += " behind Light Screen";
+        } 
+        
         // add weather messages
         if (this.field.weather === Weathers.RAIN) {
             rpt += " in Rain";
@@ -4683,17 +4747,34 @@ function Calculator() {
         // print the damage range
         rpt += ": " + dmg[0].values[0] + " - " + dmg[0].values[dmg[0].values.length - 1] + " (" + minPercent + " - " + maxPercent + "%) -- ";
         var effects = this.endOfTurnEffects();
-        var currentHp = this.defender.currentHP;
+        
+        var initDmg;
+        if (this.defender.currentHPRange !== null) {
+            initDmg = this.defender.currentHPRange.slice();
+        } else {
+            initDmg = [this.defender.currentHP];
+        }
+        // flip so it's actually damage
+        var maxHp = this.defender.stat(Stats.HP);
+        for (var i = 0; i < initDmg.length; i++) {
+            initDmg[i] = maxHp - initDmg[i];
+        }
         
         // Remove field hazards from current HP for probability calculation
         if (this.defender.ability.id !== "98") { // no magic guard
             if (this.field.stealthRock) {
                 // floor(hp * effectiveness of rock / 32)
                 // effectiveness is 4 for neutral
-                currentHp -= (this.defender.stat(Stats.HP) * this.effective([Types.ROCK], [this.defender.type1(), this.defender.type2()], false, false)) >> 5;
+                var srDmg = (this.defender.stat(Stats.HP) * this.effective([Types.ROCK], [this.defender.type1(), this.defender.type2()], false, false)) >> 5;
+                for (var i = 0; i < initDmg.length; i++) {
+                    initDmg[i] += srDmg;
+                }
             }
             if (this.field.spikesLayers > 0) {
-                currentHp -= Math.floor(this.defender.stat(Stats.HP) / (10 - 2 * this.field.spikesLayers));
+                var spikesDmg = Math.floor(this.defender.stat(Stats.HP) / (10 - 2 * this.field.spikesLayers));
+                for (var i = 0; i < initDmg.length; i++) {
+                    initDmg[i] += spikesDmg;
+                }
             }
         }
         
@@ -4709,7 +4790,7 @@ function Calculator() {
         }
         
         // calculate and print probability
-        var chancesInt = this.chanceToKO(dmg, currentHp, this.defender.stat(Stats.HP), effects.effects, berryHeal, 9); // redundancy.repetitive
+        var chancesInt = this.chanceToKO(dmg, initDmg, this.defender.stat(Stats.HP), effects.effects, berryHeal, 9); // redundancy.repetitive
         var chances = [];
         for (var i = 0; i < chancesInt.length; i++) {
             /* kind of difficult to explain, but basically "bypasses" the limits of integer division by dividing really large
@@ -4744,10 +4825,10 @@ function Calculator() {
         } 
         for (var i = 1; i < effects.messages.length; i++) {
             rpt += effects.messages[i];
-            if (effects.messages.length === i+2) {
+            if (effects.messages.length === i + 2) {
                 rpt += effects.messages.length === 3 ? "" : ",";
                 rpt += " and "
-            } else if (effects.messages.length !== i+1) {
+            } else if (effects.messages.length !== i + 1) {
                 rpt += ", "
             }
         }
