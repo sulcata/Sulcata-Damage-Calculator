@@ -45,6 +45,10 @@ input[type="text"] {
     visibility: hidden;
 }
 
+#defenderHP {
+    width: 4.5em;
+}
+
 #attacker {
     border-right: 1px solid #888;
     margin-bottom: 1em;
