@@ -7,11 +7,14 @@ function getId (id) {
 }
 
 // to get the old values
-var attackerOldAbility = "0";
-var defenderOldAbility = "0";
+var attackerOldAbility = "0", defenderOldAbility = "0"
+    resultingDefenderHealth = null; // need this when we use setDefenderRemainingHp button
 
 // a nice little conversion chart
 var pokeToItem = {
+    "25:0"   : "Light Ball", // Pikachu
+    "104:0"  : "Thick Club", // Cubone
+    "105:0"  : "Thick Club", // Marowak
     "649:1"  : "Douse Drive", // Genesect-D
     "649:2"  : "Shock Drive", // Genesect-S
     "649:3"  : "Burn Drive", // Genesect-B
@@ -221,14 +224,7 @@ function pokeToBinary (p) {
             q += convertToBaseN(6 + parseInt(getId(p + "SdefBoost").value, 10), 2, 4);
         }
     }
-    var tempHp = getId(p + "HP").value;
-    if (tempHp.indexOf("-") > -1) {
-        q += convertToBaseN(tempHp.substr(0, tempHp.indexOf("-") - 1), 2, 10);
-    } else if (tempHp.indexOf(",") > -1) {
-        q += convertToBaseN(tempHp.substr(0, tempHp.indexOf(",")), 2, 10);
-    } else {
-        q += convertToBaseN(tempHp, 2, 10);
-    }
+    q += convertToBaseN(Math.round(getHpList(p).avg()), 2, 10);
     q += convertToBaseN(getId(p + "Status").value, 2, 3);
     q += convertToBaseN(getId(p + "Type1").value, 2, 5);
     q += convertToBaseN(getId(p + "Type2").value, 2, 5);
@@ -940,7 +936,6 @@ function changeGen (n, light) {
         getId("cgen" + i).className = (gen === i) ? "selectGen selectedGen" : "selectGen";
     }
     
-    
     var g = document.getElementsByTagName("*");
     for (var i = g.length - 1; i >= 0; i--) {
         if (g[i].className) {
@@ -1050,19 +1045,19 @@ function updatePoke (p) {
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
     getId(p + "Nature").selectedIndex = 0;
-    if (gen >= 2 && (poke.id === "104:0" || poke.id === "105:0")) {
-        setSelectByText(p + "Item", "Thick Club");
-    } else if (gen > 1 && poke.id in pokeToItem) {
-        setSelectByText(p + "Item", pokeToItem[poke.id]);
-    } else if (gen > 1) {
-        getId(p + "Item").selectedIndex = 0;
+    if (gen > 1) {
+        if (poke.id in pokeToItem) {
+            setSelectByText(p + "Item", pokeToItem[poke.id]);
+        } else {
+            getId(p + "Item").selectedIndex = 0;
+        }
     }
     getId(p + "Status").selectedIndex = 0;
     
     db.preload("evolutions", 0, "evolutions.json", function() {
     db.preload("releasedPokes", 0, "releasedPokes.json", function() {
         var released = db.releasedPokes(gen);
-        if (gen >= 5 && poke.hasEvolution()) {
+        if (gen >= 5 && getId(p + "Item").value === "0" && poke.hasEvolution()) {
             setSelectByText(p + "Item", "Eviolite");
         }
         var hasPreEvo = false; // Little Cup check
@@ -1141,8 +1136,9 @@ function updateHpPercent (p, ranged) {
     poke.level = parseInt(getId(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
-    var total = poke.stat(Sulcalc.Stats.HP);
-    var currentPoints = getId(p + "HP").value;
+    var total = poke.stat(Sulcalc.Stats.HP),
+        currentPoints = getId(p + "HP").value;
+    // getHpList is not used here as it does not validate the data
     if (currentPoints.length === 0) {
         getId(p + "HPp").value = "100";
         getId(p + "HP").value = total;
@@ -1171,25 +1167,47 @@ function updateHpPercent (p, ranged) {
             getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * Math.min(currentPoints[0], currentPoints[1]) / total)));
             getId(p + "HP").value = Math.min(currentPoints[0], currentPoints[1]) + " - " + Math.max(currentPoints[0], currentPoints[1]);
         }
-    } else if (ranged && currentPoints.indexOf(",") > -1) {
+    } else if (ranged && currentPoints.indexOf(":") > -1) {
         // ranged, damage roll
+        currentPoints = currentPoints.replace(/\s/g, "").split(",");
+        var numArr = new Sulcalc.WeightedArray([]), tempVal = 0, strList = "";
+        for (var i = 0; i < currentPoints.length; i++) {
+            currentPoints[i] = currentPoints[i].split(":");
+            if (currentPoints[i][0].length === 0 || currentPoints[i][0].match(/[^0-9]/g) !== null) continue;
+            if (currentPoints[i].length === 1) {
+                numArr.add(parseInt(currentPoints[i][0], 10), 1);
+            } else if (currentPoints[i].length === 2 && currentPoints[i][1].length !== 0
+                       && currentPoints[i][1].match(/[^0-9]/g) === null) {
+                // the weight is converted to a string anyway and we already made sure it's a number
+                numArr.add(Math.max(1, Math.min(total, parseInt(currentPoints[i][0], 10))),
+                           currentPoints[i][1]);
+            }
+            // if the weight is empty or NaN then we just skip adding
+        }
+        var tempAvg = numArr.avg();
+        if (tempAvg === null) {
+            getId(p + "HP").value = total;
+            getId(p + "HPp").value = "100";
+        } else {
+            getId(p + "HP").value = numArr+"";
+            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(tempAvg * 100 / total)));
+        }
+    } else if (ranged && currentPoints.indexOf(",") > -1) {
+        // unweighted
         currentPoints = currentPoints.replace(/\s/g, "");
-        var tempAcc = "";
-        var numArr = [];
+        var tempAcc = "", numArr = [];
         for (var i = 0; i < currentPoints.length; i++) {
             if (currentPoints.charCodeAt(i) >= 48 && currentPoints.charCodeAt(i) <= 57) {
                 tempAcc += currentPoints.charAt(i);
             } else if (currentPoints.charAt(i) === "," && tempAcc.length > 0) {
-                numArr.push(parseInt(tempAcc, 10));
+                numArr.push(Math.max(1, Math.min(total, parseInt(tempAcc, 10))));
                 tempAcc = "";
             } else {
-                getId(p + "HPp").value = "100";
-                getId(p + "HP").value = total;
-                return;
+                tempAcc = "";
             }
         }
         if (tempAcc.length > 0) {
-            numArr.push(parseInt(tempAcc, 10));
+            numArr.push(Math.max(1, Math.min(total, parseInt(tempAcc, 10))));
         }
         numArr.sort(function (a, b) {
             return a - b;
@@ -1237,7 +1255,43 @@ function updateHpPoints (p, ranged) {
     } else {
         getId(p + "HP").value = hpLow;
     }
-    
+}
+
+function getHpList (p) {
+    var tempHp = getId(p + "HP").value;
+    var hpList = new Sulcalc.WeightedArray([]);
+    if (tempHp.indexOf("-") > -1) {
+        // ranged, not a damage roll (i.e. not a comma separated list)
+        tempHp = tempHp.replace(/\s/g, "").split("-");
+        tempHp[0] = parseInt(tempHp[0], 10);
+        tempHp[1] = parseInt(tempHp[1], 10);
+        for (var i = tempHp[0]; i <= tempHp[1]; i++) {
+            hpList.add(i, 1);
+        }
+    } else if (tempHp.indexOf(",") > -1) {
+        // ranged, damage roll
+        tempHp = tempHp.replace(/\s/g, "").split(",");
+        for (var i = 0; i < tempHp.length; i++) {
+            tempHp[i] = tempHp[i].split(":");
+            if (tempHp[i].length > 1) {
+                hpList.add(parseInt(tempHp[i][0], 10), tempHp[i][1]);
+            } else {
+                hpList.add(parseInt(tempHp[i][0], 10), 1);
+            }
+        }
+    } else {
+        hpList.add(parseInt(tempHp, 10), 1);
+    }
+    return hpList;
+}
+
+function setDefenderRemainingHp() {
+    if (resultingDefenderHealth === null) return false;
+    var totalHp = getText("defenderTotalHP");
+    if (totalHp === "???") return false;
+    getId("defenderHP").value = resultingDefenderHealth+"";
+    getId("defenderHPp").value = Math.round(resultingDefenderHealth.avg() * 100 / parseInt(totalHp, 10));
+    return true;
 }
 
 function updateStats (p) {
@@ -1279,19 +1333,14 @@ function updateStats (p) {
     poke.boosts = getBoosts(p);
     poke.nature = parseInt(getId(p + "Nature").value, 10);
     poke.id = getId(p + "Poke").value;
-    setText(p + "TotalHP", poke.id === "0:0" ? "???" : poke.stat(Sulcalc.Stats.HP));
-    var tempHp = getId(p + "HP").value, hpN = 0;
-    if (tempHp.indexOf("-") > -1) {
-        hpN = Math.min(parseInt(tempHp.substr(0, tempHp.indexOf("-") - 1), 10), poke.stat(Sulcalc.Stats.HP));
-    } else if (tempHp.indexOf(",") > -1) {
-        hpN = Math.min(parseInt(tempHp.substr(0, tempHp.indexOf(",")), 10), poke.stat(Sulcalc.Stats.HP));
-    } else if (tempHp.length === 0) {
-        hpN = poke.stat(Sulcalc.Stats.HP);
+    if (poke.id === "0:0") {
+        setText(p + "TotalHP", "???");
+        getId(p + "HP").value = getId(p + "HPp").value = "";
     } else {
-        hpN = Math.min(parseInt(tempHp, 10), poke.stat(Sulcalc.Stats.HP));
+        setText(p + "TotalHP", poke.stat(Sulcalc.Stats.HP));
+        getId(p + "HP").value = poke.stat(Sulcalc.Stats.HP);
+        getId(p + "HPp").value = "100";
     }
-    getId(p + "HP").value = poke.id === "0:0" ? "" : hpN;
-    getId(p + "HPp").value = poke.id === "0:0" ? "" : Math.max(1, Math.floor(hpN * 100 / poke.stat(Sulcalc.Stats.HP)));
     var strs = [["Hp", 0], ["Atk", 1], ["Def", 2], ["Satk", 3], ["Spc", 3], ["Sdef", 4], ["Spd", 5]];
     if (poke.id === "0:0") {
         setText(p + "HpStat", "");
@@ -1451,15 +1500,9 @@ function swapPokemon() {
     }
     var a = getId("attackerHP"),
         d = getId("defenderHP");
-    var tempD = d.value;
+    var tempD = getHpList("defender");
     d.value = a.value;
-    if (tempD.indexOf("-") > -1) {
-        a.value = tempD.substr(0, tempD.indexOf("-") - 1);
-    } else if (tempD.indexOf(",") > -1) {
-        a.value = tempD.substr(0, tempD.indexOf(","));
-    } else {
-        a.value = tempD;
-    }
+    a.value = Math.floor(tempD.avg());
     updateHiddenPowerType();
 }
 
@@ -1744,7 +1787,6 @@ function natureOptions() {
     return acc;
 }
 
-
 function calculateResults() {
     var c = new Sulcalc.Calculator();
     c.attacker.id = getId("attackerPoke").value;
@@ -1775,27 +1817,7 @@ function calculateResults() {
     c.defender.ability.id = getId("defenderAbility").value;
     c.defender.item.id = getId("defenderItem").value;
     c.defender.status = parseInt(getId("defenderStatus").value, 10);
-    c.defender.currentHP = parseInt(getId("defenderHP").value, 10);
-    var tempHp = getId("defenderHP").value;
-    if (tempHp.indexOf("-") > -1) {
-        // ranged, not a damage roll (i.e. a comma separated list)
-        c.defender.currentHPRange = [];
-        tempHp = tempHp.replace(/\s/g, "").split("-");
-        tempHp[0] = parseInt(tempHp[0], 10);
-        tempHp[1] = parseInt(tempHp[1], 10);
-        for (var i = tempHp[0]; i <= tempHp[1]; i++) {
-            c.defender.currentHPRange.push(i);
-        }
-    } else if (tempHp.indexOf(",") > -1) {
-        // ranged, damage roll
-        c.defender.currentHPRange = [];
-        tempHp = tempHp.replace(/\s/g, "").split(",");
-        for (var i = 0; i < tempHp.length; i++) {
-            c.defender.currentHPRange.push(parseInt(tempHp[i], 10));
-        }
-    } else {
-        c.defender.currentHP = parseInt(tempHp, 10);
-    }
+    c.defender.currentHP = Math.floor((c.defender.currentHPRange = getHpList("defender")).avg());
     c.defender.level = parseInt(getId("defenderLevel").value, 10);
     c.defender.addedType = parseInt(getId("defenderTypeAdded").value, 10);
     c.defender.overrideTypes = [parseInt(getId("defenderType1").value, 10), parseInt(getId("defenderType2").value, 10)];
@@ -1893,13 +1915,14 @@ function calculateResults() {
     if (rpt.damage === null) { // some error or whatever
         replaceHtml("results", rpt.report);
     } else {
-        var comma = false, tempr = "";
+        // in most cases javascript:void(0); is a bad idea, but right clicking for a new tab doesn't make sense anyway
+        resultingDefenderHealth = rpt.remainingHealth; // save for later
         replaceHtml("results", rpt.report
-                               + "<br /><div style='font-size: 0.7em;'>Damage: " + rpt.damage[0].print() + "</div>"
-                               + "<div style='font-size: 0.7em;'>Health: " + rpt.damage[0].mapPrint(function (v) {return Math.max(0, c.defender.stat(Sulcalc.Stats.HP) - v);}, true) + "</div>");
+                               + "<br /><div style='font-size: 0.7em;'>"
+                               + (Sulcalc.gtStr(rpt.damage[0].count(), "39") ? rpt.damage[0] : rpt.damage[0].print())
+                               + " (<a href='javascript:void(0);' onclick='setDefenderRemainingHp();'>set hp</a>)</div>");
     }
 }
-
 
 window.onload = function() {
     var natOps = natureOptions();
