@@ -4899,9 +4899,8 @@ function Calculator() {
                 chances2.push([parseInt(divideStrs(chancesInt[i][0] + "00000000", chancesInt[i][1])[0], 10) / 100000000, chancesInt[i][0], chancesInt[i][1]]);
             } 
         }
-        this.defenderItemUsed = false; // clean up
         
-        alert(chances2);
+        this.defenderItemUsed = false; // clean up
         
         return {
             report: rpt, // most likely will only need this for display
