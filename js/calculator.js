@@ -1407,7 +1407,7 @@ function Move() {
         return db.category(this.id) === 6 // OffensiveStatChangingMove = 6
                || db.category(this.id) === 4 // OffensiveStatusInducingMove = 4
                || (db.category(this.id) === 7 // OffensiveSelfStatChangingMove = 7
-                   && ((db.statBoost(this.id) >> 16) >= 255) // Exclude stat drops, checking if an 8-bit int > 0
+                   && ((db.statBoost(this.id) >> 16) < 128) // Exclude stat drops, checking if an 8-bit int > 0
                || !!db.flinch(this.id); // Flinch
     }
     
