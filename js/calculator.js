@@ -264,15 +264,15 @@ function Database() {
         return this._category[moveId];
     }
     
-    this._statboost = null;
-    this.statboost = function (moveId) {
-        if (this._statboost === null) {
-            this._statboost = this.getJSON(this.location + "db/statboost.json");
+    this._statBoost = null;
+    this.statBoost = function (moveId) {
+        if (this._statBoost === null) {
+            this._statBoost = this.getJSON(this.location + "db/statBoost.json");
         }
         if (typeof moveId === "undefined") {
-            return this._statboost;
+            return this._statBoost;
         }
-        return this._statboost[moveId];
+        return this._statBoost[moveId];
     }
     
     this._abilityEffects = null;
@@ -670,60 +670,83 @@ var Types = {NORMAL:0, FIGHTING:1, FLYING:2, POISON:3, GROUND:4, ROCK:5, BUG:6,
              GHOST:7, STEEL:8, FIRE:9, WATER:10, GRASS:11, ELECTRIC:12,
              PSYCHIC:13, ICE:14, DRAGON:15, DARK:16, FAIRY:17, CURSE:18}; // curse should be used in the absence of type
 
-// we gon' need a lot of math
-// ok maybe not that much math; I only need addition, multiplication, and division of nonneg strings
-// "3".charCodeAt(0) - 48 sounds faster!
-function addStrs (a, b) {
-    var carry = 0;
-    var s = 0;
-    var sum = "";
-    var bigNum = a.length > b.length ? a : b;
-    var lilNum = a.length > b.length ? b : a;
-    while (bigNum.length !== lilNum.length) {
+/* we gon' need a lot of math
+ * ok maybe not that much math; I only need addition, multiplication, and division of nonneg strings
+ * "3".charCodeAt(0) - 48 sounds faster!
+ * Ternary operators are almost unnoticeably slower than if-else, but these are probably the easiest
+ * parts of the probability bottleneck to optimize. Not to mention some of the ternary operators
+ * were redundantly checking logic.
+ */
+function addStrs (a, b) { // a,b >= 0
+    var carry = 0, s = 0, sum = "", bigNum, lilNum;
+    if (a.length > b.length) {
+        bigNum = a;
+        lilNum = b;
+    } else {
+        bigNum = b;
+        lilNum = a;
+    }
+    while (bigNum.length !== lilNum.length) { // pad the smaller string so the blank spots are zeros
         lilNum = "0" + lilNum;
     }
-    for (var i = bigNum.length - 1; i >= 0; i--) {
-        s = bigNum.charCodeAt(i) + lilNum.charCodeAt(i) + carry - 96;
-        carry = Math.floor(s / 10);
-        sum = (s % 10) + sum;
+    for (var i = bigNum.length - 1; i >= 0; --i) { // proceed RtL
+        s = bigNum.charCodeAt(i) + lilNum.charCodeAt(i) + carry - 96; // (char1 - 48) + (char2 - 48) + carry
+        if (s > 9) { // most we can carry is 1, this is probably more efficient than flooring /10
+            carry = 1;
+        } else {
+            carry = 0;
+        }
+        sum = (s % 10) + sum; // not += as we find the digits RtL
     }
-    return carry > 0 ? carry + sum : sum;
+    if (carry > 0) { // only add another digit if we have a carry
+        return carry + sum;
+    }
+    return sum;
 }
 
 function subtractStrs (a, b) { // a >= b >= 0
-    var borrow = 0;
-    var d = 0;
-    var diff = "";
-    while (a.length > b.length) {
+    var borrow = 0, d = 0, diff = "";
+    while (a.length > b.length) { // pad the strings
         b = "0" + b;
     }
     while (b.length > a.length) {
         a = "0" + a;
     }
-    for (var i = a.length - 1; i >= 0; i--) {
-        d = a.charCodeAt(i) - b.charCodeAt(i) - borrow;
-        borrow = d < 0 ? 1 : 0;
-        diff = (d < 0 ? 10+d : d) + diff;
+    for (var i = a.length - 1; i >= 0; --i) {
+        d = a.charCodeAt(i) - b.charCodeAt(i) - borrow; // (char1 - 48) - (char2 - 48) - borrow
+        if (d < 0) {
+            borrow = 1;
+            diff = (10 + d) + diff;
+        } else {
+            borrow = 0;
+            diff = d + diff;
+        }
     }
-    var i = 0;
-    while (diff.charAt(i) === "0") i++;
-    return i === diff.length ? "0" : diff.substr(i);
+    d = 0; // instead of difference, d is now going to be our iterator!
+    while (diff.charAt(d) === "0") ++d; // remove zeros padding the left, ends if it's out of bounds (returns "")
+    if (d === diff.length) {
+        return "0";
+    }
+    return diff.substr(d);
 }
 
+// read up on some other multiplication methods, apparently with numbers
+// around this size it's a waste of resources and is actually slower.
 function multiplyStrs (a, b) {
-    var zeroes = "";
-    var carry = 0;
-    var p = 0;
-    var temp = "";
-    var product = "0";
-    for (var i = a.length - 1; i >= 0; i--) {
-        for (var j = b.length - 1; j >= 0; j--) {
-            p = (a.charCodeAt(i) - 48) * (b.charCodeAt(j) - 48) + carry;
-            carry = Math.floor(p / 10);
-            temp = (p % 10) + temp;
+    if (a === "0" || b === "0") return "0"; // save time and filtering out multi-0's later
+    var zeros = "", carry = 0, p = 0, temp = "", product = "0"; // standard looking RtL division
+    for (var i = a.length - 1; i >= 0; --i) {
+        for (var j = b.length - 1; j >= 0; --j) {
+            p = (a.charCodeAt(i) - 48) * (b.charCodeAt(j) - 48) + carry; // foiling is less efficient
+            carry = Math.floor(p / 10); // we can carry more than just 1, up to 8 in fact, so this is better.
+            temp = (p % 10) + temp; // append digit to the left
         }
-        product = addStrs((carry > 0 ? carry : "") + temp + zeroes, product);
-        zeroes += "0";
+        if (carry > 0) {
+            product = addStrs(carry + temp + zeros, product);
+        } else {
+            product = addStrs(temp + zeros, product);
+        }
+        zeros += "0";
         temp = "";
         carry = 0;
     }
@@ -731,53 +754,60 @@ function multiplyStrs (a, b) {
 }
 
 function gtStr (a, b) {
-    if (a.length > b.length) {
+    if (a.length > b.length) { // simple cases
         return true;
-    } else if (b.length > a.length) {
+    }
+    if (b.length > a.length) {
         return false;
     }
-    for (var i = 0; i < a.length; i++) {
+    for (var i = 0; i < a.length; i++) { // now we need to check all the digits
         if (a.charCodeAt(i) < b.charCodeAt(i)) {
-            return false;
-        } else if (a.charCodeAt(i) > b.charCodeAt(i)) {
-            return true;
+            return false; // a is not greater than b
+        }
+        if (a.charCodeAt(i) > b.charCodeAt(i)) {
+            return true; // a is greater than b
         }
     }
-    return false;
+    return false; // the strings are equal
 }
 
+// might have room for improvement, although I don't believe I call this often so it's probably not a bottleneck
+// returns [quotient, remainder]
 function divideStrs (a, b) { // what am i doing with my life
-    if (b === "0") {
+    // long division based algorithm
+    if (b === "0") { // div by 0
         return ["NaN", "NaN"];
-    } else if (gtStr(b, a)) {
+    } else if (gtStr(b, a)) { // simple result, a is the remainder
         return ["0", a];
     }
-    var quotient = "";
-    var q = 0;
-    var r = a.substr(0, b.length);
-    for (var i = b.length; i <= a.length; i++) {
-        while (gtStr(r, b) || r === b) {
-            r = subtractStrs(r, b);
-            q++;
+    var quotient = "", q = 0, r = a.substr(0, b.length - 1);
+    // we start our r a digit short as the recursion lends itself more naturally to append the digit at its head
+    for (var i = b.length - 1; i < a.length; ++i) {
+        // add another digit so we can continue subtracting from the "remainder-to-be"
+        if (r === "0") { // make sure we don't get "05"
+            r = a.charAt(i);
+        } else {
+            r += a.charAt(i);
         }
-        quotient += q;
-        q = 0;
-        r += a.charAt(i);
-        var j = 0;
-        while (r.charAt(j) === "0") j++;
-        r = j === r.length ? "0" : r.substr(j);
+        while (gtStr(r, b) || r === b) { // keep subtracting until we run out
+            r = subtractStrs(r, b);
+            ++q; // count how many times b is subtracted ("goes into")
+        }
+        if (q > 0 || quotient !== "") quotient += q; // append the digit on the right, skip trailing-left zeros
+        q = 0; // reset q
     }
-    var i = 0;
-    while (quotient.charAt(i) === "0") i++;
-    return [i === quotient.length ? "0" : quotient.substr(i), r];
+    // we safeguarded left zeros already
+    return [quotient, r]; // [quotient, remainder]
 }
 
 function WeightedArray (a) {
     this.values = [];
     this.weights = [];
     
-    // begin init
-    if (a.length !== 0) { // check for an empty array
+    if (a instanceof WeightedArray) { // copying?
+        this.values = a.values.slice();
+        this.weights = a.weights.slice();
+    } else if (a.length !== 0) { // check for an empty array
         a.sort(function (a, b) { // sort the array into ascending order
             return a - b;
         });
@@ -852,6 +882,12 @@ function WeightedArray (a) {
         return temp;
     }
     
+    this.concat = function (w) {
+        for (var i = w.values.length - 1; i >= 0; --i) {
+            this.add(w.values[i], w.weights[i]);
+        }
+    }
+    
     this.count = function (f) {
         // elements are stored as a weighted array in which the weights are the count of the element
         // summed together would be the length of the set
@@ -885,28 +921,56 @@ function WeightedArray (a) {
         }
     }
     
-    this.print = function() {
-        var accstr = "";
-        for (var i = 0; i < this.values.length; i++) {
-            for (var j = 0; j < this.weights[i]; j++) {
-                accstr += (i + j > 0 ? ", " : "") + this.values[i];
-            }
-        }
-        return accstr;
+    this.clear = function() {
+        // apparently clearing this way is pretty fast
+        // a bit ugly but WeightedArray should be as fast as possible
+        while (this.values.shift());
+        while (this.weights.shift());
     }
     
-    this.mapPrint = function (f) {
-        var temp = new WeightedArray([]);
-        temp.values = this.values.slice();
-        temp.weights = this.weights.slice();
-        temp.map(f);
-        var accstr = "";
-        for (var i = 0; i < temp.values.length; i++) {
-            for (var j = 0; j < temp.weights[i]; j++) {
-                accstr += (i + j > 0 ? ", " : "") + temp.values[i];
-            }
+    this.min = function() {
+        if (this.values.length > 0) {
+            return this.values[0];
         }
-        return accstr;
+        return null;
+    }
+    
+    this.max = function() {
+        if (this.values.length > 0) {
+            return this.values[this.values.length - 1];
+        }
+        return null;
+    }
+    
+    this.avg = function() {
+        var weightedTotal = "0";
+        if (this.values.length > 0) {
+            var tempCount = this.count();
+            if (tempCount === "0") return null;
+            for (var i = this.values.length - 1; i >= 0; --i) {
+                weightedTotal = addStrs(weightedTotal, multiplyStrs(this.values[i]+"", this.weights[i]));
+            }
+            if (weightedTotal === "0") return 0; // don't feed divideStrs multi-zeros
+            return parseInt(divideStrs(weightedTotal + "0000", this.count())[0], 10) / 10000;
+        }
+        return null;
+    }
+    
+    this.print = function (f) {
+        if (!f) {
+            f = function(v, w) {
+                var accStr = "", _w = parseInt(w, 10);
+                for (var i = 0; i < _w; i++) {
+                    accStr += (i > 0 ? ", " : "") + v;
+                }
+                return accStr;
+            };
+        }
+        var accStr = "";
+        for (var i = 0; i < this.values.length; i++) {
+            accStr += (i > 0 ? ", " : "") + f(this.values[i], this.weights[i]);
+        }
+        return accStr;
     }
 }
 
@@ -1343,7 +1407,7 @@ function Move() {
         return db.category(this.id) === 6 // OffensiveStatChangingMove = 6
                || db.category(this.id) === 4 // OffensiveStatusInducingMove = 4
                || (db.category(this.id) === 7 // OffensiveSelfStatChangingMove = 7
-                   && ((db.statboost(this.id) >> 16) & 0x80) === 0) // Exclude stat drops, checking if an 8-bit int > 0
+                   && ((db.statBoost(this.id) >> 16) >= 255) // Exclude stat drops, checking if an 8-bit int > 0
                || !!db.flinch(this.id); // Flinch
     }
     
@@ -1661,6 +1725,9 @@ function Calculator() {
     this.attacker = new Pokemon();
     this.defender = new Pokemon();
     this.field = new Field();
+    
+    this.attackerItemUsed = false;
+    this.defenderItemUsed = false;
     
     this.typeEffectiveness = function (aType, dType) {
         // 0:immune, 1:resisted, 2:neutral, 4:super effective
@@ -2026,7 +2093,10 @@ function Calculator() {
         } else if (moveName === "Hidden Power") {
             moveType = hiddenPowerT(this.attacker.ivs);
         } else if (moveName === "Spit Up") {
-            movePower = 100*this.field.stockpile;
+            movePower = 100 * this.field.stockpile;
+            if (movePower === 0) {
+                return [0];
+            }
         } else if (moveName === "Pursuit" && this.field.switchOut) {
             movePower *= 2;
         } else if (moveName === "Present") {
@@ -2159,17 +2229,13 @@ function Calculator() {
         if (this.field.helpingHand) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
         }
-        if (this.field.waterSport && moveType === Types.FIRE) {
+        if (this.field.waterSport && moveType === Types.FIRE || this.field.mudSport && moveType === Types.ELECTRIC) {
             movePowerMod = this.chainMod(0x548, movePowerMod);
         }
-        if (this.field.mudSport && moveType === Types.ELECTRIC) {
-            movePowerMod = this.chainMod(0x548, movePowerMod);
-        }
-        if (moveType === Types.GRASS && this.field.grassyTerrain && this.attacker.grounded) { // both described as 50% move boost, unconfirmed
-            movePowerMod = this.chainMod(0x1800, movePowerMod);
-        }
-        if (moveType === Types.ELECTRIC && this.field.electricTerrain && this.attacker.grounded) {
-            movePowerMod = this.chainMod(0x1800, movePowerMod);
+        if (this.attacker.grounded
+            && (this.field.grassyTerrain && moveType === Types.GRASS 
+                || this.field.electricTerrain && moveType === Types.ELECTRIC)) {
+            movePowerMod = this.chainMod(0x1800, movePowerMod); // both described as 50% move boost, unconfirmed
         }
         if ((this.field.ionDeluge && moveType === Types.NORMAL) || this.field.electrify) {
             moveType = Types.ELECTRIC;
@@ -2289,7 +2355,7 @@ function Calculator() {
         atk = this.applyMod(atkMod, atk);
         satk = this.applyMod(satkMod, satk);
         
-        if (weather === Weathers.SAND && (this.defender.type1() === Types.ROCK || this.defender.type2() === Types.ROCK)) {
+        if (weather === Weathers.SAND && this.defender.stab(Types.ROCK)) {
             sdef = this.applyMod(0x1800, sdef);
         }
         var defMod = 0x1000, sdefMod = 0x1000;
@@ -2532,12 +2598,12 @@ function Calculator() {
             spc_d *= 2;
         }
         
-        if ((atk > 255) || (def > 255)) { // is attack or defense >255? Scale it.
+        if (atk > 255 || def > 255) { // is attack or defense >255? Scale it.
             // Divide by four and floor (round down), then only keep the first byte (%256 or &0xFF)
             atk = Math.max(1, (atk >> 2) & 0xFF); // attack capped at 1
             def = (def >> 2) & 0xFF;
         }
-        if ((spc_a > 255) || (spc_d > 255)) { // is either special >255? Scale it.
+        if (spc_a > 255 || spc_d > 255) { // is either special >255? Scale it.
             spc_a = Math.max(1, (spc_a >> 2) & 0xFF); // attacking special capped at 1
             spc_d = (spc_d >> 2) & 0xFF;
         }
@@ -2583,9 +2649,9 @@ function Calculator() {
     this.gsc_calculate = function() {
         // massive shoutout to Crystal_ for verifying the RBY/GSC mechanics for me
         
-        var moveType = this.move.type();
-        var movePower = this.move.power();
-        var moveName = this.move.name();
+        var moveType = this.move.type(),
+            movePower = this.move.power(),
+            moveName = this.move.name();
         
         if (moveName === "Hidden Power") {
             moveType = hiddenPowerT2(this.attacker.ivs);
@@ -2633,14 +2699,14 @@ function Calculator() {
             movePower *= 2;
         }
         
-        lvl = this.attacker.level;
-        var crit = this.field.critical && ["Reversal", "Flail", "Future Sight"].indexOf(moveName) < 0; // moves can't crit
-        var ignoreAtkBoosts = crit && !(this.attacker.boost(Stats.ATK) > this.defender.boost(Stats.DEF));
-        var ignoreSpcBoosts = crit && !(this.attacker.boost(Stats.SATK) > this.defender.boost(Stats.SDEF));
-        var atk = this.attacker.boostedStat(Stats.ATK) >> (this.attacker.status === Statuses.BURNED ? 1 : 0);
-        var def = this.defender.boostedStat(Stats.DEF);
-        var satk = this.attacker.boostedStat(Stats.SATK);
-        var sdef = this.defender.boostedStat(Stats.SDEF);
+        var lvl = this.attacker.level,
+            crit = this.field.critical && ["Reversal", "Flail", "Future Sight"].indexOf(moveName) < 0, // moves can't crit
+            ignoreAtkBoosts = crit && !(this.attacker.boost(Stats.ATK) > this.defender.boost(Stats.DEF)),
+            ignoreSpcBoosts = crit && !(this.attacker.boost(Stats.SATK) > this.defender.boost(Stats.SDEF)),
+            atk = this.attacker.boostedStat(Stats.ATK) >> (this.attacker.status === Statuses.BURNED ? 1 : 0),
+            def = this.defender.boostedStat(Stats.DEF),
+            satk = this.attacker.boostedStat(Stats.SATK),
+            sdef = this.defender.boostedStat(Stats.SDEF);
         if (ignoreAtkBoosts) { // crits are weird. thanks to crystal_ and the gsc community on the mt. silver boards
             atk = this.attacker.stat(Stats.ATK);
             def = this.defender.stat(Stats.DEF);
@@ -2674,10 +2740,9 @@ function Calculator() {
             return [0];
         }
         
-        if ((a > 255) || (d > 255)) { // is attack or defense greater than 255?
+        if (a > 255 || d > 255) { // is attack or defense greater than 255?
             a = (a >> 2) & 0xFF;
-            d = (d >> 2) & 0xFF;
-            d = Math.max(1, d);
+            d = Math.max(1, (d >> 2) & 0xFF);
         }
         // in-game Crystal would repeat the process without &0xFF, but not in link battles
         
@@ -2685,9 +2750,8 @@ function Calculator() {
             d = (d * 3) >> 1;
             if (d > 255) {
                 a = (a >> 1) & 0xFF;
-                d = (d >> 1) & 0xFF;
+                d = Math.max(1, (d >> 1) & 0xFF);
             }
-            d = Math.max(1, d);
         }
         
         if (moveName === "Explosion" || moveName === "Self-Destruct") {
@@ -2754,21 +2818,23 @@ function Calculator() {
     }
     
     this.adv_calculate = function() {
-        var moveType = this.move.type();
-        var movePower = this.move.power();
-        var moveName = this.move.name();
-        var attackerAbility = new Ability();
+        var moveType = this.move.type(),
+            movePower = this.move.power(),
+            moveName = this.move.name(),
+            attackerAbility = new Ability(),
+            attackerItem = new Item(),
+            defenderAbility = new Ability(),
+            defenderItem = new Item(),
+            weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         attackerAbility.id = this.attacker.ability.id;
-        var defenderAbility = new Ability();
+        attackerItem.id = this.attacker.item.id;
         defenderAbility.id = this.defender.ability.id;
+        defenderItem.id = this.defender.item.id;
+        
         if (this.move.sound() && defenderAbility.name() === "Soundproof") {
             return [0];
         }
-        var attackerItem = new Item();
-        attackerItem.id = this.attacker.item.id;
-        var defenderItem = new Item();
-        defenderItem.id = this.defender.item.id;
-        var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
+
         if (moveName === "Hidden Power") {
             movePower = hiddenPowerP(this.attacker.ivs);
             moveType = hiddenPowerT(this.attacker.ivs);
@@ -2823,11 +2889,11 @@ function Calculator() {
             movePower *= 2;
         }
         
-        var atk = this.attacker.stat(Stats.ATK);
-        var def = this.defender.stat(Stats.DEF);
-        var satk = this.attacker.stat(Stats.SATK);
-        var sdef = this.attacker.stat(Stats.SDEF);
-        var crit = this.field.critical && ["Reversal", "Flail", "Future Sight", "Doom Desire", "Spit Up"].indexOf(moveName) < 0
+        var atk = this.attacker.stat(Stats.ATK),
+            def = this.defender.stat(Stats.DEF),
+            satk = this.attacker.stat(Stats.SATK),
+            sdef = this.attacker.stat(Stats.SDEF),
+            crit = this.field.critical && ["Reversal", "Flail", "Future Sight", "Doom Desire", "Spit Up"].indexOf(moveName) < 0
                                        && defenderAbility.name() !== "Battle Armor";
 
         if (attackerAbility.name() === "Huge Power" || attackerAbility.name() === "Pure Power") {
@@ -2887,7 +2953,7 @@ function Calculator() {
         }
         if (moveName === "Self-Destruct" || moveName === "Explosion") {
             if (defenderAbility.name() === "Damp") return [0];
-            def >>= 1;
+            def = Math.max(1, def >> 1);
         }
         if (crit) {
             atk = Math.floor((this.attacker.boosts[Stats.ATK] > 0 ? 2 + this.attacker.boosts[Stats.ATK] : 2) * atk / 2);
@@ -2921,14 +2987,11 @@ function Calculator() {
         if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && moveName !== "Beat Up") {
             baseDamage >>= 1;
         }
-        if ((this.field.reflect && this.move.damageClass() === DamageClasses.PHYSICAL) || (this.field.lightScreen && this.move.damageClass() === DamageClasses.SPECIAL)) {
-            if (!crit && moveName !== "Beat Up") {
-                if (this.field.multiBattle) {
-                    baseDamage = Math.floor(baseDamage * 2 / 3);
-                } else {
-                    baseDamage >>= 1;
-                }
-            }
+        if (!crit && (this.field.reflect && this.move.damageClass() === DamageClasses.PHYSICAL
+                      || this.field.lightScreen && this.move.damageClass() === DamageClasses.SPECIAL)
+                  && moveName !== "Beat Up") {
+            baseDamage = Math.floor(this.field.multiBattle ? baseDamage * 2 / 3
+                                                           : baseDamage / 2);
         }
                 
         if (this.field.multiBattle && this.move.multiTargets()) {
@@ -2996,13 +3059,13 @@ function Calculator() {
         }
         baseDamage = (baseDamage * eff) >> 2;
         
-        if (moveName === "Spit Up") {
-            return [this.field.stockpile > 0 ? baseDamage : 0]
-        }
-        
         var damages = [];
-        for (var i = 0; i < 16; i++) {
-            damages[i] = Math.max(1, Math.floor(baseDamage * (85 + i) / 100));
+        if (moveName !== "Spit Up") {
+            for (var i = 0; i < 16; i++) {
+                damages[i] = Math.max(1, Math.floor(baseDamage * (85 + i) / 100));
+            }
+        } else {
+            damages[0] = this.field.stockpile > 0 ? baseDamage : 0;
         }
         
         if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
@@ -3015,26 +3078,26 @@ function Calculator() {
     }
     
     this.hgss_calculate = function() {
-        var moveType = this.move.type();
-        var movePower = this.move.power();
-        var attackerAbility = new Ability();
+        var moveType = this.move.type(),
+            movePower = this.move.power(),
+            attackerAbility = new Ability(),
+            attackerItem = new Item(),
+            defenderAbility = new Ability(),
+            defenderItem = new Item(),
+            weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         attackerAbility.id = this.attacker.ability.id;
-        var defenderAbility = new Ability();
+        attackerItem.id = attackerAbility.name() === "Klutz" || this.attackerItemUsed ? 0 : this.attacker.item.id;
         defenderAbility.id = this.defender.ability.id;
+        defenderItem.id = defenderAbility.name() === "Klutz" || this.defenderItemUsed ? 0 : this.defender.item.id;
         if (attackerAbility.moldBreaker() && defenderAbility.ignorable()) {
             defenderAbility.id = "0";
         }
         if (this.move.sound() && defenderAbility.name() === "Soundproof") {
             return [0];
         }
-        var attackerItem = new Item();
-        attackerItem.id = attackerAbility.name() === "Klutz" || this.attackerItemUsed ? 0 : this.attacker.item.id;
-        var defenderItem = new Item();
-        defenderItem.id = defenderAbility.name() === "Klutz" || this.defenderItemUsed ? 0 : this.defender.item.id;
-        var weather = this.field.airLock ? Weathers.CLEAR : this.field.weather;
         
-        var attackerSpeed = attackerAbility.name() === "Simple" ? this.attacker.simpleBoostedStat(Stats.SPD) : this.attacker.boostedStat(Stats.SPD);
-        var defenderSpeed = defenderAbility.name() === "Simple" ? this.defender.simpleBoostedStat(Stats.SPD) : this.defender.boostedStat(Stats.SPD);
+        var attackerSpeed = attackerAbility.name() === "Simple" ? this.attacker.simpleBoostedStat(Stats.SPD) : this.attacker.boostedStat(Stats.SPD),
+            defenderSpeed = defenderAbility.name() === "Simple" ? this.defender.simpleBoostedStat(Stats.SPD) : this.defender.boostedStat(Stats.SPD);
         if ((weather === Weathers.RAIN && attackerAbility.name() === "Swift Swim") || (weather === Weathers.SUN && attackerAbility.name() === "Chlorophyll")) {
             attackerSpeed *= 2;
         }
@@ -3176,7 +3239,7 @@ function Calculator() {
         } else if (moveName === "Stomp" && this.field.minimize) {
             movePower *= 2;
         } else if (moveName === "Spit Up") {
-           movePower = 100 * this.field.stockpile;
+            movePower = 100 * this.field.stockpile;
             if (movePower === 0) {
                 return [0];
             }
@@ -3340,7 +3403,7 @@ function Calculator() {
             sdef *= 2;
         }
         
-        if (weather === Weathers.SAND && (this.defender.type1() === Types.ROCK || this.defender.type2() === Types.ROCK)) {
+        if (weather === Weathers.SAND && this.defender.stab(Types.ROCK)) {
             sdef = (sdef * 3) >> 1;
         }
         
@@ -3898,7 +3961,7 @@ function Calculator() {
         atk = this.applyMod(atkMod, atk);
         satk = this.applyMod(satkMod, satk);
         
-        if (weather === Weathers.SAND && (this.defender.type1() === Types.ROCK || this.defender.type2() === Types.ROCK)) {
+        if (weather === Weathers.SAND && this.defender.stab(Types.ROCK)) {
             sdef = this.applyMod(0x1800, sdef);
         }
         var defMod = 0x1000, sdefMod = 0x1000;
@@ -4194,12 +4257,8 @@ function Calculator() {
         } else {
             var t1 = this._calculate();
             var t2 = this._calculate();
-            if (t1.warray === t2.warray) {
-                dmg.push(t1);
-            } else {
-                dmg.push(t1);
-                dmg.push(t2);
-            }
+            dmg.push(t1);
+            dmg.push(t2);
             dmg.push(1);
         }
         this.field.brokenMultiscale = false;
@@ -4207,15 +4266,15 @@ function Calculator() {
     }
     
     this.chanceToKO = function (damageRanges, initDmgRange, totalHP, effects, berryHeal, maxTurns) { // not even recursive
-        var chances = [];
-        var dmg = new WeightedArray(initDmgRange);
-        var berryDmg = new WeightedArray([]);
-        var toxicCounter = 0;
-        for (var turn = 0, i = 0; turn < maxTurns; turn++, i++) {
+        var chances = [],
+            dmg = new WeightedArray(initDmgRange),
+            berryDmg = new WeightedArray([]),
+            toxicCounter = 0;
+        for (var turn = 0, i = 0; turn < maxTurns; ++turn, ++i) {
             if (damageRanges[i] === 0) { // 0 means end
                 break;
             } else if (damageRanges[i] === 1) { // 1 means look at last damage range
-                i--;
+                --i;
             } else if (damageRanges[i] === 2) { // 2 means restart (rollout, fury cutter, etc.)
                 i = 0;
             }
@@ -4285,14 +4344,8 @@ function Calculator() {
     }
     
     this.endOfTurnEffects = function() {
-        var effects = [0];
-        var effectMsgs = [""];
-        if (this.defender.ability.id === "98") {
-            return {
-                effects: effects,
-                messages: effectMsgs
-            };
-        }
+        var effects = [0],
+            effectMsgs = [""];
         if (gen === 1) {
             if (this.defender.status === Statuses.BURNED) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 3));
@@ -4318,13 +4371,10 @@ function Calculator() {
             // leech seed
             // nightmare
             // curse
-            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
-                                                               || this.defender.type2() === Types.GROUND
-                                                               || this.defender.type1() === Types.ROCK
-                                                               || this.defender.type2() === Types.ROCK
-                                                               || this.defender.type1() === Types.STEEL
-                                                               || this.defender.type2() === Types.STEEL)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+            if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
+                                                     && !this.defender.stab(Types.ROCK)
+                                                     && !this.defender.stab(Types.STEEL)) {
+                effects.push(-(this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Sandstorm");
             }
             if (this.defender.item.name() === "Leftovers") {
@@ -4332,16 +4382,12 @@ function Calculator() {
                 effectMsgs.push("Leftovers");
             }
         } else if (gen === 3) { // gen 3 after effects
-            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
-                                                               || this.defender.type2() === Types.GROUND
-                                                               || this.defender.type1() === Types.ROCK
-                                                               || this.defender.type2() === Types.ROCK
-                                                               || this.defender.type1() === Types.STEEL
-                                                               || this.defender.type2() === Types.STEEL)) {
+            if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
+                                                     && !this.defender.stab(Types.ROCK)
+                                                     && !this.defender.stab(Types.STEEL)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
-            }
-            if (this.field.weather === Weathers.HAIL && this.defender.type1() !== Types.ICE && this.defender.type2() !== Types.ICE) {
+            } else if (this.field.weather === Weathers.HAIL && !this.defender.stab(Types.ICE)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
@@ -4366,16 +4412,12 @@ function Calculator() {
             // curse
             // multi turns -- whirlpool, flame wheel, etc
         } else if (gen === 4) { // gen 4 after effects
-            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
-                                                               || this.defender.type2() === Types.GROUND
-                                                               || this.defender.type1() === Types.ROCK
-                                                               || this.defender.type2() === Types.ROCK
-                                                               || this.defender.type1() === Types.STEEL
-                                                               || this.defender.type2() === Types.STEEL)) {
+            if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
+                                                     && !this.defender.stab(Types.ROCK)
+                                                     && !this.defender.stab(Types.STEEL)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
-            }
-            if (this.field.weather === Weathers.HAIL && this.defender.type1() !== Types.ICE && this.defender.type2() !== Types.ICE) {
+            } else if (this.field.weather === Weathers.HAIL && !this.defender.stab(Types.ICE)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
@@ -4387,12 +4429,10 @@ function Calculator() {
                     effects.push(this.defender.stat(Stats.HP) >> 3);
                     effectMsgs.push("Dry Skin");
                 }
-            }
-            if (this.defender.ability.name() === "Rain Dish" && this.field.weather === Weathers.RAIN) {
+            } else if (this.field.weather === Weathers.RAIN && this.defender.ability.name() === "Rain Dish") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Rain Dish");
-            }
-            if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
+            } else if (this.field.weather === Weathers.HAIL && this.defender.ability.name() === "Ice Body") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Ice Body");
             }
@@ -4401,6 +4441,9 @@ function Calculator() {
             if (this.defender.item.name() === "Leftovers") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Leftovers");
+            } else if (this.defender.item.name() === "Black Sludge") {
+                effects.push((this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
+                effectMsgs.push("Black Sludge");
             }
             // leech seed
             if (this.defender.status === Statuses.BURNED) {
@@ -4425,16 +4468,12 @@ function Calculator() {
                 effectMsgs.push("Sticky Barb");
             }
         } else if (gen === 5) { // gen 5 after effects
-            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
-                                                               || this.defender.type2() === Types.GROUND
-                                                               || this.defender.type1() === Types.ROCK
-                                                               || this.defender.type2() === Types.ROCK
-                                                               || this.defender.type1() === Types.STEEL
-                                                               || this.defender.type2() === Types.STEEL)) {
+            if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
+                                                     && !this.defender.stab(Types.ROCK)
+                                                     && !this.defender.stab(Types.STEEL)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
-            }
-            if (this.field.weather === Weathers.HAIL && this.defender.type1() !== Types.ICE && this.defender.type2() !== Types.ICE) {
+            } else if (this.field.weather === Weathers.HAIL && this.defender.stab(Types.ICE)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
@@ -4446,12 +4485,10 @@ function Calculator() {
                     effects.push(this.defender.stat(Stats.HP) >> 3);
                     effectMsgs.push("Dry Skin");
                 }
-            }
-            if (this.defender.ability.name() === "Rain Dish" && this.field.weather === Weathers.RAIN) {
+            } else if (this.field.weather === Weathers.RAIN && this.defender.ability.name() === "Rain Dish") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Rain Dish");
-            }
-            if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
+            } else if (this.field.weather === Weathers.HAIL && this.defender.ability.name() === "Ice Body") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Ice Body");
             }
@@ -4459,15 +4496,9 @@ function Calculator() {
             if (this.defender.item.name() === "Leftovers") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Leftovers");
-            }
-            if (this.defender.item.name() === "Black Sludge") {
-                if (this.defender.type1() === Types.POISON || this.defender.type2() === Types.POISON) {
-                    effects.push(this.defender.stat(Stats.HP) >> 4);
-                    effectMsgs.push("Black Sludge");
-                } else {
-                    effects.push(-(this.defender.stat(Stats.HP) >> 4));
-                    effectMsgs.push("Black Sludge");
-                }
+            } else if (this.defender.item.name() === "Black Sludge") {
+                effects.push((this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
+                effectMsgs.push("Black Sludge");
             }
             // aqua ring
             // ingrain
@@ -4494,16 +4525,12 @@ function Calculator() {
                 effectMsgs.push("Sticky Barb");
             }
         } else if (gen === 6) { // gen 6 after effects
-            if (this.field.weather === Weathers.SAND && !(this.defender.type1() === Types.GROUND
-                                                               || this.defender.type2() === Types.GROUND
-                                                               || this.defender.type1() === Types.ROCK
-                                                               || this.defender.type2() === Types.ROCK
-                                                               || this.defender.type1() === Types.STEEL
-                                                               || this.defender.type2() === Types.STEEL)) {
+            if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
+                                                     && !this.defender.stab(Types.ROCK)
+                                                     && !this.defender.stab(Types.STEEL)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
-            }
-            if (this.field.weather === Weathers.HAIL && this.defender.type1() !== Types.ICE && this.defender.type2() !== Types.ICE) {
+            } else if (this.field.weather === Weathers.HAIL && this.defender.stab(Types.ICE)) {
                 effects.push(-(this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
@@ -4515,12 +4542,10 @@ function Calculator() {
                     effects.push(this.defender.stat(Stats.HP) >> 3);
                     effectMsgs.push("Dry Skin");
                 }
-            }
-            if ((this.field.weather === Weathers.RAIN || this.field.weather === Weathers.HEAVY_RAIN) && this.defender.ability.name() === "Rain Dish") {
+            } else if ((this.field.weather === Weathers.RAIN || this.field.weather === Weathers.HEAVY_RAIN) && this.defender.ability.name() === "Rain Dish") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Rain Dish");
-            }
-            if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
+            } else if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Ice Body");
             }
@@ -4528,15 +4553,9 @@ function Calculator() {
             if (this.defender.item.name() === "Leftovers") {
                 effects.push(this.defender.stat(Stats.HP) >> 4);
                 effectMsgs.push("Leftovers");
-            }
-            if (this.defender.item.name() === "Black Sludge") {
-                if (this.defender.type1() === Types.POISON || this.defender.type2() === Types.POISON) {
-                    effects.push(this.defender.stat(Stats.HP) >> 4);
-                    effectMsgs.push("Black Sludge");
-                } else {
-                    effects.push(-(this.defender.stat(Stats.HP) >> 4));
-                    effectMsgs.push("Black Sludge");
-                }
+            } else if (this.defender.item.name() === "Black Sludge") {
+                effects.push((this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
+                effectMsgs.push("Black Sludge");
             }
             // aqua ring
             // ingrain
@@ -4563,7 +4582,15 @@ function Calculator() {
                 effectMsgs.push("Sticky Barb");
             }
         }
-        return {effects: effects, messages: effectMsgs};
+        if (this.defender.ability.name() === "Magic Guard") {
+            for (var i = 1; i < effects.length; i++) { // we can skip the 'useless' 0th element
+                if (effects[i] < 0) {
+                    effects.splice(i, 1);
+                    effectMsgs.splice(i, 1);
+                }
+            }
+        }
+        return {values: effects, messages: effectMsgs};
     }
     
     this.report = function() {
@@ -4583,14 +4610,13 @@ function Calculator() {
             };
         }
         
-        var dmg = this.calculate();
-        var minPercent = Math.round(dmg[0].values[0] / this.defender.stat(Stats.HP) * 1000) / 10;
-        var maxPercent = Math.round(dmg[0].values[dmg[0].values.length-1] / this.defender.stat(Stats.HP) * 1000) / 10;
+        var dmg = this.calculate(), rpt = "";
+        var minPercent = Math.round(dmg[0].min() / this.defender.stat(Stats.HP) * 1000) / 10,
+            maxPercent = Math.round(dmg[0].max() / this.defender.stat(Stats.HP) * 1000) / 10;
         
-        rpt = "";
         // which stats are we using?
-        var a = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SATK : Stats.ATK;
-        var d = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SDEF : Stats.DEF;
+        var a = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SATK : Stats.ATK,
+            d = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SDEF : Stats.DEF;
         if (["Psyshock", "Psystrike", "Secret Sword"].indexOf(this.move.name()) > -1) {
             a = Stats.SATK;
             d = Stats.DEF;
@@ -4745,20 +4771,20 @@ function Calculator() {
             rpt += " on a critical hit";
         }
         // print the damage range
-        rpt += ": " + dmg[0].values[0] + " - " + dmg[0].values[dmg[0].values.length - 1] + " (" + minPercent + " - " + maxPercent + "%) -- ";
+        rpt += ": " + dmg[0].min() + " - " + dmg[0].max() + " (" + minPercent + " - " + maxPercent + "%) -- ";
         var effects = this.endOfTurnEffects();
         
         var initDmg;
         if (this.defender.currentHPRange !== null) {
-            initDmg = this.defender.currentHPRange.slice();
+            initDmg = new WeightedArray(this.defender.currentHPRange); // copy
         } else {
-            initDmg = [this.defender.currentHP];
+            initDmg = new WeightedArray([this.defender.currentHP]);
         }
         // flip so it's actually damage
         var maxHp = this.defender.stat(Stats.HP);
-        for (var i = 0; i < initDmg.length; i++) {
-            initDmg[i] = maxHp - initDmg[i];
-        }
+        initDmg.map(function (v, w) {
+            return Math.max(0, maxHp - v);
+        });
         
         // Remove field hazards from current HP for probability calculation
         if (this.defender.ability.id !== "98") { // no magic guard
@@ -4766,15 +4792,15 @@ function Calculator() {
                 // floor(hp * effectiveness of rock / 32)
                 // effectiveness is 4 for neutral
                 var srDmg = (this.defender.stat(Stats.HP) * this.effective([Types.ROCK], [this.defender.type1(), this.defender.type2()], false, false)) >> 5;
-                for (var i = 0; i < initDmg.length; i++) {
-                    initDmg[i] += srDmg;
-                }
+                initDmg.map(function (v, w) {
+                    return Math.min(maxHp, v + srDmg);
+                });
             }
             if (this.field.spikesLayers > 0) {
                 var spikesDmg = Math.floor(this.defender.stat(Stats.HP) / (10 - 2 * this.field.spikesLayers));
-                for (var i = 0; i < initDmg.length; i++) {
-                    initDmg[i] += spikesDmg;
-                }
+                initDmg.map(function (v, w) {
+                    return Math.min(maxHp, v + spikesDmg);
+                });
             }
         }
         
@@ -4790,15 +4816,19 @@ function Calculator() {
         }
         
         // calculate and print probability
-        var chancesInt = this.chanceToKO(dmg, initDmg, this.defender.stat(Stats.HP), effects.effects, berryHeal, 9); // redundancy.repetitive
+        var chancesInt = this.chanceToKO(dmg, initDmg, this.defender.stat(Stats.HP), effects.values, berryHeal, 9); // redundancy.repetitive
         var chances = [];
         for (var i = 0; i < chancesInt.length; i++) {
             /* kind of difficult to explain, but basically "bypasses" the limits of integer division by dividing really large
              * integers and adding the decimal place afterwards
              */
-            chances.push(parseInt(divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1]), 10) / 10000);
-            if (chances[i] === 0 && chancesInt[i][0] > 0) {
-                chances[i] = "possible"; // sometimes we get "0" probability even though there is a "chance"
+            if (chancesInt[i][0] === "0") { // don't feed divideStrs multi-zeros
+                chances.push(0);
+            } else {
+                chances.push(parseInt(divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1])[0], 10) / 10000);
+                if (chances[i] === 0) {
+                    chances[i] = "possible"; // sometimes we get "0" probability even though there is a "chance"
+                }
             }
         }
         for (var i = 0, hasPrevious = false; i < chances.length; i++) {
@@ -4807,7 +4837,7 @@ function Calculator() {
                 hasPrevious = true;
             } else if (chances[i] > 0) {
                 if (chances[i] < 1) {
-                    rpt += (hasPrevious ? ", " : "") + Math.round(chances[i]*1000)/10 + "% chance to "
+                    rpt += (hasPrevious ? ", " : "") + Math.round(chances[i] * 1000) / 10 + "% chance to "
                            + (i > 0 ? (i + 1) : "O") + "HKO";
                     hasPrevious = true;
                 } else if (!hasPrevious) {
@@ -4839,11 +4869,47 @@ function Calculator() {
             rpt += " from " + defenderCurrentHp + "%";
         }
         
+        // we're sort of simulating the first iteration of chanceToKO
+        initDmg = initDmg.combine(dmg[0]);
+        var totalHP = this.defender.stat(Stats.HP),
+            toxicCounter = 0;
+        initDmg.map(function (v, w) {
+            for (var e = 0; e < effects.values.length; e++) {
+                if (v >= totalHP) {
+                    v = totalHP;
+                    break; // poke fainted, nothing else matters
+                } else if (effects.values[e] === "toxic") {
+                    // limit to at most enough to kill
+                    v = Math.min(totalHP, v + Math.floor((++toxicCounter) * totalHP / 16));
+                } else {
+                    // limit to at most enough to kill, at least enough to fully heal
+                    v = Math.max(0, Math.min(totalHP, v - effects.values[e]));
+                }
+            }
+            return totalHP - v;
+        });
+        
+        // berry heal is difficult, will think about later
+        
+        var chances2 = [];
+        for (var i = 0; i < chancesInt.length; i++) {
+            if (chancesInt[i][0] === "0") { // don't feed divideStrs multi-zeros
+                chances2.push([0, chancesInt[i][0], chancesInt[i][1]]);
+            } else {
+                chances2.push([parseInt(divideStrs(chancesInt[i][0] + "00000000", chancesInt[i][1])[0], 10) / 100000000, chancesInt[i][0], chancesInt[i][1]]);
+            } 
+        }
+        this.defenderItemUsed = false; // clean up
+        
         return {
-            report: rpt,
+            report: rpt, // most likely will only need this for display
             minPercent: minPercent,
             maxPercent: maxPercent,
-            damage: dmg
+            damage: dmg,
+            remainingHealth: initDmg, // useful for multimove probability
+            effectValues: effects.values,
+            effectMessages: effects.messages, // maybe if someone wants to check what EOT effects and resids happened
+            chances: chances2
         };
     }
 }
@@ -4868,6 +4934,11 @@ return { Database : Database,
          hiddenPowerT : hiddenPowerT,
          hiddenPowerP2 : hiddenPowerP2,
          hiddenPowerT2 : hiddenPowerT2,
-         WeightedArray : WeightedArray // not really needed, but report object returns these so w/e
+         WeightedArray : WeightedArray, // not really needed, but report object returns these so w/e
+         addStrs : addStrs,
+         subtractStrs : subtractStrs,
+         multiplyStrs : multiplyStrs,
+         divideStrs : divideStrs,
+         gtStr : gtStr
        };
 }());
