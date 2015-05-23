@@ -1043,7 +1043,6 @@ function setBoosts (p, b) {
 }
 
 function updatePoke (p) {
-    resultingDefenderHealth = null;
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
     getId(p + "Nature").selectedIndex = 0;
@@ -1953,6 +1952,7 @@ window.onload = function() {
         updateAttackerAbilityOptions();
     };
     getId("defenderPoke").onchange = function() {
+        resultingDefenderHealth = null;
         updatePoke("defender");
         updateDefenderSets();
         updateDefenderAbilityOptions();
