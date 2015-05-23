@@ -1179,7 +1179,7 @@ function updateHpPercent (p, ranged) {
             } else if (currentPoints[i].length === 2 && currentPoints[i][1].length !== 0
                        && currentPoints[i][1].match(/[^0-9]/g) === null) {
                 // the weight is converted to a string anyway and we already made sure it's a number
-                numArr.add(Math.max(1, Math.min(total, parseInt(currentPoints[i][0], 10))),
+                numArr.add(Math.max(0, Math.min(total, parseInt(currentPoints[i][0], 10))),
                            currentPoints[i][1]);
             }
             // if the weight is empty or NaN then we just skip adding
@@ -1200,14 +1200,14 @@ function updateHpPercent (p, ranged) {
             if (currentPoints.charCodeAt(i) >= 48 && currentPoints.charCodeAt(i) <= 57) {
                 tempAcc += currentPoints.charAt(i);
             } else if (currentPoints.charAt(i) === "," && tempAcc.length > 0) {
-                numArr.push(Math.max(1, Math.min(total, parseInt(tempAcc, 10))));
+                numArr.push(Math.max(0, Math.min(total, parseInt(tempAcc, 10))));
                 tempAcc = "";
             } else {
                 tempAcc = "";
             }
         }
         if (tempAcc.length > 0) {
-            numArr.push(Math.max(1, Math.min(total, parseInt(tempAcc, 10))));
+            numArr.push(Math.max(0, Math.min(total, parseInt(tempAcc, 10))));
         }
         numArr.sort(function (a, b) {
             return a - b;
@@ -1280,7 +1280,7 @@ function getHpList (p) {
             }
         }
     } else {
-        hpList.add(parseInt(tempHp, 10), 1);
+        hpList.add(parseInt(tempHp.substr(0, tempHp.indexOf(":")), 10), 1);
     }
     return hpList;
 }
@@ -1290,7 +1290,7 @@ function setDefenderRemainingHp() {
     var totalHp = getText("defenderTotalHP");
     if (totalHp === "???") return false;
     getId("defenderHP").value = resultingDefenderHealth+"";
-    getId("defenderHPp").value = Math.round(resultingDefenderHealth.avg() * 100 / parseInt(totalHp, 10));
+    getId("defenderHPp").value = Math.floor(resultingDefenderHealth.avg() * 100 / parseInt(totalHp, 10));
     return true;
 }
 
