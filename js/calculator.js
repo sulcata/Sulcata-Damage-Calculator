@@ -1222,15 +1222,14 @@ function Pokemon() {
     }
     
     this.fromImportable = function (importText) {
-        var statMatches = {"hp": 0, "atk": 1, "def": 2, "satk": 3, "spatk": 3, "sdef": 4, "spdef": 4, "spd": 5, "spc": 3};
-        var lines = importText.split("\n");
+        var statMatches = {"hp": 0, "atk": 1, "def": 2, "satk": 3, "spatk": 3, "sdef": 4, "spdef": 4, "spd": 5, "spc": 3},
+            lines = importText.split("\n");
         lines.forEach(function (val, idx, arr) {
             arr[idx] = val.trim();
         });
-        var tempIdx = lines[0].indexOf(" @ ");
+        var tempIdx = lines[0].indexOf(" @ "), name;
         tempIdx = tempIdx < 0 ? tempIdx.length : tempIdx;
         this.gender = ["(N)", "(M)", "(F)"].indexOf(lines[0].substring(tempIdx - 3, tempIdx));
-        var name;
         if (this.gender > -1) {
             name = lines[0].substring(0, tempIdx - 4);
         } else {
@@ -1277,8 +1276,8 @@ function Pokemon() {
     }
     
     this.toImportable = function() {
-        var stats = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"];
-        var e = this.name();
+        var stats = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"],
+            e = this.name();
         if (gen > 2) {
             e += ["", " (M)", " (F)"][this.gender];;
         }
@@ -4612,11 +4611,10 @@ function Calculator() {
         
         var dmg = this.calculate(), rpt = "";
         var minPercent = Math.round(dmg[0].min() / this.defender.stat(Stats.HP) * 1000) / 10,
-            maxPercent = Math.round(dmg[0].max() / this.defender.stat(Stats.HP) * 1000) / 10;
-        
-        // which stats are we using?
-        var a = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SATK : Stats.ATK,
+            maxPercent = Math.round(dmg[0].max() / this.defender.stat(Stats.HP) * 1000) / 10,
+            a = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SATK : Stats.ATK,
             d = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SDEF : Stats.DEF;
+        
         if (["Psyshock", "Psystrike", "Secret Sword"].indexOf(this.move.name()) > -1) {
             a = Stats.SATK;
             d = Stats.DEF;
@@ -4772,16 +4770,16 @@ function Calculator() {
         }
         // print the damage range
         rpt += ": " + dmg[0].min() + " - " + dmg[0].max() + " (" + minPercent + " - " + maxPercent + "%) -- ";
-        var effects = this.endOfTurnEffects();
         
-        var initDmg;
+        var effects = this.endOfTurnEffects(), initDmg;
         if (this.defender.currentHPRange !== null) {
             initDmg = new WeightedArray(this.defender.currentHPRange); // copy
         } else {
             initDmg = new WeightedArray([this.defender.currentHP]);
         }
-        // flip so it's actually damage
         var maxHp = this.defender.stat(Stats.HP);
+        var defenderCurrentHp = Math.floor(initDmg.avg() * 100 / maxHp); // saving for later, "from N%"
+        // flip so it's actually damage
         initDmg.map(function (v, w) {
             return Math.max(0, maxHp - v);
         });
@@ -4816,8 +4814,7 @@ function Calculator() {
         }
         
         // calculate and print probability
-        var chancesInt = this.chanceToKO(dmg, initDmg, this.defender.stat(Stats.HP), effects.values, berryHeal, 9); // redundancy.repetitive
-        var chances = [];
+        var chancesInt = this.chanceToKO(dmg, initDmg, this.defender.stat(Stats.HP), effects.values, berryHeal, 9), chances = [];
         for (var i = 0; i < chancesInt.length; i++) {
             /* kind of difficult to explain, but basically "bypasses" the limits of integer division by dividing really large
              * integers and adding the decimal place afterwards
@@ -4864,7 +4861,6 @@ function Calculator() {
         }
         
         // print if total HP given is <100%
-        var defenderCurrentHp = parseInt(document.getElementById("defenderHPp").value, 10);
         if (defenderCurrentHp < 100) {
             rpt += " from " + defenderCurrentHp + "%";
         }
@@ -4901,7 +4897,7 @@ function Calculator() {
         }
         
         this.defenderItemUsed = false; // clean up
-        
+
         return {
             report: rpt, // most likely will only need this for display
             minPercent: minPercent,
