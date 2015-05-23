@@ -1280,7 +1280,7 @@ function getHpList (p) {
             }
         }
     } else {
-        hpList.add(parseInt(tempHp.substr(0, tempHp.indexOf(":")), 10), 1);
+        hpList.add(parseInt(tempHp.split(":")[0], 10), 1);
     }
     return hpList;
 }
@@ -1289,7 +1289,11 @@ function setDefenderRemainingHp() {
     if (resultingDefenderHealth === null) return false;
     var totalHp = getText("defenderTotalHP");
     if (totalHp === "???") return false;
-    getId("defenderHP").value = resultingDefenderHealth+"";
+    if (resultingDefenderHealth.values.length === 1) {
+        getId("defenderHP").value = resultingDefenderHealth.values[0];
+    } else {
+        getId("defenderHP").value = resultingDefenderHealth+"";
+    }
     getId("defenderHPp").value = Math.floor(resultingDefenderHealth.avg() * 100 / parseInt(totalHp, 10));
     return true;
 }
