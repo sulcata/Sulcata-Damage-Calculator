@@ -602,6 +602,7 @@ function updateFormatting() {
 
 function changeGen (n, light) {
     light = !!light;
+    resultingDefenderHealth = null;
     var oldgen = gen;
     gen = n;
     // reset form first
@@ -1042,6 +1043,7 @@ function setBoosts (p, b) {
 }
 
 function updatePoke (p) {
+    resultingDefenderHealth = null;
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
     getId(p + "Nature").selectedIndex = 0;
