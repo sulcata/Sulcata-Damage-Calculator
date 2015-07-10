@@ -660,13 +660,14 @@ Database.prototype.getJSON = function (file) {
 
 var Sulcalc = (function() {
 
+// --CONSTANTS--
 // "enumerations"
-var Stats = {HP:0, ATK:1, DEF:2, SATK:3, SDEF:4, SPD:5, ACC:6, EVA:7, SPC:3}; // special overlaps with SpAtk for gen 2
-var Genders = {NOGENDER:0, MALE:1, FEMALE:2};
-var DamageClasses = {OTHER:0, PHYSICAL:1, SPECIAL:2};
-var Weathers = {CLEAR:0, SUN:4, RAIN:2, SAND:3, HAIL:1, HARSH_SUN:6, HEAVY_RAIN:5, STRONG_WINDS:7};
-var Statuses = {NOSTATUS:0, POISONED:1, BADLYPOISONED:2, BURNED:3, PARALYZED:4, ASLEEP:5, FROZEN:6};
-var Types = {NORMAL:0, FIGHTING:1, FLYING:2, POISON:3, GROUND:4, ROCK:5, BUG:6,
+var Stats = {HP:0, ATK:1, DEF:2, SATK:3, SDEF:4, SPD:5, ACC:6, EVA:7, SPC:3}, // special overlaps with SpAtk for gen 2
+    Genders = {NOGENDER:0, MALE:1, FEMALE:2},
+    DamageClasses = {OTHER:0, PHYSICAL:1, SPECIAL:2},
+    Weathers = {CLEAR:0, SUN:4, RAIN:2, SAND:3, HAIL:1, HARSH_SUN:6, HEAVY_RAIN:5, STRONG_WINDS:7},
+    Statuses = {NOSTATUS:0, POISONED:1, BADLYPOISONED:2, BURNED:3, PARALYZED:4, ASLEEP:5, FROZEN:6},
+    Types = {NORMAL:0, FIGHTING:1, FLYING:2, POISON:3, GROUND:4, ROCK:5, BUG:6,
              GHOST:7, STEEL:8, FIRE:9, WATER:10, GRASS:11, ELECTRIC:12,
              PSYCHIC:13, ICE:14, DRAGON:15, DARK:16, FAIRY:17, CURSE:18}; // curse should be used in the absence of type
 
@@ -1087,9 +1088,9 @@ function Pokemon() {
             // If the DV is even it's 0, if it's odd it's 1 (DV & 1)
             // the four bits are arranged in the order Attack, Defense, Speed, Special
             iv = (this.ivs[Stats.ATK] & 1) << 3
-                  | (this.ivs[Stats.DEF] & 1) << 2
-                  | (this.ivs[Stats.SPD] & 1) << 1
-                  | (this.ivs[Stats.SPC] & 1);
+               | (this.ivs[Stats.DEF] & 1) << 2
+               | (this.ivs[Stats.SPD] & 1) << 1
+               | (this.ivs[Stats.SPC] & 1);
             ev = this.evs[Stats.HP];
         } else if (gen === 2 && (s === Stats.SDEF || s === Stats.SATK)) {
             // gen 2 has gen 1's data structures and doesn't have a separate SpDef DV
@@ -1644,7 +1645,7 @@ function Field() {
     this.switchOut = false; // did the opponent switch out? (for pursuit)
     this.present = 40; // assuming damage it's either 40, 80, or 120. lol present
     this.magnitude = 4; // magnitude 4, 5, 6, 7, 8, 9, 10
-    this.rollout = 0; // 0-5, shared by ice ball
+    this.rollout = 1; // 0-5, shared by ice ball. 1st time = 1, 2nd time = 2, ...
     this.defenseCurl = 0; // 0 or 1
     this.tripleKickCount = 1; // which hit is it? 1, 2, 3? Don't touch
     this.previouslyFainted = false; // for retaliate
@@ -1706,17 +1707,19 @@ function hiddenPowerT (ivs) {
 
 function hiddenPowerP2 (ivs) {
     // gen 2 gets weirder
-    return 31 + ((5 * ((ivs[3] >> 3)
-                       | ((ivs[5] >> 2) & 2)
-                       | ((ivs[2] >> 1) & 4)
-                       | (ivs[1] & 8))
-                      + (ivs[3] & 3)
+    return 31 + ((5 * ((ivs[Stats.SPC] >> 3)
+                       | ((ivs[Stats.SPD] >> 2) & 2)
+                       | ((ivs[Stats.DEF] >> 1) & 4)
+                       | (ivs[Stats.ATK] & 8))
+                  + (ivs[Stats.SPC] & 3)
                  ) >> 1);
 }
     
 function hiddenPowerT2 (ivs) {
     // still weird
-    return 1 + (((ivs[1] & 3) << 2) | (ivs[2] & 3));
+    // the first two bits of the attack IV on the left and the first two bits of the defense IV on the right
+    // increment 1 to align with the type list
+    return 1 + (((ivs[Stats.ATK] & 3) << 2) | (ivs[Stats.DEF] & 3));
 }
 
 function Calculator() {
@@ -2035,7 +2038,7 @@ function Calculator() {
         } else if (moveName === "Psywave") {
             var range = [];
             for (var i = 0; i <= 100; i++) {
-                range[i] = Math.max(1, Math.floor(this.attacker.level * (i + 50) / 100))
+                range.push(Math.max(1, Math.floor(this.attacker.level * (i + 50) / 100)));
             }
             return range;
         } else if (moveName === "Super Fang") {
@@ -2106,7 +2109,7 @@ function Calculator() {
         } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
+            movePower = 30 << ((this.field.rollout - 1) % 5 + this.field.defenseCurl);
         } else if (moveName === "Fling") {
             movePower = db.flingPower(attackerItem.id);
         } else if (["Fire Pledge", "Grass Pledge", "Water Pledge"].indexOf(moveName) > -1 && this.field.pledgeBoost) {
@@ -2241,11 +2244,11 @@ function Calculator() {
         }
         movePower = Math.max(1, this.applyMod(movePowerMod, movePower));
         
-        var _def = this.field.wonderRoom ? Stats.SDEF : Stats.DEF;
-        var _sdef = this.field.wonderRoom ? Stats.DEF : Stats.SDEF;
-        var unawareA = aAbilityName === "Unaware";
-        var unawareD = dAbilityName === "Unaware";
-        if (this.move.name() === "Foul Play") {
+        var _def = this.field.wonderRoom ? Stats.SDEF : Stats.DEF,
+            _sdef = this.field.wonderRoom ? Stats.DEF : Stats.SDEF,
+            unawareA = aAbilityName === "Unaware",
+            unawareD = dAbilityName === "Unaware";
+        if (moveName === "Foul Play") {
             if (unawareA) {
                 def = this.defender.stat(_def);
                 sdef = this.defender.stat(_sdef);
@@ -2566,9 +2569,10 @@ function Calculator() {
         } else if (["Guillotine", "Horn Drill", "Fissure"].indexOf(moveName) > -1) {
             return [65535];
         } else if (moveName === "Psywave") {
+            // according to crystal_, it really is 1-149
             var range = [];
-            for (var i = 1; i <= Math.floor(this.attacker.level * 3 / 2 - 1); i++) {
-                range[i-1] = i;
+            for (var i = 1; i < this.attacker.level * 3 >> 1; i++) {
+                range.push(i);
             }
             return range;
         } else if (moveName === "Super Fang") {
@@ -2676,15 +2680,16 @@ function Calculator() {
         } else if (["Guillotine", "Horn Drill", "Fissure"].indexOf(moveName) > -1) {
             return [65535];
         } else if (moveName === "Psywave") {
+            // according to crystal_, it really is 1-149
             var range = [];
-            for (var i = 1; i <= Math.floor(this.attacker.level * 3 / 2 - 1); i++) {
-                range[i-1] = i;
+            for (var i = 1; i < this.attacker.level * 3 >> 1; i++) {
+                range.push(i);
             }
             return range;
         } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         } else if (moveName === "Rollout") {
-            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
+            movePower = 30 << ((this.field.rollout - 1) % 5 + this.field.defenseCurl);
         } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
         } else if (moveName === "Fury Cutter") {
@@ -2860,17 +2865,17 @@ function Calculator() {
         } else if (moveName === "Endeavor") {
             return [this.attacker.currentHP >= this.defender.currentHP ? 0 : this.defender.currentHP - this.attacker.currentHP];
         } else if (moveName === "Psywave") {
-            var temp = [];
+            var range = [];
             for (var i = 0; i <= 10; i++) {
-                temp[i] = Math.max(1, Math.floor(this.attacker.level * (i * 10 + 50) / 100));
+                range.push(Math.max(1, Math.floor(this.attacker.level * (10 * i + 50) / 100)));
             }
-            return temp;
+            return range;
         } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         } else if (moveName === "Weather Ball") {
             moveType = this.weatherBall(weather);
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
+            movePower = 30 << ((this.field.rollout - 1) % 5 + this.field.defenseCurl);
         } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
         } else if (moveName === "Water Spout" || moveName === "Eruption") {
@@ -3193,18 +3198,18 @@ function Calculator() {
         } else if (moveName === "Endeavor") {
             return [this.attacker.currentHP >= this.defender.currentHP ? 0 : this.defender.currentHP - this.attacker.currentHP];
         } else if (moveName === "Psywave") {
-            var temp = [];
+            var range = [];
             for (var i = 0; i <= 10; i++) {
-                temp[i] = Math.max(1, (Math.floor(this.attacker.level * (10 * i + 50) / 100)));
+                range.push(Math.max(1, Math.floor(this.attacker.level * (10 * i + 50) / 100)));
             }
-            return temp;
+            return range;
         } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         } else if (moveName === "Weather Ball") {
             moveType = this.weatherBall(weather);
             movePower = moveType === Types.NORMAL ? 50 : 100;
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
+            movePower = 30 << ((this.field.rollout - 1) % 5 + this.field.defenseCurl);
         } else if (moveName === "Triple Kick") {
             movePower = 10 * this.field.tripleKickCount;
         } else if (((moveName === "Avalanche" && !this.field.painSplit) || (moveName === "Revenge" && !this.field.painSplit) || moveName === "Assurance") && this.field.attackerDamaged) {
@@ -3652,7 +3657,7 @@ function Calculator() {
         } else if (moveName === "Psywave") {
             var range = [];
             for (var i = 0; i <= 100; i++) {
-                range[i] = Math.max(1, Math.floor(this.attacker.level * (i + 50) / 100))
+                range.push(Math.max(1, Math.floor(this.attacker.level * (i + 50) / 100)));
             }
             return range;
         } else if (moveName === "Super Fang") {
@@ -3668,7 +3673,7 @@ function Calculator() {
             movePower *= 2;
         } else if (moveName === "Electro Ball") {
             movePower = this.electroBall(attackerSpeed, defenderSpeed);
-        } else if (((moveName === "Avalanche" && !this.field.painSplit) || (moveName === "Revenge" && !this.field.painSplit) || this.move.name === "Assurance") && this.field.attackerDamaged) {
+        } else if (((moveName === "Avalanche" && !this.field.painSplit) || (moveName === "Revenge" && !this.field.painSplit) || moveName === "Assurance") && this.field.attackerDamaged) {
             movePower *= 2;
         } else if (moveName === "Gyro Ball") {
             movePower = this.gyroBall(attackerSpeed, defenderSpeed);
@@ -3724,7 +3729,7 @@ function Calculator() {
         } else if (moveName === "Magnitude") {
             movePower = this.magnitudePower(this.field.magnitude);
         } else if (moveName === "Rollout" || moveName === "Ice Ball") {
-            movePower = 30 << (this.field.rollout % 5 + this.field.defenseCurl);
+            movePower = 30 << ((this.field.rollout - 1) % 5 + this.field.defenseCurl);
         } else if (moveName === "Fling") {
             movePower = db.flingPower(attackerItem.id);
         } else if ((moveName === "Fire Pledge" || moveName === "Water Pledge" || moveName === "Grass Pledge") && this.field.pledgeBoost) {
@@ -4226,41 +4231,53 @@ function Calculator() {
             dmg.push(new WeightedArray([0]));
             dmg.push(0);
         } else if (this.move.name() === "Fury Cutter") {
+            var temp = this.field.furyCutter;
             while (this.field.furyCutter <= 5) {
                 dmg.push(this._calculate());
                 this.field.furyCutter++;
             }
             dmg.push(1);
+            this.field.furyCutter = temp; // restore
         } else if (this.move.name() === "Echoed Voice") {
+            var temp = this.field.echoedVoice;
             while (this.field.echoedVoice <= 4) {
                 dmg.push(this._calculate());
                 this.field.echoedVoice++;
             }
             dmg.push(1);
+            this.field.echoedVoice = temp; // restore
         } else if (this.move.name() === "Trump Card") {
+            var temp = this.field.trumpPP;
             dmg.push(this._calculate());
             while (this.field.trumpPP > 0) {
-                this.field.trumpPP -= this.defender.ability.name() === "Pressure" ? 2 : 1;
+                if (this.defender.ability.name() === "Pressure") {
+                    this.field.trumpPP = Math.max(0, this.field.trumpPP - 2);
+                } else {
+                    --this.field.trumpPP;
+                }
                 dmg.push(this._calculate());
             }
-            dmg.push(0);
+            dmg.push(0); // no more PP, consider adding leppa berry for this
+            this.field.trumpPP = temp; // restore
         } else if (this.move.name() === "Explosion" || this.move.name() === "Self-Destruct") {
             dmg.push(this._calculate());
-            dmg.push(0);
+            dmg.push(0); // ur dead
         } else if (this.move.name() === "Rollout" || this.move.name() === "Ice Ball") {
-            while (this.field.rollout <= 4) {
+            var temp = this.field.rollout;
+            for (var i = 0; i < 5; ++i) { // repeat 5 times. The formulas wrap around automatically.
                 dmg.push(this._calculate());
-                this.field.rollout++;
+                ++this.field.rollout;
             }
             dmg.push(2);
+            this.field.rollout = temp;
         } else {
             var t1 = this._calculate();
-            var t2 = this._calculate();
+            var t2 = this._calculate(); // an item like a type-resist berry or a gem might get used
             dmg.push(t1);
             dmg.push(t2);
-            dmg.push(1);
+            dmg.push(1); // only repeat the last roll
         }
-        this.field.brokenMultiscale = false;
+        this.field.brokenMultiscale = false; // we most likely broke multiscale with our attack
         return dmg;
     }
     
@@ -4595,17 +4612,11 @@ function Calculator() {
     this.report = function() {
         if (this.attacker.id === "0:0" || this.defender.id === "0:0") {
             return {
-                report: "One of your Pokémon is Missingno!",
-                minPercent: null,
-                maxPercent: null,
-                damage: null
+                report: "One of your Pokémon is Missingno!"
             };
         } else if (this.move.id === "0") {
             return {
-                report: "You need to select a Move!",
-                minPercent: null,
-                maxPercent: null,
-                damage: null
+                report: "You need to select a Move!"
             };
         }
         
@@ -4636,60 +4647,60 @@ function Calculator() {
         }
         
         var itemIgnoreList = { // don't exclude plates & orbs as those affect damage
-            "649:1" : "Douse Drive", // Genesect-D
-            "649:2" : "Shock Drive", // Genesect-S
-            "649:3" : "Burn Drive", // Genesect-B
-            "649:4" : "Chill Drive", // Genesect-C
-            "460:1:M" : "Abomasite", // Mega Abomasnow
-            "359:1:M" : "Absolite", // Mega Absol
-            "142:1:M" : "Aerodactylite", // Mega Aerodactyl
-            "306:1:M" : "Aggronite", // Mega Aggron
+            "649:1"  : "Douse Drive", // Genesect-D
+            "649:2"  : "Shock Drive", // Genesect-S
+            "649:3"  : "Burn Drive", // Genesect-B
+            "649:4"  : "Chill Drive", // Genesect-C
+            "460:1:M": "Abomasite", // Mega Abomasnow
+            "359:1:M": "Absolite", // Mega Absol
+            "142:1:M": "Aerodactylite", // Mega Aerodactyl
+            "306:1:M": "Aggronite", // Mega Aggron
             "65:1:M" : "Alakazite", // Mega Alakazam
-            "334:1:M" : "Altarianite", // Mega Altaria
-            "181:1:M" : "Ampharosite", // Mega Ampharos
-            "531:1:M" : "Audinite", // Mega Audino
-            "354:1:M" : "Banettite", // Mega Banette
+            "334:1:M": "Altarianite", // Mega Altaria
+            "181:1:M": "Ampharosite", // Mega Ampharos
+            "531:1:M": "Audinite", // Mega Audino
+            "354:1:M": "Banettite", // Mega Banette
             "15:1:M" : "Beedrillite", // Mega Beedrill
-            "9:1:M" : "Blastoisinite", // Mega Blastoise
-            "257:1:M" : "Blazikenite", // Mega Blaziken
-            "323:1:M" : "Cameruptite", // Mega Camerupt
-            "6:1:M" : "Charizardite X", // Mega Charizard X
-            "6:2:M" : "Charizardite Y", // Mega Charizard Y
-            "719:1:M" : "Diancite", // Mega Diancie
-            "475:1:M" : "Galladite", // Mega Gallade
-            "445:1:M" : "Garchompite", // Mega Garchomp
-            "282:1:M" : "Gardevoirite", // Mega Gardevoir
+            "9:1:M"  : "Blastoisinite", // Mega Blastoise
+            "257:1:M": "Blazikenite", // Mega Blaziken
+            "323:1:M": "Cameruptite", // Mega Camerupt
+            "6:1:M"  : "Charizardite X", // Mega Charizard X
+            "6:2:M"  : "Charizardite Y", // Mega Charizard Y
+            "719:1:M": "Diancite", // Mega Diancie
+            "475:1:M": "Galladite", // Mega Gallade
+            "445:1:M": "Garchompite", // Mega Garchomp
+            "282:1:M": "Gardevoirite", // Mega Gardevoir
             "94:1:M" : "Gengarite", // Mega Gengar
-            "362:1:M" : "Glalitite", // Mega Glalie
-            "130:1:M" : "Gyaradosite", // Mega Gyarados
-            "214:1:M" : "Heracronite", // Mega Heracross
-            "229:1:M" : "Houndoominite", // Mega Houndoom
-            "115:1:M" : "Kangaskhanite", // Mega Kangaskhan
-            "380:1:M" : "Latiasite", // Mega Latias
-            "381:1:M" : "Latiosite", // Mega Latios
-            "428:1:M" : "Lopunnity", // Mega Lopunny
-            "448:1:M" : "Lucarionite", // Mega Lucario
-            "310:1:M" : "Manectite", // Mega Manectric
-            "303:1:M" : "Mawilite", // Mega Mawile
-            "308:1:M" : "Medichamite", // Mega Medicham
-            "376:1:M" : "Metagrossite", // Mega Metagross
-            "150:1:M" : "Mewtwonite X", // Mega Mewtwo X
-            "150:2:M" : "Mewtwonite Y", // Mega Mewtwo Y
+            "362:1:M": "Glalitite", // Mega Glalie
+            "130:1:M": "Gyaradosite", // Mega Gyarados
+            "214:1:M": "Heracronite", // Mega Heracross
+            "229:1:M": "Houndoominite", // Mega Houndoom
+            "115:1:M": "Kangaskhanite", // Mega Kangaskhan
+            "380:1:M": "Latiasite", // Mega Latias
+            "381:1:M": "Latiosite", // Mega Latios
+            "428:1:M": "Lopunnity", // Mega Lopunny
+            "448:1:M": "Lucarionite", // Mega Lucario
+            "310:1:M": "Manectite", // Mega Manectric
+            "303:1:M": "Mawilite", // Mega Mawile
+            "308:1:M": "Medichamite", // Mega Medicham
+            "376:1:M": "Metagrossite", // Mega Metagross
+            "150:1:M": "Mewtwonite X", // Mega Mewtwo X
+            "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
             "18:1:M" : "Pidgeotite", // Mega Pidgeot
-            "127:1:M" : "Pinsirite", // Mega Pinsir
-            "302:1:M" : "Sablenite", // Mega Sableye
-            "373:1:M" : "Salamencite", // Mega Salamence
-            "254:1:M" : "Sceptilite", // Mega Sceptile
-            "212:1:M" : "Scizorite", // Mega Scizor
-            "319:1:M" : "Sharpedonite", // Mega Sharpedo
+            "127:1:M": "Pinsirite", // Mega Pinsir
+            "302:1:M": "Sablenite", // Mega Sableye
+            "373:1:M": "Salamencite", // Mega Salamence
+            "254:1:M": "Sceptilite", // Mega Sceptile
+            "212:1:M": "Scizorite", // Mega Scizor
+            "319:1:M": "Sharpedonite", // Mega Sharpedo
             "80:1:M" : "Slowbronite", // Mega Slowbro
-            "208:1:M" : "Steelixite", // Mega Steelix
-            "260:1:M" : "Swampertite", // Mega Swampert
-            "248:1:M" : "Tyranitarite", // Mega Tyranitar
-            "3:1:M" : "Venusaurite", // Mega Venusaur
-            "383:1:M" : "Red Orb", // Primal Groudon
-            "382:1:M" : "Blue Orb" // Primal Kyogre
-        }
+            "208:1:M": "Steelixite", // Mega Steelix
+            "260:1:M": "Swampertite", // Mega Swampert
+            "248:1:M": "Tyranitarite", // Mega Tyranitar
+            "3:1:M"  : "Venusaurite", // Mega Venusaur
+            "383:1:M": "Red Orb", // Primal Groudon
+            "382:1:M": "Blue Orb" // Primal Kyogre
+        };
         // print attacker's item; gen 1 doesn't have them
         if (gen > 1 && this.attacker.item.id !== "0" && itemIgnoreList[this.attacker.id] !== this.attacker.item.name()) {
             rpt += " " + this.attacker.item.name();
@@ -4702,7 +4713,11 @@ function Calculator() {
         rpt += this.attacker.status === Statuses.BURNED ? " Burned " : " ";
         
         // print attacker's name and then the move name
-        rpt += this.attacker.name() + " " + this.move.name();
+        rpt += this.attacker.name();
+        if (this.field.helpingHand) {
+            rpt += " Helping Hand";
+        }
+        rpt += " " + this.move.name();
         if (this.move.name() === "Hidden Power") { // print "Hidden Power [Type Here]" for hidden power
             if (gen <= 2) { // gen 2 has its own formulas
                 rpt += " [" + db.types(hiddenPowerT2(this.attacker.ivs))
