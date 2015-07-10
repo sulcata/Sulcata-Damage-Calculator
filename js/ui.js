@@ -1,13 +1,13 @@
 db = new Database();
 db.location = "";
-
+    
 // make the file size a little smaller
 function getId (id) {
     return document.getElementById(id);
 }
 
 // to get the old values
-var attackerOldAbility = "0", defenderOldAbility = "0"
+var attackerOldAbility = "0", defenderOldAbility = "0",
     resultingDefenderHealth = null; // need this when we use setDefenderRemainingHp button
 
 // a nice little conversion chart
@@ -95,18 +95,17 @@ function convertToBaseN (n, base, paddingLength) {
     // base 64 lets me do EVs in one digit ((64-1)*4=252)
     // 252 is the maximum number of EVs that will matter and only multiples of 4 can change a Pokemon's stats.
     // also lets me represent pretty much everything in two digits
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        p = Math.floor(Math.log(n) / Math.log(base)), result = "";
     // n = base^p
     // ln n = p ln base
     // (ln n)/(ln base) = p
     // floor p
     // p will be the largest integer such that n > base^p
-    var p = Math.floor(Math.log(n) / Math.log(base));
-    var result = "";
     while (p >= 0) {
         result += digits[Math.floor(n / Math.pow(base, p))];
         n %= Math.pow(base, p);
-        p--;
+        --p;
     }
     for (var i = paddingLength - result.length; i > 0; i--) {
         result = "0" + result;
@@ -116,11 +115,10 @@ function convertToBaseN (n, base, paddingLength) {
 
 function convertFromBaseN (n, base) {
     // this is a lot easier
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", result = 0;
     // The index of the digit is its value, therefore 'Z'=63, '0'=0, and '-'=10.
     // The digit's contribution to the integer value is dependent on its position.
     // value += digit * base^position
-    var result = 0;
     for (var i = 0; i < n.length; i++) {
         // We iterate forwards and read the values backwards because the power increases from right to left.
         result += digits.indexOf(n[n.length-1-i]) * Math.pow(base, i);
@@ -130,11 +128,9 @@ function convertFromBaseN (n, base) {
 
 function binaryToBase64 (n) {
     // Converting the strings without an integer middleman prevents overflow
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    var result = "";
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", result = "", temp = 0;
     // A base-64 digit will store exactly 6 bits worth of data.
     // Before adding the digit to the string, we need to know all 6 bits.
-    var temp = 0;
     for (var i = 0; i < n.length; i++) {
         /* Iterate forwards. Read right to left. Same reason as before.
          * Left shift is a convient and fast way to multiply by powers of 2.
@@ -145,8 +141,10 @@ function binaryToBase64 (n) {
          * 100101 in binary = 37 in decimal = z in base-64
          * 101010 in binary = 42 in decimal = E in base-64
          * 100101101010 in binary = zE in base-64
-         */ 
-        temp |= digits.indexOf(n[n.length-1-i])  << (i % 6);
+         */
+        if (n[n.length-1-i] === "1") {
+            temp += 1 << (i % 6);
+        }
         if ((i + 1) % 6 === 0) {
             // left append the digit and reset the temporary value
             result = digits[temp] + result;
@@ -161,8 +159,7 @@ function binaryToBase64 (n) {
 
 function base64ToBinary (n) {
     // We don't need to worry about overflow as we're converting one digit at a time.
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    var result = "";
+    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", result = "";
     for (var i = 0; i < n.length; i++) {
         result += convertToBaseN(digits.indexOf(n[i]), 2, 6);
     }
@@ -178,10 +175,10 @@ function pokeToBinary (p) {
      * gen 5 : 169 bits
      * gen 6 : 174 bits
      */
-    var q = "";
-    var poke = getId(p + "Poke").value;
-    var species = pokeSpecies(poke);
-    var form = pokeForm(poke);
+    var q = "",
+        poke = getId(p + "Poke").value,
+        species = pokeSpecies(poke),
+        form = pokeForm(poke);
     if (gen <= 2) {
         q += convertToBaseN(species, 2, 8);
     } else if (gen <= 4) {
@@ -224,7 +221,12 @@ function pokeToBinary (p) {
             q += convertToBaseN(6 + parseInt(getId(p + "SdefBoost").value, 10), 2, 4);
         }
     }
-    q += convertToBaseN(Math.round(getHpList(p).avg()), 2, 10);
+    var tempHp = getHpList(p).avg();
+    if (tempHp === null) {
+        q += "0000000000"; // convertToBaseN(0, 2, 10);
+    } else {
+        q += convertToBaseN(Math.round(tempHp), 2, 10);
+    }
     q += convertToBaseN(getId(p + "Status").value, 2, 3);
     q += convertToBaseN(getId(p + "Type1").value, 2, 5);
     q += convertToBaseN(getId(p + "Type2").value, 2, 5);
@@ -1241,16 +1243,15 @@ function updateHpPoints (p, ranged) {
     poke.level = parseInt(getId(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
-    var total = poke.stat(Sulcalc.Stats.HP);
-    var currentPercent = getId(p + "HPp").value;
+    var total = poke.stat(Sulcalc.Stats.HP), currentPercent = getId(p + "HPp").value;
     if (currentPercent.match(/[^0-9]/g) !== null) {
         currentPercent = 100;
     } else {
         currentPercent = parseInt(currentPercent, 10);
     }
     getId(p + "HPp").value = Math.max(1, Math.min(100, currentPercent));
-    var hpLow = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100)));
-    var hpHigh = Math.max(1, Math.min(total, (Math.ceil(total / 100) - 1 + hpLow)));
+    var hpLow = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100))),
+        hpHigh = Math.max(1, Math.min(total, (Math.ceil(total / 100) - 1 + hpLow)));
     if (ranged && hpLow < hpHigh) {
         getId(p + "HP").value = hpLow + " - " + Math.max(1, Math.min(total, Math.ceil(total / 100) - 1 + hpLow));
     } else {
@@ -1261,6 +1262,9 @@ function updateHpPoints (p, ranged) {
 function getHpList (p) {
     var tempHp = getId(p + "HP").value;
     var hpList = new Sulcalc.WeightedArray([]);
+    if (tempHp.length < 1) {
+        return hpList;
+    }
     if (tempHp.indexOf("-") > -1) {
         // ranged, not a damage roll (i.e. not a comma separated list)
         tempHp = tempHp.replace(/\s/g, "").split("-");
@@ -1301,19 +1305,6 @@ function setDefenderRemainingHp() {
 
 function updateStats (p) {
     db.preload("stats", gen, "stats.json", function() {
-    // ev and iv are unified in a "special" stat, but the base stats are different.
-    // I recall reading it was because GSC and RBY used the same data structures.
-    if (gen === 2) {
-        getId(p + "SdefEv").value = getId(p + "SatkEv").value;
-        getId(p + "SdefIv").value = getId(p + "SatkIv").value;
-    }
-    // there is no HP iv in gens 1 & 2, it is determined by other ivs
-    if (gen <= 2) {
-        getId(p + "HpIv").value = (parseInt(getId(p + "AtkIv").value, 10) & 1) << 3
-                                   | (parseInt(getId(p + "DefIv").value, 10) & 1) << 2
-                                   | (parseInt(getId(p + "SpdIv").value, 10) & 1) << 1
-                                   | (parseInt(getId(p + "SpcIv").value, 10) & 1);
-    }
     // update the /??? for the HP and reset percentage to 100%
     var poke = new Sulcalc.Pokemon();
     poke.level = getId(p + "Level").value;
@@ -1326,11 +1317,26 @@ function updateStats (p) {
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
     for (var i = 0; i < 6; i++) {
+        // it makes sense for gens 1 & 2 to default the maximum in an error since you can max all stats
         poke.evs[i] = Math.max(0, Math.min(255, isNaN(poke.evs[i]) ? (gen > 2 ? 0 : 255) : poke.evs[i]));
+        // it's prettier if gens 1 & 2 allow 255 EVs
         if (!(gen <= 2 && poke.evs[i] === 255)) {
-            poke.evs[i] = (poke.evs[i] / 4) << 2;
+            poke.evs[i] = (poke.evs[i] / 4) << 2; // round to the nearest multiple of 4
         }
         poke.ivs[i] = Math.max(0, Math.min(gen > 2 ? 31 : 15, isNaN(poke.ivs[i]) ? (gen > 2 ? 31 : 15) : poke.ivs[i]));
+    }
+    // EVs and IVs are unified in a "special" stat, but the base stats are different.
+    // I recall reading it was because GSC and RBY used the same data structures.
+    if (gen === 2) {
+        poke.evs[Sulcalc.Stats.SDef] = poke.evs[Sulcalc.Stats.SAtk];
+        poke.ivs[Sulcalc.Stats.SDef] = poke.ivs[Sulcalc.Stats.SAtk];
+    }
+    // the HP IV in gens 1 & 2 is determined by the other IVs
+    if (gen <= 2) {
+        getId(p + "HpIv").value = (poke.ivs[Sulcalc.Stats.ATK] & 1) << 3
+                                | (poke.ivs[Sulcalc.Stats.DEF] & 1) << 2
+                                | (poke.ivs[Sulcalc.Stats.SPD] & 1) << 1
+                                | (poke.ivs[Sulcalc.Stats.SPC] & 1);
     }
     // correct the EVs and IVs by setting them after doing the above checks.
     setEvs(p, poke.evs);
@@ -1342,9 +1348,14 @@ function updateStats (p) {
         setText(p + "TotalHP", "???");
         getId(p + "HP").value = getId(p + "HPp").value = "";
     } else {
+        // make the HP "stick" to the cap when maxed out
+        if (getId(p + "HP").value === getText(p + "TotalHP")) {
+            getId(p + "HP").value = poke.stat(Sulcalc.Stats.HP);
+            getId(p + "HPp").value = "100";
+        } else {
+            updateHpPercent(p, p === "defender");
+        }
         setText(p + "TotalHP", poke.stat(Sulcalc.Stats.HP));
-        getId(p + "HP").value = poke.stat(Sulcalc.Stats.HP);
-        getId(p + "HPp").value = "100";
     }
     var strs = [["Hp", 0], ["Atk", 1], ["Def", 2], ["Satk", 3], ["Spc", 3], ["Sdef", 4], ["Spd", 5]];
     if (poke.id === "0:0") {
@@ -1357,11 +1368,7 @@ function updateStats (p) {
         setText(p + "SpdStat", "");
     } else {
         for (var i = 0; i < strs.length; i++) {
-            if (gen > 2) {
-                setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
-            } else {
-                setText(p + strs[i][0] + "Stat", Math.min(999, poke.boostedStat(strs[i][1])));
-            }
+            setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
         }
     }
     });
@@ -1922,12 +1929,31 @@ function calculateResults() {
     } else {
         // in most cases javascript:void(0); is a bad idea, but right clicking for a new tab doesn't make sense anyway
         resultingDefenderHealth = rpt.remainingHealth; // save for later
-        replaceHtml("results", rpt.report
-                               + "<br /><div style='font-size: 0.7em;'>"
-                               + (Sulcalc.gtStr(rpt.damage[0].count(), "39") ? rpt.damage[0] : rpt.damage[0].print())
-                               + " (<a href='javascript:void(0);' onclick='setDefenderRemainingHp();'>set hp</a>)</div>");
+        var rptHtml = rpt.report
+                    + "<br /><div style='font-size: 0.7em;'>"
+                    + (Sulcalc.gtStr(rpt.damage[0].count(), "39") && c.move.name() !== "Psywave" ? rpt.damage[0] : rpt.damage[0].print())
+                    + " (<a href='javascript:void(0);' onclick='setDefenderRemainingHp();'>set hp</a>)";
+        var previous = false;
+        for (var i = 0; i < rpt.chances.length; i++) {
+            if (rpt.chances[i][1] !== "0" && rpt.chances[i][1] !== rpt.chances[i][2]) {
+                if (previous) {
+                    rptHtml += ", ";
+                } else {
+                    rptHtml += "<br />[";
+                    previous = true;
+                }
+                rptHtml += rpt.chances[i][1] + "/" + rpt.chances[i][2];
+            }
+        }
+        if (previous) {
+            rptHtml += "]";
+        }
+        rptHtml += "</div>";
+        replaceHtml("results", rptHtml);
     }
 }
+
+
 
 window.onload = function() {
     var natOps = natureOptions();
