@@ -221,7 +221,8 @@ function pokeToBinary (p) {
             q += convertToBaseN(6 + parseInt(getId(p + "SdefBoost").value, 10), 2, 4);
         }
     }
-    var tempHp = getHpList(p).avg();
+    var tempHp = getHpList(p);
+    tempHp = tempHp[0].concat(tempHp[1]).avg();
     if (tempHp === null) {
         q += "0000000000"; // convertToBaseN(0, 2, 10);
     } else {
@@ -817,31 +818,29 @@ function changeGen (n, light) {
         var redundantForms = ["493:18", "0:0"];
         if (gen === 6) { // just a quick fix to unreleased stuff
             for (var a in db.pokemons()) {
-                if (redundantForms.indexOf(a) > -1
-                    || (onlyZero.indexOf(a.substring(0, a.indexOf(":"))) > -1 && a.charAt(a.indexOf(":") + 1) !== "0")
-                    || (a.indexOf("670:") === 0 && a.charAt(4) !== "0" && a.charAt(4) !== "5")) {
-                    continue;
+                if (redundantForms.indexOf(a) < 0
+                    && (a.charAt(a.indexOf(":") + 1) === "0" || onlyZero.indexOf(a.substring(0, a.indexOf(":"))) < 0)
+                    && (a === "670:0" || a === "670:5" || a.indexOf("670:") < 0)) {
+                    arr = insertOpOrder(arr, [a, db.pokemons(a)]);
                 }
-                arr = insertOpOrder(arr, [a, db.pokemons(a)]);
             }
         } else {
             for (var a in db.releasedPokes(gen)) {
                 id = db.releasedPokes(gen, a);
-                if (db.pokemons(id + ":H")) {
-                    id += ":H";
-                } else if (db.pokemons(id + ":M")) {
-                    continue;
-                } else if (db.pokemons(id + ":B")) {
-                    id += ":B";
-                } else if (id === "292:0") {
-                    id = "292:0:1";
+                if (!db.pokemons(id + ":M")) {
+                    if (db.pokemons(id + ":H")) {
+                        id += ":H";
+                    } else if (db.pokemons(id + ":B")) {
+                        id += ":B";
+                    } else if (id === "292:0") {
+                        id = "292:0:1";
+                    }
+                    if (redundantForms.indexOf(id) < 0
+                        && (a.charAt(a.indexOf(":") + 1) === "0" || onlyZero.indexOf(a.substring(0, a.indexOf(":"))) < 0)
+                        && (a === "670:0" || a === "670:5" || a.indexOf("670:") < 0)) {
+                        arr = insertOpOrder(arr, [id, db.pokemons(id)]);
+                    }
                 }
-                if (redundantForms.indexOf(id) > -1
-                    || (onlyZero.indexOf(id.substring(0, id.indexOf(":"))) > -1 && id.charAt(id.indexOf(":") + 1) !== "0")
-                    || (id.indexOf("670:") === 0 && id.charAt(4) !== "0" && id.charAt(4) !== "5")) {
-                    continue;
-                }
-                arr = insertOpOrder(arr, [id, db.pokemons(id)]);
             }
         }
         for (var i = 0; i < arr.length; i++) {
@@ -919,11 +918,10 @@ function changeGen (n, light) {
     
     var typeOps = "<option value='18'>---</option>";
     for (var i = 0; i < 18; i++) {
-        if ((gen === 1 && (i === 8 || i === 16))
-            || (gen < 6 && i === 17)) {
-            continue;
+        if ((gen > 1 || (i !== 8 && i !== 16))
+            && (gen > 5 || i !== 17)) {
+            typeOps += "<option value='" + i + "'>" + db.types(i) + "</option>";
         }
-        typeOps += "<option value='" + i + "'>" + db.types(i) + "</option>";
     }
     var typeLists = document.getElementsByClassName("typeList");
     for (var i = typeLists.length - 1; i >= 0; i--) {
@@ -1129,7 +1127,13 @@ function updatePoke (p) {
     updateStats(p);
 }
 
+function isInt (s) {
+    return s.length > 0 && s.match(/[^0-9]/g) === null;
+}
+
 function updateHpPercent (p, ranged) {
+    // this validates and attempts to make sense of user-input HP.
+    // generally I try to avoid invalidating the whole thing if possible/where it makes "sense".
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
     if (poke.id === "0:0") {
@@ -1139,97 +1143,109 @@ function updateHpPercent (p, ranged) {
     poke.level = parseInt(getId(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
-    var total = poke.stat(Sulcalc.Stats.HP),
-        currentPoints = getId(p + "HP").value;
-    // getHpList is not used here as it does not validate the data
-    if (currentPoints.length === 0) {
+    var totalHp = poke.stat(Sulcalc.Stats.HP),
+        currentPoints = getId(p + "HP").value.replace(/\s/g, "");
+    if (currentPoints.length < 1) {
+        getId(p + "HP").value = totalHp;
         getId(p + "HPp").value = "100";
-        getId(p + "HP").value = total;
         return;
     }
-    if (ranged && currentPoints.indexOf("-") > -1) {
-        // ranged, not a damage roll
-        if (currentPoints.indexOf("-") !== currentPoints.lastIndexOf("-")) {
-            getId(p + "HPp").value = "100";
-            getId(p + "HP").value = total;
-            return;
-        }
-        currentPoints = currentPoints.replace(/\s/g, "").split("-");
-        if (currentPoints[0].match(/[^0-9]/g) !== null || currentPoints[1].match(/[^0-9]/g) !== null) {
-            // one side of the range is not a number, so just default to max hp
-            getId(p + "HPp").value = "100";
-            getId(p + "HP").value = total;
-            return;
-        }
-        currentPoints[0] = Math.max(1, Math.min(total, parseInt(currentPoints[0], 10)));
-        currentPoints[1] = Math.max(1, Math.min(total, parseInt(currentPoints[1], 10)));
-        if (currentPoints[1] === currentPoints[0]) {
-            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * currentPoints[0] / total)));
-            getId(p + "HP").value = Math.max(1, Math.min(total, currentPoints[0]));
-        } else {
-            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * Math.min(currentPoints[0], currentPoints[1]) / total)));
-            getId(p + "HP").value = Math.min(currentPoints[0], currentPoints[1]) + " - " + Math.max(currentPoints[0], currentPoints[1]);
-        }
-    } else if (ranged && currentPoints.indexOf(":") > -1) {
-        // ranged, damage roll
-        currentPoints = currentPoints.replace(/\s/g, "").split(",");
-        var numArr = new Sulcalc.WeightedArray([]), tempVal = 0, strList = "";
-        for (var i = 0; i < currentPoints.length; i++) {
-            currentPoints[i] = currentPoints[i].split(":");
-            if (currentPoints[i][0].length === 0 || currentPoints[i][0].match(/[^0-9]/g) !== null) continue;
-            if (currentPoints[i].length === 1) {
-                numArr.add(parseInt(currentPoints[i][0], 10), 1);
-            } else if (currentPoints[i].length === 2 && currentPoints[i][1].length !== 0
-                       && currentPoints[i][1].match(/[^0-9]/g) === null) {
-                // the weight is converted to a string anyway and we already made sure it's a number
-                numArr.add(Math.max(0, Math.min(total, parseInt(currentPoints[i][0], 10))),
-                           currentPoints[i][1]);
-            }
-            // if the weight is empty or NaN then we just skip adding
-        }
-        var tempAvg = numArr.avg();
-        if (tempAvg === null) {
-            getId(p + "HP").value = total;
-            getId(p + "HPp").value = "100";
-        } else {
-            getId(p + "HP").value = numArr+"";
-            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(tempAvg * 100 / total)));
-        }
-    } else if (ranged && currentPoints.indexOf(",") > -1) {
-        // unweighted
-        currentPoints = currentPoints.replace(/\s/g, "");
-        var tempAcc = "", numArr = [];
-        for (var i = 0; i < currentPoints.length; i++) {
-            if (currentPoints.charCodeAt(i) >= 48 && currentPoints.charCodeAt(i) <= 57) {
-                tempAcc += currentPoints.charAt(i);
-            } else if (currentPoints.charAt(i) === "," && tempAcc.length > 0) {
-                numArr.push(Math.max(0, Math.min(total, parseInt(tempAcc, 10))));
-                tempAcc = "";
+    currentPoints = currentPoints.split("|"); // left side is normal damage, right side is berry damage
+    if (currentPoints.length > 2) {
+        currentPoints.splice(2, currentPoints.length - 2);
+    }
+    // getHpList is not used here as it does not validate the data
+    // definitively maintainable (tm)
+    var results = [], // will have a lhs, possibly a rhs is it exists
+        hpVals = []; // for averaging into %HP
+    for (var i = 0; i < currentPoints.length; i++) {
+        if (ranged && currentPoints[i].indexOf("-") > -1) {
+            // ranged, not a damage roll
+            currentPoints[i] = currentPoints[i].split("-");
+            if (currentPoints[i].length > 2 || !isInt(currentPoints[i][0])
+                                            || !isInt(currentPoints[i][1])) {
+                // one side of the range is not a number
+                results.push(null);
+                hpVals.push(null);
             } else {
-                tempAcc = "";
+                var vals = new Sulcalc.WeightedArray();
+                currentPoints[i][0] = Math.max(1, Math.min(totalHp, parseInt(currentPoints[i][0], 10)));
+                currentPoints[i][1] = Math.max(1, Math.min(totalHp, parseInt(currentPoints[i][1], 10)));
+                var temp = currentPoints[i][0];
+                currentPoints[i][0] = Math.min(temp, currentPoints[i][1]);
+                currentPoints[i][1] = Math.max(temp, currentPoints[i][1]);
+                if (currentPoints[i][0] === currentPoints[i][1]) {
+                    results.push(currentPoints[i][0]);
+                } else {
+                    results.push(currentPoints[i][0] + " - " + currentPoints[i][1]);
+                }
+                // technically the mean may simply be expressed as (high+low)/2, but that would break the code flow.
+                for (var j = currentPoints[i][0]; j <= currentPoints[i][1]; j++) {
+                    vals.add(j, 1);
+                }
+                hpVals.push(vals);
+            }
+        } else if (ranged) {
+            // ranged, damage roll
+            currentPoints[i] = currentPoints[i].split(",");
+            var numArr = new Sulcalc.WeightedArray(),
+                tempVal = 0,
+                strList = "";
+            for (var j = 0; j < currentPoints[i].length; j++) {
+                currentPoints[i][j] = currentPoints[i][j].split(":");
+                if (isInt(currentPoints[i][j][0])) {
+                    if (currentPoints[i][j].length === 1) { // does not have a weight (i.e. no colon)
+                        numArr.add(Math.max(0, Math.min(totalHp, parseInt(currentPoints[i][j][0], 10))), 1);
+                    } else if (currentPoints[i][j].length === 2 && isInt(currentPoints[i][j][1])) {
+                        // the weight is converted to a string anyway and we already made sure it's a number
+                        numArr.add(Math.max(0, Math.min(totalHp, parseInt(currentPoints[i][j][0], 10))),
+                                   currentPoints[i][j][1]);
+                    }
+                }
+                // if the weight is empty or NaN then we just skip adding
+            }
+            var tempAvg = numArr.avg();
+            if (tempAvg === null) {
+                results.push(null);
+                hpVals.push(null);
+            } else {
+                results.push(numArr + "");
+                hpVals.push(numArr);
+            }
+        } else {
+            // either not ranged, or not supposed to be ranged
+            if (isInt(currentPoints[i])) {
+                results.push(Math.max(1, Math.min(totalHp, parseInt(currentPoints[i], 10))));
+                hpVals.push(new Sulcalc.WeightedArray([Math.max(1, Math.min(totalHp, parseInt(currentPoints[i], 10)))]));
+            } else {
+                results.push(null);
+                hpVals.push(null);
             }
         }
-        if (tempAcc.length > 0) {
-            numArr.push(Math.max(0, Math.min(total, parseInt(tempAcc, 10))));
-        }
-        numArr.sort(function (a, b) {
-            return a - b;
-        });
-        var strList = "";
-        for (var i = 0; i < numArr.length; i++) {
-            strList += (i > 0 ? ", " : "") + numArr[i];
-        }
-        getId(p + "HP").value = strList;
-        getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(numArr[0] * 100 / total)));
-    } else {
-        // either not ranged, or not supposed to be ranged
-        if (currentPoints.match(/[^0-9]/g) !== null) {
-            currentPoints = total;
+    }
+    if (results.length > 1) { // we have partitioned values
+        if (results[0] === null && results[1] === null) {
+            // both sides couldn't be parsed or are empty
+            getId(p + "HP").value = totalHp;
+            getId(p + "HPp").value = 100;
+        } else if (results[0] === null) {
+            // only the RHS is non-empty and could be parsed
+            getId(p + "HP").value = " | " + results[1];
+            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[1].avg() / totalHp)));
+        } else if (results[1] === null) {
+            // only the LHS is non-empty and could be parsed
+            getId(p + "HP").value = results[0];
+            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].avg() / totalHp)));
         } else {
-            currentPoints = parseInt(currentPoints, 10);
+            getId(p + "HP").value = results[0] + " | " + results[1];
+            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].concat(hpVals[1]).avg() / totalHp)));
         }
-        getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * currentPoints / total)));
-        getId(p + "HP").value = Math.max(1, Math.min(total, currentPoints));
+    } else if (results[0] !== null) { // we have one non-null value, i.e. correctly parsed
+        getId(p + "HP").value = results[0];
+        getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].avg() / totalHp)));
+    } else { // nothing parsed correctly
+        getId(p + "HP").value = totalHp;
+        getId(p + "HPp").value = 100;
     }
 }
     
@@ -1243,13 +1259,14 @@ function updateHpPoints (p, ranged) {
     poke.level = parseInt(getId(p + "Level").value, 10);
     poke.evs = getEvs(p);
     poke.ivs = getIvs(p);
-    var total = poke.stat(Sulcalc.Stats.HP), currentPercent = getId(p + "HPp").value;
-    if (currentPercent.match(/[^0-9]/g) !== null) {
-        currentPercent = 100;
+    var total = poke.stat(Sulcalc.Stats.HP),
+        currentPercent = getId(p + "HPp").value;
+    if (isInt(currentPercent)) {
+        currentPercent = Math.max(1, Math.min(100, parseInt(currentPercent, 10)));
     } else {
-        currentPercent = parseInt(currentPercent, 10);
+        currentPercent = 100;
     }
-    getId(p + "HPp").value = Math.max(1, Math.min(100, currentPercent));
+    getId(p + "HPp").value = currentPercent;
     var hpLow = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100))),
         hpHigh = Math.max(1, Math.min(total, (Math.ceil(total / 100) - 1 + hpLow)));
     if (ranged && hpLow < hpHigh) {
@@ -1260,46 +1277,68 @@ function updateHpPoints (p, ranged) {
 }
 
 function getHpList (p) {
-    var tempHp = getId(p + "HP").value;
-    var hpList = new Sulcalc.WeightedArray([]);
-    if (tempHp.length < 1) {
+    var tempHp = getId(p + "HP").value.replace(/\s/g, "").split("|");
+    tempHp[0] = getHpListHelper(tempHp[0]);
+    if (tempHp.length > 1) {
+        tempHp[1] = getHpListHelper(tempHp[1]);
+    } else {
+        if (tempHp[0].weights.length > 0) {
+            tempHp[0].weights[0] = "1";
+        }
+        tempHp.push(new Sulcalc.WeightedArray());
+    }
+    return tempHp;
+}
+
+function getHpListHelper (str) {
+    var hpList = new Sulcalc.WeightedArray();
+    if (str.length < 1) {
         return hpList;
     }
-    if (tempHp.indexOf("-") > -1) {
+    if (str.indexOf("-") > -1) {
         // ranged, not a damage roll (i.e. not a comma separated list)
-        tempHp = tempHp.replace(/\s/g, "").split("-");
-        tempHp[0] = parseInt(tempHp[0], 10);
-        tempHp[1] = parseInt(tempHp[1], 10);
-        for (var i = tempHp[0]; i <= tempHp[1]; i++) {
+        str = str.split("-");
+        str[0] = parseInt(str[0], 10);
+        str[1] = parseInt(str[1], 10);
+        for (var i = str[0]; i <= str[1]; i++) {
             hpList.add(i, 1);
         }
-    } else if (tempHp.indexOf(",") > -1) {
+    } else {
         // ranged, damage roll
-        tempHp = tempHp.replace(/\s/g, "").split(",");
-        for (var i = 0; i < tempHp.length; i++) {
-            tempHp[i] = tempHp[i].split(":");
-            if (tempHp[i].length > 1) {
-                hpList.add(parseInt(tempHp[i][0], 10), tempHp[i][1]);
+        str = str.split(",");
+        for (var i = 0; i < str.length; i++) {
+            str[i] = str[i].split(":");
+            if (str[i].length > 1) {
+                hpList.add(parseInt(str[i][0], 10), str[i][1]);
             } else {
-                hpList.add(parseInt(tempHp[i][0], 10), 1);
+                hpList.add(parseInt(str[i][0], 10), 1);
             }
         }
-    } else {
-        hpList.add(parseInt(tempHp.split(":")[0], 10), 1);
     }
     return hpList;
 }
 
 function setDefenderRemainingHp() {
     if (resultingDefenderHealth === null) return false;
-    var totalHp = getText("defenderTotalHP");
+    // should be an array in which the first range isn't effected by berries
+    // the second should be values in which berries have taken effect
+    var totalHp = getText("defenderTotalHP"),
+        hpValsString = "";
     if (totalHp === "???") return false;
-    if (resultingDefenderHealth.values.length === 1) {
-        getId("defenderHP").value = resultingDefenderHealth.values[0];
+    if (resultingDefenderHealth[0].values.length === 1) {
+        // simplify to only 1 val, doesn't need to be colon separated
+        hpValsString += resultingDefenderHealth[0].values[0];
     } else {
-        getId("defenderHP").value = resultingDefenderHealth+"";
+        // if there are no vals, it shouldn't print anything
+        hpValsString += resultingDefenderHealth[0] + "";
     }
-    getId("defenderHPp").value = Math.floor(resultingDefenderHealth.avg() * 100 / parseInt(totalHp, 10));
+    if (resultingDefenderHealth[1].values.length === 1) {
+        hpValsString += " | " + resultingDefenderHealth[1].values[0];
+    } else if (resultingDefenderHealth[1].values.length > 1) {
+        hpValsString += " | " + resultingDefenderHealth[1];
+    }
+    getId("defenderHP").value = hpValsString;
+    getId("defenderHPp").value = Math.floor(resultingDefenderHealth[0].concat(resultingDefenderHealth[1]).avg() * 100 / parseInt(totalHp, 10));
     return true;
 }
 
@@ -1308,10 +1347,10 @@ function updateStats (p) {
     // update the /??? for the HP and reset percentage to 100%
     var poke = new Sulcalc.Pokemon();
     poke.level = getId(p + "Level").value;
-    if (poke.level.match(/[^0-9]/g) !== null) {
-        poke.level = 100;
-    } else {
+    if (isInt(poke.level)) {
         poke.level = Math.max(1, Math.min(100, parseInt(poke.level, 10)));
+    } else {
+        poke.level = 100;
     }
     getId(p + "Level").value = poke.level;
     poke.evs = getEvs(p);
@@ -1514,7 +1553,7 @@ function swapPokemon() {
         d = getId("defenderHP");
     var tempD = getHpList("defender");
     d.value = a.value;
-    a.value = Math.floor(tempD.avg());
+    a.value = Math.floor(tempD[0].concat(tempD[1]).avg());
     updateHiddenPowerType();
 }
 
@@ -1682,9 +1721,9 @@ function updateDefenderAbilityOptions() {
 }
 
 function updateWeatherOptions (p) {
-    var weatherWeights = [0, 1, 1, 1, 1, 2, 2, 3];
-    var aWeather = weatherAbilities.indexOf(getId("attackerAbility").value);
-    var dWeather = weatherAbilities.indexOf(getId("defenderAbility").value);
+    var weatherWeights = [0, 1, 1, 1, 1, 2, 2, 3],
+        aWeather = weatherAbilities.indexOf(getId("attackerAbility").value),
+        dWeather = weatherAbilities.indexOf(getId("defenderAbility").value);
     if (aWeather | dWeather === 0) {
         setSelectByValue("weather", "0");
     }
@@ -1694,6 +1733,14 @@ function updateWeatherOptions (p) {
         setSelectByValue("weather", dWeather + "");
     } else {
         setSelectByValue("weather", "" + (p === "attacker" ? aWeather : dWeather));
+    }
+}
+
+function updateDefenderStatusOptions() {
+    if (this.value === "2") { // badly poisoned
+        getId("toxicCounter").display = "block";
+    } else {
+        this.value = "0";
     }
 }
 
@@ -1829,7 +1876,10 @@ function calculateResults() {
     c.defender.ability.id = getId("defenderAbility").value;
     c.defender.item.id = getId("defenderItem").value;
     c.defender.status = parseInt(getId("defenderStatus").value, 10);
-    c.defender.currentHP = Math.floor((c.defender.currentHPRange = getHpList("defender")).avg());
+    var temp = getHpList("defender");
+    c.defender.currentHPRange = temp[0];
+    c.defender.currentHPRangeBerry = temp[1];
+    c.defender.currentHP = Math.floor(temp[0].combine(temp[1]).avg());
     c.defender.level = parseInt(getId("defenderLevel").value, 10);
     c.defender.addedType = parseInt(getId("defenderTypeAdded").value, 10);
     c.defender.overrideTypes = [parseInt(getId("defenderType1").value, 10), parseInt(getId("defenderType2").value, 10)];
@@ -1840,9 +1890,9 @@ function calculateResults() {
     c.defender.flowerGift = getId("defenderFlowerGift").checked;
     c.defender.powerTrick = getId("defenderPowerTrick").checked;
 
-    var g = getId("rivalryGenders").value;
-    if (g === "same") {
-        c.attacker.gender = Sulcalc.Genders.MALE;
+    temp = getId("rivalryGenders").value;
+    if (temp === "same") {
+        c.attacker.gender = Sulcalc.Genders.MALE; // patriarchy
         c.defender.gender = Sulcalc.Genders.MALE;
     } else {
         c.attacker.gender = Sulcalc.Genders.MALE;
@@ -1924,11 +1974,11 @@ function calculateResults() {
 
     var rpt = c.report();
     
-    if (rpt.damage === null) { // some error or whatever
+    if (rpt.responseCode === 1) { // some error or whatever
         replaceHtml("results", rpt.report);
     } else {
         // in most cases javascript:void(0); is a bad idea, but right clicking for a new tab doesn't make sense anyway
-        resultingDefenderHealth = rpt.remainingHealth; // save for later
+        resultingDefenderHealth = [rpt.remainingHealth, rpt.remainingHealthBerry]; // save for later
         var rptHtml = rpt.report
                     + "<br /><div style='font-size: 0.7em;'>"
                     + (Sulcalc.gtStr(rpt.damage[0].count(), "39") && c.move.name() !== "Psywave" ? rpt.damage[0] : rpt.damage[0].print())
@@ -2008,10 +2058,10 @@ window.onload = function() {
     
     getId("happiness").onchange = function() {
         // "216":"Return"
-        if (this.value.match(/[^0-9]/g) !== null) {
-            this.value = getId("move").value === "216" ? 255 : 0;
-        } else {
+        if (isInt(this.value)) {
             this.value = Math.max(0, Math.min(255, parseInt(this.value)));
+        } else {
+            this.value = getId("move").value === "216" ? 255 : 0;
         }
     };
     
@@ -2050,21 +2100,21 @@ window.onload = function() {
     for (var i = 0; i < 6; i++) {
         getId("beatUpLevel" + i).onchange = (function (n) {
             return (function() {
-                if (this.value.match(/[^0-9]/g) !== null) {
-                    this.value = "";
-                } else {
+                if (isInt(this.value)) {
                     var level = parseInt(this.value, 10);
                     this.value = (level === 0) ? "" : Math.max(1, Math.min(100, level));
+                } else {
+                    this.value = "";
                 }
             });
         }(i));
         getId("beatUpStat" + i).onchange = (function (n) {
             return (function() {
-                if (this.value.match(/[^0-9]/g) !== null) {
-                    this.value = "";
-                } else {
+                if (isInt(this.value)) {
                     var stat = parseInt(this.value, 10);
                     this.value = (stat === 0) ? "" : Math.max(1, Math.min(255, level));
+                } else {
+                    this.value = "";
                 }
             });
         }(i));
