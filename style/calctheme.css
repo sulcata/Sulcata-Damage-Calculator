@@ -220,3 +220,7 @@ a {
     font-size: 1.2em;
     color: #00F;
 }
+
+#toxicCounter {
+    display: none;
+}

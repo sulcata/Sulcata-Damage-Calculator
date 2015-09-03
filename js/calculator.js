@@ -21,8 +21,8 @@ function Database() {
     this.location = ""; // prefixes every request, end with a slash
     
     this.preload = function (varName, g, file, callback) { // used in UI only, but belongs here probably
-        callback();return;
-        var httpreq;
+        callback();
+        /*var httpreq;
         try {
             httpreq = new XMLHttpRequest();
         } catch (e) {
@@ -52,7 +52,7 @@ function Database() {
             httpreq.send();
             return;
         }
-        callback();
+        callback();*/
     }
     
     this._damageClass = null;
@@ -802,26 +802,27 @@ function divideStrs (a, b) { // what am i doing with my life
 }
 
 function WeightedArray (a) {
-    this.values = [];
-    this.weights = [];
-    
-    if (a instanceof WeightedArray) { // copying?
+    if (typeof a === "undefined") { // nothing!
+        this.values = [];
+        this.weights = [];
+    } else if (a instanceof WeightedArray) { // copying?
         this.values = a.values.slice();
         this.weights = a.weights.slice();
     } else if (a.length !== 0) { // check for an empty array
+        this.values = [];
+        this.weights = [];
         a.sort(function (a, b) { // sort the array into ascending order
             return a - b;
         });
         // initial entry; all values will be stored as an ordered pair: [value, occurences]
         var value = a[0], weight = 0;
         for (var i = 0; i < a.length; i++) {
-            /* 
-             * Because the array is ordered, as soon as a different value is encountered
+            /* Because the array is ordered, as soon as a different value is encountered
              * we will know that there are no more of the value we were counting.
              */
             if (a[i] !== value) {
                 this.values.push(value);
-                this.weights.push(weight+"");
+                this.weights.push(weight + "");
                 value = a[i];
                 weight = 1;
             } else { // a new value is not encountered
@@ -829,7 +830,7 @@ function WeightedArray (a) {
             }
         }
         this.values.push(value);
-        this.weights.push(weight+"");
+        this.weights.push(weight + "");
     }
     // end init
 
@@ -838,7 +839,7 @@ function WeightedArray (a) {
         var low = 0, mid = 0, high = this.values.length;
         if (high < 1) { // empty array
             this.values.push(val);
-            this.weights.push(inc+"");
+            this.weights.push(inc + "");
             return;
         }
         while (high - low > 1) {
@@ -848,7 +849,7 @@ function WeightedArray (a) {
             } else if (val < this.values[mid]) {
                 high = mid;
             } else {
-                this.weights[mid] = addStrs(this.weights[mid], inc+"");
+                this.weights[mid] = addStrs(this.weights[mid], inc + "");
                 return;
             }
         }
@@ -856,23 +857,24 @@ function WeightedArray (a) {
             ++low;
         }
         if (val === this.values[low]) {
-            this.weights[low] = addStrs(this.weights[low], inc+"");
+            this.weights[low] = addStrs(this.weights[low], inc + "");
         } else {
             this.values.splice(low, 0, val);
-            this.weights.splice(low, 0, inc+"");
+            this.weights.splice(low, 0, inc + "");
         }
     }
     
     this.combine = function (w) {
-        /*
-         * Calculating all the possible combinations of a weighted array is
-         * actually a lot more efficient.
+        /* Calculating all the possible combinations of a weighted array is
+         * actually a lot more efficient with closely distributed numbers.
+         * i.e. 254, 255, 257, 257, 260
          * If array A has 5 2s and array B has 2 3s
          * then the there will be 10 (5*2) 5s (2+3) from the combination of just these numbers.
          * Of course more than one combination can/will form the element 5
          * such as 1 and 4 so the add method is used to prevent similar ordered pairs.
          */
-        var temp = new WeightedArray([]);
+        // alert(this.combineEfficiency(w));
+        var temp = new WeightedArray();
         for (var i = this.values.length - 1; i >= 0; --i) {
             for (var j = w.values.length - 1; j >= 0; --j) {
                 // Pair A combine Pair B: (value A + value B, count A * count B)
@@ -884,9 +886,11 @@ function WeightedArray (a) {
     }
     
     this.concat = function (w) {
+        var temp = new WeightedArray(this);
         for (var i = w.values.length - 1; i >= 0; --i) {
-            this.add(w.values[i], w.weights[i]);
+            temp.add(w.values[i], w.weights[i]);
         }
+        return temp;
     }
     
     this.count = function (f) {
@@ -911,15 +915,14 @@ function WeightedArray (a) {
     }
     
     this.map = function (f) {
-        var tempVals = this.values.slice(), tempWeights = this.weights.slice(), temp; // create copies
-        this.values = [];
-        this.weights = [];
+        var tempMap, tempArr = new WeightedArray();
         // allows for concatenation in the case that function f is not a one-to-one function
-        for (var i = tempVals.length - 1; i >= 0; --i) {
-            if ((temp = f(tempVals[i], tempWeights[i])) !== null) {
-                this.add(temp, tempWeights[i]);
+        for (var i = this.values.length - 1; i >= 0; --i) {
+            if ((tempMap = f(this.values[i], this.weights[i])) !== null) {
+                tempArr.add(tempMap, this.weights[i]);
             }
         }
+        return tempArr;
     }
     
     this.clear = function() {
@@ -927,6 +930,10 @@ function WeightedArray (a) {
         // a bit ugly but WeightedArray should be as fast as possible
         while (this.values.shift());
         while (this.weights.shift());
+    }
+    
+    this.isEmpty = function() {
+        return this.values.length < 1;
     }
     
     this.min = function() {
@@ -949,13 +956,21 @@ function WeightedArray (a) {
             var tempCount = this.count();
             if (tempCount === "0") return null;
             for (var i = this.values.length - 1; i >= 0; --i) {
-                weightedTotal = addStrs(weightedTotal, multiplyStrs(this.values[i]+"", this.weights[i]));
+                weightedTotal = addStrs(weightedTotal, multiplyStrs(this.values[i] + "", this.weights[i]));
             }
             if (weightedTotal === "0") return 0; // don't feed divideStrs multi-zeros
             return parseInt(divideStrs(weightedTotal + "0000", this.count())[0], 10) / 10000;
         }
         return null;
     }
+    
+    // compare to the naive method, returns (actual iterations)/(naive iterations)
+    /*this.combineEfficiency = function(w) {
+        if (this.weights.length === 0 || w.weights.length === 0) return 1;
+        return parseInt(divideStrs(multiplyStrs(this.weights.length+"", w.weights.length+"") + "000000",
+                                   multiplyStrs(this.count(), w.count()))[0], 10)
+               / 1000000;
+    }*/
     
     this.print = function (f) {
         if (!f) {
@@ -996,6 +1011,7 @@ function Pokemon() {
     this.status = Statuses.NOSTATUS; // NOSTATUS, POISONED, BADLYPOISONED, BURNED, PARALYZED, ASLEEP, FROZEN
     this.currentHP = 0; // no way to guess this.
     this.currentHPRange = null; // only define this if you have a range of HP values
+    this.currentHPRangeBerry = null; // berry-affected values
     this.ability = new Ability();
     this.item = new Item();
     this.happiness = 0; // maximum of 255
@@ -1679,6 +1695,7 @@ function Field() {
     this.brokenMultiscale = false; // also no touching
     this.stealthRock = false; // really only for calc guis
     this.spikesLayers = 0; // see right above
+    this.toxicCounter = 0;
 }
     
 function hiddenPowerP (ivs) {
@@ -2409,36 +2426,38 @@ function Calculator() {
             baseDamage = this.applyMod(0xC00, baseDamage);
         }
 
-        if (weather === Weathers.SUN) {
-            if (moveType === Types.FIRE) {
-                baseDamage = this.applyMod(0x1800, baseDamage);
-            } else if (moveType === Types.WATER) {
+        if (moveName !== "Weather Ball") {
+            if (weather === Weathers.SUN) {
+                if (moveType === Types.FIRE) {
+                    baseDamage = this.applyMod(0x1800, baseDamage);
+                } else if (moveType === Types.WATER) {
+                    baseDamage = this.applyMod(0x800, baseDamage);
+                }
+            } else if (weather === Weathers.RAIN) {
+                if (moveType === Types.WATER) {
+                    baseDamage = this.applyMod(0x1800, baseDamage);
+                } else if (moveType === Types.FIRE) {
+                    baseDamage = this.applyMod(0x800, baseDamage);
+                }
+            } else if (weather === Weathers.HARSH_SUN) {
+                if (moveType === Types.WATER) {
+                    return [0];
+                } else if (moveType === Types.FIRE) {
+                    baseDamage = this.applyMod(0x1800, baseDamage);
+                }
+            } else if (weather === Weathers.HEAVY_RAIN) {
+                if (moveType === Types.WATER) {
+                    baseDamage = this.applyMod(0x1800, baseDamage);
+                } else if (moveType === Types.FIRE) {
+                    return [0];
+                }
+            } else if (weather === Weathers.STRONG_WINDS
+                       && this.typeEffectiveness(moveType, Types.FLYING)
+                       && (this.defender.type1() === Types.FLYING || this.defender.type2() === Types.FLYING)) {
                 baseDamage = this.applyMod(0x800, baseDamage);
             }
-        } else if (weather === Weathers.RAIN) {
-            if (moveType === Types.WATER) {
-                baseDamage = this.applyMod(0x1800, baseDamage);
-            } else if (moveType === Types.FIRE) {
-                baseDamage = this.applyMod(0x800, baseDamage);
-            }
-        } else if (weather === Weathers.HARSH_SUN) {
-            if (moveType === Types.WATER) {
-                return [0];
-            } else if (moveType === Types.FIRE) {
-                baseDamage = this.applyMod(0x1800, baseDamage);
-            }
-        } else if (weather === Weathers.HEAVY_RAIN) {
-            if (moveType === Types.WATER) {
-                baseDamage = this.applyMod(0x1800, baseDamage);
-            } else if (moveType === Types.FIRE) {
-                return [0];
-            }
-        } else if (weather === Weathers.STRONG_WINDS
-                   && this.typeEffectiveness(moveType, Types.FLYING)
-                   && (this.defender.type1() === Types.FLYING || this.defender.type2() === Types.FLYING)) {
-            baseDamage = this.applyMod(0x800, baseDamage);
         }
-
+        
         if (crit) { // I'm guessing this is how GameFreak does it, although I believe x1.5 round down has the same effect anyway
             baseDamage = this.applyMod(0x1800, baseDamage);
         }
@@ -2991,8 +3010,8 @@ function Calculator() {
         if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && moveName !== "Beat Up") {
             baseDamage >>= 1;
         }
-        if (!crit && (this.field.reflect && this.move.damageClass() === DamageClasses.PHYSICAL
-                      || this.field.lightScreen && this.move.damageClass() === DamageClasses.SPECIAL)
+        if (!crit && (this.field.reflect && db.typeDamageClass(moveType) === DamageClasses.PHYSICAL
+                      || this.field.lightScreen && db.typeDamageClass(moveType) === DamageClasses.SPECIAL)
                   && moveName !== "Beat Up") {
             baseDamage = Math.floor(this.field.multiBattle ? baseDamage * 2 / 3
                                                            : baseDamage / 2);
@@ -3002,28 +3021,30 @@ function Calculator() {
             baseDamage >>= 1;
         }
         
-        if (weather === Weathers.SUN) {
-            if (moveType === Types.FIRE) {
-                baseDamage = (baseDamage * 3) >> 1;
-            } else if (moveType === Types.WATER) {
+        if (moveName !== "Weather Ball") {
+            if (weather === Weathers.SUN) {
+                if (moveType === Types.FIRE) {
+                    baseDamage = (baseDamage * 3) >> 1;
+                } else if (moveType === Types.WATER) {
+                    baseDamage >>= 1;
+                }
+            } else if (weather === Weathers.RAIN) {
+                if (moveType === Types.WATER) {
+                    baseDamage = (baseDamage * 3) >> 1;
+                } else if (moveType === Types.FIRE) {
+                    baseDamage >>= 1;
+                }
+            }
+            if (weather !== Weathers.SUN && weather !== Weathers.CLEAR && moveName === "Solar Beam") {
                 baseDamage >>= 1;
             }
-        } else if (weather === Weathers.RAIN) {
-            if (moveType === Types.WATER) {
-                baseDamage = (baseDamage * 3) >> 1;
-            } else if (moveType === Types.FIRE) {
-                baseDamage >>= 1;
-            }
-        }
-        if (weather !== Weathers.SUN && weather !== Weathers.CLEAR && moveName === "Solar Beam") {
-            baseDamage >>= 1;
         }
         
         if (this.field.flashFire && moveType === Types.FIRE && attackerAbility.name() === "Flash Fire") {
             baseDamage = (baseDamage * 3) >> 1;
         }
         
-        if (this.move.damageClass() === DamageClasses.PHYSICAL) {
+        if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
             baseDamage = Math.max(1, baseDamage);
         }
         
@@ -3315,7 +3336,7 @@ function Calculator() {
         var simpleD = dAbilityName === "Simple";
         var unawareA = aAbilityName === "Unaware";
         var unawareD = dAbilityName === "Unaware";
-        if (this.field.crit) {
+        if (this.field.critical) {
             if (unawareA) {
                 def = this.defender.stat(Stats.DEF);
                 sdef = this.defender.stat(Stats.SDEF);
@@ -3432,8 +3453,9 @@ function Calculator() {
             baseDamage >>= 1;
         }
         
-        if ((this.move.damageClass() === DamageClasses.PHYSICAL && this.field.reflect) || (this.move.damageClass() === DamageClasses.SPECIAL && this.field.lightScreen)) {
-            if (moveName !== "Beat Up" && !this.field.crit) {
+        if ((this.move.damageClass() === DamageClasses.PHYSICAL && this.field.reflect)
+            || (this.move.damageClass() === DamageClasses.SPECIAL && this.field.lightScreen)) {
+            if (moveName !== "Beat Up" && !this.field.critical) {
                 if (this.field.multiBattle) {
                     baseDamage = Math.floor(baseDamage * 2 / 3);
                 } else {
@@ -3446,21 +3468,23 @@ function Calculator() {
             baseDamage = (baseDamage * 3) >> 2;
         }
         
-        if (weather === Weathers.SUN) {
-            if (moveType === Types.FIRE) {
-                baseDamage = (baseDamage * 3) >> 1;
-            } else if (moveType === Types.WATER) {
+        if (moveName !== "Weather Ball") {
+            if (weather === Weathers.SUN) {
+                if (moveType === Types.FIRE) {
+                    baseDamage = (baseDamage * 3) >> 1;
+                } else if (moveType === Types.WATER) {
+                    baseDamage >>= 1;
+                }
+            } else if (weather === Weathers.RAIN) {
+                if (moveType === Types.WATER) {
+                    baseDamage = (baseDamage * 3) >> 1;
+                } else if (moveType === Types.FIRE) {
+                    baseDamage >>= 1;
+                }
+            }
+            if (weather !== Weathers.CLEAR && weather !== Weathers.SUN && moveName === "Solar Beam") {
                 baseDamage >>= 1;
             }
-        } else if (weather === Weathers.RAIN) {
-            if (moveType === Types.WATER) {
-                baseDamage = (baseDamage * 3) >> 1;
-            } else if (moveType === Types.FIRE) {
-                baseDamage >>= 1;
-            }
-        }
-        if (weather !== Weathers.CLEAR && weather !== Weathers.SUN && moveName === "Solar Beam") {
-            baseDamage >>= 1;
         }
         
         if (aAbilityName === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
@@ -4011,17 +4035,19 @@ function Calculator() {
             baseDamage = this.applyMod(0xC00, baseDamage);
         }
 
-        if (weather === Weathers.SUN) {
-            if (moveType === Types.FIRE) {
-                baseDamage = this.applyMod(0x1800, baseDamage);
-            } else if (moveType === Types.WATER) {
-                baseDamage = this.applyMod(0x800, baseDamage);
-            }
-        } else if (weather === Weathers.RAIN) {
-            if (moveType === Types.WATER) {
-                baseDamage = this.applyMod(0x1800, baseDamage);
-            } else if (moveType === Types.FIRE) {
-                baseDamage = this.applyMod(0x800, baseDamage);
+        if (moveName !== "Weather Ball") {
+                if (weather === Weathers.SUN) {
+                if (moveType === Types.FIRE) {
+                    baseDamage = this.applyMod(0x1800, baseDamage);
+                } else if (moveType === Types.WATER) {
+                    baseDamage = this.applyMod(0x800, baseDamage);
+                }
+            } else if (weather === Weathers.RAIN) {
+                if (moveType === Types.WATER) {
+                    baseDamage = this.applyMod(0x1800, baseDamage);
+                } else if (moveType === Types.FIRE) {
+                    baseDamage = this.applyMod(0x800, baseDamage);
+                }
             }
         }
 
@@ -4281,15 +4307,13 @@ function Calculator() {
         return dmg;
     }
     
-    this.chanceToKO = function (damageRanges, initDmgRange, totalHP, effects, berryHeal, maxTurns) { // not even recursive
+    this.chanceToKO = function (damageRanges, initDmgRange, initDmgRangeBerry, totalHP, effects, berryHeal, maxTurns) { // not even recursive
         var chances = [],
             dmg = new WeightedArray(initDmgRange),
-            berryDmg = new WeightedArray([]),
-            toxicCounter = 0;
-        for (var turn = 0, i = 0; turn < maxTurns; ++turn, ++i) {
-            if (damageRanges[i] === 0) { // 0 means end
-                break;
-            } else if (damageRanges[i] === 1) { // 1 means look at last damage range
+            berryDmg = new WeightedArray(initDmgRangeBerry),
+            toxicCounter = this.field.toxicCounter;
+        for (var turn = 0, i = 0; turn < maxTurns && damageRanges[i] !== 0; ++turn, ++i) {
+            if (damageRanges[i] === 1) { // 1 means look at last damage range
                 --i;
             } else if (damageRanges[i] === 2) { // 2 means restart (rollout, fury cutter, etc.)
                 i = 0;
@@ -4302,35 +4326,29 @@ function Calculator() {
              * prevents extra applications.
              */
             // berries go first to prevent double effect application
-            berryDmg.map(function (v, w) {
-                for (var e = 0; e < effects.length; e++) {
-                    if (v >= totalHP) {
-                        v = totalHP;
-                        break; // poke fainted, nothing else matters
-                    } else if (effects[e] === "toxic") {
-                        // limit to at most enough to kill
-                        v = Math.min(totalHP, v + Math.floor((++toxicCounter) * totalHP / 16));
+            berryDmg = berryDmg.map(function (v, w) {
+                for (var e = 0; e < effects.length && v < totalHP; e++) {
+                    if (effects[e] === "toxic") {
+                        // limit to at most enough to KO
+                        v += Math.floor((++toxicCounter) * totalHP / 16);
                     } else {
-                        // limit to at most enough to kill, at least enough to fully heal
-                        v = Math.max(0, Math.min(totalHP, v - effects[e]));
+                        // limit to at most enough to KO, at least enough to fully heal
+                        v = Math.max(0, v - effects[e]);
                     }
                 }
-                return v;
+                return Math.min(totalHP, v);
             });
-            dmg.map(function (v, w) {
+            dmg = dmg.map(function (v, w) {
                 var berryUsed = false;
-                for (var e = 0; e < effects.length; e++) {
-                    if (v >= totalHP) {
-                        v = totalHP;
-                        break; // poke fainted, nothing else matters
-                    } else if (effects[e] === "toxic") {
-                        // limit to at most enough to kill
-                        v = Math.min(totalHP, v + Math.floor((++toxicCounter) * totalHP / 16));
+                for (var e = 0; e < effects.length && v < totalHP; e++) {
+                    if (effects[e] === "toxic") {
+                        // limit to at most enough to KO
+                        v += Math.floor((++toxicCounter) * totalHP / 16);
                     } else {
-                        // limit to at most enough to kill, at least enough to fully heal
-                        v = Math.max(0, Math.min(totalHP, v - effects[e]));
+                        // limit to at most enough to KO, at least enough to fully heal
+                        v = Math.max(0, v - effects[e]);
                     }
-                    if (!berryUsed && berryHeal > 0 && (2 * v >= totalHP)) {
+                    if (!berryUsed && berryHeal > 0 && v < totalHP && (2 * v >= totalHP)) {
                         /* berry can be whatever amount for sitrus, oran, etc.
                          * gen 3, 4, 5, & 6: apply at 1/2 or below
                          * I've personally confirmed that for gens 3, 4, & 5 it
@@ -4342,6 +4360,7 @@ function Calculator() {
                         berryUsed = true;
                     }
                 }
+                v = Math.min(totalHP, v);
                 // berry might not be the last effect added, so do this at the end
                 if (berryUsed) {
                     berryDmg.add(v, w); // separate berry modified value into berryDmg
@@ -4364,10 +4383,10 @@ function Calculator() {
             effectMsgs = [""];
         if (gen === 1) {
             if (this.defender.status === Statuses.BURNED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Burn");
             } else if (this.defender.status === Statuses.POISONED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Poison");
             } else if (this.defender.status === Statuses.BADLYPOISONED) {
                 effects.push("toxic");
@@ -4375,10 +4394,10 @@ function Calculator() {
             }
         } else if (gen === 2) { // gen 2 after effects
             if (this.defender.status === Statuses.BURNED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Burn");
             } else if (this.defender.status === Statuses.POISONED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (this.defender.status === Statuses.BADLYPOISONED) {
                 effects.push("toxic");
@@ -4390,35 +4409,35 @@ function Calculator() {
             if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
                                                      && !this.defender.stab(Types.ROCK)
                                                      && !this.defender.stab(Types.STEEL)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Sandstorm");
             }
             if (this.defender.item.name() === "Leftovers") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Leftovers");
             }
         } else if (gen === 3) { // gen 3 after effects
             if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
                                                      && !this.defender.stab(Types.ROCK)
                                                      && !this.defender.stab(Types.STEEL)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
             } else if (this.field.weather === Weathers.HAIL && !this.defender.stab(Types.ICE)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
             // ingrain
             // rain dish
             if (this.defender.item.name() === "Leftovers") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Leftovers");
             }
             // leech seed
             if (this.defender.status === Statuses.BURNED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Burn");
             } else if (this.defender.status === Statuses.POISONED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (this.defender.status === Statuses.BADLYPOISONED) {
                 effects.push("toxic");
@@ -4431,42 +4450,42 @@ function Calculator() {
             if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
                                                      && !this.defender.stab(Types.ROCK)
                                                      && !this.defender.stab(Types.STEEL)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
             } else if (this.field.weather === Weathers.HAIL && !this.defender.stab(Types.ICE)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
             if (this.defender.ability.name() === "Dry Skin") {
                 if (this.field.weather === Weathers.SUN) {
-                    effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                    effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                     effectMsgs.push("Dry Skin");
                 } else if (this.field.weather === Weathers.RAIN) {
-                    effects.push(this.defender.stat(Stats.HP) >> 3);
+                    effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 3));
                     effectMsgs.push("Dry Skin");
                 }
             } else if (this.field.weather === Weathers.RAIN && this.defender.ability.name() === "Rain Dish") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Rain Dish");
             } else if (this.field.weather === Weathers.HAIL && this.defender.ability.name() === "Ice Body") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Ice Body");
             }
             // ingrain
             // aqua ring
             if (this.defender.item.name() === "Leftovers") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Leftovers");
             } else if (this.defender.item.name() === "Black Sludge") {
-                effects.push((this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
                 effectMsgs.push("Black Sludge");
             }
             // leech seed
             if (this.defender.status === Statuses.BURNED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Burn");
             } else if (this.defender.status === Statuses.POISONED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (this.defender.status === Statuses.BADLYPOISONED) {
                 effects.push("toxic");
@@ -4476,54 +4495,54 @@ function Calculator() {
             // curse
             // multi turns -- whirlpool, flame wheel, etc
             if (this.defender.status === Statuses.ASLEEP && this.attacker.ability.name() === "Bad Dreams") {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Bad Dreams");
             }
             if (this.defender.item.name() === "Sticky Barb") {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Sticky Barb");
             }
         } else if (gen === 5) { // gen 5 after effects
             if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
                                                      && !this.defender.stab(Types.ROCK)
                                                      && !this.defender.stab(Types.STEEL)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
             } else if (this.field.weather === Weathers.HAIL && this.defender.stab(Types.ICE)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
             if (this.defender.ability.name() === "Dry Skin") {
                 if (this.field.weather === Weathers.SUN) {
-                    effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                    effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                     effectMsgs.push("Dry Skin");
                 } else if (this.field.weather === Weathers.RAIN) {
-                    effects.push(this.defender.stat(Stats.HP) >> 3);
+                    effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 3));
                     effectMsgs.push("Dry Skin");
                 }
             } else if (this.field.weather === Weathers.RAIN && this.defender.ability.name() === "Rain Dish") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Rain Dish");
             } else if (this.field.weather === Weathers.HAIL && this.defender.ability.name() === "Ice Body") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Ice Body");
             }
             // fire pledge + grass pledge damage
             if (this.defender.item.name() === "Leftovers") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Leftovers");
             } else if (this.defender.item.name() === "Black Sludge") {
-                effects.push((this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
                 effectMsgs.push("Black Sludge");
             }
             // aqua ring
             // ingrain
             // leech seed
             if (this.defender.status === Statuses.BURNED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Burn");
             } else if (this.defender.status === Statuses.POISONED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (this.defender.status === Statuses.BADLYPOISONED) {
                 effects.push("toxic");
@@ -4533,54 +4552,54 @@ function Calculator() {
             // curse
             // multi turns -- whirlpool, flame wheel, etc
             if (this.defender.status === Statuses.ASLEEP && this.attacker.ability.name() === "Bad Dreams") {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Bad Dreams");
             }
             if (this.defender.item.name() === "Sticky Barb") {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Sticky Barb");
             }
         } else if (gen === 6) { // gen 6 after effects
             if (this.field.weather === Weathers.SAND && !this.defender.stab(Types.GROUND)
                                                      && !this.defender.stab(Types.ROCK)
                                                      && !this.defender.stab(Types.STEEL)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Sandstorm");
             } else if (this.field.weather === Weathers.HAIL && this.defender.stab(Types.ICE)) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 4));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Hail");
             }
             if (this.defender.ability.name() === "Dry Skin") {
                 if (this.field.weather === Weathers.SUN || this.field.weather === Weathers.HARSH_SUN) {
-                    effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                    effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                     effectMsgs.push("Dry Skin");
                 } else if (this.field.weather === Weathers.RAIN || this.field.weather === Weathers.HEAVY_RAIN) {
-                    effects.push(this.defender.stat(Stats.HP) >> 3);
+                    effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 3));
                     effectMsgs.push("Dry Skin");
                 }
             } else if ((this.field.weather === Weathers.RAIN || this.field.weather === Weathers.HEAVY_RAIN) && this.defender.ability.name() === "Rain Dish") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Rain Dish");
             } else if (this.defender.ability.name() === "Ice Body" && this.field.weather === Weathers.HAIL) {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Ice Body");
             }
             // fire pledge + grass pledge damage
             if (this.defender.item.name() === "Leftovers") {
-                effects.push(this.defender.stat(Stats.HP) >> 4);
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4));
                 effectMsgs.push("Leftovers");
             } else if (this.defender.item.name() === "Black Sludge") {
-                effects.push((this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
+                effects.push(Math.max(1, this.defender.stat(Stats.HP) >> 4) * (this.defender.stab(Types.POISON) ? 1 : -1));
                 effectMsgs.push("Black Sludge");
             }
             // aqua ring
             // ingrain
             // leech seed
             if (this.defender.status === Statuses.BURNED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Burn");
             } else if (this.defender.status === Statuses.POISONED) {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Poison");
             } else if (this.defender.status === Statuses.BADLYPOISONED) {
                 effects.push("toxic");
@@ -4590,11 +4609,11 @@ function Calculator() {
             // curse
             // multi turns -- whirlpool, flame wheel, etc
             if (this.defender.status === Statuses.ASLEEP && this.attacker.ability.name() === "Bad Dreams") {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Bad Dreams");
             }
             if (this.defender.item.name() === "Sticky Barb") {
-                effects.push(-(this.defender.stat(Stats.HP) >> 3));
+                effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
                 effectMsgs.push("Sticky Barb");
             }
         }
@@ -4612,23 +4631,53 @@ function Calculator() {
     this.report = function() {
         if (this.attacker.id === "0:0" || this.defender.id === "0:0") {
             return {
-                report: "One of your Pokémon is Missingno!"
+                report: "One of your Pokémon is Missingno!",
+                responseCode: 1
             };
         } else if (this.move.id === "0") {
             return {
-                report: "You need to select a Move!"
+                report: "You need to select a Move!",
+                responseCode: 1
             };
         }
         
-        var dmg = this.calculate(), rpt = "";
-        var minPercent = Math.round(dmg[0].min() / this.defender.stat(Stats.HP) * 1000) / 10,
+        var dmg = this.calculate(),
+            rpt = "",
+            minPercent = Math.round(dmg[0].min() / this.defender.stat(Stats.HP) * 1000) / 10,
             maxPercent = Math.round(dmg[0].max() / this.defender.stat(Stats.HP) * 1000) / 10,
-            a = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SATK : Stats.ATK,
-            d = this.move.damageClass() === DamageClasses.SPECIAL ? Stats.SDEF : Stats.DEF;
+            moveType, movePower
+            a, d;
+        
+        // to-do: I should just leech this info off of the _calculate functions
+        // this.calcMoveType
+        // this.calcMovePower
+        // if either mismatches the db, assume it was variable somehow
+        if (this.move.name() === "Hidden Power") {
+            if (gen > 2) {
+                moveType = gen < 6 ? hiddenPowerT(this.attacker.ivs) : 60;
+                movePower = hiddenPowerP(this.attacker.ivs);
+            } else {
+                moveType = hiddenPowerT2(this.attacker.ivs);
+                movePower = hiddenPowerP2(this.attacker.ivs);
+            }
+        } else if (this.move.name() === "Weather Ball") {
+            moveType = this.weatherBall(this.field.weather);
+            movePower = (gen > 3 && moveType !== Types.NORMAL) ? 100 : 50; // gen 3 multiplies damage, not BP
+        } else {
+            moveType = this.move.type();
+            movePower = null; // we'll say null means non-var BP
+        }
         
         if (["Psyshock", "Psystrike", "Secret Sword"].indexOf(this.move.name()) > -1) {
             a = Stats.SATK;
             d = Stats.DEF;
+        } else if ((this.move.damageClass() === DamageClasses.PHYSICAL && gen > 3)
+                   || (gen <= 3 && db.typeDamageClass(moveType) === DamageClasses.PHYSICAL)) {
+            a = Stats.ATK;
+            d = Stats.DEF;
+        } else {
+            a = Stats.SATK;
+            d = Stats.SDEF;
         }
         
         // is the attacker's stat boosted?
@@ -4718,16 +4767,8 @@ function Calculator() {
             rpt += " Helping Hand";
         }
         rpt += " " + this.move.name();
-        if (this.move.name() === "Hidden Power") { // print "Hidden Power [Type Here]" for hidden power
-            if (gen <= 2) { // gen 2 has its own formulas
-                rpt += " [" + db.types(hiddenPowerT2(this.attacker.ivs))
-                       + " " + hiddenPowerP2(this.attacker.ivs) + "]";
-            } else if (gen <= 5) {
-                rpt += " [" + db.types(hiddenPowerT(this.attacker.ivs))
-                       + " " + hiddenPowerP(this.attacker.ivs) + "]";
-            } else { // gen 6 fixes power at 60
-                rpt += " [" + db.types(hiddenPowerT(this.attacker.ivs)) + "]";
-            }
+        if (movePower !== null) {
+            rpt += " [" + db.types(moveType) + " " + movePower + "]";
         }
         
         rpt += " vs. ";
@@ -4786,35 +4827,46 @@ function Calculator() {
         // print the damage range
         rpt += ": " + dmg[0].min() + " - " + dmg[0].max() + " (" + minPercent + " - " + maxPercent + "%) -- ";
         
-        var effects = this.endOfTurnEffects(), initDmg;
+        var effects = this.endOfTurnEffects(),
+            initDmg,
+            initDmgBerry;
         if (this.defender.currentHPRange !== null) {
             initDmg = new WeightedArray(this.defender.currentHPRange); // copy
         } else {
             initDmg = new WeightedArray([this.defender.currentHP]);
         }
-        var maxHp = this.defender.stat(Stats.HP);
-        var defenderCurrentHp = Math.floor(initDmg.avg() * 100 / maxHp); // saving for later, "from N%"
+        if (this.defender.currentHPRangeBerry !== null) {
+            initDmgBerry = new WeightedArray(this.defender.currentHPRangeBerry); // copy
+        } else {
+            initDmgBerry = new WeightedArray();
+        }
+        var maxHp = this.defender.stat(Stats.HP),
+            defenderCurrentHp = Math.floor(initDmg.concat(initDmgBerry).avg() * 100 / maxHp); // saving for later, "from N%"
         // flip so it's actually damage
-        initDmg.map(function (v, w) {
+        initDmg = initDmg.map(function (v, w) {
+            return Math.max(0, maxHp - v);
+        });
+        initDmgBerry = initDmgBerry.map(function (v, w) {
             return Math.max(0, maxHp - v);
         });
         
         // Remove field hazards from current HP for probability calculation
         if (this.defender.ability.id !== "98") { // no magic guard
+            var hazardsDmg = 0;
             if (this.field.stealthRock) {
                 // floor(hp * effectiveness of rock / 32)
                 // effectiveness is 4 for neutral
-                var srDmg = (this.defender.stat(Stats.HP) * this.effective([Types.ROCK], [this.defender.type1(), this.defender.type2()], false, false)) >> 5;
-                initDmg.map(function (v, w) {
-                    return Math.min(maxHp, v + srDmg);
-                });
+                hazardsDmg += (this.defender.stat(Stats.HP) * this.effective([Types.ROCK], [this.defender.type1(), this.defender.type2()], false, false)) >> 5;
             }
             if (this.field.spikesLayers > 0) {
-                var spikesDmg = Math.floor(this.defender.stat(Stats.HP) / (10 - 2 * this.field.spikesLayers));
-                initDmg.map(function (v, w) {
-                    return Math.min(maxHp, v + spikesDmg);
-                });
+                hazardsDmg += Math.floor(this.defender.stat(Stats.HP) / (10 - 2 * this.field.spikesLayers));
             }
+            initDmg = initDmg.map(function (v, w) {
+                return Math.min(maxHp, v + hazardsDmg);
+            });
+            initDmgBerry = initDmgBerry.map(function (v, w) {
+                return Math.min(maxHp, v + hazardsDmg);
+            });
         }
         
         var berryHeal = 0;
@@ -4829,7 +4881,8 @@ function Calculator() {
         }
         
         // calculate and print probability
-        var chancesInt = this.chanceToKO(dmg, initDmg, this.defender.stat(Stats.HP), effects.values, berryHeal, 9), chances = [];
+        var chancesInt = this.chanceToKO(dmg, initDmg, initDmgBerry, this.defender.stat(Stats.HP), effects.values, berryHeal, 9),
+            chances = [];
         for (var i = 0; i < chancesInt.length; i++) {
             /* kind of difficult to explain, but basically "bypasses" the limits of integer division by dividing really large
              * integers and adding the decimal place afterwards
@@ -4843,64 +4896,89 @@ function Calculator() {
                 }
             }
         }
-        for (var i = 0, hasPrevious = false; i < chances.length; i++) {
+        
+        var i = 0, hasPreviousChance = false;
+        while (i < chances.length && chances[i] < 1) {
             if (chances[i] === "possible" || (Math.round(chances[i] * 1000) === 0 && chances[i] > 0)) {
-                rpt += (hasPrevious ? ", " : "") + "possible " + (i > 0 ? (i + 1) : "O") + "HKO";
-                hasPrevious = true;
+                rpt += (hasPreviousChance ? ", " : "") + "possible " + (i > 0 ? (i + 1) : "O") + "HKO";
+                hasPreviousChance = true;
             } else if (chances[i] > 0) {
-                if (chances[i] < 1) {
-                    rpt += (hasPrevious ? ", " : "") + Math.round(chances[i] * 1000) / 10 + "% chance to "
-                           + (i > 0 ? (i + 1) : "O") + "HKO";
-                    hasPrevious = true;
-                } else if (!hasPrevious) {
-                    rpt += "guaranteed " + (i > 0 ? (i + 1) : "O") + "HKO";
-                    break;
+                rpt += (hasPreviousChance ? ", " : "") + Math.round(chances[i] * 1000) / 10 + "% chance to "
+                       + (i > 0 ? (i + 1) : "O") + "HKO";
+                hasPreviousChance = true;
+            }
+            i++;
+        }
+        if (!hasPreviousChance && i < chances.length) {
+            // nothing previously written, and we stopped "early"
+            rpt += "guaranteed " + (i > 0 ? (i + 1) : "O") + "HKO";
+            hasPreviousChance = true;
+        } else if (!hasPreviousChance) {
+            // nothing previously written under constraints
+            rpt += "this might take a while...";
+        } else if (chances.length > 1 && chances[chances.length - 1] < 1) {
+            // we wrote some probabilities, more exist that were not calculated
+            rpt += ", ...";
+            hasPreviousChance = true;
+        }
+        
+        if (hasPreviousChance) {
+            // print out the end of turn effects
+            if (effects.messages.length > 1) {
+                rpt += " after ";
+            }
+            for (var i = 1; i < effects.messages.length; i++) {
+                rpt += effects.messages[i];
+                if (effects.messages.length === i + 2) {
+                    rpt += effects.messages.length === 3 ? "" : ",";
+                    rpt += " and "
+                } else if (effects.messages.length !== i + 1) {
+                    rpt += ", "
                 }
-            } else if (i + 1 === chances.length) {
-                rpt += "this might take a while..."
             }
-        }
-        
-        // print out the end of turn effects
-        if (effects.messages.length > 1) {
-            rpt += " after ";
-        } 
-        for (var i = 1; i < effects.messages.length; i++) {
-            rpt += effects.messages[i];
-            if (effects.messages.length === i + 2) {
-                rpt += effects.messages.length === 3 ? "" : ",";
-                rpt += " and "
-            } else if (effects.messages.length !== i + 1) {
-                rpt += ", "
+            // print if total HP given is <100%
+            if (defenderCurrentHp < 100) {
+                rpt += " from " + defenderCurrentHp + "%";
             }
-        }
-        
-        // print if total HP given is <100%
-        if (defenderCurrentHp < 100) {
-            rpt += " from " + defenderCurrentHp + "%";
         }
         
         // we're sort of simulating the first iteration of chanceToKO
+        // conveniently flipping values from dmg to health too
         initDmg = initDmg.combine(dmg[0]);
-        var totalHP = this.defender.stat(Stats.HP),
-            toxicCounter = 0;
-        initDmg.map(function (v, w) {
-            for (var e = 0; e < effects.values.length; e++) {
-                if (v >= totalHP) {
-                    v = totalHP;
-                    break; // poke fainted, nothing else matters
-                } else if (effects.values[e] === "toxic") {
-                    // limit to at most enough to kill
-                    v = Math.min(totalHP, v + Math.floor((++toxicCounter) * totalHP / 16));
+        initDmgBerry = initDmgBerry.combine(dmg[0]);
+        var totalHP = this.defender.stat(Stats.HP);
+        initDmgBerry = initDmgBerry.map(function (v, w) {
+            for (var e = 0; e < effects.values.length && v < totalHP; e++) {
+                if (effects.values[e] === "toxic") {
+                    v += Math.floor(this.toxicCounter * totalHP / 16);
                 } else {
-                    // limit to at most enough to kill, at least enough to fully heal
-                    v = Math.max(0, Math.min(totalHP, v - effects.values[e]));
+                    v = Math.max(0, v - effects.values[e]);
                 }
             }
-            return totalHP - v;
+            // notice the use of totalHP - v, we're flipping damage back to health
+            return Math.max(0, totalHP - v);
         });
-        
-        // berry heal is difficult, will think about later
+        initDmg = initDmg.map(function (v, w) {
+            var berryUsed = false;
+            for (var e = 0; e < effects.values.length && v < totalHP; e++) {
+                if (effects.values[e] === "toxic") {
+                    v += Math.floor((this.toxicCounter + 1) * totalHP / 16);
+                } else {
+                    v = Math.max(0, v - effects.values[e]);
+                }
+                if (!berryUsed && berryHeal > 0 && v < totalHP && (2 * v >= totalHP)) {
+                    v = Math.max(0, v - berryHeal);
+                    berryUsed = true;
+                }
+            }
+            // notice the use of totalHP - v, we're flipping damage back to health
+            v = Math.max(0, totalHP - v);
+            if (berryUsed) {
+                initDmgBerry.add(v, w);
+                return null;
+            }
+            return v;
+        });
         
         var chances2 = [];
         for (var i = 0; i < chancesInt.length; i++) {
@@ -4912,16 +4990,18 @@ function Calculator() {
         }
         
         this.defenderItemUsed = false; // clean up
-
+        
         return {
             report: rpt, // most likely will only need this for display
             minPercent: minPercent,
             maxPercent: maxPercent,
             damage: dmg,
-            remainingHealth: initDmg, // useful for multimove probability
+            remainingHealth: initDmg, // useful for multimove probability, berry values exluded
+            remainingHealthBerry: initDmgBerry,
             effectValues: effects.values,
             effectMessages: effects.messages, // maybe if someone wants to check what EOT effects and resids happened
-            chances: chances2
+            chances: chances2,
+            responseCode: 0
         };
     }
 }
