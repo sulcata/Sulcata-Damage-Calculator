@@ -4645,7 +4645,7 @@ function Calculator() {
             rpt = "",
             minPercent = Math.round(dmg[0].min() / this.defender.stat(Stats.HP) * 1000) / 10,
             maxPercent = Math.round(dmg[0].max() / this.defender.stat(Stats.HP) * 1000) / 10,
-            moveType, movePower
+            moveType, movePower,
             a, d;
         
         // to-do: I should just leech this info off of the _calculate functions
