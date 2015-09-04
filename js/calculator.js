@@ -4950,7 +4950,7 @@ function Calculator() {
         initDmgBerry = initDmgBerry.map(function (v, w) {
             for (var e = 0; e < effects.values.length && v < totalHP; e++) {
                 if (effects.values[e] === "toxic") {
-                    v += Math.floor(this.toxicCounter * totalHP / 16);
+                    v += Math.floor((this.toxicCounter + 1) * totalHP / 16);
                 } else {
                     v = Math.max(0, v - effects.values[e]);
                 }
