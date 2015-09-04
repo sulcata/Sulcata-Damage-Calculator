@@ -616,6 +616,7 @@ function changeGen (n, light) {
     getId("attackerHP").value = "";
     getId("attackerHPp").value = "";
     setText("attackerTotalHP", "???");
+    getId("attackerStatus").selectedIndex = 0;
     getId("attackerGrounded").checked = false;
     getId("attackerTailwind").checked = false;
     getId("attackerUnburden").checked = false;
@@ -627,6 +628,7 @@ function changeGen (n, light) {
     getId("defenderHP").value = "";
     getId("defenderHPp").value = "";
     setText("defenderTotalHP", "???");
+    getId("defenderStatus").selectedIndex = 0;
     getId("defenderGrounded").checked = false;
     getId("defenderTailwind").checked = false;
     getId("defenderUnburden").checked = false;
@@ -2044,6 +2046,7 @@ window.onload = function() {
     getId("defenderSets").onchange = function() {changeSet("defender", this.value);};
     getId("attackerNature").onchange = getId("attackerLevel").onchange = function() {updateStats("attacker");};
     getId("defenderNature").onchange = getId("defenderLevel").onchange = function() {updateStats("defender");};
+    getId("defenderStatus").onchange = updateDefenderStatusOptions;
     getId("toggleOptions").onclick = toggleOptions;
     getId("swap").onclick = swapPokemon;
     getId("export").onclick = function() {
