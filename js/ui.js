@@ -908,7 +908,9 @@ function changeGen (n, light) {
         }
         for (var a in db.releasedBerries(gen)) {
             id = db.releasedBerries(gen, a);
-            arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries(id)]);
+            if (id !== "0") { // "(No Berry)"
+                arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries(id)]);
+            }
         }
         var htmlOps = getOptions(arr);
         replaceHtml("attackerItem", htmlOps);
