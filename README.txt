@@ -1,6 +1,6 @@
-           Sulcata Damage Calculator [Version: 0.1.0]
+           Sulcata Damage Calculator [Version: 0.2.0]
  ---------------------------------------------------------------
- Copyright (C) 2014.
+ Copyright (C) 2015.
 
  This program is free software: you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
