@@ -3,13 +3,13 @@ var gen = 6, db = null;
 /**
  * This object will load all the JSON data files as needed to avoid massive delays on page load.
  * Generally most of the methods and members follow the same format.
- * 
+ *
  * Underscored variable names should not be accessed; they are there only to hold the loaded data and may or may not be null.
- * 
+ *
  * If a method is not given a variable name it will return the whole object associated with its corresponding variable.
  * This can be incredibly ineffecient when used to only access a single record as it seems to (have not verified) copy
  * the entire object, which significantly slowed down the UI.
- * 
+ *
  * Most of the variables will be accessed with however many variables are needed to return a specific record.
  * For example, PokeType1 takes the first input to determine which generation of Pokemon games we are referring to,
  * and the second input will determine the pokemon using its ID.
@@ -19,7 +19,7 @@ function Database() {
     // 0 is multi gen
     this.gens = ["db/", "db/rby/", "db/gsc/", "db/adv/", "db/hgss/", "db/b2w2/", "db/oras/"];
     this.location = ""; // prefixes every request, end with a slash
-    
+
     this.preload = function (varName, g, file, callback) { // used in UI only, but belongs here probably
         callback();
         /*var httpreq;
@@ -54,7 +54,7 @@ function Database() {
         }
         callback();*/
     }
-    
+
     this._damageClass = null;
     this.damageClass = function (moveId) {
         if (this._damageClass === null) {
@@ -67,7 +67,7 @@ function Database() {
         }
         return 0;
     }
-    
+
     this._typeDamageClass = {
         "0": 1,  "1": 1,  "2": 1,  "3": 1,  "4": 1,
         "5": 1,  "6": 1,  "7": 1,  "8": 1,  "9": 2,
@@ -82,7 +82,7 @@ function Database() {
         }
         return 0;
     }
-    
+
     this._pokemons = null;
     this.pokemons = function (pokeId) {
         if (this._pokemons === null) {
@@ -93,7 +93,7 @@ function Database() {
         }
         return this._pokemons[pokeId];
     }
-    
+
     this._natures = {
         "0" : "Hardy" ,  "1" : "Lonely",  "2" : "Brave"  ,  "3" : "Adamant",  "4" : "Naughty",
         "5" : "Bold"  ,  "6" : "Docile",  "7" : "Relaxed",  "8" : "Impish" ,  "9" : "Lax",
@@ -107,7 +107,7 @@ function Database() {
         }
         return this._natures[natureId];
     }
-    
+
     this._abilities = null;
     this.abilities = function (abilityId) {
         if (this._abilities === null) {
@@ -118,7 +118,7 @@ function Database() {
         }
         return this._abilities[abilityId];
     }
-    
+
     this._items = null;
     this.items = function (itemId) {
         if (this._items === null) {
@@ -129,7 +129,7 @@ function Database() {
         }
         return this._items[itemId];
     }
-    
+
     this._moves = null;
     this.moves = function (moveId) {
         if (this._moves === null) {
@@ -140,7 +140,7 @@ function Database() {
         }
         return this._moves[moveId];
     }
-    
+
     this._berryEffects = null;
     this.berryEffects = function (berryId) {
         if (this._berryEffects === null) {
@@ -151,7 +151,7 @@ function Database() {
         }
         return this._berryEffects[berryId];
     }
-    
+
     this._itemEffects = null;
     this.itemEffects = function (itemId) {
         if (this._itemEffects === null) {
@@ -162,7 +162,7 @@ function Database() {
         }
         return this._itemEffects[itemId];
     }
-    
+
     this._berryType = null;
     this.berryType = function (berryId) {
         if (this._berryType === null) {
@@ -173,7 +173,7 @@ function Database() {
         }
         return this._berryType[berryId];
     }
-    
+
     this._berryPower = null;
     this.berryPower = function (berryId) {
         if (this._berryPower === null) {
@@ -184,7 +184,7 @@ function Database() {
         }
         return this._berryPower[berryId];
     }
-    
+
     this._flingPower = null;
     this.flingPower = function (itemId) {
         if (this._flingPower === null) {
@@ -197,7 +197,7 @@ function Database() {
         }
         return 10;
     }
-    
+
     this._weight = null;
     this.weight = function (pokeId) {
         if (this._weight === null) {
@@ -208,7 +208,7 @@ function Database() {
         }
         return this._weight[pokeId];
     }
-    
+
     this._berries = null;
     this.berries = function (berryId) {
         if (this._berries === null) {
@@ -219,7 +219,7 @@ function Database() {
         }
         return this._berries[berryId];
     }
-    
+
     this._recoil = null;
     this.recoil = function (id) {
         if (this._recoil === null) {
@@ -230,7 +230,7 @@ function Database() {
         }
         return this._recoil[id];
     }
-    
+
     this._moveFlags = null;
     this.moveFlags = function (moveId) {
         if (this._moveFlags === null) {
@@ -241,7 +241,7 @@ function Database() {
         }
         return this._moveFlags[moveId];
     }
-    
+
     this._flinch = null;
     this.flinch = function (moveId) {
         if (this._flinch === null) {
@@ -252,7 +252,7 @@ function Database() {
         }
         return this._flinch[moveId];
     }
-    
+
     this._category = null;
     this.category = function (moveId) {
         if (this._category === null) {
@@ -263,7 +263,7 @@ function Database() {
         }
         return this._category[moveId];
     }
-    
+
     this._statBoost = null;
     this.statBoost = function (moveId) {
         if (this._statBoost === null) {
@@ -274,7 +274,7 @@ function Database() {
         }
         return this._statBoost[moveId];
     }
-    
+
     this._abilityEffects = null;
     this.abilityEffects = function (abilityId) {
         if (this._abilityEffects === null) {
@@ -285,7 +285,7 @@ function Database() {
         }
         return this._abilityEffects[abilityId];
     }
-    
+
     this._evolutions = null;
     this.evolutions = function (pokeId) {
         if (this._evolutions === null) {
@@ -296,7 +296,7 @@ function Database() {
         }
         return this._evolutions[pokeId];
     }
-    
+
     this._stats = [null, null, null, null, null, null, null];
     this.stats = function (generation, pokeId) {
         if (this._stats[generation] === null) {
@@ -307,7 +307,7 @@ function Database() {
         }
         return this._stats[generation][pokeId];
     }
-    
+
     this._movePowers = [null, null, null, null, null, null, null];
     this.movePowers = function (generation, pokeId) {
         if (this._movePowers[generation] === null) {
@@ -318,7 +318,7 @@ function Database() {
         }
         return this._movePowers[generation][pokeId];
     }
-    
+
     this._moveTypes = [null, null, null, null, null, null, null];
     this.moveTypes = function (generation, pokeId) {
         if (this._moveTypes[generation] === null) {
@@ -329,7 +329,7 @@ function Database() {
         }
         return this._moveTypes[generation][pokeId];
     }
-    
+
     this._pokeType1 = [null, null, null, null, null, null, null];
     this.pokeType1 = function (generation, pokeId) {
         if (this._pokeType1[generation] === null) {
@@ -340,7 +340,7 @@ function Database() {
         }
         return this._pokeType1[generation][pokeId];
     }
-    
+
     this._pokeType2 = [null, null, null, null, null, null, null];
     this.pokeType2 = function (generation, pokeId) {
         if (this._pokeType2[generation] === null) {
@@ -351,7 +351,7 @@ function Database() {
         }
         return this._pokeType2[generation][pokeId];
     }
-    
+
     this._typesTable = [
         {
             "0":  [2,2,2,2,2,1,2,0,1,2,2,2,2,2,2,2,2,2,2],
@@ -420,7 +420,7 @@ function Database() {
         }
         return this._typesTable[gen2table[generation]][attackingType+""][defendingType];
     }
-    
+
     this._minMaxHits = [null, null, null, null, null, null, null];
     this.minMaxHits = function (generation, moveId) {
         if (this._minMaxHits[generation] === null) {
@@ -431,7 +431,7 @@ function Database() {
         }
         return this._minMaxHits[generation][moveId];
     }
-    
+
     this._ranges = [null, null, null, null, null, null, null];
     this.ranges = function (generation, moveId) {
         if (generation <= 1) { // no file for gen 1, although to be honest I think only gens >= 3 need this.
@@ -445,7 +445,7 @@ function Database() {
         }
         return this._ranges[generation][moveId];
     }
-    
+
     // the functions below are unneeded for calculations and will not load files unless explicitly called
     this._releasedPokes = null;
     this.releasedPokes = function (generation, index) {
@@ -457,7 +457,7 @@ function Database() {
         }
         return this._releasedPokes[generation][index];
     }
-    
+
     this._releasedMoves = null;
     this.releasedMoves = function (generation, index) {
         if (this._releasedMoves === null) {
@@ -468,7 +468,7 @@ function Database() {
         }
         return this._releasedMoves[generation][index];
     }
-    
+
     this._releasedItems = null;
     this.releasedItems = function (generation, index) {
         if (this._releasedItems === null) {
@@ -479,7 +479,7 @@ function Database() {
         }
         return this._releasedItems[generation][index];
     }
-    
+
     this._releasedBerries = null;
     this.releasedBerries= function (generation, index) {
         if (this._releasedBerries === null) {
@@ -490,7 +490,7 @@ function Database() {
         }
         return this._releasedBerries[generation][index];
     }
-    
+
     this._genders = null;
     this.genders = function (pokeId) {
         if (this._genders === null) {
@@ -501,7 +501,7 @@ function Database() {
         }
         return this._genders[pokeId];
     }
-    
+
     this._types = {
         "0" : "Normal",
         "1" : "Fighting",
@@ -529,7 +529,7 @@ function Database() {
         }
         return this._types[typeId];
     }
-    
+
     this._hiddenPowers = {
         "1":  [[31,31,30,30,30,30], [30,30,31,30,30,30], [30,30,30,30,30,30], [31,30,30,30,30,30], [30,31,30,30,30,30]],
         "2":  [[31,31,31,30,30,30], [30,30,30,30,30,31], [31,30,31,30,30,30], [30,31,31,30,30,30]],
@@ -554,7 +554,7 @@ function Database() {
         }
         return this._hiddenPowers[typeId];
     }
-    
+
     this._hiddenPowersGen2 = {
         "1":  [[3,  12, 12, 15, 15, 15]],
         "2":  [[7,  12, 13, 15, 15, 15]],
@@ -579,7 +579,7 @@ function Database() {
         }
         return this._hiddenPowersGen2[typeId];
     }
-    
+
     this._ability1 = null;
     this.ability1 = function (pokeId) {
         if (this._ability1 === null) {
@@ -593,7 +593,7 @@ function Database() {
         }
         return -1;
     }
-    
+
     this._ability2 = null;
     this.ability2 = function (pokeId) {
         if (this._ability2 === null) {
@@ -607,7 +607,7 @@ function Database() {
         }
         return -1;
     }
-    
+
     this._ability3 = null;
     this.ability3 = function (pokeId) {
         if (this._ability3 === null) {
@@ -670,6 +670,62 @@ var Stats = {HP:0, ATK:1, DEF:2, SATK:3, SDEF:4, SPD:5, ACC:6, EVA:7, SPC:3}, //
     Types = {NORMAL:0, FIGHTING:1, FLYING:2, POISON:3, GROUND:4, ROCK:5, BUG:6,
              GHOST:7, STEEL:8, FIRE:9, WATER:10, GRASS:11, ELECTRIC:12,
              PSYCHIC:13, ICE:14, DRAGON:15, DARK:16, FAIRY:17, CURSE:18}; // curse should be used in the absence of type
+// convenient conversion objects that are useful outside as well
+var redundantItems = { // don't exclude plates & orbs as those affect damage
+    "649:1"  : "Douse Drive", // Genesect-D
+    "649:2"  : "Shock Drive", // Genesect-S
+    "649:3"  : "Burn Drive", // Genesect-B
+    "649:4"  : "Chill Drive", // Genesect-C
+    "460:1:M": "Abomasite", // Mega Abomasnow
+    "359:1:M": "Absolite", // Mega Absol
+    "142:1:M": "Aerodactylite", // Mega Aerodactyl
+    "306:1:M": "Aggronite", // Mega Aggron
+    "65:1:M" : "Alakazite", // Mega Alakazam
+    "334:1:M": "Altarianite", // Mega Altaria
+    "181:1:M": "Ampharosite", // Mega Ampharos
+    "531:1:M": "Audinite", // Mega Audino
+    "354:1:M": "Banettite", // Mega Banette
+    "15:1:M" : "Beedrillite", // Mega Beedrill
+    "9:1:M"  : "Blastoisinite", // Mega Blastoise
+    "257:1:M": "Blazikenite", // Mega Blaziken
+    "323:1:M": "Cameruptite", // Mega Camerupt
+    "6:1:M"  : "Charizardite X", // Mega Charizard X
+    "6:2:M"  : "Charizardite Y", // Mega Charizard Y
+    "719:1:M": "Diancite", // Mega Diancie
+    "475:1:M": "Galladite", // Mega Gallade
+    "445:1:M": "Garchompite", // Mega Garchomp
+    "282:1:M": "Gardevoirite", // Mega Gardevoir
+    "94:1:M" : "Gengarite", // Mega Gengar
+    "362:1:M": "Glalitite", // Mega Glalie
+    "130:1:M": "Gyaradosite", // Mega Gyarados
+    "214:1:M": "Heracronite", // Mega Heracross
+    "229:1:M": "Houndoominite", // Mega Houndoom
+    "115:1:M": "Kangaskhanite", // Mega Kangaskhan
+    "380:1:M": "Latiasite", // Mega Latias
+    "381:1:M": "Latiosite", // Mega Latios
+    "428:1:M": "Lopunnity", // Mega Lopunny
+    "448:1:M": "Lucarionite", // Mega Lucario
+    "310:1:M": "Manectite", // Mega Manectric
+    "303:1:M": "Mawilite", // Mega Mawile
+    "308:1:M": "Medichamite", // Mega Medicham
+    "376:1:M": "Metagrossite", // Mega Metagross
+    "150:1:M": "Mewtwonite X", // Mega Mewtwo X
+    "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
+    "18:1:M" : "Pidgeotite", // Mega Pidgeot
+    "127:1:M": "Pinsirite", // Mega Pinsir
+    "302:1:M": "Sablenite", // Mega Sableye
+    "373:1:M": "Salamencite", // Mega Salamence
+    "254:1:M": "Sceptilite", // Mega Sceptile
+    "212:1:M": "Scizorite", // Mega Scizor
+    "319:1:M": "Sharpedonite", // Mega Sharpedo
+    "80:1:M" : "Slowbronite", // Mega Slowbro
+    "208:1:M": "Steelixite", // Mega Steelix
+    "260:1:M": "Swampertite", // Mega Swampert
+    "248:1:M": "Tyranitarite", // Mega Tyranitar
+    "3:1:M"  : "Venusaurite", // Mega Venusaur
+    "383:1:M": "Red Orb", // Primal Groudon
+    "382:1:M": "Blue Orb" // Primal Kyogre
+};
 
 /* we gon' need a lot of math
  * ok maybe not that much math; I only need addition, multiplication, and division of nonneg strings
@@ -863,7 +919,7 @@ function WeightedArray (a) {
             this.weights.splice(low, 0, inc + "");
         }
     }
-    
+
     this.combine = function (w) {
         /* Calculating all the possible combinations of a weighted array is
          * actually a lot more efficient with closely distributed numbers.
@@ -884,7 +940,7 @@ function WeightedArray (a) {
         }
         return temp;
     }
-    
+
     this.concat = function (w) {
         var temp = new WeightedArray(this);
         for (var i = w.values.length - 1; i >= 0; --i) {
@@ -892,7 +948,7 @@ function WeightedArray (a) {
         }
         return temp;
     }
-    
+
     this.count = function (f) {
         // elements are stored as a weighted array in which the weights are the count of the element
         // summed together would be the length of the set
@@ -907,13 +963,13 @@ function WeightedArray (a) {
         }
         return t;
     }
-    
+
     this.addAll = function (n) {
         for (var i = this.values.length - 1; i >= 0; --i) {
             this.values[i] += n;
         }
     }
-    
+
     this.map = function (f) {
         var tempMap, tempArr = new WeightedArray();
         // allows for concatenation in the case that function f is not a one-to-one function
@@ -924,32 +980,32 @@ function WeightedArray (a) {
         }
         return tempArr;
     }
-    
+
     this.clear = function() {
         // apparently clearing this way is pretty fast
         // a bit ugly but WeightedArray should be as fast as possible
         while (this.values.shift());
         while (this.weights.shift());
     }
-    
+
     this.isEmpty = function() {
         return this.values.length < 1;
     }
-    
+
     this.min = function() {
         if (this.values.length > 0) {
             return this.values[0];
         }
         return null;
     }
-    
+
     this.max = function() {
         if (this.values.length > 0) {
             return this.values[this.values.length - 1];
         }
         return null;
     }
-    
+
     this.avg = function() {
         var weightedTotal = "0";
         if (this.values.length > 0) {
@@ -963,7 +1019,7 @@ function WeightedArray (a) {
         }
         return null;
     }
-    
+
     // compare to the naive method, returns (actual iterations)/(naive iterations)
     /*this.combineEfficiency = function(w) {
         if (this.weights.length === 0 || w.weights.length === 0) return 1;
@@ -971,7 +1027,7 @@ function WeightedArray (a) {
                                    multiplyStrs(this.count(), w.count()))[0], 10)
                / 1000000;
     }*/
-    
+
     this.print = function (f) {
         if (!f) {
             f = function(v, w) {
@@ -1026,7 +1082,7 @@ function Pokemon() {
     this.overrideTypes = [-1, -1]; // curse should be used for "no type"
     this.overrideStats = [-1, -1, -1, -1, -1, -1]; // anything > -1 will trigger an override
     this.moves = [new Move(), new Move(), new Move(), new Move()];
-    
+
     this.setNatureName = function (n) {
         for (nat in db.natures()) {
             if (db.natures(nat) === n) {
@@ -1036,11 +1092,11 @@ function Pokemon() {
         }
         this.nature = 0;
     }
-    
+
     this.natureName = function() {
         return db.natures(this.nature)
     }
-    
+
     this.setName = function (n) {
         for (p in db.pokemons()) {
             if (db.pokemons(p) === n) {
@@ -1050,25 +1106,25 @@ function Pokemon() {
         }
         this.id = "0:0";
     }
-    
+
     this.name = function() {
         return db.pokemons(this.id);
     }
-    
+
     this.form = function() { // maybe we could call this genus?
         if (this.id.indexOf(":") !== this.id.lastIndexOf(":")) {
             return this.id.substring(this.id.indexOf(":") + 1, this.id.lastIndexOf(":"));
         }
         return this.id.substr(this.id.indexOf(":") + 1);
     }
-    
+
     this.formType = function() { // perhaps the family?
         if (this.id.indexOf(":") !== this.id.lastIndexOf(":")) {
             return this.id.substr(this.id.lastIndexOf(":") + 1);
         }
         return "";
     }
-    
+
     this.initialForm = function() { // ancestor? bio is fun
         var testId = this.species() + ":0:H";
         if (typeof db.pokemons(testId) !== "undefined") {
@@ -1076,16 +1132,16 @@ function Pokemon() {
         }
         return this.id;
     }
-    
+
     this.species = function() {
         return this.id.substring(0, this.id.indexOf(":"));
     }
-    
+
     this.natureMultiplier = function (s) { // -1,0,1
         var stat2 = [0, 1, 2, 4, 5, 3];
         return ((Math.floor(this.nature / 5) === stat2[s] - 1) ? 1 : 0) - ((this.nature % 5 === stat2[s] - 1) ? 1 : 0);
     }
-    
+
     this.stat = function (s) {
         if (this.overrideStats[s] > -1) {
             return this.overrideStats[s];
@@ -1138,11 +1194,11 @@ function Pokemon() {
         }
         return Math.max(1, gen <= 2 ? Math.min(999, stat) : stat);
     }
-    
+
     this.boost = function (s) {
         return this.boosts[s];
     }
-    
+
     this.boostedStat = function (s) {
         var boost = this.boost(s), stat;
         var num, den; // numerator and denominator
@@ -1162,7 +1218,7 @@ function Pokemon() {
         stat = Math.floor(this.stat(s) * num / den); // stat * (2+boost) / (2-drop)
         return Math.max(1, gen <= 2 ? Math.min(stat, 999) : stat);
     }
-    
+
     this.simpleBoostedStat = function (s) {
         // the ability simple doubles stat boosts
         var boost = this.boosts[s]*2;
@@ -1175,7 +1231,7 @@ function Pokemon() {
         }
         return Math.floor(this.stat(s) * num / den); // stat * (2+boost) / (2-drop)
     }
-    
+
     this.baseStat = function (s) {
         var temp = this.species() + ":" + this.form(); // ignores any :H or :whatever stuff
         if (db.stats(gen, temp)) {
@@ -1183,7 +1239,7 @@ function Pokemon() {
         }
         return db.stats(gen, this.species() + ":0")[s]; // this is for keldeo and friends
     }
-    
+
     this.type1 = function() {
         if (this.overrideTypes[0] > -1) {
             return this.overrideTypes[0];
@@ -1193,7 +1249,7 @@ function Pokemon() {
         }
         return db.pokeType1(gen, this.species() + ":0");
     }
-    
+
     this.type2 = function() {
         if (this.overrideTypes[1] > -1) {
             return this.overrideTypes[1];
@@ -1205,19 +1261,19 @@ function Pokemon() {
         }
         return Types.CURSE;
     }
-    
+
     this.stab = function (t) {
         // no stab on curse-type
         return t !== Types.CURSE && (t === this.type1() || t === this.type2() || t === this.addedType);
     }
-    
+
     this.weight = function() {// kg
         if (db.weight(this.species() + ":" + this.form())) {
             return db.weight(this.species() + ":" + this.form());
         }
         return db.weight(this.species() + ":0");
     }
-    
+
     this.hasEvolution = function() {
         var evos = db.evolutions(this.species());
         var released = db.releasedPokes(gen);
@@ -1230,14 +1286,14 @@ function Pokemon() {
         }
         return false;
     }
-    
+
     this.possibleGenders = function() {
         if (db.genders(this.species() + this.form())) {
             return db.genders(this.species() + ":" + this.form());
         }
         return db.genders(this.species() + ":0");
     }
-    
+
     this.fromImportable = function (importText) {
         var statMatches = {"hp": 0, "atk": 1, "def": 2, "satk": 3, "spatk": 3, "sdef": 4, "spdef": 4, "spd": 5, "spc": 3},
             lines = importText.split("\n");
@@ -1291,7 +1347,7 @@ function Pokemon() {
             }
         }
     }
-    
+
     this.toImportable = function() {
         var stats = ["HP", "Atk", "Def", "SAtk", "SDef", "Spd"],
             e = this.name();
@@ -1354,7 +1410,7 @@ function Pokemon() {
         }
         return e;
     }
-    
+
     this.ability1 = function() { // ui purposes, same for ability2 and ability3
         var aId = db.ability1(this.species() + ":" + this.form());
         if (aId < 0) {
@@ -1362,7 +1418,7 @@ function Pokemon() {
         }
         return aId;
     }
-    
+
     this.ability2 = function() {
         var aId = db.ability2(this.species() + ":" + this.form());
         if (aId < 0) {
@@ -1370,7 +1426,7 @@ function Pokemon() {
         }
         return aId;
     }
-    
+
     this.ability3 = function() {
         var aId = db.ability3(this.species() + ":" + this.form());
         if (aId < 0) {
@@ -1382,7 +1438,7 @@ function Pokemon() {
 
 function Move() {
     this.id = "0"; // default (No Move)
-    
+
     this.setName = function (n) {
         for (m in db.moves()) {
             if (db.moves(m) === n) {
@@ -1392,33 +1448,33 @@ function Move() {
         }
         this.id = "0";
     }
-    
+
     this.name = function() {
         return db.moves(this.id);
     }
-    
+
     this.power = function() {
         return db.movePowers(gen, this.id) ? db.movePowers(gen, this.id) : 0;
     }
-    
+
     this.damageClass = function() {
         return db.damageClass(this.id);
     }
-    
+
     this.type = function() {
         return db.moveTypes(gen, this.id) ? db.moveTypes(gen, this.id) : Types.NORMAL;
     }
-    
+
     this.hasRecoil = function() {
         return db.recoil(this.id) ? (db.recoil(this.id) < 0) : false; // negative means it's actually recoil and not recovery
     }
-    
+
     // PO's database uses boolean flags for certain repeated attributes
-    
+
     this.punch = function() {
         return db.moveFlags(this.id) ? !!(db.moveFlags(this.id) & 0x80) : false;
     }
-    
+
     this.sheerForce = function() {
         return db.category(this.id) === 6 // OffensiveStatChangingMove = 6
                || db.category(this.id) === 4 // OffensiveStatusInducingMove = 4
@@ -1426,41 +1482,41 @@ function Move() {
                    && ((db.statBoost(this.id) >> 16) < 128)) // Exclude stat drops, checking if an 8-bit int > 0
                || !!db.flinch(this.id); // Flinch
     }
-    
+
     this.contact = function() {
         return db.moveFlags(this.id) ? !!(db.moveFlags(this.id) & 0x1) : false;
     }
-    
+
     this.sound = function() {
         return db.moveFlags(this.id) ? !!(db.moveFlags(this.id) & 0x100) : false;
     }
-    
+
     this.powder = function() {
         return db.moveFlags(this.id) ? !!(db.moveFlags(this.id) & 0x8000) : false;
     }
-    
+
     this.bite = function() {
         return db.moveFlags(this.id) ? !!(db.moveFlags(this.id) & 0x4000) : false;
     }
-    
+
     this.pulse = function() {
         return db.moveFlags(this.id) ? !!(db.moveFlags(this.id) & 0x800) : false;
     }
-    
+
     this.ball = function() {
         return db.moveFlags(this.id) ? !!(db.moveFlags(this.id) & 0x10000) : false;
     }
-    
+
     // min and max hits are stored as one byte
     // min hits are the "low nibble", while max hits are the "high nibble"
     this.minHits = function() {
         return db.minMaxHits(gen, this.id) ? db.minMaxHits(gen, this.id) & 0xF : 1;
     }
-    
+
     this.maxHits = function() {
         return db.minMaxHits(gen, this.id) ? (db.minMaxHits(gen, this.id) & 0xF0) >> 4 : 1;
     }
-    
+
     this.multiTargets = function() {
         return db.ranges(gen, this.id) ? (db.ranges(gen, this.id) === 4 || db.ranges(gen, this.id) === 5) : false;
     }
@@ -1468,7 +1524,7 @@ function Move() {
 
 function Ability() {
     this.id = "0"; // default (No Ability)
-    
+
     this.setName = function (n) {
         for (a in db.abilities()) {
             if (db.abilities(a) === n) {
@@ -1478,11 +1534,11 @@ function Ability() {
         }
         this.id = "0";
     }
-    
+
     this.name = function() {
         return db.abilities(this.id);
     }
-    
+
     this.flagToValue = function (f) {
         if (!db.abilityEffects(this.id)) return null;
         var effectsList = db.abilityEffects(this.id).split("|");
@@ -1493,22 +1549,22 @@ function Ability() {
         }
         return null;
     }
-    
+
     this.pinchType = function() {
         var v = this.flagToValue("7");
         return v !== null ? parseInt(v, 10) : -1;
     }
-    
+
     this.weatherSpeedType = function() {
         var v = this.flagToValue("8");
         return v !== null ? parseInt(v, 10) : -1;
     }
-    
+
     this.normalToType = function() {
         var v = this.flagToValue("121");
         return v !== null ? parseInt(v, 10) : -1;
     }
-    
+
     this.immunityType = function() {
         var v = this.flagToValue("70"); // water absorb, volt absorb, etc.
         if (v !== null) {
@@ -1536,7 +1592,7 @@ function Ability() {
         }
         return -1;
     }
-    
+
     this.ignorable = function() {
         // mold breaker, teravolt, turboblaze
         // keep alphabetized
@@ -1550,7 +1606,7 @@ function Ability() {
                      "Vital Spirit", "Volt Absorb", "Water Absorb", "Water Veil", "White Smoke", "Wonder Guard", "Wonder Skin"];
         return aList.indexOf(this.name()) > -1;
     }
-    
+
     this.moldBreaker = function() {
         // all abilities like mold breaker
         return db.abilityEffects(this.id) === "40";
@@ -1559,7 +1615,7 @@ function Ability() {
 
 function Item() {
     this.id = 0; // default (No Item)
-    
+
     this.setName = function (n) {
         for (i in db.items()) {
             if (db.items(i) === n) {
@@ -1575,14 +1631,14 @@ function Item() {
         }
         this.id = 0;
     }
-    
+
     this.name = function() {
         if (db.items(this.id)) {
             return db.items(this.id);
         }
         return db.berries(this.id - 8000);
     }
-    
+
     this.flagToValue = function (f) {
         if (!db.itemEffects(this.id)) return null;
         var effectList = db.itemEffects(this.id).split("|");
@@ -1593,12 +1649,12 @@ function Item() {
         }
         return null;
     }
-    
+
     this.typeBoosted = function() {
         var v = this.flagToValue("10");
         return v !== null ? parseInt(v, 10) : -1;
     }
-    
+
     this.berryType = function() {
         if (this.id < 8000 || !db.berryEffects(this.id - 8000)) return -1; // not a berry
         var e = db.berryEffects(this.id - 8000).split("-");
@@ -1609,26 +1665,26 @@ function Item() {
         }
         return -1; // ???
     }
-    
+
     this.gemType = function() {
         var v = this.flagToValue("37");
         return v !== null ? parseInt(v, 10) : -1;
     }
-    
+
     this.megaPokeSpecies = function() {
         var v = this.flagToValue("66")
         return v.substring(0, v.indexOf(":"));
     }
-    
+
     this.megaPokeForm = function() {
         var v = this.flagToValue("66");
         return v.substring(v.indexOf(":") + 1);
     }
-    
+
     this.megaPoke = function() {
         return this.flagToValue("66");
     }
-    
+
     this.plateType = function() {
         var v = this.flagToValue("29");
         return v !== null ? parseInt(v, 10) : -1;
@@ -1697,7 +1753,7 @@ function Field() {
     this.spikesLayers = 0; // see right above
     this.toxicCounter = 0;
 }
-    
+
 function hiddenPowerP (ivs) {
     // just a weird formula involving the second bit of the pokemon's IVs
     // differs for gen 2
@@ -1709,7 +1765,7 @@ function hiddenPowerP (ivs) {
                         | ((ivs[Stats.SDEF] & 2) << 4)
                       ) * 40 / 63 + 30);
 }
-    
+
 function hiddenPowerT (ivs) {
     // another weird formula involving the first bit (even/odd) of the pokemon's IVs
     // also differs in gen 2
@@ -1731,7 +1787,7 @@ function hiddenPowerP2 (ivs) {
                   + (ivs[Stats.SPC] & 3)
                  ) >> 1);
 }
-    
+
 function hiddenPowerT2 (ivs) {
     // still weird
     // the first two bits of the attack IV on the left and the first two bits of the defense IV on the right
@@ -1744,10 +1800,10 @@ function Calculator() {
     this.attacker = new Pokemon();
     this.defender = new Pokemon();
     this.field = new Field();
-    
+
     this.attackerItemUsed = false;
     this.defenderItemUsed = false;
-    
+
     this.typeEffectiveness = function (aType, dType) {
         // 0:immune, 1:resisted, 2:neutral, 4:super effective
         return db.typesTable(gen, aType, dType);
@@ -1769,7 +1825,7 @@ function Calculator() {
         }
         return e;
     }
-    
+
     this.invert = function (e) {
         /*
          * Immunity becomes Super Effective (2x)
@@ -1796,7 +1852,7 @@ function Calculator() {
         }
         return e;
     }
-    
+
     this.chainMod = function (m1, m2) {
         // basically a weird way more or less of combining two multipliers
         // +0x800 is +2048
@@ -1807,7 +1863,7 @@ function Calculator() {
         return (m1 * m2 + 0x800) >> 12;
         // tl;dr it's an overly complicated way of rounding half-up that keeps the result from overflowing
     }
-    
+
     this.applyMod = function (m, d) {
         // there's weird rounding, <= is accurate. It's rounding half-down. Happens a lot in gen 5 (possibly 6)
         var temp = d * m / 0x1000;
@@ -1817,7 +1873,7 @@ function Calculator() {
             return Math.ceil(temp);
         }
     }
-    
+
     this.applyModA = function (m, s) {
         // just use applyMod on an array to prevent redundant/error-prone code
         for (var i = 0; i < s.length; i++) {
@@ -1825,7 +1881,7 @@ function Calculator() {
         }
         return s;
     }
-    
+
     this.flail = function (currentHealth, totalHealth) {
         var p = Math.floor(48 * currentHealth / totalHealth);
         if (p <= 1) {
@@ -1841,12 +1897,12 @@ function Calculator() {
         }
         return 20;
     }
-    
+
     this.magnitudePower = function (mag) {
         var pows = [10, 30, 50, 70, 90, 110, 150];
         return pows[mag - 4];
     }
-    
+
     this.weatherBall = function (w) {
         if (w === Weathers.SUN || w === Weathers.HARSH_SUN) {
             return Types.FIRE;
@@ -1859,12 +1915,12 @@ function Calculator() {
         }
         return Types.NORMAL;
     }
-    
+
     this.trumpPower = function (pp) {
         var t = [200, 80, 60, 50, 40];
         return t[Math.min(4, pp)];
     }
-    
+
     this.electroBall = function (a, b) {
         var s = a / Math.max(1, b);
         if (s >= 4) {
@@ -1878,11 +1934,11 @@ function Calculator() {
         }
         return 40;
     }
-    
+
     this.gyroBall = function (a, b) {
         return Math.min(150, 1 + Math.floor(25 * b / Math.max(1, a)));
     }
-    
+
     this.punishment = function (a) {
         var statBoostTotal = 0;
         for (var i = 0; i < a.length; i++) {
@@ -1892,7 +1948,7 @@ function Calculator() {
         }
         return Math.min(120, 60 + 20 * statBoostTotal);
     }
-    
+
     this.grassKnot = function (w) { // w in kg * 10
         if (w >= 2000) {
             return 120;
@@ -1907,7 +1963,7 @@ function Calculator() {
         }
         return 20;
     }
-    
+
     this.heavySlam = function (w1, w2) {
         var w = Math.floor(w1 / w2);
         if (w >= 5) {
@@ -1921,7 +1977,7 @@ function Calculator() {
         }
         return 40;
     }
-    
+
     this.storedPower = function (b) {
         var statBoostTotal = 1;
         for (var i = 1; i < b.length; i++) {
@@ -1931,7 +1987,7 @@ function Calculator() {
         }
         return 20 * statBoostTotal;
     }
-    
+
     this.oras_calculate = function() {
         var moveType = this.move.type();
         var movePower = this.move.power();
@@ -2027,7 +2083,7 @@ function Calculator() {
             attackerWeight /= 2;
         }
         attackerWeight = Math.max(1, attackerWeight - Math.floor(attackerWeight) > 0.5 ? 1 + Math.floor(attackerWeight) : Math.floor(attackerWeight));
-        
+
         if (this.defender.autotomize) {
             defenderWeight -= 1000;
         }
@@ -2040,7 +2096,7 @@ function Calculator() {
             defenderWeight /= 2;
         }
         defenderWeight = Math.max(1, defenderWeight - Math.floor(defenderWeight) > 0.5 ? 1 + Math.floor(defenderWeight) : Math.floor(defenderWeight));
-        
+
         var moveName = this.move.name();
         if (moveName === "Seismic Toss" || moveName === "Night Shade") {
             return [this.attacker.level];
@@ -2157,7 +2213,7 @@ function Calculator() {
                 movePower *= 2;
             }
         }
-        
+
         var movePowerMod = 0x1000;
         if (aAbilityName === "Technician" && movePower <= 60) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
@@ -2252,7 +2308,7 @@ function Calculator() {
             movePowerMod = this.chainMod(0x548, movePowerMod);
         }
         if (this.attacker.grounded
-            && (this.field.grassyTerrain && moveType === Types.GRASS 
+            && (this.field.grassyTerrain && moveType === Types.GRASS
                 || this.field.electricTerrain && moveType === Types.ELECTRIC)) {
             movePowerMod = this.chainMod(0x1800, movePowerMod); // both described as 50% move boost, unconfirmed
         }
@@ -2260,7 +2316,7 @@ function Calculator() {
             moveType = Types.ELECTRIC;
         }
         movePower = Math.max(1, this.applyMod(movePowerMod, movePower));
-        
+
         var _def = this.field.wonderRoom ? Stats.SDEF : Stats.DEF,
             _sdef = this.field.wonderRoom ? Stats.DEF : Stats.SDEF,
             unawareA = aAbilityName === "Unaware",
@@ -2312,7 +2368,7 @@ function Calculator() {
                 satk = crit ? Math.max(this.attacker.stat(Stats.SATK), this.attacker.boostedStat(Stats.SATK)) : this.attacker.boostedStat(Stats.SATK);
             }
         }
-        
+
         var atkMod = 0x1000, satkMod = 0x1000;
         if (dAbilityName === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
             atkMod = this.chainMod(0x800, atkMod);
@@ -2373,7 +2429,7 @@ function Calculator() {
         }
         atk = this.applyMod(atkMod, atk);
         satk = this.applyMod(satkMod, satk);
-        
+
         if (weather === Weathers.SAND && this.defender.stab(Types.ROCK)) {
             sdef = this.applyMod(0x1800, sdef);
         }
@@ -2405,7 +2461,7 @@ function Calculator() {
         }
         def = this.applyMod(defMod, def);
         sdef = this.applyMod(sdefMod, sdef);
-        
+
         var a = 0, d = 0;
         if (["Psyshock", "Psystrike", "Secret Sword"].indexOf(moveName) > -1) {
             a = satk;
@@ -2419,7 +2475,7 @@ function Calculator() {
         } else {
             return [0];
         }
-        
+
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * movePower * a / d) / 50) + 2;
 
         if (this.field.multiBattle && this.move.multiTargets()) {
@@ -2457,7 +2513,7 @@ function Calculator() {
                 baseDamage = this.applyMod(0x800, baseDamage);
             }
         }
-        
+
         if (crit) { // I'm guessing this is how GameFreak does it, although I believe x1.5 round down has the same effect anyway
             baseDamage = this.applyMod(0x1800, baseDamage);
         }
@@ -2566,16 +2622,16 @@ function Calculator() {
             }
         }
         this.applyModA(finalMod, damages);
-        
+
         if (dAbilityName === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
-        
+
         return damages;
     }
-    
+
     this.rby_calculate = function() {
         // massive shoutout to Crystal_ for verifying the RBY/GSC mechanics for me
         var moveName = this.move.name();
@@ -2597,7 +2653,7 @@ function Calculator() {
         } else if (moveName === "Super Fang") {
             return [Math.max(1, this.defender.currentHP >> 1)];
         }
-        
+
         var lvl, atk, def, spc_a, spc_d;
         if (this.field.critical) {
             lvl = this.attacker.level * 2;
@@ -2612,14 +2668,14 @@ function Calculator() {
             spc_a = this.attacker.boostedStat(Stats.SPC);
             spc_d = this.defender.boostedStat(Stats.SPC);
         }
-        
+
         if (this.field.reflect && !this.field.critical) {
             def *= 2;
         }
         if (this.field.lightScreen && !this.field.critical) {
             spc_d *= 2;
         }
-        
+
         if (atk > 255 || def > 255) { // is attack or defense >255? Scale it.
             // Divide by four and floor (round down), then only keep the first byte (%256 or &0xFF)
             atk = Math.max(1, (atk >> 2) & 0xFF); // attack capped at 1
@@ -2629,11 +2685,11 @@ function Calculator() {
             spc_a = Math.max(1, (spc_a >> 2) & 0xFF); // attacking special capped at 1
             spc_d = (spc_d >> 2) & 0xFF;
         }
-        
+
         if (moveName === "Explosion" || moveName === "Self-Destruct") {
             def >>= 1;
         }
-        
+
         var a, d;
         if (db.typeDamageClass(this.move.type()) === DamageClasses.PHYSICAL) {
             a = atk;
@@ -2644,22 +2700,22 @@ function Calculator() {
         } else {
             return [0];
         }
-        
+
         // Technically the game would procede with division by zero and crash. I might add a case to notify for this.
         d = Math.max(1, d);
-        
+
         var baseDamage = Math.min(997, Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * this.move.power() * a / d) / 50)) + 2;
-        
+
         if (this.attacker.stab(this.move.type())) {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        
+
         var eff = this.effective([this.move.type()], [this.defender.type1(), this.defender.type2()], false, false);
         if (eff === 0) {
             return [0];
         }
         baseDamage = (baseDamage * eff) >> 2;
-        
+
         // 768+ not having damage variance seems to be proven false.
         var damages = [];
         for (var i = 0; i < 39; i++) {
@@ -2667,14 +2723,14 @@ function Calculator() {
         }
         return damages;
     }
-    
+
     this.gsc_calculate = function() {
         // massive shoutout to Crystal_ for verifying the RBY/GSC mechanics for me
-        
+
         var moveType = this.move.type(),
             movePower = this.move.power(),
             moveName = this.move.name();
-        
+
         if (moveName === "Hidden Power") {
             moveType = hiddenPowerT2(this.attacker.ivs);
             movePower = hiddenPowerP2(this.attacker.ivs);
@@ -2721,7 +2777,7 @@ function Calculator() {
         } else if ((moveName === "Gust" || moveName === "Twister") && this.field.fly) {
             movePower *= 2;
         }
-        
+
         var lvl = this.attacker.level,
             crit = this.field.critical && ["Reversal", "Flail", "Future Sight"].indexOf(moveName) < 0, // moves can't crit
             ignoreAtkBoosts = crit && !(this.attacker.boost(Stats.ATK) > this.defender.boost(Stats.DEF)),
@@ -2738,7 +2794,7 @@ function Calculator() {
             satk = this.attacker.stat(Stats.SATK);
             sdef = this.defender.stat(Stats.SDEF);
         }
-        
+
         if (this.field.reflect && !ignoreAtkBoosts) {
             def *= 2;
         }
@@ -2751,7 +2807,7 @@ function Calculator() {
         if ((this.attacker.name() === "Marowak" || this.attacker.name() === "Cubone") && this.attacker.item.name() === "Thick Club") {
             atk *= 2;
         }
-        
+
         var a, d;
         if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
             a = atk;
@@ -2762,13 +2818,13 @@ function Calculator() {
         } else {
             return [0];
         }
-        
+
         if (a > 255 || d > 255) { // is attack or defense greater than 255?
             a = (a >> 2) & 0xFF;
             d = Math.max(1, (d >> 2) & 0xFF);
         }
         // in-game Crystal would repeat the process without &0xFF, but not in link battles
-        
+
         if (this.attacker.name() === "Ditto" && this.attacker.item.name() === "Metal Powder") {
             d = (d * 3) >> 1;
             if (d > 255) {
@@ -2776,28 +2832,28 @@ function Calculator() {
                 d = Math.max(1, (d >> 1) & 0xFF);
             }
         }
-        
+
         if (moveName === "Explosion" || moveName === "Self-Destruct") {
             d = Math.max(1, d >> 1);
         }
-        
+
         if (moveName === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
             lvl = this.field.beatUpLevels[this.field.beatUpHit];
             d = this.defender.baseStat(Stats.DEF);
         }
-        
+
         d = Math.max(1, d);
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * lvl / 5) + 2) * movePower * a / d) / 50);
-        
+
         baseDamage *= crit ? 2 : 1;
-        
+
         if (moveType === this.attacker.item.typeBoosted()) {
             baseDamage = Math.floor(baseDamage * 110 / 100);
         }
-        
+
         baseDamage = Math.min(997, baseDamage) + 2;
-        
+
         if (this.field.weather === Weathers.SUN) {
             if (moveType === Types.FIRE) {
                 baseDamage = (baseDamage * 3) >> 1;
@@ -2811,35 +2867,35 @@ function Calculator() {
                 baseDamage >>= 1;
             }
         }
-        
+
         if (this.attacker.stab(moveType)) {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        
+
         var eff = this.effective([moveType], [this.defender.type1(), this.defender.type2()], this.field.foresight, false);
         if (eff === 0) {
             return [0];
         }
         baseDamage = (baseDamage * eff) >> 2;
-        
+
         if (moveName === "Reversal" || moveName === "Flail") { // these don't have damage variance
             return [baseDamage];
         }
-        
+
         var damages = [];
         for (var i = 0; i < 39; i++) {
             damages[i] = Math.floor(baseDamage * (217 + i) / 255);
         }
-        
+
         if (moveName === "Pursuit" && this.field.switchOut) {
             for (var i = 0; i < 39; i++) {
                 damages[i] *= 2;
             }
         }
-        
+
         return damages;
     }
-    
+
     this.adv_calculate = function() {
         var moveType = this.move.type(),
             movePower = this.move.power(),
@@ -2853,7 +2909,7 @@ function Calculator() {
         attackerItem.id = this.attacker.item.id;
         defenderAbility.id = this.defender.ability.id;
         defenderItem.id = this.defender.item.id;
-        
+
         if (this.move.sound() && defenderAbility.name() === "Soundproof") {
             return [0];
         }
@@ -2911,7 +2967,7 @@ function Calculator() {
         } else if ((moveName === "Gust" || moveName === "Twister") && this.field.fly) {
             movePower *= 2;
         }
-        
+
         var atk = this.attacker.stat(Stats.ATK),
             def = this.defender.stat(Stats.DEF),
             satk = this.attacker.stat(Stats.SATK),
@@ -3004,9 +3060,9 @@ function Calculator() {
         } else {
             return [0];
         }
-        
+
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * movePower * a / d) / 50);
-        
+
         if (this.attacker.status === Statuses.BURNED && attackerAbility.name() !== "Guts" && moveName !== "Beat Up") {
             baseDamage >>= 1;
         }
@@ -3016,11 +3072,11 @@ function Calculator() {
             baseDamage = Math.floor(this.field.multiBattle ? baseDamage * 2 / 3
                                                            : baseDamage / 2);
         }
-                
+
         if (this.field.multiBattle && this.move.multiTargets()) {
             baseDamage >>= 1;
         }
-        
+
         if (moveName !== "Weather Ball") {
             if (weather === Weathers.SUN) {
                 if (moveType === Types.FIRE) {
@@ -3039,19 +3095,19 @@ function Calculator() {
                 baseDamage >>= 1;
             }
         }
-        
+
         if (this.field.flashFire && moveType === Types.FIRE && attackerAbility.name() === "Flash Fire") {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        
+
         if (db.typeDamageClass(moveType) === DamageClasses.PHYSICAL) {
             baseDamage = Math.max(1, baseDamage);
         }
-        
+
         baseDamage += 2;
-        
+
         baseDamage *= crit ? 2 : 1;
-        
+
         if (moveName === "Facade" && this.attacker.status !== NONE) {
             baseDamage *= 2;
         } else if (moveName === "Pursuit" && this.field.switchOut) {
@@ -3065,25 +3121,25 @@ function Calculator() {
         } else if (moveName === "Weather Ball" && weather !== Weathers.CLEAR) {
             baseDamage *= 2;
         }
-        
+
         if (this.field.charge && moveType === Types.ELECTRIC) {
             baseDamage *= 2;
         }
-        
+
         if (this.field.helpingHand) {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        
+
         if (this.attacker.stab(moveType)) {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        
+
         var eff = this.effective([moveType], [this.defender.type1(), this.defender.type2()], this.field.foresight, false);
         if (eff === 0 || moveType === defenderAbility.immunityType()) {
             return [0];
         }
         baseDamage = (baseDamage * eff) >> 2;
-        
+
         var damages = [];
         if (moveName !== "Spit Up") {
             for (var i = 0; i < 16; i++) {
@@ -3092,16 +3148,16 @@ function Calculator() {
         } else {
             damages[0] = this.field.stockpile > 0 ? baseDamage : 0;
         }
-        
+
         if (defenderAbility.name() === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
-        
+
         return damages;
     }
-    
+
     this.hgss_calculate = function() {
         var moveType = this.move.type(),
             movePower = this.move.power(),
@@ -3120,7 +3176,7 @@ function Calculator() {
         if (this.move.sound() && defenderAbility.name() === "Soundproof") {
             return [0];
         }
-        
+
         var attackerSpeed = attackerAbility.name() === "Simple" ? this.attacker.simpleBoostedStat(Stats.SPD) : this.attacker.boostedStat(Stats.SPD),
             defenderSpeed = defenderAbility.name() === "Simple" ? this.defender.simpleBoostedStat(Stats.SPD) : this.defender.boostedStat(Stats.SPD);
         if ((weather === Weathers.RAIN && attackerAbility.name() === "Swift Swim") || (weather === Weathers.SUN && attackerAbility.name() === "Chlorophyll")) {
@@ -3178,7 +3234,7 @@ function Calculator() {
         if (this.defender.tailwind) {
             defenderSpeed *= 2;
         }
-        
+
         var moveName = this.move.name();
         if (moveName === "Hidden Power") {
             movePower = hiddenPowerP(this.attacker.ivs);
@@ -3285,11 +3341,11 @@ function Calculator() {
         } else if ((moveName === "Gust" || moveName === "Twister") && this.field.fly) {
             movePower *= 2;
         }
-        
+
         if (this.field.helpingHand) {
             movePower = (movePower * 3) >> 1;
         }
-        
+
         if ((aItemName === "Muscle Band" && this.move.damageClass() === DamageClasses.PHYSICAL) || (aItemName === "Wise Glasses" && this.move.damageClass() === DamageClasses.SPECIAL)) {
             movePower = Math.floor(movePower * 11 / 10);
         } else if (aItemName === "Lustrous Orb" && (moveType === Types.WATER || moveType === Types.DRAGON) && this.attacker.name() === "Palkia") {
@@ -3301,11 +3357,11 @@ function Calculator() {
         } else if (attackerItem.typeBoosted() === moveType) {
             movePower = Math.floor(movePower * 12 / 10);
         }
-        
+
         if (this.field.charge && moveType === Types.ELECTRIC) {
             movePower *= 2;
         }
-        
+
         if (aAbilityName === "Rivalry") {
             if (this.attacker.gender !== this.defender.gender && this.attacker.gender !== Genders.NOGENDER) {
                 movePower = (movePower * 5) >> 2; // 125/100
@@ -3319,7 +3375,7 @@ function Calculator() {
         } else if (aAbilityName === "Technician" && movePower <= 60) {
             movePower = (movePower * 3) >> 1;
         }
-        
+
         if (dAbilityName === "Heatproof" && moveType === Types.FIRE) {
             movePower >>= 1;
         } else if (dAbilityName === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
@@ -3330,7 +3386,7 @@ function Calculator() {
         if ((this.field.mudSport && moveType === Types.ELECTRIC) || (this.field.waterSport && moveType === Types.FIRE)) {
             movePower = movePower >> 1;
         }
-        
+
         var atk, def, sdef, satk;
         var simpleA = aAbilityName === "Simple";
         var simpleD = dAbilityName === "Simple";
@@ -3375,7 +3431,7 @@ function Calculator() {
                                : this.attacker.boostedStat(Stats.SATK);
             }
         }
-        
+
         if (aAbilityName === "Huge Power" || aAbilityName === "Pure Power") {
             atk *= 2;
         } else if (this.attacker.flowerGift && weather === Weathers.SUN) {
@@ -3391,7 +3447,7 @@ function Calculator() {
         } else if (aAbilityName === "Solar Power" && weather === Weathers.SUN) {
             satk *= 2;
         }
-        
+
         if (aItemName === "Choice Band") {
             atk *= 2;
         } else if (aItemName === "Light Ball" && this.attacker.name() === "Pikachu") {
@@ -3406,20 +3462,20 @@ function Calculator() {
         } else if (aItemName === "Deep Sea Tooth" && this.attacker.name() === "Clamperl") {
             satk *= 2;
         }
-        
+
         if (moveName === "Explosion" || moveName === "Self-Destruct") {
             if (defenderAbility.name() === "Damp") return [0];
             def >>= 1;
         }
-        
+
         if (dAbilityName === "Marvel Scale" && this.defender.status !== Statuses.NOSTATUS) {
             def = (def * 3) >> 1;
         }
-        
+
         if (this.defender.flowerGift && weather === Weathers.SUN) {
             sdef = (sdef * 3) >> 1;
         }
-        
+
         if (dItemName === "Metal Powder" && this.defender.name() === "Ditto") {
             def *= 2;
         } else if (dItemName === "Soul Dew" && (this.defender.name() === "Latias" || this.defender.name() === "Latios")) {
@@ -3427,11 +3483,11 @@ function Calculator() {
         } else if (dItemName === "Deep Sea Scale" && this.defender.name() === "Clamperl") {
             sdef *= 2;
         }
-        
+
         if (weather === Weathers.SAND && this.defender.stab(Types.ROCK)) {
             sdef = (sdef * 3) >> 1;
         }
-        
+
         var a, d;
         if (moveName === "Beat Up") {
             a = this.field.beatUpStats[this.field.beatUpHit];
@@ -3446,13 +3502,13 @@ function Calculator() {
         } else {
             return [0];
         }
-        
+
         var baseDamage = Math.floor(Math.floor((Math.floor(2 * this.attacker.level / 5) + 2) * movePower * a / d) / 50);
-        
+
         if (this.attacker.status === Statuses.BURNED && aAbilityName !== "Guts" && this.move.damageClass() === DamageClasses.PHYSICAL && moveName !== "Beat Up") {
             baseDamage >>= 1;
         }
-        
+
         if ((this.move.damageClass() === DamageClasses.PHYSICAL && this.field.reflect)
             || (this.move.damageClass() === DamageClasses.SPECIAL && this.field.lightScreen)) {
             if (moveName !== "Beat Up" && !this.field.critical) {
@@ -3463,11 +3519,11 @@ function Calculator() {
                 }
             }
         }
-        
+
         if (this.field.multiBattle && this.move.multiTargets()) {
             baseDamage = (baseDamage * 3) >> 2;
         }
-        
+
         if (moveName !== "Weather Ball") {
             if (weather === Weathers.SUN) {
                 if (moveType === Types.FIRE) {
@@ -3486,35 +3542,35 @@ function Calculator() {
                 baseDamage >>= 1;
             }
         }
-        
+
         if (aAbilityName === "Flash Fire" && this.field.flashFire && moveType === Types.FIRE) {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        
+
         baseDamage += 2;
         baseDamage *= this.field.critical ? (aAbilityName === "Sniper" ? 3 : 2) : 1;
-        
+
         if (aItemName === "Life Orb" && moveName !== "Beat Up") {
             baseDamage = Math.floor(baseDamage * 13 / 10);
         } else if (aItemName === "Metronome" && moveName !== "Beat Up") {
             baseDamage = Math.floor(baseDamage*Math.min(20, 10 + this.field.metronome) / 10);
         }
-        
+
         if (this.field.meFirst && moveName !== "Beat Up") {
             baseDamage = (baseDamage * 3) >> 1;
         }
-        
+
         var damages = [];
         for (var i = 0; i < 16; i++) {
             damages[i] = Math.max(1, Math.floor(baseDamage * (85 + i) / 100));
         }
-        
+
         if (this.attacker.stab(moveType)) {
             for (var i = 0; i < 16; i++) {
                 damages[i] = (damages[i] * 3) >> 1;
             }
         }
-        
+
         var eff = this.effective([moveType], [this.defender.type1(), this.defender.type2()],
                                  this.field.foresight || attackerAbility.name() === "Scrappy", false);
         if (eff === 0 || moveType === defenderAbility.immunityType()) {
@@ -3523,46 +3579,46 @@ function Calculator() {
         for (var i = 0; i < 16; i++) {
             damages[i] = (damages[i] * eff) >> 2;
         }
-        
+
         if ((dAbilityName === "Solid Rock" || dAbilityName === "Filter") && eff > 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] = (damages[i] * 3) >> 2;
             }
         }
-        
+
         if (aItemName === "Expert Belt" && eff > 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] = Math.floor(damages[i] * 12 / 10);
             }
         }
-        
+
         if (defenderItem.berryType() === moveType && eff > 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] >>= 1;
             }
         }
-        
+
         if (aAbilityName === "Tinted Lens" && eff < 4) {
             for (var i = 0; i < 16; i++) {
                 damages[i] *= 2;
             }
         }
-        
+
         if (defenderItem.berryType() === Types.NORMAL && moveType === Types.NORMAL) {
             for (var i = 0; i < 16; i++) {
                 damages[i] >>= 1;
             }
         }
-        
+
         if (dAbilityName === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
-        
+
         return damages;
     }
-    
+
     this.b2w2_calculate = function() {
         var moveType = this.move.type();
         var movePower = this.move.power();
@@ -3653,7 +3709,7 @@ function Calculator() {
             attackerWeight /= 2;
         }
         attackerWeight = Math.max(1, attackerWeight - Math.floor(attackerWeight) > 0.5 ? 1 + Math.floor(attackerWeight) : Math.floor(attackerWeight));
-        
+
         if (this.defender.autotomize) {
             defenderWeight -= 1000;
         }
@@ -3666,7 +3722,7 @@ function Calculator() {
             defenderWeight /= 2;
         }
         defenderWeight = Math.max(1, defenderWeight - Math.floor(defenderWeight) > 0.5 ? 1 + Math.floor(defenderWeight) : Math.floor(defenderWeight));
-        
+
         var moveName = this.move.name();
         if (moveName === "Seismic Toss" || moveName === "Night Shade") {
             return [this.attacker.level];
@@ -3778,7 +3834,7 @@ function Calculator() {
                 movePower *= 2;
             }
         }
-        
+
         var movePowerMod = 0x1000;
         if (aAbilityName === "Technician" && movePower<=60) {
             movePowerMod = this.chainMod(0x1800, movePowerMod);
@@ -3927,7 +3983,7 @@ function Calculator() {
                 satk = crit ? Math.max(this.attacker.stat(Stats.SATK), this.attacker.boostedStat(Stats.SATK)) : this.attacker.boostedStat(Stats.SATK);
             }
         }
-        
+
         var atkMod = 0x1000, satkMod = 0x1000;
         if (dAbilityName === "Thick Fat" && (moveType === Types.FIRE || moveType === Types.ICE)) {
             atkMod = this.chainMod(0x800, atkMod);
@@ -3988,7 +4044,7 @@ function Calculator() {
         }
         atk = this.applyMod(atkMod, atk);
         satk = this.applyMod(satkMod, satk);
-        
+
         if (weather === Weathers.SAND && this.defender.stab(Types.ROCK)) {
             sdef = this.applyMod(0x1800, sdef);
         }
@@ -4014,7 +4070,7 @@ function Calculator() {
         }
         def = this.applyMod(defMod, def);
         sdef = this.applyMod(sdefMod, sdef);
-        
+
         var a = 0, d = 0;
         if (moveName === "Psyshock" || moveName === "Psystrike" || moveName === "Secret Sword") {
             a = satk;
@@ -4141,14 +4197,14 @@ function Calculator() {
             finalMod = this.chainMod(0x2000, finalMod);
         }
         this.applyModA(finalMod, damages);
-        
+
         if (dAbilityName === "Sturdy" && this.defender.currentHP === this.defender.stat(Stats.HP)) {
             for (var i = 0; i < damages.length; i++) {
                 damages[i] = Math.min(damages[i], this.defender.stat(Stats.HP) - 1);
             }
         }
-        
-        
+
+
         if (moveName === "Knock Off"
             && this.defender.item.name() !== "(No Item)"
             && !(this.defender.item.name() === "Griseous Orb" && this.defender.name().indexOf("Giratina") > -1)
@@ -4156,10 +4212,10 @@ function Calculator() {
             && !(dAbilityName === "Multitype" && this.defender.item.name().indexOf(" Plate") > -1)) {
             this.defenderItemUsed = true;
         }
-        
+
         return damages;
     }
-    
+
     this.selCalc = function() { // pick the formula
         if (gen === 1) {
             return this.rby_calculate();
@@ -4176,7 +4232,7 @@ function Calculator() {
         }
         return [0]; // ok
     }
-    
+
     this._calculate = function() { // helper
         if (this.move.name() === "Triple Kick") {
             // Triple Kick hits three times; each time adding in power.
@@ -4250,7 +4306,7 @@ function Calculator() {
         // Simple move; default case.
         return new WeightedArray(this.selCalc());
     }
-    
+
     this.calculate = function() { // multiturn variance
         var dmg = [];
         if (this.move.name() === "(No Move)") {
@@ -4306,7 +4362,7 @@ function Calculator() {
         this.field.brokenMultiscale = false; // we most likely broke multiscale with our attack
         return dmg;
     }
-    
+
     this.chanceToKO = function (damageRanges, initDmgRange, initDmgRangeBerry, totalHP, effects, berryHeal, maxTurns) { // not even recursive
         var chances = [],
             dmg = new WeightedArray(initDmgRange),
@@ -4377,7 +4433,7 @@ function Calculator() {
         }
         return chances;
     }
-    
+
     this.endOfTurnEffects = function() {
         var effects = [0],
             effectMsgs = [""];
@@ -4627,7 +4683,7 @@ function Calculator() {
         }
         return {values: effects, messages: effectMsgs};
     }
-    
+
     this.report = function() {
         if (this.attacker.id === "0:0" || this.defender.id === "0:0") {
             return {
@@ -4640,14 +4696,14 @@ function Calculator() {
                 responseCode: 1
             };
         }
-        
+
         var dmg = this.calculate(),
             rpt = "",
             minPercent = Math.round(dmg[0].min() / this.defender.stat(Stats.HP) * 1000) / 10,
             maxPercent = Math.round(dmg[0].max() / this.defender.stat(Stats.HP) * 1000) / 10,
             moveType, movePower,
             a, d;
-        
+
         // to-do: I should just leech this info off of the _calculate functions
         // this.calcMoveType
         // this.calcMovePower
@@ -4667,7 +4723,7 @@ function Calculator() {
             moveType = this.move.type();
             movePower = null; // we'll say null means non-var BP
         }
-        
+
         if (["Psyshock", "Psystrike", "Secret Sword"].indexOf(this.move.name()) > -1) {
             a = Stats.SATK;
             d = Stats.DEF;
@@ -4679,7 +4735,7 @@ function Calculator() {
             a = Stats.SATK;
             d = Stats.SDEF;
         }
-        
+
         // is the attacker's stat boosted?
         if (this.attacker.boosts[a] !== 0) {
             rpt += (this.attacker.boosts[a] > 0 ? "+" : "-") + Math.abs(this.attacker.boosts[a]) + " ";
@@ -4694,64 +4750,8 @@ function Calculator() {
             }
             rpt += (a === Stats.SATK ? " SpAtk" : " Atk");
         }
-        
-        var itemIgnoreList = { // don't exclude plates & orbs as those affect damage
-            "649:1"  : "Douse Drive", // Genesect-D
-            "649:2"  : "Shock Drive", // Genesect-S
-            "649:3"  : "Burn Drive", // Genesect-B
-            "649:4"  : "Chill Drive", // Genesect-C
-            "460:1:M": "Abomasite", // Mega Abomasnow
-            "359:1:M": "Absolite", // Mega Absol
-            "142:1:M": "Aerodactylite", // Mega Aerodactyl
-            "306:1:M": "Aggronite", // Mega Aggron
-            "65:1:M" : "Alakazite", // Mega Alakazam
-            "334:1:M": "Altarianite", // Mega Altaria
-            "181:1:M": "Ampharosite", // Mega Ampharos
-            "531:1:M": "Audinite", // Mega Audino
-            "354:1:M": "Banettite", // Mega Banette
-            "15:1:M" : "Beedrillite", // Mega Beedrill
-            "9:1:M"  : "Blastoisinite", // Mega Blastoise
-            "257:1:M": "Blazikenite", // Mega Blaziken
-            "323:1:M": "Cameruptite", // Mega Camerupt
-            "6:1:M"  : "Charizardite X", // Mega Charizard X
-            "6:2:M"  : "Charizardite Y", // Mega Charizard Y
-            "719:1:M": "Diancite", // Mega Diancie
-            "475:1:M": "Galladite", // Mega Gallade
-            "445:1:M": "Garchompite", // Mega Garchomp
-            "282:1:M": "Gardevoirite", // Mega Gardevoir
-            "94:1:M" : "Gengarite", // Mega Gengar
-            "362:1:M": "Glalitite", // Mega Glalie
-            "130:1:M": "Gyaradosite", // Mega Gyarados
-            "214:1:M": "Heracronite", // Mega Heracross
-            "229:1:M": "Houndoominite", // Mega Houndoom
-            "115:1:M": "Kangaskhanite", // Mega Kangaskhan
-            "380:1:M": "Latiasite", // Mega Latias
-            "381:1:M": "Latiosite", // Mega Latios
-            "428:1:M": "Lopunnity", // Mega Lopunny
-            "448:1:M": "Lucarionite", // Mega Lucario
-            "310:1:M": "Manectite", // Mega Manectric
-            "303:1:M": "Mawilite", // Mega Mawile
-            "308:1:M": "Medichamite", // Mega Medicham
-            "376:1:M": "Metagrossite", // Mega Metagross
-            "150:1:M": "Mewtwonite X", // Mega Mewtwo X
-            "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
-            "18:1:M" : "Pidgeotite", // Mega Pidgeot
-            "127:1:M": "Pinsirite", // Mega Pinsir
-            "302:1:M": "Sablenite", // Mega Sableye
-            "373:1:M": "Salamencite", // Mega Salamence
-            "254:1:M": "Sceptilite", // Mega Sceptile
-            "212:1:M": "Scizorite", // Mega Scizor
-            "319:1:M": "Sharpedonite", // Mega Sharpedo
-            "80:1:M" : "Slowbronite", // Mega Slowbro
-            "208:1:M": "Steelixite", // Mega Steelix
-            "260:1:M": "Swampertite", // Mega Swampert
-            "248:1:M": "Tyranitarite", // Mega Tyranitar
-            "3:1:M"  : "Venusaurite", // Mega Venusaur
-            "383:1:M": "Red Orb", // Primal Groudon
-            "382:1:M": "Blue Orb" // Primal Kyogre
-        };
         // print attacker's item; gen 1 doesn't have them
-        if (gen > 1 && this.attacker.item.id !== "0" && itemIgnoreList[this.attacker.id] !== this.attacker.item.name()) {
+        if (gen > 1 && this.attacker.item.id !== "0" && redundantItems[this.attacker.id] !== this.attacker.item.name()) {
             rpt += " " + this.attacker.item.name();
         }
         // print attacker's ability; gens 1 & 2 don't have them
@@ -4760,7 +4760,7 @@ function Calculator() {
         }
         // print status of the attacker
         rpt += this.attacker.status === Statuses.BURNED ? " Burned " : " ";
-        
+
         // print attacker's name and then the move name
         rpt += this.attacker.name();
         if (this.field.helpingHand) {
@@ -4770,7 +4770,7 @@ function Calculator() {
         if (movePower !== null) {
             rpt += " [" + db.types(moveType) + " " + movePower + "]";
         }
-        
+
         rpt += " vs. ";
         // is the defender's stat boosted?
         if (this.defender.boosts[d] !== 0) {
@@ -4787,9 +4787,9 @@ function Calculator() {
             }
             rpt += (d === Stats.SDEF ? " SpDef" : " Def");
         }
-        
+
         // print defender's item
-        if (gen >= 2 && this.defender.item.id !== "0" && itemIgnoreList[this.defender.id] !== this.defender.item.name()) {
+        if (gen >= 2 && this.defender.item.id !== "0" && redundantItems[this.defender.id] !== this.defender.item.name()) {
             rpt += " " + this.defender.item.name();
         }
         // print defender's ability
@@ -4798,14 +4798,14 @@ function Calculator() {
         }
         // print defender's name
         rpt += " " + this.defender.name();
-        
+
         // Light Screen & Reflect message
         if (this.field.reflect && d === Stats.DEF) {
             rpt += " behind Reflect";
         } else if (this.field.lightScreen && d === Stats.SDEF) {
             rpt += " behind Light Screen";
-        } 
-        
+        }
+
         // add weather messages
         if (this.field.weather === Weathers.RAIN) {
             rpt += " in Rain";
@@ -4826,7 +4826,7 @@ function Calculator() {
         }
         // print the damage range
         rpt += ": " + dmg[0].min() + " - " + dmg[0].max() + " (" + minPercent + " - " + maxPercent + "%) -- ";
-        
+
         var effects = this.endOfTurnEffects(),
             initDmg,
             initDmgBerry;
@@ -4849,7 +4849,7 @@ function Calculator() {
         initDmgBerry = initDmgBerry.map(function (v, w) {
             return Math.max(0, maxHp - v);
         });
-        
+
         // Remove field hazards from current HP for probability calculation
         if (this.defender.ability.id !== "98") { // no magic guard
             var hazardsDmg = 0;
@@ -4868,7 +4868,7 @@ function Calculator() {
                 return Math.min(maxHp, v + hazardsDmg);
             });
         }
-        
+
         var berryHeal = 0;
         if (this.defender.item.name() === "Sitrus Berry") {
             berryHeal = gen > 3 ? this.defender.stat(Stats.HP) >> 2 : 30;
@@ -4879,7 +4879,7 @@ function Calculator() {
         } else if (this.defender.item.name() === "Gold Berry") {
             berryHeal = 30;
         }
-        
+
         // calculate and print probability
         var chancesInt = this.chanceToKO(dmg, initDmg, initDmgBerry, this.defender.stat(Stats.HP), effects.values, berryHeal, 9),
             chances = [];
@@ -4896,7 +4896,7 @@ function Calculator() {
                 }
             }
         }
-        
+
         var i = 0, hasPreviousChance = false;
         while (i < chances.length && chances[i] < 1) {
             if (chances[i] === "possible" || (Math.round(chances[i] * 1000) === 0 && chances[i] > 0)) {
@@ -4921,7 +4921,7 @@ function Calculator() {
             rpt += ", ...";
             hasPreviousChance = true;
         }
-        
+
         if (hasPreviousChance) {
             // print out the end of turn effects
             if (effects.messages.length > 1) {
@@ -4941,7 +4941,7 @@ function Calculator() {
                 rpt += " from " + defenderCurrentHp + "%";
             }
         }
-        
+
         // we're sort of simulating the first iteration of chanceToKO
         // conveniently flipping values from dmg to health too
         initDmg = initDmg.combine(dmg[0]);
@@ -4979,18 +4979,18 @@ function Calculator() {
             }
             return v;
         });
-        
+
         var chances2 = [];
         for (var i = 0; i < chancesInt.length; i++) {
             if (chancesInt[i][0] === "0") { // don't feed divideStrs multi-zeros
                 chances2.push([0, chancesInt[i][0], chancesInt[i][1]]);
             } else {
                 chances2.push([parseInt(divideStrs(chancesInt[i][0] + "00000000", chancesInt[i][1])[0], 10) / 100000000, chancesInt[i][0], chancesInt[i][1]]);
-            } 
+            }
         }
-        
+
         this.defenderItemUsed = false; // clean up
-        
+
         return {
             report: rpt, // most likely will only need this for display
             minPercent: minPercent,
@@ -5007,30 +5007,33 @@ function Calculator() {
 }
 
 // export it all as a "namespace"
-return { Database : Database,
-         db : db,
-         gen : gen,
-         Stats : Stats,
-         Genders : Genders,
-         DamageClasses : DamageClasses,
-         Weathers : Weathers,
-         Statuses : Statuses,
-         Types : Types,
-         Pokemon : Pokemon,
-         Move : Move,
-         Ability : Ability,
-         Item : Item,
-         Field : Field,
-         Calculator : Calculator,
-         hiddenPowerP : hiddenPowerP,
-         hiddenPowerT : hiddenPowerT,
-         hiddenPowerP2 : hiddenPowerP2,
-         hiddenPowerT2 : hiddenPowerT2,
-         WeightedArray : WeightedArray, // not really needed, but report object returns these so w/e
-         addStrs : addStrs,
-         subtractStrs : subtractStrs,
-         multiplyStrs : multiplyStrs,
-         divideStrs : divideStrs,
-         gtStr : gtStr
-       };
+return {
+    Database: Database,
+    db: db,
+    gen: gen,
+    Stats: Stats,
+    Genders: Genders,
+    DamageClasses: DamageClasses,
+    Weathers: Weathers,
+    Statuses: Statuses,
+    Types: Types,
+    redundantItems: redundantItems,
+    Pokemon: Pokemon,
+    Move: Move,
+    Ability: Ability,
+    Item: Item,
+    Field: Field,
+    Calculator: Calculator,
+    hiddenPowerP: hiddenPowerP,
+    hiddenPowerT: hiddenPowerT,
+    hiddenPowerP2: hiddenPowerP2,
+    hiddenPowerT2: hiddenPowerT2,
+    WeightedArray: WeightedArray, // not really needed, but report object returns these so w/e
+    addStrs: addStrs,
+    subtractStrs: subtractStrs,
+    multiplyStrs: multiplyStrs,
+    divideStrs: divideStrs,
+    gtStr: gtStr
+};
+
 }());

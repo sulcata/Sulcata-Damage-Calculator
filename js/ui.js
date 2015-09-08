@@ -1,6 +1,6 @@
 db = new Database();
 db.location = "";
-    
+
 // make the file size a little smaller
 function getId (id) {
     return document.getElementById(id);
@@ -11,14 +11,10 @@ var attackerOldAbility = "0", defenderOldAbility = "0",
     resultingDefenderHealth = null; // need this when we use setDefenderRemainingHp button
 
 // a nice little conversion chart
-var pokeToItem = {
+var suggestedItems = {
     "25:0"   : "Light Ball", // Pikachu
     "104:0"  : "Thick Club", // Cubone
     "105:0"  : "Thick Club", // Marowak
-    "649:1"  : "Douse Drive", // Genesect-D
-    "649:2"  : "Shock Drive", // Genesect-S
-    "649:3"  : "Burn Drive", // Genesect-B
-    "649:4"  : "Chill Drive", // Genesect-C
     "487:1"  : "Griseous Orb", // Giratina-O
     "493:1"  : "Fist Plate", // Arceus-Fighting
     "493:2"  : "Sky Plate", // Arceus-Flying
@@ -37,56 +33,9 @@ var pokeToItem = {
     "493:15" : "Draco Plate", // Arceus-Dragon
     "493:16" : "Dread Plate", // Arceus-Dark
     "493:17" : "Pixie Plate", // Arceus-Fairy
-    "460:1:M": "Abomasite", // Mega Abomasnow
-    "359:1:M": "Absolite", // Mega Absol
-    "142:1:M": "Aerodactylite", // Mega Aerodactyl
-    "306:1:M": "Aggronite", // Mega Aggron
-    "65:1:M" : "Alakazite", // Mega Alakazam
-    "334:1:M": "Altarianite", // Mega Altaria
-    "181:1:M": "Ampharosite", // Mega Ampharos
-    "531:1:M": "Audinite", // Mega Audino
-    "354:1:M": "Banettite", // Mega Banette
-    "15:1:M" : "Beedrillite", // Mega Beedrill
-    "9:1:M"  : "Blastoisinite", // Mega Blastoise
-    "257:1:M": "Blazikenite", // Mega Blaziken
-    "323:1:M": "Cameruptite", // Mega Camerupt
-    "6:1:M"  : "Charizardite X", // Mega Charizard X
-    "6:2:M"  : "Charizardite Y", // Mega Charizard Y
-    "719:1:M": "Diancite", // Mega Diancie
-    "475:1:M": "Galladite", // Mega Gallade
-    "445:1:M": "Garchompite", // Mega Garchomp
-    "282:1:M": "Gardevoirite", // Mega Gardevoir
-    "94:1:M" : "Gengarite", // Mega Gengar
-    "362:1:M": "Glalitite", // Mega Glalie
-    "130:1:M": "Gyaradosite", // Mega Gyarados
-    "214:1:M": "Heracronite", // Mega Heracross
-    "229:1:M": "Houndoominite", // Mega Houndoom
-    "115:1:M": "Kangaskhanite", // Mega Kangaskhan
-    "380:1:M": "Latiasite", // Mega Latias
-    "381:1:M": "Latiosite", // Mega Latios
-    "428:1:M": "Lopunnity", // Mega Lopunny
-    "448:1:M": "Lucarionite", // Mega Lucario
-    "310:1:M": "Manectite", // Mega Manectric
-    "303:1:M": "Mawilite", // Mega Mawile
-    "308:1:M": "Medichamite", // Mega Medicham
-    "376:1:M": "Metagrossite", // Mega Metagross
-    "150:1:M": "Mewtwonite X", // Mega Mewtwo X
-    "150:2:M": "Mewtwonite Y", // Mega Mewtwo Y
-    "18:1:M" : "Pidgeotite", // Mega Pidgeot
-    "127:1:M": "Pinsirite", // Mega Pinsir
-    "302:1:M": "Sablenite", // Mega Sableye
-    "373:1:M": "Salamencite", // Mega Salamence
-    "254:1:M": "Sceptilite", // Mega Sceptile
-    "212:1:M": "Scizorite", // Mega Scizor
-    "319:1:M": "Sharpedonite", // Mega Sharpedo
-    "80:1:M" : "Slowbronite", // Mega Slowbro
-    "208:1:M": "Steelixite", // Mega Steelix
-    "260:1:M": "Swampertite", // Mega Swampert
-    "248:1:M": "Tyranitarite", // Mega Tyranitar
-    "3:1:M"  : "Venusaurite", // Mega Venusaur
-    "383:1:M": "Red Orb", // Primal Groudon
-    "382:1:M": "Blue Orb" // Primal Kyogre
 };
+
+var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function convertToBaseN (n, base, paddingLength) {
     if (typeof n === "string" || n instanceof String) {
@@ -95,8 +44,8 @@ function convertToBaseN (n, base, paddingLength) {
     // base 64 lets me do EVs in one digit ((64-1)*4=252)
     // 252 is the maximum number of EVs that will matter and only multiples of 4 can change a Pokemon's stats.
     // also lets me represent pretty much everything in two digits
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
-        p = Math.floor(Math.log(n) / Math.log(base)), result = "";
+    var p = Math.floor(Math.log(n) / Math.log(base)),
+        result = "";
     // n = base^p
     // ln n = p ln base
     // (ln n)/(ln base) = p
@@ -107,19 +56,18 @@ function convertToBaseN (n, base, paddingLength) {
         n %= Math.pow(base, p);
         --p;
     }
-    for (var i = paddingLength - result.length; i > 0; i--) {
+    for (var i = paddingLength - result.length; i > 0; --i) {
         result = "0" + result;
     }
     return result;
 }
 
 function convertFromBaseN (n, base) {
-    // this is a lot easier
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", result = 0;
-    // The index of the digit is its value, therefore 'Z'=63, '0'=0, and '-'=10.
+    var result = 0;
+    // The index of the character in digits is its value, therefore 'Z'=63, '0'=0, and '-'=10.
     // The digit's contribution to the integer value is dependent on its position.
     // value += digit * base^position
-    for (var i = 0; i < n.length; i++) {
+    for (var i = 0; i < n.length; ++i) {
         // We iterate forwards and read the values backwards because the power increases from right to left.
         result += digits.indexOf(n[n.length-1-i]) * Math.pow(base, i);
     }
@@ -128,10 +76,11 @@ function convertFromBaseN (n, base) {
 
 function binaryToBase64 (n) {
     // Converting the strings without an integer middleman prevents overflow
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", result = "", temp = 0;
+    var result = "",
+        temp = 0;
     // A base-64 digit will store exactly 6 bits worth of data.
     // Before adding the digit to the string, we need to know all 6 bits.
-    for (var i = 0; i < n.length; i++) {
+    for (var i = 0; i < n.length; ++i) {
         /* Iterate forwards. Read right to left. Same reason as before.
          * Left shift is a convient and fast way to multiply by powers of 2.
          * a << b = a * 2^b
@@ -145,7 +94,7 @@ function binaryToBase64 (n) {
         if (n[n.length-1-i] === "1") {
             temp += 1 << (i % 6);
         }
-        if ((i + 1) % 6 === 0) {
+        if (i % 6 === 5) { // last digit
             // left append the digit and reset the temporary value
             result = digits[temp] + result;
             temp = 0;
@@ -159,7 +108,8 @@ function binaryToBase64 (n) {
 
 function base64ToBinary (n) {
     // We don't need to worry about overflow as we're converting one digit at a time.
-    var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", result = "";
+    // Each digit corresponds to exactly 6-bits, possibly padded by zeros on the left.
+    var result = "";
     for (var i = 0; i < n.length; i++) {
         result += convertToBaseN(digits.indexOf(n[i]), 2, 6);
     }
@@ -398,7 +348,7 @@ function loadQueryString (q) {
     ptr += size[gen];
     binaryToPoke("defender", q.substr(ptr, size[gen]));
     ptr += size[gen];
-    
+
     var moveId = convertFromBaseN(q.substr(ptr, 10), 2) + "";
     setSelectByValue("move", moveId);
     ptr += 10;
@@ -570,27 +520,27 @@ function updateFormatting() {
         e = getId("defender" + strs[i] + "Stat");
         e.style.lineHeight = e.parentNode.offsetHeight + "px";
     }
-    
+
     var levelButtons = document.getElementsByClassName("levelButton");
     for (var i = levelButtons.length - 1; i >= 0; i--) {
         levelButtons[i].style.lineHeight = (levelButtons[i].parentNode.clientHeight - 6) + "px";
     }
-    
+
     var statNames = document.getElementsByClassName("textLabel");
     for (var i = statNames.length - 1; i >= 0; i--) {
         statNames[i].style.lineHeight = statNames[i].parentNode.offsetHeight + "px";
     }
-    
+
     var h = document.getElementsByClassName("textLabel");
     for (var i = h.length - 1; i >= 0; i--) {
         h[i].style.lineHeight = h[i].parentNode.offsetHeight + "px";
     }
-    
+
     for (var i = 0; i < 6; i++) {
         getId("beatUpLevel" + i).style.display = (gen <= 4 ? "" : "none");
     }
     getId("beatUpLevelLabel").style.display = (gen <= 4 ? "" : "none");
-    
+
     var w = Math.max(getId("attacker").offsetWidth, getId("defender").offsetWidth) * 2;
     getId("calculator").style.width = w + "px";
     getId("calculator").style.marginLeft = "auto";
@@ -744,7 +694,7 @@ function changeGen (n, light) {
         getId("defenderHpIv").disabled = true;
     }
     setSelectByText(getId("hiddenPowerType"), "Dark");
-    
+
     var ops = "";
     var end = gen < 5 ? 10 : 5;
     var step = gen < 5 ? 1 : 2;
@@ -756,7 +706,7 @@ function changeGen (n, light) {
         ops += " (" + Math.floor(i * step / 10 + 1) + "." + ((i * step) % 10) + "x)</option>";
     }
     replaceHtml("metronome", ops);
-    
+
     var bp = gen < 5 ? 10 : (gen < 6 ? 20 : 40);
     end = gen < 5 ? 4 : (gen < 6 ? 3 : 2);
     ops = "";
@@ -768,7 +718,7 @@ function changeGen (n, light) {
         ops += " hits (" + (bp << i) + " BP)</option>";
     }
     replaceHtml("furyCutter", ops);
-    
+
     var strs = [["attacker", "defender"], ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"]];
     for (var i = 0; i < strs[0].length; i++) {
         for (var j = 0; j < strs[1].length; j++) {
@@ -780,7 +730,7 @@ function changeGen (n, light) {
             }
         }
     }
-    
+
     var insertOpOrder = function (arr, a) {
         var low = 0, mid = 0, high = arr.length;
         if (high < 1) {
@@ -804,7 +754,7 @@ function changeGen (n, light) {
         arr.splice(low, 0, a);
         return arr;
     };
-    
+
     var getOptions = function (ops) {
         var s = "";
         for (var i = 0; i < ops.length; i++) {
@@ -812,7 +762,7 @@ function changeGen (n, light) {
         }
         return s;
     };
-    
+
     db.preload("pokemons", 0, "pokemons.json", function() {
     db.preload("releasedPokes", 0, "releasedPokes.json", function() {
         var arr = [], id = "";
@@ -874,7 +824,7 @@ function changeGen (n, light) {
         replaceHtml("attackerAbility", htmlOps);
         replaceHtml("defenderAbility", htmlOps);
     });
-    
+
     db.preload("moves", 0, "moves.json", function() {
     db.preload("releasedMoves", 0, "releasedMoves.json", function() {
     db.preload("movePowers", 6, "power.json", function() {
@@ -895,7 +845,7 @@ function changeGen (n, light) {
     });
     });
     });
-    
+
     db.preload("items", 0, "items.json", function() {
     db.preload("releasedItems", 0, "releasedItems.json", function() {
     db.preload("berries", 0, "berries.json", function() {
@@ -919,7 +869,7 @@ function changeGen (n, light) {
     });
     });
     });
-    
+
     var typeOps = "<option value='18'>---</option>";
     for (var i = 0; i < 18; i++) {
         if ((gen > 1 || (i !== 8 && i !== 16))
@@ -931,16 +881,16 @@ function changeGen (n, light) {
     for (var i = typeLists.length - 1; i >= 0; i--) {
         replaceHtmlE(typeLists[i], typeOps);
     }
-    
+
     str = "<option value='0'>Clear</option><option value='4'>Sun</option><option value='2'>Rain</option><option value='3'>Sand</option>";
     str += gen >= 3 ? "<option value='1'>Hail</option>" : "";
     str += gen >= 6 ? "<option value='6'>Harsh Sun</option><option value='5'>Heavy Rain</option><option value='7'>Strong Winds</option>" : "";
     replaceHtml("weather", str);
-    
+
     for (var i = 1; i <= 6; i++) {
         getId("cgen" + i).className = (gen === i) ? "selectGen selectedGen" : "selectGen";
     }
-    
+
     var g = document.getElementsByTagName("*");
     for (var i = g.length - 1; i >= 0; i--) {
         if (g[i].className) {
@@ -953,7 +903,7 @@ function changeGen (n, light) {
             }
         }
     }
-    
+
     if (!light) {
         updateMoveOptions();
         updateAttackerAbilityOptions();
@@ -1016,7 +966,7 @@ function getBoosts (p) {
              parseInt(getId(p + "SpdBoost").value, 10),
              0, 0 ];
 }
-    
+
 function setEvs (p, e) {
     getId(p + "HpEv").value = e[Sulcalc.Stats.HP];
     getId(p + "AtkEv").value = e[Sulcalc.Stats.ATK];
@@ -1051,14 +1001,16 @@ function updatePoke (p) {
     poke.id = getId(p + "Poke").value;
     getId(p + "Nature").selectedIndex = 0;
     if (gen > 1) {
-        if (poke.id in pokeToItem) {
-            setSelectByText(p + "Item", pokeToItem[poke.id]);
+        if (poke.id in Sulcalc.redundantItems) {
+            setSelectByText(p + "Item", Sulcalc.redundantItems[poke.id]);
+        } else if (poke.id in suggestedItems) {
+            setSelectByText(p + "Item", suggestedItems[poke.id]);
         } else {
             getId(p + "Item").selectedIndex = 0;
         }
     }
     getId(p + "Status").selectedIndex = 0;
-    
+
     db.preload("evolutions", 0, "evolutions.json", function() {
     db.preload("releasedPokes", 0, "releasedPokes.json", function() {
         var released = db.releasedPokes(gen);
@@ -1075,23 +1027,23 @@ function updatePoke (p) {
         getId(p + "Level").value = !hasPreEvo && poke.hasEvolution() ? 5 : 100;
     });
     });
-    
+
     db.preload("pokeType1", gen, "pokeType1.json", function() {
     db.preload("pokeType2", gen, "pokeType2.json", function() {
         setSelectByValue(p + "Type1", poke.type1() + "");
         setSelectByValue(p + "Type2", poke.type2() + "");
     });
     });
-    
+
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
         getId(p + strs[i] + "Ev").value = gen > 2 ? 0 : 255;
         getId(p + strs[i] + "Iv").value = gen > 2 ? 31 : 15;
         getId(p + strs[i] + "Boost").selectedIndex = 6;
     }
-    
+
     getId(p + "HP").value = getId(p + "HPp").value = "";
-    
+
     db.preload("ability1", 0, "ability1.json", function() {
     db.preload("ability2", 0, "ability2.json", function() {
         var suggestions = "";
@@ -1127,7 +1079,7 @@ function updatePoke (p) {
         });
     });
     });
-    
+
     updateStats(p);
 }
 
@@ -1252,7 +1204,7 @@ function updateHpPercent (p, ranged) {
         getId(p + "HPp").value = 100;
     }
 }
-    
+
 function updateHpPoints (p, ranged) {
     var poke = new Sulcalc.Pokemon();
     poke.id = getId(p + "Poke").value;
@@ -1760,7 +1712,7 @@ function updateAttackerSets() {
     offensiveSets += "<option value='Fast Special'>Fast Special</option>";
     offensiveSets += "<option value='Bulky Physical'>Bulky Physical</option>";
     offensiveSets += "<option value='Bulky Special'>Bulky Special</option>";
-    replaceHtml("attackerSets", offensiveSets); 
+    replaceHtml("attackerSets", offensiveSets);
 }
 
 function updateDefenderSets() {
@@ -1820,10 +1772,12 @@ function changeSet (p, setName) {
         setSelectByValue(p + "Nature", "0");
     }
 
-    if (poke.id in pokeToItem) {
-        setSelectByText(p + "Item", pokeToItem[poke.id]);
+    if (poke.id in Sulcalc.redundantItems) {
+        setSelectByText(p + "Item", Sulcalc.redundantItems[poke.id]);
+    } else if (poke.id in suggestedItems) {
+        setSelectByText(p + "Item", suggestedItems[poke.id]);
     }
-    
+
     updateStats(p);
 }
 
@@ -1977,7 +1931,7 @@ function calculateResults() {
     c.field.airLock = c.attacker.ability.name() === "Air Lock" || c.defender.ability.name() === "Air Lock";
 
     var rpt = c.report();
-    
+
     if (rpt.responseCode === 1) { // some error or whatever
         replaceHtml("results", rpt.report);
     } else {
@@ -2013,7 +1967,7 @@ window.onload = function() {
     var natOps = natureOptions();
     replaceHtml("attackerNature", natOps);
     replaceHtml("defenderNature", natOps);
-    
+
     [1, 2, 3, 4, 5, 6].forEach(function (val, idx, array) {
         getId("cgen" + val).onclick = function() {
             if (gen !== val) {
@@ -2021,7 +1975,7 @@ window.onload = function() {
             }
         };
     });
-    
+
     getId("attackerItem").onchange = updateAttackerItemOptions;
     getId("attackerAbility").onchange = updateAttackerAbilityOptions;
     getId("defenderAbility").onchange = updateDefenderAbilityOptions;
@@ -2060,7 +2014,7 @@ window.onload = function() {
             getId("exportText").value = href + "?" + calcToQueryString();
         });
     };
-    
+
     getId("happiness").onchange = function() {
         // "216":"Return"
         if (isInt(this.value)) {
@@ -2069,7 +2023,7 @@ window.onload = function() {
             this.value = getId("move").value === "216" ? 255 : 0;
         }
     };
-    
+
     ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"].forEach(function (val, idx, arr) {
         ["Ev", "Iv", "Boost"].forEach(function (val2, idx2, arr2) {
             if (val2 === "Iv") {
@@ -2090,7 +2044,7 @@ window.onload = function() {
             }
         });
     });
-    
+
     [5, 50, 100].forEach(function (val, idx, arr) {
         getId("attackerLevel" + val).onclick = function() {
             getId("attackerLevel").value = val;
@@ -2101,7 +2055,7 @@ window.onload = function() {
             updateStats("defender");
         };
     });
-    
+
     for (var i = 0; i < 6; i++) {
         getId("beatUpLevel" + i).onchange = (function (n) {
             return (function() {
@@ -2124,7 +2078,7 @@ window.onload = function() {
             });
         }(i));
     }
-    
+
     getId("hiddenPowerType").onchange = function() {
         updatePossibleHiddenPowers();
         if (gen > 2) {
@@ -2134,7 +2088,7 @@ window.onload = function() {
         }
         updateStats("attacker");
     };
-    
+
     getId("hiddenPowerIvs").onchange = function() {
         var hiddenPowerType = getId("hiddenPowerType");
         if (gen > 2) {
@@ -2149,9 +2103,9 @@ window.onload = function() {
     for (var i = toggleElements.length - 1; i >= 0; i--) {
         toggleElements[i].style.display = "none";
     }
-    
+
     getId("calc").onclick = calculateResults;
-    
+
     db.preload("minMaxHits", gen, "minMaxHits.json", function() {
     db.preload("pokemons", 0, "pokemons.json", function() {
     db.preload("stats", gen, "stats.json", function() {
