@@ -1221,7 +1221,7 @@ function Pokemon() {
 
     this.simpleBoostedStat = function (s) {
         // the ability simple doubles stat boosts
-        var boost = this.boosts[s]*2;
+        var boost = Math.max(-6, Math.min(6, 2 * this.boosts[s]));
         var num = 2;
         var den = 2;
         if (boost > 0) {
