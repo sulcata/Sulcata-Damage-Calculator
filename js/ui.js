@@ -763,112 +763,92 @@ function changeGen (n, light) {
         return s;
     };
 
-    db.preload("pokemons", 0, "pokemons.json", function() {
-    db.preload("releasedPokes", 0, "releasedPokes.json", function() {
-        var arr = [], id = "";
-        var onlyZero = ["201", "666", "676", "25", "669", "671", "585", "586", "172", "422", "423", "550", "716"];
-        var redundantForms = ["493:18", "0:0"];
-        if (gen === 6) { // just a quick fix to unreleased stuff
-            for (var a in db.pokemons()) {
-                if (redundantForms.indexOf(a) < 0
+    var arr = [], id = "";
+    var onlyZero = ["201", "666", "676", "25", "669", "671", "585", "586", "172", "422", "423", "550", "716"];
+    var redundantForms = ["493:18", "0:0"];
+    if (gen === 6) { // just a quick fix to unreleased stuff
+        for (var a in db.pokemons()) {
+            if (redundantForms.indexOf(a) < 0
+                && (a.charAt(a.indexOf(":") + 1) === "0" || onlyZero.indexOf(a.substring(0, a.indexOf(":"))) < 0)
+                && (a === "670:0" || a === "670:5" || a.indexOf("670:") < 0)) {
+                arr = insertOpOrder(arr, [a, db.pokemons(a)]);
+            }
+        }
+    } else {
+        for (var a in db.releasedPokes(gen)) {
+            id = db.releasedPokes(gen, a);
+            if (!db.pokemons(id + ":M")) {
+                if (db.pokemons(id + ":H")) {
+                    id += ":H";
+                } else if (db.pokemons(id + ":B")) {
+                    id += ":B";
+                } else if (id === "292:0") {
+                    id = "292:0:1";
+                }
+                if (redundantForms.indexOf(id) < 0
                     && (a.charAt(a.indexOf(":") + 1) === "0" || onlyZero.indexOf(a.substring(0, a.indexOf(":"))) < 0)
                     && (a === "670:0" || a === "670:5" || a.indexOf("670:") < 0)) {
-                    arr = insertOpOrder(arr, [a, db.pokemons(a)]);
-                }
-            }
-        } else {
-            for (var a in db.releasedPokes(gen)) {
-                id = db.releasedPokes(gen, a);
-                if (!db.pokemons(id + ":M")) {
-                    if (db.pokemons(id + ":H")) {
-                        id += ":H";
-                    } else if (db.pokemons(id + ":B")) {
-                        id += ":B";
-                    } else if (id === "292:0") {
-                        id = "292:0:1";
-                    }
-                    if (redundantForms.indexOf(id) < 0
-                        && (a.charAt(a.indexOf(":") + 1) === "0" || onlyZero.indexOf(a.substring(0, a.indexOf(":"))) < 0)
-                        && (a === "670:0" || a === "670:5" || a.indexOf("670:") < 0)) {
-                        arr = insertOpOrder(arr, [id, db.pokemons(id)]);
-                    }
+                    arr = insertOpOrder(arr, [id, db.pokemons(id)]);
                 }
             }
         }
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i][0].charAt(arr[i][0].lastIndexOf(":") + 1) === "H") {
-                var j = 0;
-                var s = arr[i][0].substr(0, arr[i][0].indexOf(":"));
-                while ((db.releasedPokes(gen).indexOf(s + ":" + ++j) > -1 || gen === 6) // stay positive and bypass released pokes
-                       && db.pokemons(s + ":" + j + ":M") !== undefined) {
-                    arr.splice(++i, 0, [s + ":" + j + ":M", db.pokemons(s + ":" + j + ":M")]);
-                }
+    }
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i][0].charAt(arr[i][0].lastIndexOf(":") + 1) === "H") {
+            var j = 0;
+            var s = arr[i][0].substr(0, arr[i][0].indexOf(":"));
+            while ((db.releasedPokes(gen).indexOf(s + ":" + ++j) > -1 || gen === 6) // stay positive and bypass released pokes
+                   && db.pokemons(s + ":" + j + ":M") !== undefined) {
+                arr.splice(++i, 0, [s + ":" + j + ":M", db.pokemons(s + ":" + j + ":M")]);
             }
         }
-        arr.splice(0, 0, ["0:0", "Missingno"]);
-        var htmlOps = getOptions(arr);
-        replaceHtml("attackerPoke", htmlOps);
-        replaceHtml("defenderPoke", htmlOps);
-    });
-    });
+    }
+    arr.splice(0, 0, ["0:0", "Missingno"]);
+    var htmlOps = getOptions(arr);
+    replaceHtml("attackerPoke", htmlOps);
+    replaceHtml("defenderPoke", htmlOps);
     updateAttackerSets();
     updateDefenderSets();
 
-    db.preload("abilities", 0, "abilities.json", function() {
-        var arr = [];
-        var genAbilityLists = [null, 0, 0, 76, 123, 164, 191];
-        for (var i = 0; i < genAbilityLists[gen]; i++) {
-            arr = insertOpOrder(arr, [i, db.abilities(i)]);
-        }
-        var htmlOps = getOptions(arr);
-        replaceHtml("attackerAbility", htmlOps);
-        replaceHtml("defenderAbility", htmlOps);
-    });
+    arr = [];
+    var genAbilityLists = [null, 0, 0, 76, 123, 164, 191];
+    for (var i = 0; i < genAbilityLists[gen]; i++) {
+        arr = insertOpOrder(arr, [i, db.abilities(i)]);
+    }
+    htmlOps = getOptions(arr);
+    replaceHtml("attackerAbility", htmlOps);
+    replaceHtml("defenderAbility", htmlOps);
 
-    db.preload("moves", 0, "moves.json", function() {
-    db.preload("releasedMoves", 0, "releasedMoves.json", function() {
-    db.preload("movePowers", 6, "power.json", function() {
-        var arr = [], id = "";
-        var isMoveUseless = function (m) {
-            if (db.movePowers(6, m) > 0) {
-                return false;
-            }
-            return m !== "0";
-        };
-        for (var a in db.releasedMoves(gen)) {
-            if (!isMoveUseless(a)) {
-                id = db.releasedMoves(gen, a);
-                arr = insertOpOrder(arr, [id, db.moves(id)]);
-            }
+    arr = [];
+    var isMoveUseless = function (m) {
+        if (db.movePowers(6, m) > 0) {
+            return false;
         }
-        replaceHtml("move", getOptions(arr));
-    });
-    });
-    });
+        return m !== "0";
+    };
+    for (var a in db.releasedMoves(gen)) {
+        if (!isMoveUseless(a)) {
+            id = db.releasedMoves(gen, a);
+            arr = insertOpOrder(arr, [id, db.moves(id)]);
+        }
+    }
+    replaceHtml("move", getOptions(arr));
 
-    db.preload("items", 0, "items.json", function() {
-    db.preload("releasedItems", 0, "releasedItems.json", function() {
-    db.preload("berries", 0, "berries.json", function() {
-    db.preload("releasedBerries", 0, "releasedBerries.json", function() {
-        var arr = [], id = "";
-        var suggestions = [];
-        for (var a in db.releasedItems(gen)) {
-            id = db.releasedItems(gen, a);
-            arr = insertOpOrder(arr, [id, db.items(id)]);
+    arr = [];
+    var suggestions = [];
+    for (var a in db.releasedItems(gen)) {
+        id = db.releasedItems(gen, a);
+        arr = insertOpOrder(arr, [id, db.items(id)]);
+    }
+    for (var a in db.releasedBerries(gen)) {
+        id = db.releasedBerries(gen, a);
+        if (id !== "0") { // "(No Berry)"
+            arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries(id)]);
         }
-        for (var a in db.releasedBerries(gen)) {
-            id = db.releasedBerries(gen, a);
-            if (id !== "0") { // "(No Berry)"
-                arr = insertOpOrder(arr, [parseInt(id, 10) + 8000, db.berries(id)]);
-            }
-        }
-        var htmlOps = getOptions(arr);
-        replaceHtml("attackerItem", htmlOps);
-        replaceHtml("defenderItem", htmlOps);
-    });
-    });
-    });
-    });
+    }
+    htmlOps = getOptions(arr);
+    replaceHtml("attackerItem", htmlOps);
+    replaceHtml("defenderItem", htmlOps);
 
     var typeOps = "<option value='18'>---</option>";
     for (var i = 0; i < 18; i++) {
@@ -1011,29 +991,21 @@ function updatePoke (p) {
     }
     getId(p + "Status").selectedIndex = 0;
 
-    db.preload("evolutions", 0, "evolutions.json", function() {
-    db.preload("releasedPokes", 0, "releasedPokes.json", function() {
-        var released = db.releasedPokes(gen);
-        if (gen >= 5 && getId(p + "Item").value === "0" && poke.hasEvolution()) {
-            setSelectByText(p + "Item", "Eviolite");
+    var released = db.releasedPokes(gen);
+    if (gen >= 5 && getId(p + "Item").value === "0" && poke.hasEvolution()) {
+        setSelectByText(p + "Item", "Eviolite");
+    }
+    var hasPreEvo = false; // Little Cup check
+    for (var e in db.evolutions()) {
+        if (released.indexOf(e + ":0") > -1 && db.evolutions(e).indexOf(parseInt(poke.species(), 10)) > -1) {
+            hasPreEvo = true;
+            break;
         }
-        var hasPreEvo = false; // Little Cup check
-        for (var e in db.evolutions()) {
-            if (released.indexOf(e + ":0") > -1 && db.evolutions(e).indexOf(parseInt(poke.species(), 10)) > -1) {
-                hasPreEvo = true;
-                break;
-            }
-        }
-        getId(p + "Level").value = !hasPreEvo && poke.hasEvolution() ? 5 : 100;
-    });
-    });
+    }
+    getId(p + "Level").value = !hasPreEvo && poke.hasEvolution() ? 5 : 100;
 
-    db.preload("pokeType1", gen, "pokeType1.json", function() {
-    db.preload("pokeType2", gen, "pokeType2.json", function() {
-        setSelectByValue(p + "Type1", poke.type1() + "");
-        setSelectByValue(p + "Type2", poke.type2() + "");
-    });
-    });
+    setSelectByValue(p + "Type1", poke.type1() + "");
+    setSelectByValue(p + "Type2", poke.type2() + "");
 
     var strs = ["Hp", "Atk", "Def", "Satk", "Sdef", "Spc", "Spd"];
     for (var i = 0; i < strs.length; i++) {
@@ -1044,41 +1016,37 @@ function updatePoke (p) {
 
     getId(p + "HP").value = getId(p + "HPp").value = "";
 
-    db.preload("ability1", 0, "ability1.json", function() {
-    db.preload("ability2", 0, "ability2.json", function() {
-        var suggestions = "";
-        if (gen < 5) {
-            if (poke.ability1() > 0) {
-                suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities(poke.ability1()) + "</option>";
-            }
-            if (poke.ability2() > 0) {
-                suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities(poke.ability2()) + "</option>";
-            }
-        } else db.preload("ability3", 0, "ability3.json", function() {
-            if (poke.ability1() > 0) {
-                suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities(poke.ability1()) + "</option>";
-            }
-            if (poke.ability2() > 0) {
-                suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities(poke.ability2()) + "</option>";
-            }
-            if (poke.ability3() > 0) {
-                suggestions += "<option value='" + poke.ability3() + "'>" + db.abilities(poke.ability3()) + "</option>";
-            }
-            if (suggestions !== "") {
-                suggestions += "<option value='divider' disabled>─────────────</option>";
-            }
-            eAbility = getId(p + "Ability");
-            var tempHtml = eAbility.innerHTML;
-            if (tempHtml.lastIndexOf("─") > -1) {
-                tempHtml = tempHtml.substr(tempHtml.lastIndexOf("─") + 10);
-            } else {
-                tempHtml = tempHtml.substr(39);
-            }
-            replaceHtmlE(eAbility, "<option value='0'>(No Ability)</option>" + suggestions + tempHtml);
-            eAbility.selectedIndex = 0;
-        });
-    });
-    });
+    var suggestions = "";
+    if (gen < 5) {
+        if (poke.ability1() > 0) {
+            suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities(poke.ability1()) + "</option>";
+        }
+        if (poke.ability2() > 0) {
+            suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities(poke.ability2()) + "</option>";
+        }
+    } else {
+        if (poke.ability1() > 0) {
+            suggestions += "<option value='" + poke.ability1() + "'>" + db.abilities(poke.ability1()) + "</option>";
+        }
+        if (poke.ability2() > 0) {
+            suggestions += "<option value='" + poke.ability2() + "'>" + db.abilities(poke.ability2()) + "</option>";
+        }
+        if (poke.ability3() > 0) {
+            suggestions += "<option value='" + poke.ability3() + "'>" + db.abilities(poke.ability3()) + "</option>";
+        }
+        if (suggestions !== "") {
+            suggestions += "<option value='divider' disabled>─────────────</option>";
+        }
+        eAbility = getId(p + "Ability");
+        var tempHtml = eAbility.innerHTML;
+        if (tempHtml.lastIndexOf("─") > -1) {
+            tempHtml = tempHtml.substr(tempHtml.lastIndexOf("─") + 10);
+        } else {
+            tempHtml = tempHtml.substr(39);
+        }
+        replaceHtmlE(eAbility, "<option value='0'>(No Ability)</option>" + suggestions + tempHtml);
+        eAbility.selectedIndex = 0;
+    }
 
     updateStats(p);
 }
@@ -1299,7 +1267,6 @@ function setDefenderRemainingHp() {
 }
 
 function updateStats (p) {
-    db.preload("stats", gen, "stats.json", function() {
     // update the /??? for the HP and reset percentage to 100%
     var poke = new Sulcalc.Pokemon();
     poke.level = getId(p + "Level").value;
@@ -1366,7 +1333,6 @@ function updateStats (p) {
             setText(p + strs[i][0] + "Stat", poke.boostedStat(strs[i][1]));
         }
     }
-    });
 }
 
 function updateHiddenPowerType() {
@@ -1600,22 +1566,20 @@ function updateMoveOptions() {
         showInput("hiddenPowerType");
         updateHiddenPowerType();
     } else {
-        db.preload("minMaxHits", gen, "minMaxHits.json", function() {
-            if (db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && moveId !== "251") { // Beat Up
-                var moveInfo = new Sulcalc.Move(),
-                    multiOps = "";
-                moveInfo.id = moveId;
-                if (db.abilities(getId("attackerAbility").value) === "Skill Link") {
-                    multiOps = "<option value='" + moveInfo.maxHits() + "'>" + moveInfo.maxHits() + " hits</option>";
-                } else for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
-                    multiOps += "<option value='" + h + "'>" + h + " hits</option>";
-                }
-                var eMultiHits = getId("multiHits");
-                replaceHtmlE(eMultiHits, multiOps);
-                eMultiHits.selectedIndex = 0;
-                showInput("multiHits");
+        if (db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && moveId !== "251") { // Beat Up
+            var moveInfo = new Sulcalc.Move(),
+                multiOps = "";
+            moveInfo.id = moveId;
+            if (db.abilities(getId("attackerAbility").value) === "Skill Link") {
+                multiOps = "<option value='" + moveInfo.maxHits() + "'>" + moveInfo.maxHits() + " hits</option>";
+            } else for (var h = moveInfo.minHits(); h <= moveInfo.maxHits(); h++) {
+                multiOps += "<option value='" + h + "'>" + h + " hits</option>";
             }
-        });
+            var eMultiHits = getId("multiHits");
+            replaceHtmlE(eMultiHits, multiOps);
+            eMultiHits.selectedIndex = 0;
+            showInput("multiHits");
+        }
     }
     // maybe toggle health and speed based inputs, idk
 }
@@ -1648,13 +1612,11 @@ function updateAttackerAbilityOptions() {
     if (["137", "138", "62"].indexOf(attackerOldAbility) > -1) { // Toxic Boost, Flare Boost, Guts: resetting
         setSelectByValue("attackerStatus", "0");
     }
-    db.preload("minMaxHits", gen, "minMaxHits.json", function() {
-        if (db.minMaxHits(gen, getId("move").value) !== undefined) {
-            var oldHits = getId("multiHits").value;
-            updateMoveOptions();
-            setSelectByValue("multiHits", oldHits);
-        }
-    });
+    if (db.minMaxHits(gen, getId("move").value) !== undefined) {
+        var oldHits = getId("multiHits").value;
+        updateMoveOptions();
+        setSelectByValue("multiHits", oldHits);
+    }
     attackerOldAbility = abilityId;
 }
 
@@ -2006,13 +1968,11 @@ window.onload = function() {
     getId("toggleOptions").onclick = toggleOptions;
     getId("swap").onclick = swapPokemon;
     getId("export").onclick = function() {
-        db.preload("minMaxHits", gen, "minMaxHits.json", function() {
-            var href = document.location.href;
-            if (href.indexOf("?") > -1) {
-                href = href.substr(0, href.indexOf("?"));
-            }
-            getId("exportText").value = href + "?" + calcToQueryString();
-        });
+        var href = document.location.href;
+        if (href.indexOf("?") > -1) {
+            href = href.substr(0, href.indexOf("?"));
+        }
+        getId("exportText").value = href + "?" + calcToQueryString();
     };
 
     getId("happiness").onchange = function() {
@@ -2106,17 +2066,11 @@ window.onload = function() {
 
     getId("calc").onclick = calculateResults;
 
-    db.preload("minMaxHits", gen, "minMaxHits.json", function() {
-    db.preload("pokemons", 0, "pokemons.json", function() {
-    db.preload("stats", gen, "stats.json", function() {
-        var q = document.location.href;
-        if (q.indexOf("?") > -1) {
-            loadQueryString(q.substr(q.indexOf("?") + 1));
-            calculateResults();
-        } else {
-            changeGen(6);
-        }
-    });
-    });
-    });
+    var q = document.location.href;
+    if (q.indexOf("?") > -1) {
+        loadQueryString(q.substr(q.indexOf("?") + 1));
+        calculateResults();
+    } else {
+        changeGen(6);
+    }
 };
