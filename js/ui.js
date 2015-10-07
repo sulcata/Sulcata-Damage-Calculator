@@ -32,7 +32,7 @@ var suggestedItems = {
     "493:14" : "Icicle Plate", // Arceus-Ice
     "493:15" : "Draco Plate", // Arceus-Dragon
     "493:16" : "Dread Plate", // Arceus-Dark
-    "493:17" : "Pixie Plate", // Arceus-Fairy
+    "493:17" : "Pixie Plate" // Arceus-Fairy
 };
 
 var digits = "0123456789-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
