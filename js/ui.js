@@ -1113,6 +1113,9 @@ function updateHpPercent (p, ranged) {
                 if (tempAvg === null) {
                     results.push(null);
                     hpVals.push(null);
+                } else if (numArr.values.length === 1) {
+                    results.push(numArr.values[0] + "");
+                    hpVals.push(numArr);
                 } else {
                     results.push(numArr + "");
                     hpVals.push(numArr);
@@ -1240,7 +1243,7 @@ function setDefenderRemainingHp() {
         hpValsString += resultingDefenderHealth[0].values[0];
     } else {
         // if there are no vals, it shouldn't print anything
-        hpValsString += resultingDefenderHealth[0] + "";
+        hpValsString += resultingDefenderHealth[0];
     }
     if (resultingDefenderHealth[1].values.length === 1) {
         hpValsString += " | " + resultingDefenderHealth[1].values[0];
