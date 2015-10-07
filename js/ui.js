@@ -249,88 +249,88 @@ function calcToQueryString() {
     return binaryToBase64(q);
 }
 
-function binaryToPoke (p, str) {
+function binaryToPoke (p, binStr) {
     var poke;
     var ptr = 0;
     if (gen <= 2) {
-        poke = convertFromBaseN(str.substr(ptr, 8), 2) + ":";
+        poke = convertFromBaseN(binStr.substr(ptr, 8), 2) + ":";
         ptr += 8;
     } else if (gen <= 4) {
-        poke = convertFromBaseN(str.substr(ptr, 9), 2) + ":";
+        poke = convertFromBaseN(binStr.substr(ptr, 9), 2) + ":";
         ptr += 9;
     } else if (gen <= 6) {
-        poke = convertFromBaseN(str.substr(ptr, 10), 2) + ":";
+        poke = convertFromBaseN(binStr.substr(ptr, 10), 2) + ":";
         ptr += 10;
     }
     if (gen >= 2) {
-        poke += convertFromBaseN(str.substr(ptr, 5), 2);
+        poke += convertFromBaseN(binStr.substr(ptr, 5), 2);
         ptr += 5;
     }
     setPoke(p + "Poke", poke);
     if (gen === 3 || gen === 4) {
-        setSelectByValue(p + "Ability", convertFromBaseN(str.substr(ptr, 7), 2) + "");
+        setSelectByValue(p + "Ability", convertFromBaseN(binStr.substr(ptr, 7), 2) + "");
         ptr += 7;
     } else if (gen === 5 || gen === 6) {
-        setSelectByValue(p + "Ability", convertFromBaseN(str.substr(ptr, 8), 2) + "");
+        setSelectByValue(p + "Ability", convertFromBaseN(binStr.substr(ptr, 8), 2) + "");
         ptr += 8;
     }
     if (gen >= 3) {
-        setSelectByValue(p + "Nature", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+        setSelectByValue(p + "Nature", convertFromBaseN(binStr.substr(ptr, 5), 2) + "");
         ptr += 5;
     }
     if (gen >= 2) {
-        var itemNum = convertFromBaseN(str.substr(ptr, 13), 2);
+        var itemNum = convertFromBaseN(binStr.substr(ptr, 13), 2);
         ptr += 13;
         if (itemNum & 0x1000) {
             itemNum = (itemNum & ~0x1000) + 8000;
         }
         setSelectByValue(p + "Item", itemNum + "");
     }
-    getId(p + "Level").value = convertFromBaseN(str.substr(ptr, 7), 2);
+    getId(p + "Level").value = convertFromBaseN(binStr.substr(ptr, 7), 2);
     ptr += 7;
     var stats = gen > 2 ? ["Hp", "Atk", "Def", "Satk", "Sdef", "Spd"]
                         : gen > 1 ? ["Hp", "Atk", "Def", "Satk", "Spd"]
                                   : ["Hp", "Atk", "Def", "Spc", "Spd"];
     for (var i = 0; i < stats.length; i++) {
-        var temp = convertFromBaseN(str.substr(ptr, 6), 2) << 2;
+        var temp = convertFromBaseN(binStr.substr(ptr, 6), 2) << 2;
         getId(p + stats[i] + "Ev").value = gen < 3 && temp >= 252 ? 255 : temp;
         ptr += 6;
-        getId(p + stats[i] + "Iv").value = convertFromBaseN(str.substr(ptr, gen <= 2 ? 5 : 6), 2);
+        getId(p + stats[i] + "Iv").value = convertFromBaseN(binStr.substr(ptr, gen <= 2 ? 5 : 6), 2);
         ptr += gen <= 2 ? 5 : 6;
         if (i !== 0) {
-            setSelectByValue(p + stats[i] + "Boost", (convertFromBaseN(str.substr(ptr, 4), 2) - 6) + "");
+            setSelectByValue(p + stats[i] + "Boost", (convertFromBaseN(binStr.substr(ptr, 4), 2) - 6) + "");
             ptr += 4;
         } else if (i === 3 && gen === 2) {
-            setSelectByValue(p + "SdefBoost", (convertFromBaseN(str.substr(ptr, 4), 2) - 6) + "");
+            setSelectByValue(p + "SdefBoost", (convertFromBaseN(binStr.substr(ptr, 4), 2) - 6) + "");
             ptr += 4;
         }
     }
-    getId(p + "HP").value = convertFromBaseN(str.substr(ptr, 10), 2);
+    getId(p + "HP").value = convertFromBaseN(binStr.substr(ptr, 10), 2);
     ptr += 10;
-    setSelectByValue(p + "Status", convertFromBaseN(str.substr(ptr, 3), 2) + "");
+    setSelectByValue(p + "Status", convertFromBaseN(binStr.substr(ptr, 3), 2) + "");
     ptr += 3;
-    setSelectByValue(p + "Type1", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+    setSelectByValue(p + "Type1", convertFromBaseN(binStr.substr(ptr, 5), 2) + "");
     ptr += 5;
-    setSelectByValue(p + "Type2", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+    setSelectByValue(p + "Type2", convertFromBaseN(binStr.substr(ptr, 5), 2) + "");
     ptr += 5;
     if (gen >= 6) {
-        setSelectByValue(p + "TypeAdded", convertFromBaseN(str.substr(ptr, 5), 2) + "");
+        setSelectByValue(p + "TypeAdded", convertFromBaseN(binStr.substr(ptr, 5), 2) + "");
         ptr += 5;
     }
     if (gen >= 4) {
-        getId(p + "FlowerGift").checked = str[ptr++] === "1";
-        getId(p + "Grounded").checked = str[ptr++] === "1";
-        getId(p + "PowerTrick").checked = str[ptr++] === "1";
-        getId(p + "Tailwind").checked = str[ptr++] === "1";
-        getId(p + "Unburden").checked = str[ptr++] === "1";
+        getId(p + "FlowerGift").checked = binStr[ptr++] === "1";
+        getId(p + "Grounded").checked = binStr[ptr++] === "1";
+        getId(p + "PowerTrick").checked = binStr[ptr++] === "1";
+        getId(p + "Tailwind").checked = binStr[ptr++] === "1";
+        getId(p + "Unburden").checked = binStr[ptr++] === "1";
     }
     if (gen >= 5) {
-        getId(p + "Autotomize").checked = str[ptr++] === "1";
+        getId(p + "Autotomize").checked = binStr[ptr++] === "1";
     }
     updateStats(p);
 }
 
-function loadQueryString (q) {
+function loadQueryString (query) {
     /* poke format info
      * gen 1 : 109 bits
      * gen 2 : 127 bits
@@ -339,60 +339,60 @@ function loadQueryString (q) {
      * gen 5 : 169 bits
      * gen 6 : 174 bits
      */
-    q = base64ToBinary(q);
+    query = base64ToBinary(query);
     var ptr = 0;
-    changeGen(convertFromBaseN(q.substr(ptr, 4), 2), true);
+    changeGen(convertFromBaseN(query.substr(ptr, 4), 2), true);
     ptr += 4;
     var size = [0, 109, 127, 161, 166, 169, 174];
-    binaryToPoke("attacker", q.substr(ptr, size[gen]));
+    binaryToPoke("attacker", query.substr(ptr, size[gen]));
     ptr += size[gen];
-    binaryToPoke("defender", q.substr(ptr, size[gen]));
+    binaryToPoke("defender", query.substr(ptr, size[gen]));
     ptr += size[gen];
 
-    var moveId = convertFromBaseN(q.substr(ptr, 10), 2) + "";
+    var moveId = convertFromBaseN(query.substr(ptr, 10), 2) + "";
     setSelectByValue("move", moveId);
     ptr += 10;
-    getId("critical").checked = q[ptr++] === "1";
+    getId("critical").checked = query[ptr++] === "1";
     ptr++; // old flash fire
-    getId("screens").checked = q[ptr++] === "1";
+    getId("screens").checked = query[ptr++] === "1";
     if (gen >= 3) {
-        getId("helpingHand").checked = q[ptr++] === "1";
-        getId("charge").checked = q[ptr++] === "1";
-        getId("multiBattle").checked = q[ptr++] === "1";
-        getId("waterSport").checked = q[ptr++] === "1";
-        getId("mudSport").checked = q[ptr++] === "1";
+        getId("helpingHand").checked = query[ptr++] === "1";
+        getId("charge").checked = query[ptr++] === "1";
+        getId("multiBattle").checked = query[ptr++] === "1";
+        getId("waterSport").checked = query[ptr++] === "1";
+        getId("mudSport").checked = query[ptr++] === "1";
     }
     if (gen >= 4) {
-        getId("meFirst").checked = q[ptr++] === "1";
+        getId("meFirst").checked = query[ptr++] === "1";
     }
     if (gen >= 5) {
-        getId("friendGuard").checked = q[ptr++] === "1";
-        getId("magicRoom").checked = q[ptr++] === "1";
-        getId("wonderRoom").checked = q[ptr++] === "1";
+        getId("friendGuard").checked = query[ptr++] === "1";
+        getId("magicRoom").checked = query[ptr++] === "1";
+        getId("wonderRoom").checked = query[ptr++] === "1";
     }
     if (gen >= 6) {
-        getId("grassyTerrain").checked = q[ptr++] === "1";
-        getId("mistyTerrain").checked = q[ptr++] === "1";
-        getId("electricTerrain").checked = q[ptr++] === "1";
-        getId("invertedBattle").checked = q[ptr++] === "1";
-        getId("fairyAura").checked = q[ptr++] === "1";
-        getId("darkAura").checked = q[ptr++] === "1";
-        getId("auraBreak").checked = q[ptr++] === "1";
-        getId("electrify").checked = q[ptr++] === "1";
-        getId("ionDeluge").checked = q[ptr++] === "1";
+        getId("grassyTerrain").checked = query[ptr++] === "1";
+        getId("mistyTerrain").checked = query[ptr++] === "1";
+        getId("electricTerrain").checked = query[ptr++] === "1";
+        getId("invertedBattle").checked = query[ptr++] === "1";
+        getId("fairyAura").checked = query[ptr++] === "1";
+        getId("darkAura").checked = query[ptr++] === "1";
+        getId("auraBreak").checked = query[ptr++] === "1";
+        getId("electrify").checked = query[ptr++] === "1";
+        getId("ionDeluge").checked = query[ptr++] === "1";
     }
-    if (gen === 2 && q.length - ptr >= 2) {
-        setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 2), 2) + "");
+    if (gen === 2 && query.length - ptr >= 2) {
+        setSelectByValue("weather", convertFromBaseN(query.substr(ptr, 2), 2) + "");
         ptr += 2;
-    } else if (gen > 2 && gen < 6 && q.length - ptr >= 3) {
-        setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 3), 2) + "");
+    } else if (gen > 2 && gen < 6 && query.length - ptr >= 3) {
+        setSelectByValue("weather", convertFromBaseN(query.substr(ptr, 3), 2) + "");
         ptr += 3;
-    } else if (gen >= 6 && q.length - ptr >= 4) {
-        setSelectByValue("weather", convertFromBaseN(q.substr(ptr, 4), 2) + "");
+    } else if (gen >= 6 && query.length - ptr >= 4) {
+        setSelectByValue("weather", convertFromBaseN(query.substr(ptr, 4), 2) + "");
         ptr += 4;
     }
-    if (q.length - ptr >= 3 && db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && db.moves(moveId) !== "Beat Up") {
-        setSelectByValue("minMaxHits", convertFromBaseN(q.substr(ptr, 3), 2) + "");
+    if (query.length - ptr >= 3 && db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && db.moves(moveId) !== "Beat Up") {
+        setSelectByValue("minMaxHits", convertFromBaseN(query.substr(ptr, 3), 2) + "");
         ptr += 3;
     }
     updateMoveOptions();
@@ -449,7 +449,7 @@ function replaceHtml (id, html) {
     });
     newE.innerHTML = html;
     oldE.parentNode.replaceChild(newE, oldE);
-};
+}
 
 
 function replaceHtmlE (oldE, html) {
@@ -463,41 +463,41 @@ function replaceHtmlE (oldE, html) {
     });
     newE.innerHTML = html;
     oldE.parentNode.replaceChild(newE, oldE);
-};
+}
 
-function setPoke(e, p) {
-    if ((typeof e === "string") || (e instanceof String)) {
-        e = getId(e);
+function setPoke (el, pokeId) {
+    if ((typeof el === "string") || (el instanceof String)) {
+        el = getId(el);
     }
-    for (var i = e.options.length - 1; i >= 0; i--) {
-        if (e.options[i].value.substr(0, p.length) === p) {
-            e.selectedIndex = i;
+    for (var i = el.options.length - 1; i >= 0; i--) {
+        if (el.options[i].value.substr(0, pokeId.length) === pokeId) {
+            el.selectedIndex = i;
             return true;
         }
     }
     return false;
 }
 
-function setSelectByValue(e, value) {
-    if ((typeof e === "string") || (e instanceof String)) {
-        e = getId(e);
+function setSelectByValue (el, value) {
+    if ((typeof el === "string") || (el instanceof String)) {
+        el = getId(el);
     }
-    for (var i = e.options.length - 1; i >= 0; i--) {
-        if (e.options[i].value === value) {
-            e.selectedIndex = i;
+    for (var i = el.options.length - 1; i >= 0; i--) {
+        if (el.options[i].value === value) {
+            el.selectedIndex = i;
             return true;
         }
     }
     return false;
 }
 
-function setSelectByText(e, text) {
-    if ((typeof e === "string") || (e instanceof String)) {
-        e = getId(e);
+function setSelectByText (el, text) {
+    if ((typeof el === "string") || (el instanceof String)) {
+        el = getId(el);
     }
-    for (var i = e.options.length - 1; i >= 0; i--) {
-        if (e.options[i].text === text) {
-            e.selectedIndex = i;
+    for (var i = el.options.length - 1; i >= 0; i--) {
+        if (el.options[i].text === text) {
+            el.selectedIndex = i;
             return true;
         }
     }
@@ -556,7 +556,6 @@ function updateFormatting() {
 function changeGen (n, light) {
     light = !!light;
     resultingDefenderHealth = null;
-    var oldgen = gen;
     gen = n;
     // reset form first
     setText("results", "");
@@ -795,11 +794,13 @@ function changeGen (n, light) {
     }
     for (var i = 0; i < arr.length; i++) {
         if (arr[i][0].charAt(arr[i][0].lastIndexOf(":") + 1) === "H") {
-            var j = 0;
-            var s = arr[i][0].substr(0, arr[i][0].indexOf(":"));
-            while ((db.releasedPokes(gen).indexOf(s + ":" + ++j) > -1 || gen === 6) // stay positive and bypass released pokes
-                   && db.pokemons(s + ":" + j + ":M") !== undefined) {
-                arr.splice(++i, 0, [s + ":" + j + ":M", db.pokemons(s + ":" + j + ":M")]);
+            var species = arr[i][0].substr(0, arr[i][0].indexOf(":")),
+                formNo = 1;
+            while ((gen === 6 || db.releasedPokes(gen).indexOf(species + ":" + formNo) > -1) // stay positive and bypass released pokes
+                   && db.pokemons(species + ":" + formNo + ":M") !== undefined) {
+                ++i;
+                arr.splice(i, 0, [species + ":" + formNo + ":M", db.pokemons(species + ":" + formNo + ":M")]);
+                ++formNo;
             }
         }
     }
@@ -835,7 +836,6 @@ function changeGen (n, light) {
     replaceHtml("move", getOptions(arr));
 
     arr = [];
-    var suggestions = [];
     for (var a in db.releasedItems(gen)) {
         id = db.releasedItems(gen, a);
         arr = insertOpOrder(arr, [id, db.items(id)]);
@@ -862,7 +862,7 @@ function changeGen (n, light) {
         replaceHtmlE(typeLists[i], typeOps);
     }
 
-    str = "<option value='0'>Clear</option><option value='4'>Sun</option><option value='2'>Rain</option><option value='3'>Sand</option>";
+    var str = "<option value='0'>Clear</option><option value='4'>Sun</option><option value='2'>Rain</option><option value='3'>Sand</option>";
     str += gen >= 3 ? "<option value='1'>Hail</option>" : "";
     str += gen >= 6 ? "<option value='6'>Harsh Sun</option><option value='5'>Heavy Rain</option><option value='7'>Strong Winds</option>" : "";
     replaceHtml("weather", str);
@@ -901,22 +901,6 @@ function pokeForm (id) {
 
 function pokeSpecies (id) {
     return id.substring(0, id.indexOf(":"));
-}
-
-function options (j) {
-    var str = "";
-    for (var a in j) {
-        str += "<option value='" + a + "'>" + j[a] + "</option>";
-    }
-    return str;
-}
-
-function options8000 (j) {
-    var str="";
-    for (var a in j) {
-        str += "<option value='" + (parseInt(a, 10)+8000) + "'>" + j[a] + "</option>";
-    }
-    return str;
 }
 
 function getEvs (p) {
@@ -1037,8 +1021,8 @@ function updatePoke (p) {
         if (suggestions !== "") {
             suggestions += "<option value='divider' disabled>─────────────</option>";
         }
-        eAbility = getId(p + "Ability");
-        var tempHtml = eAbility.innerHTML;
+        var eAbility = getId(p + "Ability"),
+            tempHtml = eAbility.innerHTML;
         if (tempHtml.lastIndexOf("─") > -1) {
             tempHtml = tempHtml.substr(tempHtml.lastIndexOf("─") + 10);
         } else {
@@ -1062,114 +1046,112 @@ function updateHpPercent (p, ranged) {
     poke.id = getId(p + "Poke").value;
     if (poke.id === "0:0") {
         getId(p + "HP").value = "";
-        return;
-    }
-    poke.level = parseInt(getId(p + "Level").value, 10);
-    poke.evs = getEvs(p);
-    poke.ivs = getIvs(p);
-    var totalHp = poke.stat(Sulcalc.Stats.HP),
-        currentPoints = getId(p + "HP").value.replace(/\s/g, "");
-    if (currentPoints.length < 1) {
-        getId(p + "HP").value = totalHp;
-        getId(p + "HPp").value = "100";
-        return;
-    }
-    currentPoints = currentPoints.split("|"); // left side is normal damage, right side is berry damage
-    if (currentPoints.length > 2) {
-        currentPoints.splice(2, currentPoints.length - 2);
-    }
-    // getHpList is not used here as it does not validate the data
-    // definitively maintainable (tm)
-    var results = [], // will have a lhs, possibly a rhs is it exists
-        hpVals = []; // for averaging into %HP
-    for (var i = 0; i < currentPoints.length; i++) {
-        if (ranged && currentPoints[i].indexOf("-") > -1) {
-            // ranged, not a damage roll
-            currentPoints[i] = currentPoints[i].split("-");
-            if (currentPoints[i].length > 2 || !isInt(currentPoints[i][0])
-                                            || !isInt(currentPoints[i][1])) {
-                // one side of the range is not a number
-                results.push(null);
-                hpVals.push(null);
-            } else {
-                var vals = new Sulcalc.WeightedArray();
-                currentPoints[i][0] = Math.max(1, Math.min(totalHp, parseInt(currentPoints[i][0], 10)));
-                currentPoints[i][1] = Math.max(1, Math.min(totalHp, parseInt(currentPoints[i][1], 10)));
-                var temp = currentPoints[i][0];
-                currentPoints[i][0] = Math.min(temp, currentPoints[i][1]);
-                currentPoints[i][1] = Math.max(temp, currentPoints[i][1]);
-                if (currentPoints[i][0] === currentPoints[i][1]) {
-                    results.push(currentPoints[i][0]);
+    } else {
+        poke.level = parseInt(getId(p + "Level").value, 10);
+        poke.evs = getEvs(p);
+        poke.ivs = getIvs(p);
+        var totalHp = poke.stat(Sulcalc.Stats.HP),
+            currentPoints = getId(p + "HP").value.replace(/\s/g, "");
+        if (currentPoints.length < 1) {
+            getId(p + "HP").value = totalHp;
+            getId(p + "HPp").value = "100";
+            return;
+        }
+        currentPoints = currentPoints.split("|"); // left side is normal damage, right side is berry damage
+        if (currentPoints.length > 2) {
+            currentPoints.splice(2, currentPoints.length - 2);
+        }
+        // getHpList is not used here as it does not validate the data
+        // definitively maintainable (tm)
+        var results = [], // will have a lhs, possibly a rhs is it exists
+            hpVals = []; // for averaging into %HP
+        for (var i = 0; i < currentPoints.length; i++) {
+            if (ranged && currentPoints[i].indexOf("-") > -1) {
+                // ranged, not a damage roll
+                currentPoints[i] = currentPoints[i].split("-");
+                if (currentPoints[i].length > 2 || !isInt(currentPoints[i][0])
+                                                || !isInt(currentPoints[i][1])) {
+                    // one side of the range is not a number
+                    results.push(null);
+                    hpVals.push(null);
                 } else {
-                    results.push(currentPoints[i][0] + " - " + currentPoints[i][1]);
-                }
-                // technically the mean may simply be expressed as (high+low)/2, but that would break the code flow.
-                for (var j = currentPoints[i][0]; j <= currentPoints[i][1]; j++) {
-                    vals.add(j, 1);
-                }
-                hpVals.push(vals);
-            }
-        } else if (ranged) {
-            // ranged, damage roll
-            currentPoints[i] = currentPoints[i].split(",");
-            var numArr = new Sulcalc.WeightedArray(),
-                tempVal = 0,
-                strList = "";
-            for (var j = 0; j < currentPoints[i].length; j++) {
-                currentPoints[i][j] = currentPoints[i][j].split(":");
-                if (isInt(currentPoints[i][j][0])) {
-                    if (currentPoints[i][j].length === 1) { // does not have a weight (i.e. no colon)
-                        numArr.add(Math.max(0, Math.min(totalHp, parseInt(currentPoints[i][j][0], 10))), 1);
-                    } else if (currentPoints[i][j].length === 2 && isInt(currentPoints[i][j][1])) {
-                        // the weight is converted to a string anyway and we already made sure it's a number
-                        numArr.add(Math.max(0, Math.min(totalHp, parseInt(currentPoints[i][j][0], 10))),
-                                   currentPoints[i][j][1]);
+                    var vals = new Sulcalc.WeightedArray();
+                    currentPoints[i][0] = Math.max(1, Math.min(totalHp, parseInt(currentPoints[i][0], 10)));
+                    currentPoints[i][1] = Math.max(1, Math.min(totalHp, parseInt(currentPoints[i][1], 10)));
+                    var temp = currentPoints[i][0];
+                    currentPoints[i][0] = Math.min(temp, currentPoints[i][1]);
+                    currentPoints[i][1] = Math.max(temp, currentPoints[i][1]);
+                    if (currentPoints[i][0] === currentPoints[i][1]) {
+                        results.push(currentPoints[i][0]);
+                    } else {
+                        results.push(currentPoints[i][0] + " - " + currentPoints[i][1]);
                     }
+                    // technically the mean may simply be expressed as (high+low)/2, but that would break the code flow.
+                    for (var j = currentPoints[i][0]; j <= currentPoints[i][1]; j++) {
+                        vals.add(j, 1);
+                    }
+                    hpVals.push(vals);
                 }
-                // if the weight is empty or NaN then we just skip adding
-            }
-            var tempAvg = numArr.avg();
-            if (tempAvg === null) {
-                results.push(null);
-                hpVals.push(null);
+            } else if (ranged) {
+                // ranged, damage roll
+                currentPoints[i] = currentPoints[i].split(",");
+                var numArr = new Sulcalc.WeightedArray();
+                for (var j = 0; j < currentPoints[i].length; j++) {
+                    currentPoints[i][j] = currentPoints[i][j].split(":");
+                    if (isInt(currentPoints[i][j][0])) {
+                        if (currentPoints[i][j].length === 1) { // does not have a weight (i.e. no colon)
+                            numArr.add(Math.max(0, Math.min(totalHp, parseInt(currentPoints[i][j][0], 10))), 1);
+                        } else if (currentPoints[i][j].length === 2 && isInt(currentPoints[i][j][1])) {
+                            // the weight is converted to a string anyway and we already made sure it's a number
+                            numArr.add(Math.max(0, Math.min(totalHp, parseInt(currentPoints[i][j][0], 10))),
+                                       currentPoints[i][j][1]);
+                        }
+                    }
+                    // if the weight is empty or NaN then we just skip adding
+                }
+                var tempAvg = numArr.avg();
+                if (tempAvg === null) {
+                    results.push(null);
+                    hpVals.push(null);
+                } else {
+                    results.push(numArr + "");
+                    hpVals.push(numArr);
+                }
             } else {
-                results.push(numArr + "");
-                hpVals.push(numArr);
-            }
-        } else {
-            // either not ranged, or not supposed to be ranged
-            if (isInt(currentPoints[i])) {
-                results.push(Math.max(1, Math.min(totalHp, parseInt(currentPoints[i], 10))));
-                hpVals.push(new Sulcalc.WeightedArray([Math.max(1, Math.min(totalHp, parseInt(currentPoints[i], 10)))]));
-            } else {
-                results.push(null);
-                hpVals.push(null);
+                // either not ranged, or not supposed to be ranged
+                if (isInt(currentPoints[i])) {
+                    results.push(Math.max(1, Math.min(totalHp, parseInt(currentPoints[i], 10))));
+                    hpVals.push(new Sulcalc.WeightedArray([Math.max(1, Math.min(totalHp, parseInt(currentPoints[i], 10)))]));
+                } else {
+                    results.push(null);
+                    hpVals.push(null);
+                }
             }
         }
-    }
-    if (results.length > 1) { // we have partitioned values
-        if (results[0] === null && results[1] === null) {
-            // both sides couldn't be parsed or are empty
-            getId(p + "HP").value = totalHp;
-            getId(p + "HPp").value = 100;
-        } else if (results[0] === null) {
-            // only the RHS is non-empty and could be parsed
-            getId(p + "HP").value = " | " + results[1];
-            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[1].avg() / totalHp)));
-        } else if (results[1] === null) {
-            // only the LHS is non-empty and could be parsed
+        if (results.length > 1) { // we have partitioned values
+            if (results[0] === null && results[1] === null) {
+                // both sides couldn't be parsed or are empty
+                getId(p + "HP").value = totalHp;
+                getId(p + "HPp").value = 100;
+            } else if (results[0] === null) {
+                // only the RHS is non-empty and could be parsed
+                getId(p + "HP").value = " | " + results[1];
+                getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[1].avg() / totalHp)));
+            } else if (results[1] === null) {
+                // only the LHS is non-empty and could be parsed
+                getId(p + "HP").value = results[0];
+                getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].avg() / totalHp)));
+            } else {
+                getId(p + "HP").value = results[0] + " | " + results[1];
+                getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].concat(hpVals[1]).avg() / totalHp)));
+            }
+        } else if (results[0] !== null) { // we have one non-null value, i.e. correctly parsed
             getId(p + "HP").value = results[0];
             getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].avg() / totalHp)));
-        } else {
-            getId(p + "HP").value = results[0] + " | " + results[1];
-            getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].concat(hpVals[1]).avg() / totalHp)));
+        } else { // nothing parsed correctly
+            getId(p + "HP").value = totalHp;
+            getId(p + "HPp").value = 100;
         }
-    } else if (results[0] !== null) { // we have one non-null value, i.e. correctly parsed
-        getId(p + "HP").value = results[0];
-        getId(p + "HPp").value = Math.max(1, Math.min(100, Math.floor(100 * hpVals[0].avg() / totalHp)));
-    } else { // nothing parsed correctly
-        getId(p + "HP").value = totalHp;
-        getId(p + "HPp").value = 100;
     }
 }
 
@@ -1178,25 +1160,25 @@ function updateHpPoints (p, ranged) {
     poke.id = getId(p + "Poke").value;
     if (poke.id === "0:0") {
         getId(p + "HPp").value = "";
-        return;
-    }
-    poke.level = parseInt(getId(p + "Level").value, 10);
-    poke.evs = getEvs(p);
-    poke.ivs = getIvs(p);
-    var total = poke.stat(Sulcalc.Stats.HP),
-        currentPercent = getId(p + "HPp").value;
-    if (isInt(currentPercent)) {
-        currentPercent = Math.max(1, Math.min(100, parseInt(currentPercent, 10)));
     } else {
-        currentPercent = 100;
-    }
-    getId(p + "HPp").value = currentPercent;
-    var hpLow = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100))),
-        hpHigh = Math.max(1, Math.min(total, (Math.ceil(total / 100) - 1 + hpLow)));
-    if (ranged && hpLow < hpHigh) {
-        getId(p + "HP").value = hpLow + " - " + Math.max(1, Math.min(total, Math.ceil(total / 100) - 1 + hpLow));
-    } else {
-        getId(p + "HP").value = hpLow;
+        poke.level = parseInt(getId(p + "Level").value, 10);
+        poke.evs = getEvs(p);
+        poke.ivs = getIvs(p);
+        var total = poke.stat(Sulcalc.Stats.HP),
+            currentPercent = getId(p + "HPp").value;
+        if (isInt(currentPercent)) {
+            currentPercent = Math.max(1, Math.min(100, parseInt(currentPercent, 10)));
+        } else {
+            currentPercent = 100;
+        }
+        getId(p + "HPp").value = currentPercent;
+        var hpLow = Math.max(1, Math.min(total, Math.floor(currentPercent * total / 100))),
+            hpHigh = Math.max(1, Math.min(total, (Math.ceil(total / 100) - 1 + hpLow)));
+        if (ranged && hpLow < hpHigh) {
+            getId(p + "HP").value = hpLow + " - " + Math.max(1, Math.min(total, Math.ceil(total / 100) - 1 + hpLow));
+        } else {
+            getId(p + "HP").value = hpLow;
+        }
     }
 }
 
@@ -1243,12 +1225,16 @@ function getHpListHelper (str) {
 }
 
 function setDefenderRemainingHp() {
-    if (resultingDefenderHealth === null) return false;
+    if (resultingDefenderHealth === null) {
+        return false;
+    }
     // should be an array in which the first range isn't effected by berries
     // the second should be values in which berries have taken effect
     var totalHp = getText("defenderTotalHP"),
         hpValsString = "";
-    if (totalHp === "???") return false;
+    if (totalHp === "???") {
+        return false;
+    }
     if (resultingDefenderHealth[0].values.length === 1) {
         // simplify to only 1 val, doesn't need to be colon separated
         hpValsString += resultingDefenderHealth[0].values[0];
@@ -1365,7 +1351,7 @@ function updatePossibleHiddenPowers() {
         for (var j = 0; j < p[i].length; j++) {
             acc += p[i][j];
             if (j + 1 !== p[i].length) {
-                acc += "-"
+                acc += "-";
             }
         }
         acc += "</option>";
@@ -1393,8 +1379,8 @@ function getBeatUpLevels() {
 
 function resetBeatUp() {
     for (var i = 0; i < 6; i++) {
-        getId("beatUpLevel" + i).value = ""
-        getId("beatUpStat" + i).value = ""
+        getId("beatUpLevel" + i).value = "";
+        getId("beatUpStat" + i).value = "";
     }
 }
 
@@ -1486,8 +1472,7 @@ function updateAttackerItemOptions() {
             a[i].style.display = "none";
         }
     }
-    if (gen < 3) return;
-    if (getId("attackerItem").value === "102") { // Metronome
+    if (gen > 2 && getId("attackerItem").value === "102") { // Metronome
         getId("metronome").parentElement.style.display = "";
     }
 }
@@ -1500,7 +1485,7 @@ function updateMoveOptions() {
             a[i].style.display = "none";
         }
     }
-    var showInput = function (id) {
+    function showInput (id) {
         getId(id).parentElement.style.display = "";
     }
     if (moveId === "210") { // Fury Cutter
@@ -1525,7 +1510,7 @@ function updateMoveOptions() {
     } else if (moveId === "496") { // Round
         showInput("round");
     } else if (gen > 1 && ["239", "16"].indexOf(moveId) > -1) { // Twister, Gust
-        showInput("fly")
+        showInput("fly");
     } else if (moveId === "251") { // Beat Up
         resetBeatUp();
         showInput("beatUpStat0");
@@ -1590,52 +1575,51 @@ var weatherAbilities = ["0", "117", "2", "45", "70", "190", "189", "191"];
 function updateAttackerAbilityOptions() {
     var a = document.getElementsByTagName("div");
     var abilityId = getId("attackerAbility").value;
+    function showInput (id) {
+        getId(id).parentElement.style.display = "";
+    }
     for (var i = a.length - 1; i >= 0; i--) {
         if (a[i].className && a[i].className.indexOf("AA_") > -1) {
             a[i].style.display = "none";
         }
     }
-    if (gen < 3) return;
-    var showInput = function (id) {
-        getId(id).parentElement.style.display = "";
+    if (gen > 2) {
+        if (abilityId === "79") { // Rivalry
+            showInput("rivalryGenders");
+        } else if (abilityId === "137") { // Toxic Boost
+            setSelectByText("attackerStatus", "Poisoned");
+        } else if (abilityId === "138" || abilityId === "62") { // Flare Boost, Guts
+            setSelectByText("attackerStatus", "Burned");
+        }
+        if (weatherAbilities.indexOf(abilityId) > 0 || weatherAbilities.indexOf(attackerOldAbility) > 0) {
+            updateWeatherOptions("attacker");
+        }
+        if (["137", "138", "62"].indexOf(attackerOldAbility) > -1) { // Toxic Boost, Flare Boost, Guts: resetting
+            setSelectByValue("attackerStatus", "0");
+        }
+        if (db.minMaxHits(gen, getId("move").value) !== undefined) {
+            var oldHits = getId("multiHits").value;
+            updateMoveOptions();
+            setSelectByValue("multiHits", oldHits);
+        }
+        attackerOldAbility = abilityId;
     }
-    if (abilityId === "79") { // Rivalry
-        showInput("rivalryGenders");
-    } else if (abilityId === "137") { // Toxic Boost
-        setSelectByText("attackerStatus", "Poisoned");
-    } else if (abilityId === "138" || abilityId === "62") { // Flare Boost, Guts
-        setSelectByText("attackerStatus", "Burned");
-    }
-    if (weatherAbilities.indexOf(abilityId) > 0 || weatherAbilities.indexOf(attackerOldAbility) > 0) {
-        updateWeatherOptions("attacker");
-    }
-    if (["137", "138", "62"].indexOf(attackerOldAbility) > -1) { // Toxic Boost, Flare Boost, Guts: resetting
-        setSelectByValue("attackerStatus", "0");
-    }
-    if (db.minMaxHits(gen, getId("move").value) !== undefined) {
-        var oldHits = getId("multiHits").value;
-        updateMoveOptions();
-        setSelectByValue("multiHits", oldHits);
-    }
-    attackerOldAbility = abilityId;
 }
 
 function updateDefenderAbilityOptions() {
-    if (gen < 3) return;
-    var a = document.getElementsByTagName("div");
-    var abilityId = getId("defenderAbility").value;
-    for (var i = a.length - 1; i >= 0; i--) {
-        if (a[i].className && a[i].className.indexOf("DA_") > -1) {
-            a[i].style.display = "none";
+    if (gen > 2) {
+        var a = document.getElementsByTagName("div");
+        var abilityId = getId("defenderAbility").value;
+        for (var i = a.length - 1; i >= 0; i--) {
+            if (a[i].className && a[i].className.indexOf("DA_") > -1) {
+                a[i].style.display = "none";
+            }
         }
+        if (weatherAbilities.indexOf(abilityId) > 0 || weatherAbilities.indexOf(defenderOldAbility) > 0) {
+            updateWeatherOptions("defender");
+        }
+        defenderOldAbility = abilityId;
     }
-    var showInput = function (id) {
-        getId(id).parentElement.style.display = "";
-    }
-    if (weatherAbilities.indexOf(abilityId) > 0 || weatherAbilities.indexOf(defenderOldAbility) > 0) {
-        updateWeatherOptions("defender");
-    }
-    defenderOldAbility = abilityId;
 }
 
 function updateWeatherOptions (p) {
@@ -1665,82 +1649,78 @@ function updateDefenderStatusOptions() {
 function updateAttackerSets() {
     if (gen < 3) {
         getId("attackerSets").parentNode.style.display = "none";
-        return;
+    } else {
+        getId("attackerSets").parentNode.style.display = "";
+        var offensiveSets = "<option value='No Set'>No Set</option>";
+        offensiveSets += "<option value='Fast Physical'>Fast Physical</option>";
+        offensiveSets += "<option value='Fast Special'>Fast Special</option>";
+        offensiveSets += "<option value='Bulky Physical'>Bulky Physical</option>";
+        offensiveSets += "<option value='Bulky Special'>Bulky Special</option>";
+        replaceHtml("attackerSets", offensiveSets);
     }
-    getId("attackerSets").parentNode.style.display = "";
-    var offensiveSets = "<option value='No Set'>No Set</option>";
-    var a = getId("attackerPoke").value;
-    offensiveSets += "<option value='Fast Physical'>Fast Physical</option>";
-    offensiveSets += "<option value='Fast Special'>Fast Special</option>";
-    offensiveSets += "<option value='Bulky Physical'>Bulky Physical</option>";
-    offensiveSets += "<option value='Bulky Special'>Bulky Special</option>";
-    replaceHtml("attackerSets", offensiveSets);
 }
 
 function updateDefenderSets() {
     if (gen < 3) {
         getId("defenderSets").parentNode.style.display = "none";
-        return;
+    } else {
+        getId("defenderSets").parentNode.style.display = "";
+        var defensiveSets = "<option value='No Set'>No Set</option>"
+                          + "<option value='Physical Wall'>Physical Wall</option>"
+                          + "<option value='Special Wall'>Special Wall</option>"
+                          + "<option value='Mixed Wall'>Mixed Wall</option>"
+                          + "<option value='Bulky'>Bulky</option>";
+        replaceHtml("defenderSets", defensiveSets);
     }
-    getId("defenderSets").parentNode.style.display = "";
-    var defensiveSets = "<option value='No Set'>No Set</option>"
-                      + "<option value='Physical Wall'>Physical Wall</option>"
-                      + "<option value='Special Wall'>Special Wall</option>"
-                      + "<option value='Mixed Wall'>Mixed Wall</option>"
-                      + "<option value='Bulky'>Bulky</option>";
-    replaceHtml("defenderSets", defensiveSets);
 }
 
 function changeSet (p, setName) {
-    if (gen < 3) {
-        return;
-    }
-    var poke = new Sulcalc.Pokemon();
-    poke.id = getId(p + "Poke").value;
-    if (setName === "Fast Physical") {
-        setEvs(p, [0, 252, 0, 4, 0, 252]);
-    } else if (setName === "Fast Special") {
-        setEvs(p, [0, 4, 0, 252, 0, 252]);
-    } else if (setName === "Bulky Physical") {
-        setEvs(p, [252, 252, 4, 0, 0, 0]);
-        setSelectByValue(p + "Nature", "3");
-    } else if (setName === "Bulky Special") {
-        setEvs(p, [252, 0, 4, 252, 0, 0]);
-        setSelectByValue(p + "Nature", "15");
-    } else if (setName === "Physical Wall") {
-        setEvs(p, [252, 0, 252, 0, 4, 0]);
-        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
-        setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "8" : "5");
-    } else if (setName === "Special Wall") {
-        setEvs(p, [252, 0, 4, 0, 252, 0]);
-        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
-        setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "23" : "20");
-    } else if (setName === "Mixed Wall") { // make "fatest set" algorithm
-        setEvs(p, [4, 0, 252, 0, 252, 0]);
-        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
-        if (poke.baseStat(Sulcalc.Stats.DEF) >  poke.baseStat(Sulcalc.Stats.SDEF)) {
-            setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "23" : "20");
-        } else {
+    if (gen  > 2) {
+        var poke = new Sulcalc.Pokemon();
+        poke.id = getId(p + "Poke").value;
+        if (setName === "Fast Physical") {
+            setEvs(p, [0, 252, 0, 4, 0, 252]);
+        } else if (setName === "Fast Special") {
+            setEvs(p, [0, 4, 0, 252, 0, 252]);
+        } else if (setName === "Bulky Physical") {
+            setEvs(p, [252, 252, 4, 0, 0, 0]);
+            setSelectByValue(p + "Nature", "3");
+        } else if (setName === "Bulky Special") {
+            setEvs(p, [252, 0, 4, 252, 0, 0]);
+            setSelectByValue(p + "Nature", "15");
+        } else if (setName === "Physical Wall") {
+            setEvs(p, [252, 0, 252, 0, 4, 0]);
+            setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
             setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "8" : "5");
+        } else if (setName === "Special Wall") {
+            setEvs(p, [252, 0, 4, 0, 252, 0]);
+            setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+            setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "23" : "20");
+        } else if (setName === "Mixed Wall") { // make "fatest set" algorithm
+            setEvs(p, [4, 0, 252, 0, 252, 0]);
+            setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+            if (poke.baseStat(Sulcalc.Stats.DEF) >  poke.baseStat(Sulcalc.Stats.SDEF)) {
+                setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "23" : "20");
+            } else {
+                setSelectByValue(p + "Nature", poke.baseStat(Sulcalc.Stats.ATK) >  poke.baseStat(Sulcalc.Stats.SATK) ? "8" : "5");
+            }
+        } else if (setName === "Bulky") {
+            setEvs(p, [252, 0, 4, 0, 4, 0]);
+            setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
+        } else if (setName === "No Set") {
+            setEvs(p, [0, 0, 0, 0, 0, 0]);
+            setIvs(p, [31, 31, 31, 31, 31, 31]);
+            setSelectByValue(p + "Item", "0");
+            setSelectByValue(p + "Ability", "0");
+            setSelectByValue(p + "Nature", "0");
         }
-    } else if (setName === "Bulky") {
-        setEvs(p, [252, 0, 4, 0, 4, 0]);
-        setSelectByText(p + "Item", gen >= 5 && poke.hasEvolution() ? "Eviolite" : "Leftovers");
-    } else if (setName === "No Set") {
-        setEvs(p, [0, 0, 0, 0, 0, 0]);
-        setIvs(p, [31, 31, 31, 31, 31, 31]);
-        setSelectByValue(p + "Item", "0");
-        setSelectByValue(p + "Ability", "0");
-        setSelectByValue(p + "Nature", "0");
+        if (poke.id in Sulcalc.redundantItems) {
+            setSelectByText(p + "Item", Sulcalc.redundantItems[poke.id]);
+        } else if (poke.id in suggestedItems) {
+            setSelectByText(p + "Item", suggestedItems[poke.id]);
+        }
+        updateStats(p);
     }
-
-    if (poke.id in Sulcalc.redundantItems) {
-        setSelectByText(p + "Item", Sulcalc.redundantItems[poke.id]);
-    } else if (poke.id in suggestedItems) {
-        setSelectByText(p + "Item", suggestedItems[poke.id]);
-    }
-
-    updateStats(p);
 }
 
 function natureOptions() {
@@ -2016,35 +1996,38 @@ window.onload = function() {
         };
     });
 
+    function createBeatUpLevelEvent (n) {
+        return (function() {
+            if (isInt(this.value)) {
+                var level = parseInt(this.value, 10);
+                this.value = (level === 0) ? "" : Math.max(1, Math.min(100, level));
+            } else {
+                this.value = "";
+            }
+        });
+    }
+    function createBeatUpStatEvent (n) {
+        return (function() {
+            if (isInt(this.value)) {
+                var stat = parseInt(this.value, 10);
+                this.value = (stat === 0) ? "" : Math.max(1, Math.min(255, stat));
+            } else {
+                this.value = "";
+            }
+        });
+    }
     for (var i = 0; i < 6; i++) {
-        getId("beatUpLevel" + i).onchange = (function (n) {
-            return (function() {
-                if (isInt(this.value)) {
-                    var level = parseInt(this.value, 10);
-                    this.value = (level === 0) ? "" : Math.max(1, Math.min(100, level));
-                } else {
-                    this.value = "";
-                }
-            });
-        }(i));
-        getId("beatUpStat" + i).onchange = (function (n) {
-            return (function() {
-                if (isInt(this.value)) {
-                    var stat = parseInt(this.value, 10);
-                    this.value = (stat === 0) ? "" : Math.max(1, Math.min(255, level));
-                } else {
-                    this.value = "";
-                }
-            });
-        }(i));
+        getId("beatUpLevel" + i).onchange = createBeatUpLevelEvent(i);
+        getId("beatUpStat" + i).onchange = createBeatUpStatEvent(i);
     }
 
     getId("hiddenPowerType").onchange = function() {
         updatePossibleHiddenPowers();
+        var hiddenPowerIvs = getIvs("attacker");
         if (gen > 2) {
-            setIvs("attacker", db.hiddenPowers(this.value)[hiddenPowerIvs.value]);
+            setIvs("attacker", db.hiddenPowers(this.value)[0]);
         } else {
-            setIvs("attacker", db.hiddenPowersGen2(this.value)[hiddenPowerIvs.value]);
+            setIvs("attacker", db.hiddenPowersGen2(this.value)[0]);
         }
         updateStats("attacker");
     };
