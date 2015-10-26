@@ -4309,16 +4309,16 @@ Calculator.prototype._calculate = function() { // helper
     } else if (this.move.maxHits() !== 1 && gen !== 1) {
         // Generic Multi Hit moves
         dmg = new WeightedArray([0]);
-        var tempdmg = new WeightedArray(this.selCalc());
-        this.field.brokenMultiscale = true;
         // Skill Link maxes out hits on Multi Hit moves
-        var nHits = (this.attacker.ability.name() === "Skill Link") ? this.move.maxHits()
-                                                                    : Math.min(this.move.maxHits(),
-                                                                               Math.max(this.move.minHits(),
-                                                                                        this.field.multiHits));
+        var nHits;
+        if (this.attacker.ability.name() === "Skill Link") {
+            nHits = this.move.maxHits();
+        } else {
+            nHits = Math.min(this.move.maxHits(), Math.max(this.move.minHits(), this.field.multiHits));
+        }
         for (var i = 0; i < nHits; i++) { // Combine all the hits.
-            dmg = dmg.combine(tempdmg);
-            tempdmg = new WeightedArray(this.selCalc());
+            dmg = dmg.combine(new WeightedArray(this.selCalc()));
+            this.field.brokenMultiscale = true;
         }
     } else if (this.move.maxHits() !== 1) {
         // Gen 1 Multi Hit moves function a little differently.
@@ -4332,6 +4332,7 @@ Calculator.prototype._calculate = function() { // helper
     } else {
         // Simple move; default case.
         dmg = new WeightedArray(this.selCalc());
+        this.field.brokenMultiscale = true;
     }
     return dmg;
 };
@@ -4347,7 +4348,7 @@ Calculator.prototype.calculate = function() { // multiturn variance
             dmg.push(this._calculate());
             this.field.furyCutter++;
         }
-        dmg.push(1);
+        dmg.push(-1); // look at the last damage range
         this.field.furyCutter = temp; // restore
     } else if (this.move.name() === "Echoed Voice") {
         var temp = this.field.echoedVoice;
@@ -4355,7 +4356,7 @@ Calculator.prototype.calculate = function() { // multiturn variance
             dmg.push(this._calculate());
             this.field.echoedVoice++;
         }
-        dmg.push(1);
+        dmg.push(-1); // look at the last damage range
         this.field.echoedVoice = temp; // restore
     } else if (this.move.name() === "Trump Card") {
         var temp = this.field.trumpPP;
@@ -4368,7 +4369,7 @@ Calculator.prototype.calculate = function() { // multiturn variance
             }
             dmg.push(this._calculate());
         }
-        dmg.push(0); // no more PP, consider adding leppa berry for this
+        dmg.push(0); // no more PP, no more damage ranges
         this.field.trumpPP = temp; // restore
     } else if (this.move.name() === "Explosion" || this.move.name() === "Self-Destruct") {
         dmg.push(this._calculate());
@@ -4379,20 +4380,18 @@ Calculator.prototype.calculate = function() { // multiturn variance
             dmg.push(this._calculate());
             ++this.field.rollout;
         }
-        dmg.push(2);
+        dmg.push(-dmg.length);
         this.field.rollout = temp;
     } else {
-        var t1 = this._calculate();
-        var t2 = this._calculate(); // an item like a type-resist berry or a gem might get used
-        dmg.push(t1);
-        dmg.push(t2);
-        dmg.push(1); // only repeat the last roll
+        dmg.push(this._calculate());
+        dmg.push(this._calculate()); // an item like a type-resist berry or a gem might get used
+        dmg.push(-1); // only repeat the last roll
     }
-    this.field.brokenMultiscale = false; // we most likely broke multiscale with our attack
+    this.field.brokenMultiscale = false; // reset multiscale
     return dmg;
 };
 
-Calculator.prototype.chanceToKO = function (damageRanges, initDmgRange, initDmgRangeBerry, totalHP, effects, berryHeal, maxTurns) { // not even recursive
+Calculator.prototype.chanceToKO = function (damageRanges, initDmgRange, initDmgRangeBerry, totalHP, effects, berryHeal, rechargeTurns, maxTurns) {
     var chances = [],
         dmg = new WeightedArray(initDmgRange),
         berryDmg = new WeightedArray(initDmgRangeBerry),
@@ -4401,61 +4400,62 @@ Calculator.prototype.chanceToKO = function (damageRanges, initDmgRange, initDmgR
         return val >= totalHP;
     }
     for (var turn = 0, i = 0; turn < maxTurns && damageRanges[i] !== 0; ++turn, ++i) {
-        if (damageRanges[i] === 1) { // 1 means look at last damage range
-            --i;
-        } else if (damageRanges[i] === 2) { // 2 means restart (rollout, fury cutter, etc.)
-            i = 0;
+        if (typeof damageRanges[i] === "number") {
+            i += damageRanges[i];
         }
         dmg = dmg.combine(damageRanges[i]);
         berryDmg = berryDmg.combine(damageRanges[i]);
-        /* because effects always has a 0 value passed in the first index,
-         * berry check runs right after damage is applied, as well as after
-         * every added effect. Separating damages with berries applied
-         * prevents extra applications.
-         */
-        // berries go first to prevent double effect application
-        berryDmg = berryDmg.map(function (v, w) {
-            for (var e = 0; e < effects.length && v < totalHP; e++) {
-                if (effects[e] === "toxic") {
-                    // limit to at most enough to KO
-                    v += Math.floor((++toxicCounter) * totalHP / 16);
-                } else {
-                    // limit to at most enough to KO, at least enough to fully heal
-                    v = Math.max(0, v - effects[e]);
+        for (var j = 0; j <= rechargeTurns; j++) {
+            /* because effects always has a 0 value passed in the first index,
+             * berry check runs right after damage is applied, as well as after
+             * every added effect. Separating damages with berries applied
+             * prevents extra applications.
+             */
+            // berries go first to prevent double effect application
+            berryDmg = berryDmg.map(function (v, w) {
+                for (var e = 0; e < effects.length && v < totalHP; e++) {
+                    if (effects[e] === "toxic") {
+                        // limit to at most enough to KO
+                        v += Math.floor((toxicCounter + 1) * totalHP / 16);
+                    } else {
+                        // limit to at most enough to KO, at least enough to fully heal
+                        v = Math.max(0, v - effects[e]);
+                    }
                 }
-            }
-            return Math.min(totalHP, v);
-        });
-        dmg = dmg.map(function (v, w) {
-            var berryUsed = false;
-            for (var e = 0; e < effects.length && v < totalHP; e++) {
-                if (effects[e] === "toxic") {
-                    // limit to at most enough to KO
-                    v += Math.floor((++toxicCounter) * totalHP / 16);
-                } else {
-                    // limit to at most enough to KO, at least enough to fully heal
-                    v = Math.max(0, v - effects[e]);
+                return Math.min(totalHP, v);
+            });
+            dmg = dmg.map(function (v, w) {
+                var berryUsed = false;
+                for (var e = 0; e < effects.length && v < totalHP; e++) {
+                    if (effects[e] === "toxic") {
+                        // limit to at most enough to KO
+                        v += Math.floor((toxicCounter + 1) * totalHP / 16);
+                    } else {
+                        // limit to at most enough to KO, at least enough to fully heal
+                        v = Math.max(0, v - effects[e]);
+                    }
+                    if (!berryUsed && berryHeal > 0 && v < totalHP && (2 * v >= totalHP)) {
+                        /* berry can be whatever amount for sitrus, oran, etc.
+                         * gen 3, 4, 5, & 6: apply at 1/2 or below
+                         * I've personally confirmed that for gens 3, 4, & 5 it
+                         * activates above 1/3, so I'm assuming it activates at <= 50%
+                         * tested with Emerald, Heart Gold, and White
+                         * tl;dr bulba lies, it was never 1/3
+                         */
+                        v = Math.max(0, v - berryHeal);
+                        berryUsed = true;
+                    }
                 }
-                if (!berryUsed && berryHeal > 0 && v < totalHP && (2 * v >= totalHP)) {
-                    /* berry can be whatever amount for sitrus, oran, etc.
-                     * gen 3, 4, 5, & 6: apply at 1/2 or below
-                     * I've personally confirmed that for gens 3, 4, & 5 it
-                     * activates above 1/3, so I'm assuming it activates at <= 50%
-                     * tested with Emerald, Heart Gold, and White
-                     * tl;dr bulba lies, it was never 1/3
-                     */
-                    v = Math.max(0, v - berryHeal);
-                    berryUsed = true;
+                v = Math.min(totalHP, v);
+                // berry might not be the last effect added, so do this at the end
+                if (berryUsed) {
+                    berryDmg.add(v, w); // separate berry modified value into berryDmg
+                    return null; // returning nulls signals the map method to skip readding this value
                 }
-            }
-            v = Math.min(totalHP, v);
-            // berry might not be the last effect added, so do this at the end
-            if (berryUsed) {
-                berryDmg.add(v, w); // separate berry modified value into berryDmg
-                return null; // returning nulls signals the map method to skip readding this value
-            }
-            return v;
-        });
+                return v;
+            });
+            ++toxicCounter;
+        }
         chances.push([addStrs(dmg.count(hasFainted),
                               berryDmg.count(hasFainted)),
                       addStrs(dmg.count(), berryDmg.count())]);
@@ -4471,7 +4471,7 @@ Calculator.prototype.endOfTurnEffects = function() {
         effectMsgs = [""];
     if (gen === 1) {
         if (this.defender.status === Statuses.BURNED) {
-            effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 3));
+            effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
             effectMsgs.push("Burn");
         } else if (this.defender.status === Statuses.POISONED) {
             effects.push(-Math.max(1, this.defender.stat(Stats.HP) >> 4));
@@ -4906,31 +4906,33 @@ Calculator.prototype.report = function() {
         berryHeal = gen > 3 ? this.defender.stat(Stats.HP) >> 2 : 30;
     } else if (this.defender.item.name() === "Oran Berry" || this.defender.item.name() === "Berry") {
         berryHeal = 10;
-    } else if (["Figy Berry", "Wiki Berry", "Mago Berry", "Aguav Berry", "Iapapa Berry"].indexOf(this.defender.item.name()) > 0) {
+    } else if (["Figy Berry", "Wiki Berry", "Mago Berry", "Aguav Berry", "Iapapa Berry"].indexOf(this.defender.item.name()) > -1) {
         berryHeal = this.defender.stat(Stats.HP) >> 3;
     } else if (this.defender.item.name() === "Gold Berry") {
         berryHeal = 30;
     }
 
     // calculate and print probability
-    var chancesInt = this.chanceToKO(dmg, initDmg, initDmgBerry, this.defender.stat(Stats.HP), effects.values, berryHeal, 9),
+    var recharge = ["Hyper Beam", "Giga Impact", "Rock Wrecker", "Roar of Time", "Blast Burn", "Frenzy Plant", "Hydro Cannon"].indexOf(this.move.name()) > -1 ? 1 : 0;
+    var chancesInt = this.chanceToKO(dmg, initDmg, initDmgBerry, this.defender.stat(Stats.HP), effects.values, berryHeal, recharge, 9),
         chances = [];
     for (var i = 0; i < chancesInt.length; i++) {
-        /* kind of difficult to explain, but basically "bypasses" the limits of integer division by dividing really large
-         * integers and adding the decimal place afterwards
-         */
+        // kind of difficult to explain, but basically "bypasses" the limits of integer division by dividing really large
+        // integers and adding the decimal place afterwards
         if (chancesInt[i][0] === "0") { // don't feed divideStrs multi-zeros
             chances.push(0);
         } else {
-            chances.push(parseInt(divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1])[0], 10) / 10000);
-            if (chances[i] === 0) {
-                chances[i] = "possible"; // sometimes we get "0" probability even though there is a "chance"
+            var chance = parseInt(divideStrs(chancesInt[i][0] + "0000", chancesInt[i][1])[0], 10) / 10000;
+            if (chance > 0) {
+                chances.push(chance);
+            } else {
+                chances.push("possible"); // sometimes we get "0" probability even though there is a "chance"
             }
         }
     }
 
     var i = 0, hasPreviousChance = false;
-    while (i < chances.length && chances[i] < 1) {
+    while (i < chances.length && (chances[i] < 1 || chances[i] === "possible")) {
         if (chances[i] === "possible" || (Math.round(chances[i] * 1000) === 0 && chances[i] > 0)) {
             rpt += (hasPreviousChance ? ", " : "") + "possible " + (i > 0 ? (i + 1) : "O") + "HKO";
             hasPreviousChance = true;
@@ -4979,10 +4981,11 @@ Calculator.prototype.report = function() {
     initDmg = initDmg.combine(dmg[0]);
     initDmgBerry = initDmgBerry.combine(dmg[0]);
     var totalHP = this.defender.stat(Stats.HP);
+    var toxicCounter = this.field.toxicCounter;
     initDmgBerry = initDmgBerry.map(function (v, w) {
         for (var e = 0; e < effects.values.length && v < totalHP; e++) {
             if (effects.values[e] === "toxic") {
-                v += Math.floor((this.toxicCounter + 1) * totalHP / 16);
+                v += Math.floor((toxicCounter + 1) * totalHP / 16);
             } else {
                 v = Math.max(0, v - effects.values[e]);
             }
@@ -4994,7 +4997,7 @@ Calculator.prototype.report = function() {
         var berryUsed = false;
         for (var e = 0; e < effects.values.length && v < totalHP; e++) {
             if (effects.values[e] === "toxic") {
-                v += Math.floor((this.toxicCounter + 1) * totalHP / 16);
+                v += Math.floor((toxicCounter + 1) * totalHP / 16);
             } else {
                 v = Math.max(0, v - effects.values[e]);
             }
