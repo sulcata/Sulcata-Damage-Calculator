@@ -52,7 +52,7 @@ function convertToBaseN (n, base, paddingLength) {
     // floor p
     // p will be the largest integer such that n > base^p
     while (p >= 0) {
-        result += digits[Math.floor(n / Math.pow(base, p))];
+        result += digits.charAt(Math.floor(n / Math.pow(base, p)));
         n %= Math.pow(base, p);
         --p;
     }
@@ -69,7 +69,7 @@ function convertFromBaseN (n, base) {
     // value += digit * base^position
     for (var i = 0; i < n.length; ++i) {
         // We iterate forwards and read the values backwards because the power increases from right to left.
-        result += digits.indexOf(n[n.length-1-i]) * Math.pow(base, i);
+        result += digits.indexOf(n.charAt(n.length - 1 - i)) * Math.pow(base, i);
     }
     return result;
 }
@@ -91,7 +91,7 @@ function binaryToBase64 (n) {
          * 101010 in binary = 42 in decimal = E in base-64
          * 100101101010 in binary = zE in base-64
          */
-        if (n[n.length-1-i] === "1") {
+        if (n.charAt(n.length - 1 - i) === "1") {
             temp += 1 << (i % 6);
         }
         if (i % 6 === 5) { // last digit
@@ -111,7 +111,7 @@ function base64ToBinary (n) {
     // Each digit corresponds to exactly 6-bits, possibly padded by zeros on the left.
     var result = "";
     for (var i = 0; i < n.length; i++) {
-        result += convertToBaseN(digits.indexOf(n[i]), 2, 6);
+        result += convertToBaseN(digits.indexOf(n.charAt(i)), 2, 6);
     }
     return result;
 }
@@ -205,7 +205,7 @@ function calcToQueryString() {
     q += pokeToBinary("defender");
     q += convertToBaseN(moveId, 2, 10);
     q += getId("critical").checked ? 1 : 0;
-    q += 0;
+    q += 0; // used to be flash fire
     q += getId("screens").checked ? 1 : 0;
     if (gen >= 3) {
         q += getId("helpingHand").checked ? 1 : 0;
@@ -243,6 +243,7 @@ function calcToQueryString() {
     if (db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && db.moves(moveId) !== "Beat Up") {
         q += convertToBaseN(parseInt(getId("minMaxHits").value, 10), 2, 3);
     }
+    q += convertToBaseN(parseInt(getId("toxicCounter").value, 10), 2, 4);
     while (q.length % 6 !== 0) {
         q += "0";
     }
@@ -318,14 +319,14 @@ function binaryToPoke (p, binStr) {
         ptr += 5;
     }
     if (gen >= 4) {
-        getId(p + "FlowerGift").checked = binStr[ptr++] === "1";
-        getId(p + "Grounded").checked = binStr[ptr++] === "1";
-        getId(p + "PowerTrick").checked = binStr[ptr++] === "1";
-        getId(p + "Tailwind").checked = binStr[ptr++] === "1";
-        getId(p + "Unburden").checked = binStr[ptr++] === "1";
+        getId(p + "FlowerGift").checked = binStr.charAt(ptr++) === "1";
+        getId(p + "Grounded").checked = binStr.charAt(ptr++) === "1";
+        getId(p + "PowerTrick").checked = binStr.charAt(ptr++) === "1";
+        getId(p + "Tailwind").checked = binStr.charAt(ptr++) === "1";
+        getId(p + "Unburden").checked = binStr.charAt(ptr++) === "1";
     }
     if (gen >= 5) {
-        getId(p + "Autotomize").checked = binStr[ptr++] === "1";
+        getId(p + "Autotomize").checked = binStr.charAt(ptr++) === "1";
     }
     updateStats(p);
 }
@@ -353,7 +354,7 @@ function loadQueryString (query) {
     setSelectByValue("move", moveId);
     ptr += 10;
     getId("critical").checked = query[ptr++] === "1";
-    ptr++; // old flash fire
+    ptr++; // deprecated flash fire
     getId("screens").checked = query[ptr++] === "1";
     if (gen >= 3) {
         getId("helpingHand").checked = query[ptr++] === "1";
@@ -394,6 +395,11 @@ function loadQueryString (query) {
     if (query.length - ptr >= 3 && db.minMaxHits(gen, moveId) && db.minMaxHits(gen, moveId) > 1 && db.moves(moveId) !== "Beat Up") {
         setSelectByValue("minMaxHits", convertFromBaseN(query.substr(ptr, 3), 2) + "");
         ptr += 3;
+    }
+    updateDefenderStatusOptions();
+    if (query.length - ptr >= 4) {
+        getId("toxicCounter").value = convertFromBaseN(query.substr(ptr, 4), 2);
+        ptr += 4;
     }
     updateMoveOptions();
     updateAttackerItemOptions();
@@ -660,6 +666,8 @@ function changeGen (n, light) {
     getId("trumpCardPP").selectedIndex = 0;
     getId("round").checked = false;
     getId("fly").checked = false;
+    getId("toxicCounter").value = "0";
+    getId("toxicCounter").display = "none";
     resetBeatUp();
     getId("stockpile").value = 0;
     getId("switchOut").checked = false;
@@ -797,7 +805,7 @@ function changeGen (n, light) {
             var species = arr[i][0].substr(0, arr[i][0].indexOf(":")),
                 formNo = 1;
             while ((gen === 6 || db.releasedPokes(gen).indexOf(species + ":" + formNo) > -1) // stay positive and bypass released pokes
-                   && db.pokemons(species + ":" + formNo + ":M") !== undefined) {
+                   && typeof db.pokemons(species + ":" + formNo + ":M") !== "undefined") {
                 ++i;
                 arr.splice(i, 0, [species + ":" + formNo + ":M", db.pokemons(species + ":" + formNo + ":M")]);
                 ++formNo;
@@ -974,6 +982,10 @@ function updatePoke (p) {
         }
     }
     getId(p + "Status").selectedIndex = 0;
+    if (p === "defender") {
+        getId("toxicCounter").value = "0";
+        updateDefenderStatusOptions();
+    }
 
     var released = db.releasedPokes(gen);
     if (gen >= 5 && getId(p + "Item").value === "0" && poke.hasEvolution()) {
@@ -1465,6 +1477,7 @@ function swapPokemon() {
     var tempD = getHpList("defender");
     d.value = a.value;
     a.value = Math.floor(tempD[0].concat(tempD[1]).avg());
+    updateDefenderStatusOptions();
     updateHiddenPowerType();
 }
 
@@ -1600,7 +1613,7 @@ function updateAttackerAbilityOptions() {
         if (["137", "138", "62"].indexOf(attackerOldAbility) > -1) { // Toxic Boost, Flare Boost, Guts: resetting
             setSelectByValue("attackerStatus", "0");
         }
-        if (db.minMaxHits(gen, getId("move").value) !== undefined) {
+        if (typeof db.minMaxHits(gen, getId("move").value) !== "undefined") {
             var oldHits = getId("multiHits").value;
             updateMoveOptions();
             setSelectByValue("multiHits", oldHits);
@@ -1642,11 +1655,12 @@ function updateWeatherOptions (p) {
 }
 
 function updateDefenderStatusOptions() {
-    if (this.value === "2") { // badly poisoned
-        getId("toxicCounter").display = "block";
+    if (getId("defenderStatus").value === "2") { // badly poisoned
+        getId("toxicCounter").style.display = "inline-block";
     } else {
-        this.value = "0";
+        getId("toxicCounter").style.display = "none";
     }
+    getId("toxicCounter").value = "0";
 }
 
 function updateAttackerSets() {
@@ -1874,6 +1888,7 @@ function calculateResults() {
     c.field.pledge = getId("pledge").checked;
     c.field.weather = parseInt(getId("weather").value, 10);
     c.field.airLock = c.attacker.ability.name() === "Air Lock" || c.defender.ability.name() === "Air Lock";
+    c.field.toxicCounter = parseInt(getId("toxicCounter").value, 10);
 
     var rpt = c.report();
 
@@ -1882,10 +1897,15 @@ function calculateResults() {
     } else {
         // in most cases javascript:void(0); is a bad idea, but right clicking for a new tab doesn't make sense anyway
         resultingDefenderHealth = [rpt.remainingHealth, rpt.remainingHealthBerry]; // save for later
-        var rptHtml = rpt.report
-                    + "<br /><div style='font-size: 0.7em;'>"
-                    + (Sulcalc.gtStr(rpt.damage[0].count(), "39") && c.move.name() !== "Psywave" ? rpt.damage[0] : rpt.damage[0].print())
-                    + " (<a href='javascript:void(0);' onclick='setDefenderRemainingHp();'>set hp</a>)";
+        var rptHtml = rpt.report + "<br /><div style='font-size: 0.7em;'>";
+        if (c.move.name() === "Psywave" && (gen < 3 || gen > 4)) {
+            rptHtml += rpt.damage[0].min() + " - " + rpt.damage[0].max()
+        } else if (Sulcalc.gtStr(rpt.damage[0].count(), "39") && c.move.name() !== "Psywave") {
+            rptHtml += rpt.damage[0];
+        } else {
+            rptHtml += rpt.damage[0].print();
+        }
+        rptHtml += " (<a href='javascript:void(0);' onclick='setDefenderRemainingHp();'>set hp</a>)";
         var previous = false;
         for (var i = 0; i < rpt.chances.length; i++) {
             if (rpt.chances[i][1] !== "0" && rpt.chances[i][1] !== rpt.chances[i][2]) {
@@ -1948,6 +1968,13 @@ window.onload = function() {
     getId("attackerNature").onchange = getId("attackerLevel").onchange = function() {updateStats("attacker");};
     getId("defenderNature").onchange = getId("defenderLevel").onchange = function() {updateStats("defender");};
     getId("defenderStatus").onchange = updateDefenderStatusOptions;
+    getId("toxicCounter").onchange = function () {
+        if (!isInt(this.value)) {
+            this.value = "0";
+        } else {
+            this.value = Math.min(15, parseInt(this.value, 10));
+        }
+    }
     getId("toggleOptions").onclick = toggleOptions;
     getId("swap").onclick = swapPokemon;
     getId("export").onclick = function() {
