@@ -5,10 +5,31 @@ import {Gens, DamageClasses, Stats, Types, Weathers, maxGen} from "./utilities";
 import {
     moveId, moveName, movePower, moveDamageClass, moveType, moveCategory,
     recoil, flinchChance, moveHasFlags, statBoosts, minHits, maxHits,
-    moveRange, isMoveUseful
+    moveRange, isMoveUseful, zMovePower
 } from "./info";
 
 const {min, trunc} = Math;
+
+const zMoves = [
+    "Breakneck Blitz",
+    "All-Out Pummeling",
+    "Supersonic Skystrike",
+    "Acid Downpour",
+    "Tectonic Rage",
+    "Continental Crush",
+    "Savage Spin-Out",
+    "Never-Ending Nightmare",
+    "Corkscrew Crash",
+    "Inferno Overdrive",
+    "Hydro Vortex",
+    "Bloom Doom",
+    "Gigavolt Havoc",
+    "Shattered Psyche",
+    "Subzero Slammer",
+    "Devastating Drake",
+    "Black Hole Eclipse",
+    "Twinkle Tackle"
+];
 
 export default class Move {
 
@@ -16,6 +37,8 @@ export default class Move {
         if (typeof move === "string") {
             this.name = move;
             move = {};
+        } else if (move.baseName) {
+            this.name = move.baseName;
         } else if (move.name) {
             this.name = move.name;
         } else {
@@ -41,15 +64,19 @@ export default class Move {
     }
 
     get name() {
-        return moveName(this.id);
+        return this.zMove ? zMoves[this.type] : moveName(this.id);
     }
 
     set name(moveName) {
         this.id = moveId(moveName);
     }
 
+    get baseName() {
+        return moveName(this.id);
+    }
+
     get power() {
-        return movePower(this.id, this.gen);
+        return this.zMove ? zMovePower(this.id) : movePower(this.id, this.gen);
     }
 
     get damageClass() {
