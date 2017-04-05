@@ -1,6 +1,3 @@
-// TODO Power Construct changes form and health while reverting types
-// TODO Shields Down changes form and stats
-// TODO Schooling changes form after a certain level
 import Pokemon from "./Pokemon";
 import Item from "./Item";
 import Move from "./Move";
@@ -67,7 +64,6 @@ export default function sulcalc(attacker, defender, move, field) {
         && defender.ability.ignorable) {
         defender.ability.disabled = false;
     }
-    // TODO Long Reach disables Contact Effects
 
     if (defender.ability.critArmor || defender.luckyChant
         || (field.gen >= Gens.GSC && field.gen < Gens.HGSS && !move.crits)) {
