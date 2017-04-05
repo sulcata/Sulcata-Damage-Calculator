@@ -1,0 +1,10 @@
+# Built Files
+dist
+coverage
+
+# npm
+node_modules
+
+# OS Files, etc
+.DS_STORE
+*.log
