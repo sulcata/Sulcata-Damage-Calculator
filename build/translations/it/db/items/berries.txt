@@ -1,0 +1,78 @@
+﻿0 (No Berry)
+1 Baccaliegia
+2 Baccastagna
+3 Baccapesca
+4 Baccafrago
+5 Baccaperina
+6 Baccamela
+7 Baccarancia
+8 Baccaki
+9 Baccaprugna
+10 Baccacedro
+11 Baccafigi
+12 Baccakiwi
+13 Baccamango
+14 Baccaguava
+15 Baccapaia
+16 Baccalampon
+17 Baccamora
+18 Baccabana
+19 Baccapera
+20 Baccananas
+21 Baccagrana
+22 Baccalga
+23 Baccaloquat
+24 Baccamelon
+25 Baccauva
+26 Baccamodoro
+27 Baccavena
+28 Baccagostan
+29 Baccambutan
+30 Baccalemon
+31 Baccamelos
+32 Baccapalma
+33 Baccacomero
+34 Baccadurian
+35 Baccartillo
+36 Baccacao
+37 Baccapasflo
+38 Baccaparmen
+39 Baccarindo
+40 Baccamoya
+41 Baccarosmel
+42 Baccakebia
+43 Baccanaca
+44 Baccababa
+45 Baccapayapa
+46 Baccaitan
+47 Baccaciofo
+48 Baccacitrus
+49 Baccahaban
+50 Baccaxan
+51 Baccababiri
+52 Baccacinlan
+53 Baccalici
+54 Baccalongan
+55 Baccasalak
+56 Baccapitaya
+57 Baccacocca
+58 Baccalangsa
+59 Baccambola
+60 Baccaenigma
+61 Baccaracolo
+62 Baccacrela
+63 Baccajaba
+64 Baccaroam
+65 Baccarcadè
+66 Baccalighia
+67 Baccapane
+1000 Baccantiparalisi
+1001 Bacca Menta
+1002 Baccantiveleno
+1003 Bacca Bruciata
+1004 Bacca Ghiaccio
+1005 Bacca Misteriosa
+1006 Bacca
+1007 Bacca Amara
+1008 Bacca Miracolosa
+1009 Bacca Oro

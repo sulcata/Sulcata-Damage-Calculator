@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{{#with htmlWebpackPlugin.options}}
+<html lang='en'>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+        <meta name='description' content='A Pokémon damage calculator'>
+        <meta name='keywords' content='damage, calc, pokemon, calculator'>
+
+        <title>sulcalc</title>
+
+        {{#if cdn}}
+            {{#each css}}
+                <link rel='stylesheet' crossorigin='anonymous'
+                      href='{{src}}'
+                      integrity='{{integrity}}'>
+            {{/each}}
+        {{else}}
+            {{#each css}}
+                <link rel='stylesheet' href='{{file}}'>
+            {{/each}}
+        {{/if}}
+    </head>
+
+    <body>
+
+        <div id='app'></div>
+
+        {{#if cdn}}
+            {{#each javascript}}
+                <script crossorigin='anonymous'
+                        src='{{src}}'
+                        integrity='{{integrity}}'
+                ></script>
+            {{/each}}
+        {{/if}}
+
+    </body>
+</html>
+{{/with}}

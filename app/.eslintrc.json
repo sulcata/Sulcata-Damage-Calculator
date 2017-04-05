@@ -1,0 +1,16 @@
+{
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "env": {
+        "browser": true,
+        "node": false
+    },
+    "globals": {
+        "process": false
+    },
+    "rules": {
+        "import/no-commonjs": "error",
+        "import/no-nodejs-modules": "error"
+    }
+}
