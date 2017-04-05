@@ -3,3 +3,13 @@ node_js:
     - node
 before_script:
     - yarn setup
+script:
+    - yarn test
+    - yarn build
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    on:
+        branch: master
+    local_dir: dist/app
