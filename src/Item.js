@@ -18,66 +18,6 @@ const heavyItems = [
     "Power Weight"
 ];
 
-const redundantItems = {
-    // Don't exclude plates & orbs as those affect damage
-    // Genesect
-    "649:1": "Douse Drive",
-    "649:2": "Shock Drive",
-    "649:3": "Burn Drive",
-    "649:4": "Chill Drive",
-    // Megas
-    "460:1": "Abomasite",
-    "359:1": "Absolite",
-    "142:1": "Aerodactylite",
-    "306:1": "Aggronite",
-    "65:1":  "Alakazite",
-    "334:1": "Altarianite",
-    "181:1": "Ampharosite",
-    "531:1": "Audinite",
-    "354:1": "Banettite",
-    "15:1":  "Beedrillite",
-    "9:1":   "Blastoisinite",
-    "257:1": "Blazikenite",
-    "323:1": "Cameruptite",
-    "6:1":   "Charizardite X",
-    "6:2":   "Charizardite Y",
-    "719:1": "Diancite",
-    "475:1": "Galladite",
-    "445:1": "Garchompite",
-    "282:1": "Gardevoirite",
-    "94:1":  "Gengarite",
-    "362:1": "Glalitite",
-    "130:1": "Gyaradosite",
-    "214:1": "Heracronite",
-    "229:1": "Houndoominite",
-    "115:1": "Kangaskhanite",
-    "380:1": "Latiasite",
-    "381:1": "Latiosite",
-    "428:1": "Lopunnity",
-    "448:1": "Lucarionite",
-    "310:1": "Manectite",
-    "303:1": "Mawilite",
-    "308:1": "Medichamite",
-    "376:1": "Metagrossite",
-    "150:1": "Mewtwonite X",
-    "150:2": "Mewtwonite Y",
-    "18:1":  "Pidgeotite",
-    "127:1": "Pinsirite",
-    "302:1": "Sablenite",
-    "373:1": "Salamencite",
-    "254:1": "Sceptilite",
-    "212:1": "Scizorite",
-    "319:1": "Sharpedonite",
-    "80:1":  "Slowbronite",
-    "208:1": "Steelixite",
-    "260:1": "Swampertite",
-    "248:1": "Tyranitarite",
-    "3:1":   "Venusaurite",
-    // Primals
-    "383:1": "Red Orb",
-    "382:1": "Blue Orb"
-};
-
 export default class Item {
 
     constructor(item = {}, gen) {
@@ -180,8 +120,8 @@ export default class Item {
         return isItemUseful(this.id);
     }
 
-    isRedundant(pokeId) {
-        return redundantItems[pokeId] === this.name;
+    get memoryType() {
+        return Number(flagToValue(this.id, "68", this.gen)) || Types.NORMAL;
     }
 
     berryHeal(hp) {
@@ -202,10 +142,6 @@ export default class Item {
             default:
                 return 0;
         }
-    }
-
-    static get redundantItems() {
-        return redundantItems;
     }
 
 }

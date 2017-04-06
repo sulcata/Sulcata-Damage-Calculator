@@ -14,7 +14,7 @@ import {
     typeId, typeName, pokemonId, pokemonName, natureName, natureId,
     natureStats, natureMultiplier, baseStats, pokeType1, pokeType2,
     weight, evolutions, preEvolution, ability1, ability2, ability3,
-    isPokeUseful
+    isPokeUseful, requiredItemForPoke
 } from "./info";
 
 import {
@@ -517,6 +517,14 @@ export default class Pokemon {
             id: ability3(this.id, this.gen),
             gen: this.gen
         });
+    }
+
+    holdingRequiredItem() {
+        const item = new Item({
+            id: requiredItemForPoke(this.id),
+            gen: this.gen
+        });
+        return item.name === this.item.name;
     }
 
     hurtBySandstorm() {

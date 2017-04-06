@@ -253,12 +253,6 @@ describe("Item", () => {
         expect(luxuryBall.useful).toBeFalsy();
     });
 
-    test("#isRedundant()", () => {
-        expect(noItem.isRedundant("0:0")).toBeFalsy();
-        expect(charizarditeX.isRedundant("6:1")).toBeTruthy();
-        expect(charizarditeX.isRedundant("6:2")).toBeFalsy();
-    });
-
     test("#berryHeal()", () => {
         expect(sitrusBerry.berryHeal(27)).toEqual(6);
         expect(berry.berryHeal(27)).toEqual(10);
@@ -274,9 +268,5 @@ describe("Item", () => {
 
         oranBerry.used = true;
         expect(oranBerry.berryHeal()).toEqual(0);
-    });
-
-    test(".redundantItems", () => {
-        expect(Item.redundantItems["649:1"]).toEqual("Douse Drive");
     });
 });
