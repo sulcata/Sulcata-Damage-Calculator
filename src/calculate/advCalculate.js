@@ -316,19 +316,14 @@ export default function advCalculate(attacker, defender, move, field) {
         baseDamage = trunc(baseDamage * 3 / 2);
     }
 
-    if (moveType === defender.ability.immunityType) {
-        return [0];
-    }
-
-    const eff = effective(moveType, defender.types, {
+    let eff = effective(moveType, defender.types, {
         gen: Gens.ADV,
         foresight: defender.foresight
     });
-
-    if (!eff.num) {
-        return [0];
+    if (moveType === defender.ability.immunityType) {
+        eff = {num: 0, den: 2};
     }
-
+    if (eff.num === 0) return [0];
     baseDamage = trunc(baseDamage * eff.num / eff.den);
 
     if (move.name === "Spit Up") {

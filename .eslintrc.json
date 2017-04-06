@@ -147,7 +147,6 @@
         "no-with": "error",
         "nonblock-statement-body-position": "error",
         "object-curly-spacing": "error",
-        "object-property-newline": "error",
         "object-shorthand": "error",
         "operator-assignment": "error",
         "operator-linebreak": ["error", "before"],

@@ -679,18 +679,22 @@ export default function orasCalculate(attacker, defender, move, field) {
     if (move.name === "Flying Press") {
         moveTypes.push(Types.FLYING);
     }
-
-    if (moveTypes.includes(defender.ability.immunityType)) return [0];
-
-    const eff = effective(moveTypes, defender.types, {
+    let eff = effective(moveTypes, defender.types, {
         gen: Gens.ORAS,
         foresight: defender.foresight,
         scrappy: attacker.ability.name === "Scrappy",
+        gravity: field.gravity,
         freezeDry: move.name === "Freeze-Dry",
-        inverted: field.invertedBattle
+        inverted: field.invertedBattle,
+        thousandArrows: move.name === "Thousand Arrows"
     });
-
-    if (!eff.num) return [0];
+    if (moveTypes.includes(defender.ability.immunityType)) {
+        eff = {num: 0, den: 2};
+    }
+    if (eff.num === 0 && move.name === "Thousand Arrows") {
+        eff = {num: 2, den: 2};
+    }
+    if (eff.num === 0) return [0];
 
     damages = damages.map(d => trunc(d * eff.num / eff.den));
 

@@ -601,20 +601,16 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         }
     }
 
-    if (moveType === defender.ability.immunityType) {
-        return [0];
-    }
-
-    const eff = effective(moveType, defender.types, {
+    let eff = effective(moveType, defender.types, {
         gen: Gens.B2W2,
         foresight: defender.foresight,
-        scrappy: attacker.ability.name === "Scrappy"
+        scrappy: attacker.ability.name === "Scrappy",
+        gravity: field.gravity
     });
-
-    if (!eff.num) {
-        return [0];
+    if (moveType === defender.ability.immunityType) {
+        eff = {num: 0, den: 2};
     }
-
+    if (eff.num === 0) return [0];
     damages = damages.map(d => trunc(d * eff.num / eff.den));
 
     if (attacker.burned && move.physical
