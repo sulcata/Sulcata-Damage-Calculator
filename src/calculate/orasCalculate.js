@@ -437,7 +437,7 @@ export default function orasCalculate(attacker, defender, move, field) {
         } else {
             satk = attacker.boostedStat(Stats.SATK);
         }
-    } else if (move.name === "Chip Away" || move.name === "Sacred Sword") {
+    } else if (move.ignoresDefenseBoosts) {
         def = defender.stat(defStat);
         sdef = defender.stat(sdefStat);
 
@@ -685,8 +685,7 @@ export default function orasCalculate(attacker, defender, move, field) {
         scrappy: attacker.ability.name === "Scrappy",
         gravity: field.gravity,
         freezeDry: move.name === "Freeze-Dry",
-        inverted: field.invertedBattle,
-        thousandArrows: move.name === "Thousand Arrows"
+        inverted: field.invertedBattle
     });
     if (moveTypes.includes(defender.ability.immunityType)) {
         eff = {num: 0, den: 2};
