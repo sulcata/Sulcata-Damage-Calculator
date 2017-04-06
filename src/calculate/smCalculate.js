@@ -32,7 +32,6 @@ const {max, min, trunc} = Math;
  * Soul-Heart
  * Shields Down
  * Schooling
- * RKS System
  */
 export default function smCalculate(attacker, defender, move, field) {
     let moveType = move.type;
@@ -204,6 +203,8 @@ export default function smCalculate(attacker, defender, move, field) {
                 movePower *= 2;
             } else if (move.sound && attacker.ability.name === "Liquid Voice") {
                 moveType = Types.WATER;
+            } else if (move.name === "Multi-Attack") {
+                moveType = attacker.item.memoryType;
             }
     }
 

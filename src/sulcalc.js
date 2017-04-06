@@ -134,8 +134,8 @@ export default function sulcalc(attacker, defender, move, field) {
         reportPokes.push(a === Stats.ATK ? "Atk" : "SpA");
     }
 
-    if (field.gen >= Gens.GSC
-        && Item.redundantItems[attacker.id] !== attacker.item.name) {
+    if (field.gen >= Gens.GSC && attacker.item.name !== "(No Item)"
+        && !attacker.holdingRequiredItem()) {
         reportPokes.push(attacker.item.name);
     }
 
@@ -191,8 +191,8 @@ export default function sulcalc(attacker, defender, move, field) {
         reportPokes.push(d === Stats.DEF ? "Def" : "SpD");
     }
 
-    if (field.gen >= Gens.GSC
-        && Item.redundantItems[defender.id] === defender.item.name) {
+    if (field.gen >= Gens.GSC && defender.item.name !== "(No Item)"
+        && !defender.holdingRequiredItem()) {
         reportPokes.push(defender.item.name);
     }
 
