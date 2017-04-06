@@ -103,23 +103,6 @@ function nameToId(obj, name, defaultId) {
     return defaultId;
 }
 
-function typeEffectiveness(aType, dType, options = {}) {
-    const e = getInfo(db.typesTables, aType, options.gen)[dType];
-
-    if (options.inverted) {
-        if (e < 2) return 4;
-        if (e > 2) return 1;
-        return 2;
-    }
-
-    if (aType <= 1 && dType === Types.GHOST
-        && (options.foresight || options.scrappy)) {
-        return 2;
-    }
-
-    return e;
-}
-
 const natureMultArr = [-1, 0, 1, 3, 4, 2];
 const natureStatsArr = [1, 2, 5, 3, 4];
 
@@ -490,4 +473,24 @@ export function effective(attackingTypes, defendingTypes, options = {}) {
         num: effectiveness,
         den: 2 ** (attackingTypes.length * defendingTypes.length)
     };
+}
+
+function typeEffectiveness(aType, dType, options = {}) {
+    const e = getInfo(db.typesTables, aType, options.gen)[dType];
+
+    if (options.inverted) {
+        if (e < 2) return 4;
+        if (e > 2) return 1;
+        return 2;
+    }
+
+    if (aType <= 1 && dType === Types.GHOST
+        && (options.foresight || options.scrappy)) {
+        return 2;
+    } else if (aType === Types.GROUND && dType === Types.FLYING
+               && options.gravity) {
+        return 2;
+    }
+
+    return e;
 }

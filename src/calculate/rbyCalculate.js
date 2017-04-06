@@ -88,7 +88,7 @@ export default function rbyCalculate(attacker, defender, move) {
     }
 
     const eff = effective(move.type, defender.types, {gen: Gens.RBY});
-    if (!eff.num) return [0];
+    if (eff.num === 0) return [0];
     baseDamage = trunc(baseDamage * eff.num / eff.den);
 
     const damages = damageVariation(baseDamage, 217, 255);

@@ -189,11 +189,7 @@ export default function gscCalculate(attacker, defender, move, field) {
         gen: Gens.GSC,
         foresight: defender.foresight
     });
-
-    if (!eff.num) {
-        return [0];
-    }
-
+    if (eff.num === 0) return [0];
     baseDamage = trunc(baseDamage * eff.num / eff.den);
 
     // these don't have damage variance

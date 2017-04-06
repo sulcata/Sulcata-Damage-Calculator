@@ -51,16 +51,21 @@
                 </div>
             </div>
 
-            <!-- Magic Room / Wonder Room -->
-            <div v-if='field.gen >= Gens.B2W2'
+            <!-- Gravity / Magic Room / Wonder Room -->
+            <div v-if='field.gen >= Gens.HGSS'
                  class='row justify-content-center no-gutters mt-1'>
                 <div class='col-auto btn-group btn-group-sm'>
-                    <button-checkbox v-model='field.magicRoom'>
-                        {{ $tMove("Magic Room") }}
+                    <button-checkbox v-model='field.gravity'>
+                        {{ $tMove("Gravity") }}
                     </button-checkbox>
-                    <button-checkbox v-model='field.wonderRoom'>
-                        {{ $tMove("Wonder Room") }}
-                    </button-checkbox>
+                    <template v-if='field.gen >= Gens.B2W2'>
+                        <button-checkbox v-model='field.magicRoom'>
+                            {{ $tMove("Magic Room") }}
+                        </button-checkbox>
+                        <button-checkbox v-model='field.wonderRoom'>
+                            {{ $tMove("Wonder Room") }}
+                        </button-checkbox>
+                    </template>
                 </div>
             </div>
 

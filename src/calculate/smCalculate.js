@@ -16,8 +16,6 @@ const {max, min, trunc} = Math;
  * TODO
  * Moves:
  * Multi-Attack
- * Moongeist Beam Ignores ability
- * Sunsteel Strike Ignores ability
  * Shell Trap
  * Guardian of Alola 75% HP
  * Thousand Arrows (ORAS too)
@@ -721,18 +719,21 @@ export default function smCalculate(attacker, defender, move, field) {
     if (move.name === "Flying Press") {
         moveTypes.push(Types.FLYING);
     }
-
-    if (moveTypes.includes(defender.ability.immunityType)) return [0];
-
-    const eff = effective(moveTypes, defender.types, {
+    let eff = effective(moveTypes, defender.types, {
         gen: Gens.SM,
         foresight: defender.foresight,
         scrappy: attacker.ability.name === "Scrappy",
+        gravity: field.gravity,
         freezeDry: move.name === "Freeze-Dry",
         inverted: field.invertedBattle
     });
-
-    if (!eff.num) return [0];
+    if (moveTypes.includes(defender.ability.immunityType)) {
+        eff = {num: 0, den: 2};
+    }
+    if (eff.num === 0 && move.name === "Thousand Arrows") {
+        eff = {num: 2, den: 2};
+    }
+    if (eff.num === 0) return [0];
 
     damages = damages.map(d => trunc(d * eff.num / eff.den));
 
