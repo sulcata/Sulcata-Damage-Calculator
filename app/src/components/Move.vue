@@ -84,28 +84,28 @@
                 <!-- Minimize -->
                 <button-checkbox v-else-if='move.boostedByMinimize'
                                  v-model='move.minimize'
-                                 size='small' class='mt-1'>
+                                 size='small'>
                     {{ $tMove("Minimize") }}
                 </button-checkbox>
 
                 <!-- Dig -->
                 <button-checkbox v-else-if='move.boostedByDig'
                                  v-model='move.dig'
-                                 size='small' class='mt-1'>
+                                 size='small'>
                     {{ $tMove("Dig") }}
                 </button-checkbox>
 
                 <!-- Dive -->
                 <button-checkbox v-else-if='move.boostedByDive'
                                  v-model='move.dive'
-                                 size='small' class='mt-1'>
+                                 size='small'>
                     {{ $tMove("Dive") }}
                 </button-checkbox>
 
                 <!-- Fly -->
                 <button-checkbox v-else-if='move.boostedByFly'
                                  v-model='move.fly'
-                                 size='small' class='mt-1'>
+                                 size='small'>
                     {{ $tMove("Fly") }} / {{ $tMove("Bounce") }}
                 </button-checkbox>
             </div>
