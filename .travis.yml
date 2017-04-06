@@ -1,15 +1,23 @@
 language: node_js
 node_js:
-    - node
+  - node
 before_script:
-    - yarn setup
+  - yarn setup
 script:
-    - yarn test
-    - yarn build
+  - yarn test
+  - yarn build
+  - yarn build:lib
 deploy:
-    provider: pages
+  - provider: pages
     skip_cleanup: true
     github_token: $GITHUB_TOKEN
     on:
-        branch: master
+      branch: master
     local_dir: dist/app
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    file: dist/lib/*
+    skip_cleanup: true
+    on:
+      tags: true

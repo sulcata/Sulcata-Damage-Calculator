@@ -9,7 +9,7 @@ const {version} = require("../package.json");
 const config = {
     entry: path.join(__dirname, "../src/sulcalc"),
     output: {
-        filename: "[name].js",
+        filename: "sulcalc.js",
         path: path.join(__dirname, "../dist/lib"),
         library: "sulcalc",
         libraryTarget: "umd"
