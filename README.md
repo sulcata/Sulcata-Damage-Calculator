@@ -1,4 +1,6 @@
 # sulcalc
+[![Build Status](https://travis-ci.org/sulcata/sulcalc.svg?branch=master)](https://travis-ci.org/sulcata/sulcalc)
+
 A Pokemon damage calculator.
 
 ## Usage
