@@ -483,7 +483,7 @@ export default function smCalculate(attacker, defender, move, field) {
         } else {
             satk = attacker.boostedStat(Stats.SATK);
         }
-    } else if (move.name === "Chip Away" || move.name === "Sacred Sword") {
+    } else if (move.ignoresDefenseBoosts) {
         def = defender.stat(defStat);
         sdef = defender.stat(sdefStat);
 

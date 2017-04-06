@@ -239,6 +239,14 @@ export default class Move {
         return ["Moongeist Beam", "Sunsteel Strike"].includes(this.name);
     }
 
+    get ignoresDefenseBoosts() {
+        return [
+            "Chip Away",
+            "Sacred Sword",
+            "Darkest Lariat"
+        ].includes(this.name);
+    }
+
     get boostedByDig() {
         return ["Earthquake", "Magnitude"].includes(this.name);
     }
