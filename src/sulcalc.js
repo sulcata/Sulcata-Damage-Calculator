@@ -1,5 +1,4 @@
 import Pokemon from "./Pokemon";
-import Item from "./Item";
 import Move from "./Move";
 import Field from "./Field";
 import Multiset from "./Multiset";
