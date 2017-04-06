@@ -96,7 +96,10 @@ export default function sulcalc(attacker, defender, move, field) {
     } else if (move.name === "Weather Ball") {
         moveType = Move.weatherBall(field.effectiveWeather);
         // gen 3 multiplies damage, not BP
-        movePower = (field.gen >= Gens.HGSS && moveType) ? 100 : 50;
+        movePower = field.gen >= Gens.HGSS && moveType ? 100 : 50;
+    } else if (move.zMove) {
+        moveType = move.type;
+        movePower = move.power;
     } else {
         moveType = move.type;
         movePower = null; // we'll say null means non-var BP
@@ -156,11 +159,15 @@ export default function sulcalc(attacker, defender, move, field) {
 
     reportPokes.push(move.name);
 
-    if (movePower !== null) {
-        reportPokes.push(`[${typeName(moveType)} ${movePower}]`);
+    if (move.name === "Hidden Power" && field.gen >= Gens.ORAS) {
+        reportPokes.push(`(${typeName(moveType)})`);
+    } else if (move.name === "Hidden Power") {
+        reportPokes.push(`(${typeName(moveType)} ${movePower} BP)`);
     } else if (move.multipleHits && move.numberOfHits >= 1
         && move.name !== "Beat Up") {
         reportPokes.push(`[${move.numberOfHits} hits]`);
+    } else if (move.zMove) {
+        reportPokes.push(`(${movePower} BP)`);
     }
 
     reportPokes.push("vs.");
