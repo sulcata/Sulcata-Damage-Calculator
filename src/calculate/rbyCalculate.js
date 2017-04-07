@@ -1,4 +1,4 @@
-import {physicalType, effective} from "../info";
+import {isPhysicalType, effectiveness} from "../info";
 
 import {
     Gens, Stats, damageVariation,
@@ -8,7 +8,7 @@ import {
 const {max, min, trunc} = Math;
 
 export default function rbyCalculate(attacker, defender, move) {
-    if (move.other) return [0];
+    if (move.isOther()) return [0];
 
     switch (move.name) {
         case "Seismic Toss":
@@ -30,7 +30,7 @@ export default function rbyCalculate(attacker, defender, move) {
         case "Super Fang":
             return [max(1, trunc(defender.currentHp / 2))];
         default:
-            if (move.ohko) return [65535];
+            if (move.isOhko()) return [65535];
     }
 
     let lvl, atk, def, spcA, spcD;
@@ -43,7 +43,7 @@ export default function rbyCalculate(attacker, defender, move) {
     } else {
         lvl = attacker.level;
         atk = attacker.boostedStat(Stats.ATK);
-        if (attacker.burned) atk = trunc(atk / 2);
+        if (attacker.isBurned()) atk = trunc(atk / 2);
         def = defender.boostedStat(Stats.DEF);
         spcA = attacker.boostedStat(Stats.SPC);
         spcD = defender.boostedStat(Stats.SPC);
@@ -66,7 +66,7 @@ export default function rbyCalculate(attacker, defender, move) {
     }
 
     let a, d;
-    if (physicalType(move.type)) {
+    if (isPhysicalType(move.type())) {
         a = atk;
         d = def;
     } else {
@@ -79,15 +79,15 @@ export default function rbyCalculate(attacker, defender, move) {
     d = max(1, d);
 
     let baseDamage = trunc(trunc(trunc(2 * lvl / 5 + 2)
-                                 * move.power * a / d) / 50);
+                                 * move.power() * a / d) / 50);
 
     baseDamage = min(997, baseDamage) + 2;
 
-    if (attacker.stab(move.type)) {
+    if (attacker.stab(move.type())) {
         baseDamage = trunc(baseDamage * 3 / 2);
     }
 
-    const eff = effective(move.type, defender.types, {gen: Gens.RBY});
+    const eff = effectiveness(move.type(), defender.types(), {gen: Gens.RBY});
     if (eff.num === 0) return [0];
     baseDamage = trunc(baseDamage * eff.num / eff.den);
 

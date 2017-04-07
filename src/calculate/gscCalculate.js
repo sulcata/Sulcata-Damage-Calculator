@@ -1,5 +1,5 @@
 import Move from "../Move";
-import {physicalType, specialType, effective} from "../info";
+import {isPhysicalType, isSpecialType, effectiveness} from "../info";
 
 import {
     Gens, Stats, Types, damageVariation,
@@ -9,8 +9,8 @@ import {
 const {max, min, trunc} = Math;
 
 export default function gscCalculate(attacker, defender, move, field) {
-    let moveType = move.type;
-    let movePower = move.power;
+    let moveType = move.type();
+    let movePower = move.power();
 
     if (movePower === 0) return [0];
 
@@ -71,11 +71,11 @@ export default function gscCalculate(attacker, defender, move, field) {
         case "Super Fang":
             return [max(1, trunc(defender.currentHp / 2))];
         default:
-            if (move.ohko) return [65535];
+            if (move.isOhko()) return [65535];
     }
 
-    if (move.dig && move.boostedByDig
-        || move.fly && move.boostedByFly) {
+    if (move.dig && move.boostedByDig()
+        || move.fly && move.boostedByFly()) {
         movePower *= 2;
     }
 
@@ -108,21 +108,21 @@ export default function gscCalculate(attacker, defender, move, field) {
         sdef = defender.boostedStat(Stats.SDEF);
     }
 
-    if (attacker.burned && !ignorePhysicalBoosts) {
+    if (attacker.isBurned() && !ignorePhysicalBoosts) {
         atk = trunc(atk / 2);
     }
 
     if (defender.reflect && !ignorePhysicalBoosts) def *= 2;
     if (defender.lightScreen && !ignoreSpecialBoosts) sdef *= 2;
 
-    if (attacker.thickClubBoosted) atk *= 2;
-    if (attacker.lightBallBoosted) satk *= 2;
+    if (attacker.thickClubBoosted()) atk *= 2;
+    if (attacker.lightBallBoosted()) satk *= 2;
 
     let a, d;
-    if (physicalType(moveType)) {
+    if (isPhysicalType(moveType)) {
         a = atk;
         d = def;
-    } else if (specialType(moveType)) {
+    } else if (isSpecialType(moveType)) {
         a = satk;
         d = sdef;
     } else {
@@ -161,19 +161,19 @@ export default function gscCalculate(attacker, defender, move, field) {
         baseDamage *= 2;
     }
 
-    if (moveType === attacker.item.typeBoosted) {
+    if (attacker.item.boostedType() === moveType) {
         baseDamage = trunc(baseDamage * 110 / 100);
     }
 
     baseDamage = min(997, baseDamage) + 2;
 
-    if (field.sun) {
+    if (field.sun()) {
         if (moveType === Types.FIRE) {
             baseDamage = trunc(baseDamage * 3 / 2);
         } else if (moveType === Types.WATER) {
             baseDamage = trunc(baseDamage / 2);
         }
-    } else if (field.rain) {
+    } else if (field.rain()) {
         if (moveType === Types.WATER) {
             baseDamage = trunc(baseDamage * 3 / 2);
         } else if (moveType === Types.FIRE || move.name === "Solar Beam") {
@@ -185,7 +185,7 @@ export default function gscCalculate(attacker, defender, move, field) {
         baseDamage = trunc(baseDamage * 3 / 2);
     }
 
-    const eff = effective(moveType, defender.types, {
+    const eff = effectiveness(moveType, defender.types(), {
         gen: Gens.GSC,
         foresight: defender.foresight
     });

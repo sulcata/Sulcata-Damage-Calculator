@@ -6,21 +6,21 @@ import {
 } from "../utilities";
 
 import {
-    sandForceType, adamantType, lustrousType,
-    griseousType, effective
+    isSandForceType, isAdamantType, isLustrousType,
+    isGriseousType, effectiveness
 } from "../info";
 
 const {max, min, trunc} = Math;
 
 export default function b2w2Calculate(attacker, defender, move, field) {
-    let moveType = move.type;
-    let movePower = move.power;
+    let moveType = move.type();
+    let movePower = move.power();
 
     if (movePower === 0) return [0];
 
     switch (move.name) {
         case "Weather Ball":
-            moveType = Move.weatherBall(field.effectiveWeather);
+            moveType = Move.weatherBall(field.effectiveWeather());
             movePower = moveType === Types.NORMAL ? 50 : 100;
             break;
         case "Frustration":
@@ -60,7 +60,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             break;
         case "Low Kick":
         case "Grass Knot":
-            movePower = Move.grassKnot(defender.weight);
+            movePower = Move.grassKnot(defender.weight());
             break;
         case "Echoed Voice":
             movePower = min(200, 40 + 40 * move.echoedVoice);
@@ -75,7 +75,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             break;
         case "Heavy Slam":
         case "Heat Crash":
-            movePower = Move.heavySlam(attacker.weight, defender.weight);
+            movePower = Move.heavySlam(attacker.weight(), defender.weight());
             break;
         case "Stored Power":
             movePower = Move.storedPower(attacker.boosts);
@@ -93,10 +93,10 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             if (move.roundBoost) movePower *= 2;
             break;
         case "Wake-Up Slap":
-            if (defender.asleep) movePower *= 2;
+            if (defender.isAsleep()) movePower *= 2;
             break;
         case "Smelling Salts":
-            if (defender.paralyzed) movePower *= 2;
+            if (defender.isParalyzed()) movePower *= 2;
             break;
         case "Beat Up": {
             const stat = attacker.beatUpStats[move.beatUpHit];
@@ -119,8 +119,8 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             break;
         case "Natural Gift":
             if (attacker.item.disabled || !attacker.item.isBerry()) return [0];
-            movePower = attacker.item.naturalGiftPower;
-            moveType = attacker.item.naturalGiftType;
+            movePower = attacker.item.naturalGiftPower();
+            moveType = attacker.item.naturalGiftType();
             break;
         case "Magnitude":
             movePower = Move.magnitude(move.magnitude);
@@ -130,7 +130,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             movePower = 30 * 2 ** ((move.rollout - 1) % 5 + move.defenseCurl);
             break;
         case "Fling":
-            movePower = attacker.item.flingPower;
+            movePower = attacker.item.flingPower();
             break;
         case "Fire Pledge":
         case "Water Pledge":
@@ -141,8 +141,8 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             movePower = 10 * move.tripleKickCount;
             break;
         case "Judgment":
-            if (attacker.item.plateType !== -1) {
-                moveType = attacker.item.plateType;
+            if (attacker.item.plateType() > -1) {
+                moveType = attacker.item.plateType();
             }
             break;
         case "Seismic Toss":
@@ -170,18 +170,18 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         case "Final Gambit":
             return [attacker.currentHp];
         default:
-            if (move.ohko) {
+            if (move.isOhko()) {
                 return [defender.stat(Stats.HP)];
             }
-            if (move.sound && defender.ability.name === "Soundproof") {
+            if (move.isSound() && defender.ability.name === "Soundproof") {
                 return [0];
             }
-            if (move.fly && move.boostedByFly) {
+            if (move.fly && move.boostedByFly()) {
                 movePower *= 2;
             }
     }
 
-    const gemBoost = moveType === attacker.item.gemType;
+    const gemBoost = moveType === attacker.item.gemType();
     attacker.item.used = attacker.item.used || gemBoost;
 
     if (move === "Acrobatics" && attacker.item.name === "(No Item)") {
@@ -197,7 +197,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             }
             break;
         case "Flare Boost":
-            if (attacker.burned && move.special) {
+            if (attacker.isBurned() && move.isSpecial()) {
                 movePowerMod = chainMod(0x1800, movePowerMod);
             }
             break;
@@ -207,18 +207,18 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             }
             break;
         case "Reckless":
-            if (move.reckless) {
+            if (move.isRecklessBoosted()) {
                 movePowerMod = chainMod(0x1333, movePowerMod);
             }
             break;
         case "Iron Fist":
-            if (move.punch) {
+            if (move.isPunch()) {
                 movePowerMod = chainMod(0x1333, movePowerMod);
             }
             break;
         case "Toxic Boost":
-            if ((attacker.poisoned || attacker.badlyPoisoned)
-                && move.physical) {
+            if ((attacker.isPoisoned() || attacker.isBadlyPoisoned())
+                && move.isPhysical()) {
                 movePowerMod = chainMod(0x1800, movePowerMod);
             }
             break;
@@ -229,7 +229,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             }
             break;
         case "Sand Force":
-            if (field.sand && sandForceType(moveType)) {
+            if (field.sand() && isSandForceType(moveType)) {
                 movePowerMod = chainMod(0x14CD, movePowerMod);
             }
             break;
@@ -247,41 +247,42 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         }
     }
 
-    if (attacker.ability.name === "Sheer Force" && move.sheerForce) {
+    if (attacker.ability.name === "Sheer Force"
+        && move.affectedBySheerForce()) {
         movePowerMod = chainMod(0x14CD, movePowerMod);
     }
 
     switch (attacker.item.name) {
         case "Muscle Band":
-            if (move.physical) {
+            if (move.isPhysical()) {
                 movePowerMod = chainMod(0x1199, movePowerMod);
             }
             break;
         case "Wise Glasses":
-            if (move.special) {
+            if (move.isSpecial()) {
                 movePowerMod = chainMod(0x1199, movePowerMod);
             }
             break;
         case "Adamant Orb":
-            if (attacker.name === "Dialga" && adamantType(moveType)) {
+            if (attacker.name === "Dialga" && isAdamantType(moveType)) {
                 movePowerMod = chainMod(0x1333, movePowerMod);
             }
             break;
         case "Lustrous Orb":
-            if (attacker.name === "Palkia" && lustrousType(moveType)) {
+            if (attacker.name === "Palkia" && isLustrousType(moveType)) {
                 movePowerMod = chainMod(0x1333, movePowerMod);
             }
             break;
         case "Griseous Orb":
             if (attacker.name.startsWith("Giratina")
-                && griseousType(moveType)) {
+                && isGriseousType(moveType)) {
                 movePowerMod = chainMod(0x1333, movePowerMod);
             }
             break;
         default:
             if (gemBoost) {
                 movePowerMod = chainMod(0x1800, movePowerMod);
-            } else if (attacker.item.typeBoosted === moveType) {
+            } else if (attacker.item.boostedType() === moveType) {
                 movePowerMod = chainMod(0x1333, movePowerMod);
             }
     }
@@ -298,7 +299,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             }
             break;
         case "Venoshock":
-            if (attacker.poisoned || attacker.badlyPoisoned) {
+            if (attacker.isPoisoned() || attacker.isBadlyPoisoned()) {
                 movePowerMod = chainMod(0x2000, movePowerMod);
             }
             break;
@@ -324,7 +325,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         movePowerMod = chainMod(0x1800, movePowerMod);
     }
 
-    if (!field.sun && !field.clearWeather && move.name === "Solar Beam") {
+    if (!field.sun() && !field.isClearWeather() && move.name === "Solar Beam") {
         movePowerMod = chainMod(0x800, movePowerMod);
     }
 
@@ -377,7 +378,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         } else {
             satk = attacker.boostedStat(Stats.SATK);
         }
-    } else if (move.ignoresDefenseBoosts) {
+    } else if (move.ignoresDefenseBoosts()) {
         def = defender.stat(defStat);
         sdef = defender.stat(sdefStat);
 
@@ -451,7 +452,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             atkMod = chainMod(0x2000, atkMod);
             break;
         case "Solar Power":
-            if (field.sun) satkMod = chainMod(0x1800, satkMod);
+            if (field.sun()) satkMod = chainMod(0x1800, satkMod);
             break;
         case "Hustle":
             atk = applyMod(0x1800, atk);
@@ -466,15 +467,14 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             if (attacker.slowStart) atkMod = chainMod(0x800, atkMod);
             break;
         default:
-            if (attacker.ability.pinchType === moveType
-                && attacker.stat(Stats.HP) >= attacker.currentHp * 3) {
+            if (attacker.pinchAbilityActivated(moveType)) {
                 // blaze, torrent, overgrow, ...
                 atkMod = chainMod(0x1800, atkMod);
                 satkMod = chainMod(0x1800, satkMod);
             }
     }
 
-    if (attacker.flowerGift && field.sun) {
+    if (attacker.flowerGift && field.sun()) {
         atkMod = chainMod(0x1800, atkMod);
     }
 
@@ -496,9 +496,9 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             satkMod = chainMod(0x1800, satkMod);
             break;
         default:
-            if (attacker.thickClubBoosted) {
+            if (attacker.thickClubBoosted()) {
                 atkMod = chainMod(0x2000, atkMod);
-            } else if (attacker.lightBallBoosted) {
+            } else if (attacker.lightBallBoosted()) {
                 atkMod = chainMod(0x2000, atkMod);
                 satkMod = chainMod(0x2000, satkMod);
             }
@@ -507,7 +507,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
     atk = applyMod(atkMod, atk);
     satk = applyMod(satkMod, satk);
 
-    if (field.sand && defender.stab(Types.ROCK)) {
+    if (field.sand() && defender.stab(Types.ROCK)) {
         sdef = applyMod(0x1800, sdef);
     }
 
@@ -518,7 +518,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         defMod = chainMod(0x1800, defMod);
     }
 
-    if (defender.flowerGift && field.sun) {
+    if (defender.flowerGift && field.sun()) {
         sdefMod = chainMod(0x1800, sdefMod);
     }
 
@@ -551,13 +551,13 @@ export default function b2w2Calculate(attacker, defender, move, field) {
     sdef = applyMod(sdefMod, sdef);
 
     let a = 0, d = 0;
-    if (move.psyshock) {
+    if (move.isPsyshockLike()) {
         a = satk;
         d = def;
-    } else if (move.physical) {
+    } else if (move.isPhysical()) {
         a = atk;
         d = def;
-    } else if (move.special) {
+    } else if (move.isSpecial()) {
         a = satk;
         d = sdef;
     } else {
@@ -567,18 +567,18 @@ export default function b2w2Calculate(attacker, defender, move, field) {
     let baseDamage = trunc(trunc(trunc(2 * attacker.level / 5 + 2)
                                  * movePower * a / d) / 50) + 2;
 
-    if (field.multiBattle && move.multipleTargets) {
+    if (field.multiBattle && move.hasMultipleTargets()) {
         baseDamage = applyMod(0xC00, baseDamage);
     }
 
     if (move.name !== "Weather Ball") {
-        if (field.sun) {
+        if (field.sun()) {
             if (moveType === Types.FIRE) {
                 baseDamage = applyMod(0x1800, baseDamage);
             } else if (moveType === Types.WATER) {
                 baseDamage = applyMod(0x800, baseDamage);
             }
-        } else if (field.rain) {
+        } else if (field.rain()) {
             if (moveType === Types.WATER) {
                 baseDamage = applyMod(0x1800, baseDamage);
             } else if (moveType === Types.FIRE) {
@@ -601,19 +601,19 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         }
     }
 
-    let eff = effective(moveType, defender.types, {
+    let eff = effectiveness(moveType, defender.types(), {
         gen: Gens.B2W2,
         foresight: defender.foresight,
         scrappy: attacker.ability.name === "Scrappy",
         gravity: field.gravity
     });
-    if (moveType === defender.ability.immunityType) {
+    if (moveType === defender.ability.immunityType()) {
         eff = {num: 0, den: 2};
     }
     if (eff.num === 0) return [0];
     damages = damages.map(d => trunc(d * eff.num / eff.den));
 
-    if (attacker.burned && move.physical
+    if (attacker.isBurned() && move.isPhysical()
         && attacker.ability.name !== "Guts") {
         damages = damages.map(d => trunc(d / 2));
     }
@@ -623,15 +623,16 @@ export default function b2w2Calculate(attacker, defender, move, field) {
     let finalMod = 0x1000;
 
     if (!move.critical && attacker.ability.name !== "Infiltrator") {
-        if (defender.reflect && (move.physical || move.psyshock)) {
+        if (defender.reflect && (move.isPhysical() || move.isPsyshockLike())) {
             finalMod = chainMod(field.multiBattle ? 0xA8F : 0x800, finalMod);
         }
-        if (defender.lightScreen && move.special && !move.psyshock) {
+        if (defender.lightScreen && move.isSpecial()
+            && !move.isPsyshockLike()) {
             finalMod = chainMod(field.multiBattle ? 0xA8F : 0x800, finalMod);
         }
     }
 
-    if (defender.multiscale) {
+    if (defender.multiscaleIsActive()) {
         finalMod = chainMod(0x800, finalMod);
     }
 
@@ -647,7 +648,7 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         finalMod = chainMod(0x1800, finalMod);
     }
 
-    if (eff.num > eff.den && defender.ability.filterLike) {
+    if (eff.num > eff.den && defender.ability.reducesSuperEffective()) {
         finalMod = chainMod(0xC00, finalMod);
     }
 
@@ -671,15 +672,15 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         /* no default */
     }
 
-    if (defender.item.berryTypeResist === moveType
+    if (defender.item.berryTypeResist() === moveType
         && (eff.num > eff.den || moveType === Types.NORMAL)) {
         finalMod = chainMod(0x800, finalMod);
         defender.item.used = true;
     }
 
-    if (move.dig && move.boostedByDig
-        || move.dive && move.boostedByDive
-        || move.minimize && move.boostedByMinimize) {
+    if (move.dig && move.boostedByDig()
+        || move.dive && move.boostedByDive()
+        || move.minimize && move.boostedByMinimize()) {
         finalMod = chainMod(0x2000, finalMod);
     }
 

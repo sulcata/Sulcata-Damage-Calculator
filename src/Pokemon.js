@@ -4,6 +4,7 @@ import Multiset from "./Multiset";
 import Ability from "./Ability";
 import Item from "./Item";
 import Move from "./Move";
+import Field from "./Field";
 
 import {
     Gens, Genders, Stats, Statuses, Types,
@@ -286,11 +287,11 @@ export default class Pokemon {
         this.nature = natureId(natureName);
     }
 
-    get num() {
+    num() {
         return Number(this.id.split(":")[0]);
     }
 
-    get form() { // maybe we could call this genus?
+    form() { // maybe we could call this genus?
         return Number(this.id.split(":")[1]);
     }
 
@@ -368,12 +369,13 @@ export default class Pokemon {
     }
 
     speed(field = {}) {
+        field = new Field(field);
         let speed = this.boostedStat(Stats.SPD);
 
-        if (field.rain && this.ability.name === "Swift Swim"
-            || field.sun && this.ability.name === "Chlorophyll"
-            || field.sand && this.ability.name === "Sand Rush"
-            || field.hail && this.ability.name === "Slush Rush"
+        if (field.rain() && this.ability.name === "Swift Swim"
+            || field.sun() && this.ability.name === "Chlorophyll"
+            || field.sand() && this.ability.name === "Sand Rush"
+            || field.hail() && this.ability.name === "Slush Rush"
             || field.electricTerrain && this.ability.name === "Surge Surfer") {
             speed *= 2;
         }
@@ -386,12 +388,12 @@ export default class Pokemon {
                 if (this.name === "Ditto") speed *= 2;
                 break;
             default:
-                if (this.item.heavy) speed = trunc(speed / 2);
+                if (this.item.isHeavy()) speed = trunc(speed / 2);
         }
 
         if (this.status && this.ability.name === "Quick Feet") {
             speed = trunc(speed * 3 / 2);
-        } else if (this.paralyzed) {
+        } else if (this.isParalyzed()) {
             speed = trunc(speed / 4);
         }
 
@@ -443,33 +445,33 @@ export default class Pokemon {
         this._currentHp = avg(newHpRange.union(this.currentHpRange), 0);
     }
 
-    get type1() {
+    type1() {
         if (this.overrideTypes[0] > -1) {
             return this.overrideTypes[0];
         }
         return pokeType1(this.id, this.gen);
     }
 
-    get type2() {
+    type2() {
         if (this.overrideTypes[1] > -1) {
             return this.overrideTypes[1];
         }
         return pokeType2(this.id, this.gen);
     }
 
-    get types() {
+    types() {
         return [
-            this.type1,
-            this.type2,
+            this.type1(),
+            this.type2(),
             this.addedType
         ].filter(type => type !== Types.CURSE);
     }
 
     stab(type) {
-        return this.types.includes(type);
+        return this.types().includes(type);
     }
 
-    get weight() {
+    weight() {
         // given in 10 kg
         let w = weight(this.id);
         if (this.autotomize) {
@@ -498,21 +500,21 @@ export default class Pokemon {
         return this.name.startsWith("Mega ");
     }
 
-    get ability1() {
+    ability1() {
         return new Ability({
             id: ability1(this.id, this.gen),
             gen: this.gen
         });
     }
 
-    get ability2() {
+    ability2() {
         return new Ability({
             id: ability2(this.id, this.gen),
             gen: this.gen
         });
     }
 
-    get ability3() {
+    ability3() {
         return new Ability({
             id: ability3(this.id, this.gen),
             gen: this.gen
@@ -528,7 +530,7 @@ export default class Pokemon {
     }
 
     hurtBySandstorm() {
-        return !this.ability.sandImmunity
+        return !this.ability.isSandImmunity()
             && this.item.name !== "Safety Goggles"
             && !this.stab(Types.GROUND)
             && !this.stab(Types.ROCK)
@@ -536,94 +538,103 @@ export default class Pokemon {
     }
 
     hurtByHail() {
-        return !this.ability.hailImmunity
+        return !this.ability.isHailImmunity()
             && this.item.name !== "Safety Goggles"
             && !this.stab(Types.ICE);
     }
 
-    get multiscale() {
+    multiscaleIsActive() {
         return !this.brokenMultiscale
             && this.currentHp === this.stat(Stats.HP)
             && (this.ability.name === "Multiscale"
                 || this.ability.name === "Shadow Shield");
     }
 
-    get poisoned() {
+    isPoisoned() {
         return this.status === Statuses.POISONED;
     }
 
-    get badlyPoisoned() {
+    isBadlyPoisoned() {
         return this.status === Statuses.BADLY_POISONED;
     }
 
-    get burned() {
+    isBurned() {
         return this.status === Statuses.BURNED;
     }
 
-    get paralyzed() {
+    isParalyzed() {
         return this.status === Statuses.PARALYZED;
     }
 
-    get asleep() {
+    isAsleep() {
         return this.status === Statuses.ASLEEP
             || this.ability.name === "Comatose";
     }
 
-    get frozen() {
+    isFrozen() {
         return this.status === Statuses.FROZEN;
     }
 
-    get male() {
+    isMale() {
         return this.gender === Genders.MALE;
     }
 
-    get female() {
+    isFemale() {
         return this.gender === Genders.FEMALE;
     }
 
     hasPlate() {
-        return this.item.nonDisabledName.endsWith(" Plate");
+        return this.item.nonDisabledName().endsWith(" Plate");
     }
 
     hasDrive() {
-        return this.item.nonDisabledName.endsWith(" Drive");
+        return this.item.nonDisabledName().endsWith(" Drive");
     }
 
     knockOff() {
         if (this.gen < Gens.B2W2) {
-            return this.item.nonDisabledName !== "(No Item)"
+            return this.item.nonDisabledName() !== "(No Item)"
                 && this.ability.name !== "Sticky Hold"
                 && this.ability.name !== "Multitype"
-                && !(this.item.nonDisabledName === "Griseous Orb"
+                && !(this.item.nonDisabledName() === "Griseous Orb"
                     && this.name.includes("Giratina"));
         }
         return this.knockOffBoost() && this.ability.name !== "Sticky Hold";
     }
 
     knockOffBoost() {
-        return this.item.nonDisabledName !== "(No Item)"
-            && !this.item.megaPoke
-            && !(this.item.nonDisabledName === "Griseous Orb"
+        return this.item.nonDisabledName() !== "(No Item)"
+            && !this.item.megaPoke()
+            && !(this.item.nonDisabledName() === "Griseous Orb"
                 && this.name.includes("Giratina"))
             && !(this.name.includes("Genesect") && this.hasDrive())
             && !(this.ability.name === "Multitype" && this.hasPlate())
             && !(this.name.includes("Kyogre")
-                && this.item.nonDisabledName === "Blue Orb")
+                && this.item.nonDisabledName() === "Blue Orb")
             && !(this.name.includes("Groudon")
-                && this.item.nonDisabledName === "Red Orb");
+                && this.item.nonDisabledName() === "Red Orb");
     }
 
-    get thickClubBoosted() {
+    thickClubBoosted() {
         return this.item.name === "Thick Club"
             && (this.name.includes("Cubone") || this.name.includes("Marowak"));
     }
 
-    get lightBallBoosted() {
+    lightBallBoosted() {
         return this.item.name === "Light Ball" && this.name.includes("Pikachu");
     }
 
-    get useful() {
+    isUseful() {
         return isPokeUseful(this.id);
+    }
+
+    hasCritArmor() {
+        return this.ability.hasCritArmor() || this.luckyChant;
+    }
+
+    pinchAbilityActivated(moveType) {
+        return this.ability.pinchType() === moveType
+            && this.stat(Stats.HP) >= this.currentHp * 3;
     }
 
     static calcHealthDv(ivs) {

@@ -7,26 +7,26 @@ export default function orasEndOfTurn(attacker, defender, field) {
     const messages = [];
     const hp = defender.stat(Stats.HP);
 
-    if (field.sand && defender.hurtBySandstorm()) {
+    if (field.sand() && defender.hurtBySandstorm()) {
         values.push(-max(1, trunc(hp / 16)));
         messages.push("Sandstorm");
-    } else if (field.hail && defender.hurtByHail()) {
+    } else if (field.hail() && defender.hurtByHail()) {
         values.push(-max(1, trunc(hp / 16)));
         messages.push("Hail");
     }
 
     if (defender.ability.name === "Dry Skin") {
-        if (field.sun) {
+        if (field.sun()) {
             values.push(-max(1, trunc(hp / 8)));
             messages.push("Dry Skin");
-        } else if (field.rain) {
+        } else if (field.rain()) {
             values.push(max(1, trunc(hp / 8)));
             messages.push("Dry Skin");
         }
-    } else if (field.rain && defender.ability.name === "Rain Dish") {
+    } else if (field.rain() && defender.ability.name === "Rain Dish") {
         values.push(max(1, trunc(hp / 16)));
         messages.push("Rain Dish");
-    } else if (field.hail && defender.ability.name === "Ice Body") {
+    } else if (field.hail() && defender.ability.name === "Ice Body") {
         values.push(max(1, trunc(hp / 16)));
         messages.push("Ice Body");
     }
@@ -45,23 +45,24 @@ export default function orasEndOfTurn(attacker, defender, field) {
     // aqua ring
     // ingrain
     // leech seed
-    if (defender.burned && defender.ability.nonDisabledName === "Heatproof") {
+    if (defender.ability.nonDisabledName() === "Heatproof"
+        && defender.isBurned()) {
         values.push(-max(1, trunc(hp / 16)));
         messages.push("Burn");
-    } else if (defender.burned) {
+    } else if (defender.isBurned()) {
         values.push(-max(1, trunc(hp / 8)));
         messages.push("Burn");
-    } else if (defender.poisoned) {
+    } else if (defender.isPoisoned()) {
         values.push(-max(1, trunc(hp / 8)));
         messages.push("Poison");
-    } else if (defender.badlyPoisoned) {
+    } else if (defender.isBadlyPoisoned()) {
         values.push("toxic");
         messages.push("Toxic");
     }
     // nightmare
     // curse
     // multi turns -- whirlpool, flame wheel, etc
-    if (defender.asleep && attacker.ability.name === "Bad Dreams") {
+    if (defender.isAsleep() && attacker.ability.name === "Bad Dreams") {
         values.push(-max(1, trunc(hp / 8)));
         messages.push("Bad Dreams");
     }

@@ -1,16 +1,16 @@
 import Move from "../Move";
 import {Gens, Stats, Types, damageVariation} from "../utilities";
-import {physicalType, specialType, effective} from "../info";
+import {isPhysicalType, isSpecialType, effectiveness} from "../info";
 
 const {max, min, trunc} = Math;
 
 export default function advCalculate(attacker, defender, move, field) {
-    let moveType = move.type;
-    let movePower = move.power;
+    let moveType = move.type();
+    let movePower = move.power();
 
     if (movePower === 0) return [0];
 
-    if (move.sound && defender.ability.name === "Soundproof") {
+    if (move.isSound() && defender.ability.name === "Soundproof") {
         return [0];
     }
 
@@ -42,7 +42,7 @@ export default function advCalculate(attacker, defender, move, field) {
             movePower = move.present;
             break;
         case "Weather Ball":
-            moveType = Move.weatherBall(field.effectiveWeather);
+            moveType = Move.weatherBall(field.effectiveWeather());
             break;
         case "Rollout":
         case "Ice Ball":
@@ -81,12 +81,12 @@ export default function advCalculate(attacker, defender, move, field) {
         case "Super Fang":
             return [max(1, trunc(defender.currentHp / 2))];
         default:
-            if (move.ohko) return [defender.stat(Stats.HP)];
+            if (move.isOhko()) return [defender.stat(Stats.HP)];
     }
 
-    if (move.dig && move.boostedByDig
-        || move.dive && move.boostedByDive
-        || move.fly && move.boostedByFly) {
+    if (move.dig && move.boostedByDig()
+        || move.dive && move.boostedByDive()
+        || move.fly && move.boostedByFly()) {
         movePower *= 2;
     }
 
@@ -116,16 +116,16 @@ export default function advCalculate(attacker, defender, move, field) {
             satk = trunc(satk * 105 / 100);
             break;
         default:
-            if (attacker.item.typeBoosted === moveType) {
+            if (attacker.item.boostedType() === moveType) {
                 // make sure we are boosting the right stat
-                if (physicalType(moveType)) {
+                if (isPhysicalType(moveType)) {
                     atk = trunc(atk * 110 / 100);
                 } else {
                     satk = trunc(satk * 110 / 100);
                 }
-            } else if (attacker.item.thickClubBoosted) {
+            } else if (attacker.thickClubBoosted()) {
                 atk *= 2;
-            } else if (attacker.item.lightBallBoosted) {
+            } else if (attacker.lightBallBoosted()) {
                 satk *= 2;
             }
     }
@@ -181,8 +181,7 @@ export default function advCalculate(attacker, defender, move, field) {
         movePower = trunc(movePower / 2);
     }
 
-    if (attacker.ability.pinchType === moveType
-        && attacker.stat(Stats.HP) >= attacker.currentHp * 3) {
+    if (attacker.pinchAbilityActivated(moveType)) {
         movePower = trunc(movePower * 3 / 2);
     }
 
@@ -214,11 +213,11 @@ export default function advCalculate(attacker, defender, move, field) {
         a = attacker.beatUpStats[move.beatUpHit];
         lvl = attacker.beatUpLevels[move.beatUpHit];
         d = defender.baseStat(Stats.DEF);
-    } else if (physicalType(moveType)) {
+    } else if (isPhysicalType(moveType)) {
         a = atk;
         lvl = attacker.level;
         d = def;
-    } else if (specialType(moveType)) {
+    } else if (isSpecialType(moveType)) {
         a = satk;
         lvl = attacker.level;
         d = sdef;
@@ -230,37 +229,37 @@ export default function advCalculate(attacker, defender, move, field) {
                                  * movePower * a / d) / 50);
 
     if (move.name !== "Beat Up") {
-        if (attacker.burned && attacker.ability.name !== "Guts") {
+        if (attacker.isBurned() && attacker.ability.name !== "Guts") {
             baseDamage = trunc(baseDamage / 2);
         }
 
         if (!move.critical
-            && (defender.reflect && physicalType(moveType)
-                || defender.lightScreen && specialType(moveType))) {
+            && (defender.reflect && isPhysicalType(moveType)
+                || defender.lightScreen && isSpecialType(moveType))) {
             baseDamage = trunc(field.multiBattle ? baseDamage * 2 / 3
                                                  : baseDamage / 2);
         }
     }
 
-    if (field.multiBattle && move.multipleTargets) {
+    if (field.multiBattle && move.hasMultipleTargets()) {
         baseDamage = trunc(baseDamage / 2);
     }
 
     if (move.name !== "Weather Ball") {
-        if (field.sun) {
+        if (field.sun()) {
             if (moveType === Types.FIRE) {
                 baseDamage = trunc(baseDamage * 3 / 2);
             } else if (moveType === Types.WATER) {
                 baseDamage = trunc(baseDamage / 2);
             }
-        } else if (field.rain) {
+        } else if (field.rain()) {
             if (moveType === Types.WATER) {
                 baseDamage = trunc(baseDamage * 3 / 2);
             } else if (moveType === Types.FIRE) {
                 baseDamage = trunc(baseDamage / 2);
             }
         }
-        if (!field.sun && !field.clearWeather
+        if (!field.sun() && !field.isClearWeather()
             && move.name === "Solar Beam") {
             baseDamage = trunc(baseDamage / 2);
         }
@@ -271,7 +270,7 @@ export default function advCalculate(attacker, defender, move, field) {
         baseDamage = trunc(baseDamage * 3 / 2);
     }
 
-    if (physicalType(moveType)) {
+    if (isPhysicalType(moveType)) {
         baseDamage = max(1, baseDamage);
     }
 
@@ -292,15 +291,15 @@ export default function advCalculate(attacker, defender, move, field) {
             if (attacker.damagedPreviously) baseDamage *= 2;
             break;
         case "Smelling Salts":
-            if (defender.paralyzed) baseDamage *= 2;
+            if (defender.isParalyzed()) baseDamage *= 2;
             break;
         case "Weather Ball":
-            if (!field.clearWeather) baseDamage *= 2;
+            if (!field.isClearWeather()) baseDamage *= 2;
             break;
         /* no default */
     }
 
-    if (move.minimize && move.boostedByMinimize) {
+    if (move.minimize && move.boostedByMinimize()) {
         baseDamage *= 2;
     }
 
@@ -316,11 +315,11 @@ export default function advCalculate(attacker, defender, move, field) {
         baseDamage = trunc(baseDamage * 3 / 2);
     }
 
-    let eff = effective(moveType, defender.types, {
+    let eff = effectiveness(moveType, defender.types(), {
         gen: Gens.ADV,
         foresight: defender.foresight
     });
-    if (moveType === defender.ability.immunityType) {
+    if (moveType === defender.ability.immunityType()) {
         eff = {num: 0, den: 2};
     }
     if (eff.num === 0) return [0];

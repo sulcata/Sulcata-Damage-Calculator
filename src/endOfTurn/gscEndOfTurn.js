@@ -7,20 +7,20 @@ export default function gscEndOfTurn(attacker, defender, field) {
     const messages = [];
     const hp = defender.stat(Stats.HP);
 
-    if (defender.burned) {
+    if (defender.isBurned()) {
         values.push(-max(1, trunc(hp / 8)));
         messages.push("Burn");
-    } else if (defender.poisoned) {
+    } else if (defender.isPoisoned()) {
         values.push(-max(1, trunc(hp / 8)));
         messages.push("Poison");
-    } else if (defender.badlyPoisoned) {
+    } else if (defender.isBadlyPoisoned()) {
         values.push("toxic");
         messages.push("Toxic");
     }
     // leech seed
     // nightmare
     // curse
-    if (field.sand && defender.hurtBySandstorm()) {
+    if (field.sand() && defender.hurtBySandstorm()) {
         values.push(-max(1, trunc(hp / 8)));
         messages.push("Sandstorm");
     }

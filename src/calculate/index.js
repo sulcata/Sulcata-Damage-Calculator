@@ -88,8 +88,8 @@ function turnCalculate(attacker, defender, move, field) {
         }
         move.beatUpHit = 0;
     } else if (attacker.ability.name === "Parental Bond"
-        && move.maxHits === 1 && move.parentalBond
-        && !(field.multiBattle && move.multipleTargets)) {
+        && move.maxHits() === 1 && move.affectedByParentalBond()
+        && !(field.multiBattle && move.hasMultipleTargets())) {
         // Parental Bond has no effect on Multi Hit moves in all cases
         // or in Multiple Target moves during non-Singles battles.
         // Fixed damage moves are still fixed. Psywave is calculated twice.
@@ -101,11 +101,11 @@ function turnCalculate(attacker, defender, move, field) {
         defender.brokenMultiscale = true;
         dmg = dmg.permute(genCalculate(attacker, defender, move, field));
         move.secondHit = false;
-    } else if (move.maxHits > 1) {
+    } else if (move.maxHits() > 1) {
         // multi-hit moves
         const dmgs = [new Multiset([0])];
 
-        for (let i = 1; i <= move.maxHits; i++) {
+        for (let i = 1; i <= move.maxHits(); i++) {
             if (field.gen >= Gens.GSC) {
                 dmgs.push(dmgs[i - 1].permute(
                     genCalculate(attacker, defender, move, field)));
@@ -118,8 +118,10 @@ function turnCalculate(attacker, defender, move, field) {
         }
 
         if (move.numberOfHits >= 1) {
-            dmg = dmgs[clamp(move.numberOfHits, move.minHits, move.maxHits)];
-        } else if (move.maxHits === 2) {
+            dmg = dmgs[clamp(move.numberOfHits,
+                             move.minHits(),
+                             move.maxHits())];
+        } else if (move.maxHits() === 2) {
             dmg = dmgs[2];
         } else {
             /* before b2w2:
@@ -135,7 +137,7 @@ function turnCalculate(attacker, defender, move, field) {
                 return dmg.scale(multiplier);
             });
             dmg = new Multiset();
-            for (let i = move.minHits; i <= move.maxHits; i++) {
+            for (let i = move.minHits(); i <= move.maxHits(); i++) {
                 dmg = dmg.union(scaledDmgs[i].scale(p[i]));
             }
         }

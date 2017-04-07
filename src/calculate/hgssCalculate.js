@@ -1,16 +1,19 @@
 import Move from "../Move";
 import {Gens, Stats, Types, damageVariation} from "../utilities";
-import {adamantType, lustrousType, griseousType, effective} from "../info";
+import {
+    isAdamantType, isLustrousType,
+    isGriseousType, effectiveness
+} from "../info";
 
 const {max, min, trunc} = Math;
 
 export default function hgssCalculate(attacker, defender, move, field) {
-    let moveType = move.type;
-    let movePower = move.power;
+    let moveType = move.type();
+    let movePower = move.power();
 
     if (movePower === 0) return [0];
 
-    if (move.sound && defender.ability.name === "Soundproof") {
+    if (move.isSound() && defender.ability.name === "Soundproof") {
         return [0];
     }
 
@@ -42,7 +45,7 @@ export default function hgssCalculate(attacker, defender, move, field) {
             movePower = move.present;
             break;
         case "Weather Ball":
-            moveType = Move.weatherBall(field.effectiveWeather);
+            moveType = Move.weatherBall(field.effectiveWeather());
             movePower = moveType === Types.NORMAL ? 50 : 100;
             break;
         case "Rollout":
@@ -86,17 +89,17 @@ export default function hgssCalculate(attacker, defender, move, field) {
             movePower = Move.trumpCard(move.trumpPP);
             break;
         case "Wake-Up Slap":
-            if (defender.asleep) movePower *= 2;
+            if (defender.isAsleep()) movePower *= 2;
             break;
         case "Smelling Salts":
-            if (defender.paralyzed) movePower *= 2;
+            if (defender.isParalyzed()) movePower *= 2;
             break;
         case "Gyro Ball":
             movePower = Move.gyroBall(attacker.speed(), defender.speed());
             break;
         case "Low Kick":
         case "Grass Knot":
-            movePower = Move.grassKnot(defender.weight * 10);
+            movePower = Move.grassKnot(defender.weight());
             break;
         case "Fury Cutter":
             movePower = min(160, 10 * 2 ** move.furyCutter);
@@ -113,18 +116,18 @@ export default function hgssCalculate(attacker, defender, move, field) {
             break;
         case "Natural Gift":
             if (attacker.item.disabled || !attacker.item.isBerry()) return [0];
-            movePower = attacker.item.naturalGiftPower;
-            moveType = attacker.item.naturalGiftType;
+            movePower = attacker.item.naturalGiftPower();
+            moveType = attacker.item.naturalGiftType();
             break;
         case "Fling":
-            movePower = attacker.item.flingPower;
+            movePower = attacker.item.flingPower();
             break;
         case "Beat Up":
             moveType = Types.CURSE;
             break;
         case "Judgment":
-            if (attacker.item.plateType > -1) {
-                moveType = attacker.item.plateType;
+            if (attacker.item.plateType() > -1) {
+                moveType = attacker.item.plateType();
             }
             break;
         case "Seismic Toss":
@@ -146,13 +149,13 @@ export default function hgssCalculate(attacker, defender, move, field) {
         case "Super Fang":
             return [max(1, trunc(defender.currentHp / 2))];
         default:
-            if (move.ohko) return [defender.stat(Stats.HP)];
+            if (move.isOhko()) return [defender.stat(Stats.HP)];
     }
 
-    if (move.dig && move.boostedByDig
-        || move.dive && move.boostedByDive
-        || move.fly && move.boostedByFly
-        || move.minimize && move.boostedByMinimize) {
+    if (move.dig && move.boostedByDig()
+        || move.dive && move.boostedByDive()
+        || move.fly && move.boostedByFly()
+        || move.minimize && move.boostedByMinimize()) {
         movePower *= 2;
     }
 
@@ -162,33 +165,33 @@ export default function hgssCalculate(attacker, defender, move, field) {
 
     switch (attacker.item.name) {
         case "Muscle Band":
-            if (move.physical) {
+            if (move.isPhysical()) {
                 movePower = trunc(movePower * 11 / 10);
             }
             break;
         case "Wise Glasses":
-            if (move.special) {
+            if (move.isSpecial()) {
                 movePower = trunc(movePower * 11 / 10);
             }
             break;
         case "Adamant Orb":
-            if (attacker.name === "Dialga" && adamantType(moveType)) {
+            if (attacker.name === "Dialga" && isAdamantType(moveType)) {
                 movePower = trunc(movePower * 12 / 10);
             }
             break;
         case "Lustrous Orb":
-            if (attacker.name === "Palkia" && lustrousType(moveType)) {
+            if (attacker.name === "Palkia" && isLustrousType(moveType)) {
                 movePower = trunc(movePower * 12 / 10);
             }
             break;
         case "Griseous Orb":
             if (attacker.name.startsWith("Giratina")
-                && griseousType(moveType)) {
+                && isGriseousType(moveType)) {
                 movePower = trunc(movePower * 12 / 10);
             }
             break;
         default:
-            if (attacker.item.typeBoosted === moveType) {
+            if (attacker.item.boostedType() === moveType) {
                 movePower = trunc(movePower * 12 / 10);
             }
     }
@@ -205,12 +208,12 @@ export default function hgssCalculate(attacker, defender, move, field) {
             }
             break;
         case "Reckless":
-            if (move.reckless) {
+            if (move.isRecklessBoosted()) {
                 movePower = trunc(movePower * 12 / 10);
             }
             break;
         case "Iron Fist":
-            if (move.punch) movePower = trunc(movePower * 12 / 10);
+            if (move.isPunch()) movePower = trunc(movePower * 12 / 10);
             break;
         case "Technician":
             if (movePower <= 60) movePower = trunc(movePower * 3 / 2);
@@ -289,7 +292,7 @@ export default function hgssCalculate(attacker, defender, move, field) {
         atk *= 2;
     }
 
-    if (attacker.flowerGift && field.sun) {
+    if (attacker.flowerGift && field.sun()) {
         atk *= 2;
     }
 
@@ -310,7 +313,7 @@ export default function hgssCalculate(attacker, defender, move, field) {
             if (attacker.plus) satk = trunc(satk * 3 / 2);
             break;
         case "Solar Power":
-            if (field.sun) satk *= 2;
+            if (field.sun()) satk *= 2;
             break;
         /* no default */
     }
@@ -331,9 +334,9 @@ export default function hgssCalculate(attacker, defender, move, field) {
             if (attacker.name === "Clamperl") satk *= 2;
             break;
         default:
-            if (attacker.thickClubBoosted) {
+            if (attacker.thickClubBoosted()) {
                 atk *= 2;
-            } else if (attacker.lightBallBoosted) {
+            } else if (attacker.lightBallBoosted()) {
                 atk *= 2;
                 satk *= 2;
             }
@@ -350,7 +353,7 @@ export default function hgssCalculate(attacker, defender, move, field) {
         def = trunc(def * 3 / 2);
     }
 
-    if (defender.flowerGift && field.sun) {
+    if (defender.flowerGift && field.sun()) {
         sdef = trunc(sdef * 3 / 2);
     }
 
@@ -369,7 +372,7 @@ export default function hgssCalculate(attacker, defender, move, field) {
         /* no default */
     }
 
-    if (field.sand && defender.stab(Types.ROCK)) {
+    if (field.sand() && defender.stab(Types.ROCK)) {
         sdef = trunc(sdef * 3 / 2);
     }
 
@@ -378,11 +381,11 @@ export default function hgssCalculate(attacker, defender, move, field) {
         a = attacker.beatUpStats[move.beatUpHit];
         d = defender.baseStat(Stats.DEF);
         lvl = attacker.beatUpLevels[move.beatUpHit];
-    } else if (move.physical) {
+    } else if (move.isPhysical()) {
         a = atk;
         d = def;
         lvl = attacker.level;
-    } else if (move.special) {
+    } else if (move.isSpecial()) {
         a = satk;
         d = sdef;
         lvl = attacker.level;
@@ -394,14 +397,14 @@ export default function hgssCalculate(attacker, defender, move, field) {
                                  * movePower * a / d) / 50);
 
     if (move.name !== "Beat Up") {
-        if (attacker.burned && move.physical
+        if (attacker.isBurned() && move.isPhysical()
             && attacker.ability.name !== "Guts") {
             baseDamage = trunc(baseDamage / 2);
         }
 
         if (!move.critical
-            && (defender.reflect && move.physical
-                || defender.lightScreen && move.special)) {
+            && (defender.reflect && move.isPhysical()
+                || defender.lightScreen && move.isSpecial())) {
             if (field.multiBattle) {
                 baseDamage = trunc(baseDamage * 2 / 3);
             } else {
@@ -410,25 +413,25 @@ export default function hgssCalculate(attacker, defender, move, field) {
         }
     }
 
-    if (field.multiBattle && move.multipleTargets) {
+    if (field.multiBattle && move.hasMultipleTargets()) {
         baseDamage = trunc(baseDamage * 3 / 4);
     }
 
     if (move.name !== "Weather Ball") {
-        if (field.sun) {
+        if (field.sun()) {
             if (moveType === Types.FIRE) {
                 baseDamage = trunc(baseDamage * 3 / 2);
             } else if (moveType === Types.WATER) {
                 baseDamage = trunc(baseDamage / 2);
             }
-        } else if (field.rain) {
+        } else if (field.rain()) {
             if (moveType === Types.WATER) {
                 baseDamage = trunc(baseDamage * 3 / 2);
             } else if (moveType === Types.FIRE) {
                 baseDamage = trunc(baseDamage / 2);
             }
         }
-        if (!field.sun && !field.clearWeather
+        if (!field.sun() && !field.isClearWeather()
             && move.name === "Solar Beam") {
             baseDamage = trunc(baseDamage / 2);
         }
@@ -464,20 +467,20 @@ export default function hgssCalculate(attacker, defender, move, field) {
         damages = damages.map(d => trunc(d * 3 / 2));
     }
 
-    let eff = effective(moveType, defender.types, {
+    let eff = effectiveness(moveType, defender.types(), {
         gen: Gens.HGSS,
         foresight: defender.foresight,
         scrappy: attacker.ability.name === "Scrappy",
         gravity: field.gravity
     });
-    if (moveType === defender.ability.immunityType) {
+    if (moveType === defender.ability.immunityType()) {
         eff = {num: 0, den: 2};
     }
     if (eff.num === 0) return [0];
     damages = damages.map(d => trunc(d * eff.num / eff.den));
 
     if (eff.num > eff.den) {
-        if (defender.ability.filterLike) {
+        if (defender.ability.reducesSuperEffective()) {
             damages = damages.map(d => trunc(d * 3 / 4));
         }
 
@@ -485,14 +488,14 @@ export default function hgssCalculate(attacker, defender, move, field) {
             damages = damages.map(d => trunc(d * 12 / 10));
         }
 
-        if (defender.item.berryTypeResist === moveType) {
+        if (defender.item.berryTypeResist() === moveType) {
             damages = damages.map(d => trunc(d / 2));
         }
     } else if (eff.num < eff.den && attacker.ability.name === "Tinted Lens") {
         damages = damages.map(d => 2 * d);
     }
 
-    if (defender.item.berryTypeResist === Types.NORMAL
+    if (defender.item.berryTypeResist() === Types.NORMAL
         && moveType === Types.NORMAL) {
         damages = damages.map(d => trunc(d / 2));
     }

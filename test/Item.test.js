@@ -89,26 +89,26 @@ describe("Item", () => {
         expect(item.id).toEqual(0);
     });
 
-    test("#nonDisabledName", () => {
-        expect(chopleBerry.nonDisabledName).toEqual("Chople Berry");
+    test("#nonDisabledName()", () => {
+        expect(chopleBerry.nonDisabledName()).toEqual("Chople Berry");
 
         chopleBerry.disabled = true;
-        expect(chopleBerry.nonDisabledName).toEqual("Chople Berry");
+        expect(chopleBerry.nonDisabledName()).toEqual("Chople Berry");
 
         chopleBerry.used = true;
-        expect(chopleBerry.nonDisabledName).toEqual("(No Item)");
+        expect(chopleBerry.nonDisabledName()).toEqual("(No Item)");
     });
 
-    test("#typeBoosted", () => {
-        expect(mysticWater.typeBoosted).toEqual(Types.WATER);
-        expect(zapPlate.typeBoosted).toEqual(Types.ELECTRIC);
-        expect(chopleBerry.typeBoosted).toEqual(-1);
+    test("#boostedType()", () => {
+        expect(mysticWater.boostedType()).toEqual(Types.WATER);
+        expect(zapPlate.boostedType()).toEqual(Types.ELECTRIC);
+        expect(chopleBerry.boostedType()).toEqual(-1);
 
         mysticWater.disabled = true;
-        expect(mysticWater.typeBoosted).toEqual(-1);
+        expect(mysticWater.boostedType()).toEqual(-1);
 
         zapPlate.used = true;
-        expect(zapPlate.typeBoosted).toEqual(-1);
+        expect(zapPlate.boostedType()).toEqual(-1);
     });
 
     test("#isBerry()", () => {
@@ -122,135 +122,135 @@ describe("Item", () => {
         expect(chopleBerry.isBerry()).toBeFalsy();
     });
 
-    test("#berryTypeResist", () => {
-        expect(chopleBerry.berryTypeResist).toEqual(Types.FIGHTING);
-        expect(chilanBerry.berryTypeResist).toEqual(Types.NORMAL);
-        expect(noItem.berryTypeResist).toEqual(-1);
+    test("#berryTypeResist()", () => {
+        expect(chopleBerry.berryTypeResist()).toEqual(Types.FIGHTING);
+        expect(chilanBerry.berryTypeResist()).toEqual(Types.NORMAL);
+        expect(noItem.berryTypeResist()).toEqual(-1);
 
         chopleBerry.disabled = true;
-        expect(chopleBerry.berryTypeResist).toEqual(-1);
+        expect(chopleBerry.berryTypeResist()).toEqual(-1);
 
         chilanBerry.used = true;
-        expect(chilanBerry.berryTypeResist).toEqual(-1);
+        expect(chilanBerry.berryTypeResist()).toEqual(-1);
     });
 
-    test("#naturalGiftPower", () => {
-        expect(noItem.naturalGiftPower).toEqual(0);
-        expect(chopleBerry.naturalGiftPower).toEqual(80);
+    test("#naturalGiftPower()", () => {
+        expect(noItem.naturalGiftPower()).toEqual(0);
+        expect(chopleBerry.naturalGiftPower()).toEqual(80);
 
         chopleBerry.gen = 5;
-        expect(chopleBerry.naturalGiftPower).toEqual(60);
+        expect(chopleBerry.naturalGiftPower()).toEqual(60);
 
         chopleBerry.disabled = true;
-        expect(chopleBerry.naturalGiftPower).toEqual(0);
+        expect(chopleBerry.naturalGiftPower()).toEqual(0);
 
         chilanBerry.used = true;
-        expect(chilanBerry.naturalGiftPower).toEqual(0);
+        expect(chilanBerry.naturalGiftPower()).toEqual(0);
     });
 
-    test("#naturalGiftType", () => {
-        expect(noItem.naturalGiftType).toEqual(-1);
-        expect(chopleBerry.naturalGiftType).toEqual(Types.FIGHTING);
+    test("#naturalGiftType()", () => {
+        expect(noItem.naturalGiftType()).toEqual(-1);
+        expect(chopleBerry.naturalGiftType()).toEqual(Types.FIGHTING);
 
         chopleBerry.disabled = true;
-        expect(chopleBerry.naturalGiftType).toEqual(-1);
+        expect(chopleBerry.naturalGiftType()).toEqual(-1);
 
         chilanBerry.used = true;
-        expect(chilanBerry.naturalGiftType).toEqual(-1);
+        expect(chilanBerry.naturalGiftType()).toEqual(-1);
     });
 
-    test("#flingPower", () => {
-        expect(noItem.flingPower).toEqual(0);
-        expect(chopleBerry.flingPower).toEqual(10);
-        expect(zapPlate.flingPower).toEqual(90);
+    test("#flingPower()", () => {
+        expect(noItem.flingPower()).toEqual(0);
+        expect(chopleBerry.flingPower()).toEqual(10);
+        expect(zapPlate.flingPower()).toEqual(90);
 
         chopleBerry.disabled = true;
-        expect(chopleBerry.flingPower).toEqual(0);
+        expect(chopleBerry.flingPower()).toEqual(0);
 
         zapPlate.used = true;
-        expect(zapPlate.flingPower).toEqual(0);
+        expect(zapPlate.flingPower()).toEqual(0);
     });
 
-    test("#gemType", () => {
-        expect(normalGem.gemType).toEqual(Types.NORMAL);
-        expect(noItem.gemType).toEqual(-1);
+    test("#gemType()", () => {
+        expect(normalGem.gemType()).toEqual(Types.NORMAL);
+        expect(noItem.gemType()).toEqual(-1);
 
         normalGem.disabled = true;
-        expect(normalGem.gemType).toEqual(-1);
+        expect(normalGem.gemType()).toEqual(-1);
 
         normalGem.disabled = false;
         normalGem.used = true;
-        expect(normalGem.gemType).toEqual(-1);
+        expect(normalGem.gemType()).toEqual(-1);
     });
 
-    test("#megaPokeNum", () => {
-        expect(noItem.megaPokeNum).toBeNull();
-        expect(charizarditeX.megaPokeNum).toEqual(6);
-        expect(altarianite.megaPokeNum).toEqual(334);
+    test("#megaPokeNum()", () => {
+        expect(noItem.megaPokeNum()).toBeNull();
+        expect(charizarditeX.megaPokeNum()).toEqual(6);
+        expect(altarianite.megaPokeNum()).toEqual(334);
 
         charizarditeX.disabled = true;
-        expect(charizarditeX.megaPokeNum).toEqual(6);
+        expect(charizarditeX.megaPokeNum()).toEqual(6);
 
         altarianite.disabled = false;
         altarianite.used = true;
-        expect(altarianite.megaPokeNum).toBeNull();
+        expect(altarianite.megaPokeNum()).toBeNull();
     });
 
-    test("#megaPokeForm", () => {
-        expect(noItem.megaPokeForm).toBeNull();
-        expect(charizarditeX.megaPokeForm).toEqual(1);
-        expect(altarianite.megaPokeForm).toEqual(1);
+    test("#megaPokeForm()", () => {
+        expect(noItem.megaPokeForm()).toBeNull();
+        expect(charizarditeX.megaPokeForm()).toEqual(1);
+        expect(altarianite.megaPokeForm()).toEqual(1);
 
         charizarditeX.disabled = true;
-        expect(charizarditeX.megaPokeForm).toEqual(1);
+        expect(charizarditeX.megaPokeForm()).toEqual(1);
 
         altarianite.disabled = false;
         altarianite.used = true;
-        expect(altarianite.megaPokeForm).toBeNull();
+        expect(altarianite.megaPokeForm()).toBeNull();
     });
 
-    test("#megaPoke", () => {
-        expect(invalidItem.megaPoke).toBeNull();
-        expect(noItem.megaPoke).toBeNull();
-        expect(charizarditeX.megaPoke).toEqual("6:1");
-        expect(altarianite.megaPoke).toEqual("334:1");
+    test("#megaPoke()", () => {
+        expect(invalidItem.megaPoke()).toBeNull();
+        expect(noItem.megaPoke()).toBeNull();
+        expect(charizarditeX.megaPoke()).toEqual("6:1");
+        expect(altarianite.megaPoke()).toEqual("334:1");
 
         charizarditeX.disabled = true;
-        expect(charizarditeX.megaPoke).toEqual("6:1");
+        expect(charizarditeX.megaPoke()).toEqual("6:1");
 
         altarianite.disabled = false;
         altarianite.used = true;
-        expect(altarianite.megaPoke).toBeNull();
+        expect(altarianite.megaPoke()).toBeNull();
     });
 
-    test("#plateType", () => {
-        expect(zapPlate.plateType).toEqual(Types.ELECTRIC);
-        expect(mysticWater.plateType).toEqual(-1);
+    test("#plateType()", () => {
+        expect(zapPlate.plateType()).toEqual(Types.ELECTRIC);
+        expect(mysticWater.plateType()).toEqual(-1);
 
         zapPlate.disabled = true;
-        expect(zapPlate.plateType).toEqual(-1);
+        expect(zapPlate.plateType()).toEqual(-1);
 
         zapPlate.disabled = false;
         zapPlate.used = true;
-        expect(zapPlate.plateType).toEqual(-1);
+        expect(zapPlate.plateType()).toEqual(-1);
     });
 
-    test("#heavy", () => {
-        expect(noItem.heavy).toBeFalsy();
-        expect(ironBall.heavy).toBeTruthy();
+    test("#isHeavy()", () => {
+        expect(noItem.isHeavy()).toBeFalsy();
+        expect(ironBall.isHeavy()).toBeTruthy();
 
         ironBall.disabled = true;
-        expect(ironBall.heavy).toBeTruthy();
+        expect(ironBall.isHeavy()).toBeTruthy();
 
         ironBall.disabled = false;
         ironBall.used = true;
-        expect(ironBall.heavy).toBeFalsy();
+        expect(ironBall.isHeavy()).toBeFalsy();
     });
 
-    test("#useful", () => {
-        expect(noItem.useful).toBeFalsy();
-        expect(ironBall.useful).toBeTruthy();
-        expect(luxuryBall.useful).toBeFalsy();
+    test("#isUseful()", () => {
+        expect(noItem.isUseful()).toBeFalsy();
+        expect(ironBall.isUseful()).toBeTruthy();
+        expect(luxuryBall.isUseful()).toBeFalsy();
     });
 
     test("#berryHeal()", () => {

@@ -1,8 +1,24 @@
 import {Gens, Types, maxGen} from "./utilities";
 import {
     abilityEffects, abilityName, abilityId,
-    ignoredByMoldBreaker, isAbilityUseful
+    isIgnoredByMoldBreaker, isAbilityUseful
 } from "./info";
+
+const sandImmunityAbilities = new Set([
+    "Magic Guard",
+    "Overcoat",
+    "Sand Veil",
+    "Sand Rush",
+    "Sand Force"
+]);
+
+const hailImmunityAbilities = new Set([
+    "Magic Guard",
+    "Overcoat",
+    "Ice Body",
+    "Snow Cloak",
+    "Slush Rush"
+]);
 
 export default class Ability {
 
@@ -28,21 +44,21 @@ export default class Ability {
         this.id = abilityId(abilityName);
     }
 
-    get nonDisabledName() {
+    nonDisabledName() {
         return abilityName(this.id);
     }
 
-    get pinchType() {
+    pinchType() {
         const v = this.disabled ? null : flagToValue(this.id, "7", this.gen);
         return v === null ? -1 : Number(v);
     }
 
-    get normalToType() {
+    normalToType() {
         const v = this.disabled ? null : flagToValue(this.id, "121", this.gen);
         return v === null ? -1 : Number(v);
     }
 
-    get immunityType() {
+    immunityType() {
         if (this.disabled) return -1;
 
         // water absorb, volt absorb, etc.
@@ -65,50 +81,33 @@ export default class Ability {
         return -1;
     }
 
-    get moldBreakerLike() {
+    ignoresAbilities() {
         return !this.disabled && hasFlag(this.id, "40", this.gen);
     }
 
-    get ignorable() {
-        return ignoredByMoldBreaker(this.id);
+    isIgnorable() {
+        return isIgnoredByMoldBreaker(this.id);
     }
 
-    get sandImmunity() {
-        return [
-            "Magic Guard",
-            "Overcoat",
-            "Sand Veil",
-            "Sand Rush",
-            "Sand Force"
-        ].includes(this.name);
+    isSandImmunity() {
+        return sandImmunityAbilities.has(this.name);
     }
 
-    get hailImmunity() {
-        return [
-            "Magic Guard",
-            "Overcoat",
-            "Ice Body",
-            "Snow Cloak",
-            "Slush Rush"
-        ].includes(this.name);
+    isHailImmunity() {
+        return hailImmunityAbilities.has(this.name);
     }
 
-    get filterLike() {
-        return [
-            "Filter",
-            "Solid Rock",
-            "Prism Armor"
-        ].includes(this.name);
+    reducesSuperEffective() {
+        return this.name === "Filter"
+            || this.name === "Solid Rock"
+            || this.name === "Prism Armor";
     }
 
-    get critArmor() {
-        return [
-            "Shell Armor",
-            "Battle Armor"
-        ].includes(this.name);
+    hasCritArmor() {
+        return this.name === "Shell Armor" || this.name === "Battle Armor";
     }
 
-    get useful() {
+    isUseful() {
         return isAbilityUseful(this.id);
     }
 

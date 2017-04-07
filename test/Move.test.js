@@ -1,5 +1,5 @@
 import Move from "../src/Move";
-import {DamageClasses, Types, Weathers, maxGen} from "../src/utilities";
+import {DamageClasses, Types, Weathers, Gens, maxGen} from "../src/utilities";
 
 describe("Move", () => {
     let invalidMove;
@@ -126,198 +126,212 @@ describe("Move", () => {
         expect(move3.id).toEqual(0);
     });
 
-    test("#power", () => {
-        expect(noMove.power).toEqual(0);
-        expect(sheerCold.power).toEqual(1);
-        expect(leer.power).toEqual(0);
-        expect(struggle.power).toEqual(50);
-        expect(tackle.power).toEqual(40);
+    test("#power()", () => {
+        expect(noMove.power()).toEqual(0);
+        expect(sheerCold.power()).toEqual(1);
+        expect(leer.power()).toEqual(0);
+        expect(struggle.power()).toEqual(50);
+        expect(tackle.power()).toEqual(40);
 
         tackle.gen = 6;
-        expect(tackle.power).toEqual(50);
+        expect(tackle.power()).toEqual(50);
 
         tackle.gen = 4;
-        expect(tackle.power).toEqual(35);
+        expect(tackle.power()).toEqual(35);
     });
 
-    test("#damageClass", () => {
-        expect(noMove.damageClass).toEqual(DamageClasses.OTHER);
-        expect(tackle.damageClass).toEqual(DamageClasses.PHYSICAL);
-        expect(struggle.damageClass).toEqual(DamageClasses.PHYSICAL);
-        expect(gust.damageClass).toEqual(DamageClasses.SPECIAL);
-        expect(hiddenPower.damageClass).toEqual(DamageClasses.SPECIAL);
+    test("#damageClass()", () => {
+        expect(noMove.damageClass()).toEqual(DamageClasses.OTHER);
+        expect(tackle.damageClass()).toEqual(DamageClasses.PHYSICAL);
+        expect(struggle.damageClass()).toEqual(DamageClasses.PHYSICAL);
+        expect(gust.damageClass()).toEqual(DamageClasses.SPECIAL);
+        expect(hiddenPower.damageClass()).toEqual(DamageClasses.SPECIAL);
     });
 
-    test("#physical", () => {
-        expect(noMove.physical).toBeFalsy();
-        expect(tackle.physical).toBeTruthy();
-        expect(struggle.physical).toBeTruthy();
-        expect(gust.physical).toBeFalsy();
-        expect(hiddenPower.physical).toBeFalsy();
+    test("#isPhysical()", () => {
+        expect(noMove.isPhysical()).toBeFalsy();
+        expect(tackle.isPhysical()).toBeTruthy();
+        expect(struggle.isPhysical()).toBeTruthy();
+        expect(gust.isPhysical()).toBeFalsy();
+        expect(hiddenPower.isPhysical()).toBeFalsy();
     });
 
-    test("#special", () => {
-        expect(noMove.special).toBeFalsy();
-        expect(tackle.special).toBeFalsy();
-        expect(struggle.special).toBeFalsy();
-        expect(gust.special).toBeTruthy();
-        expect(hiddenPower.special).toBeTruthy();
+    test("#isSpecial()", () => {
+        expect(noMove.isSpecial()).toBeFalsy();
+        expect(tackle.isSpecial()).toBeFalsy();
+        expect(struggle.isSpecial()).toBeFalsy();
+        expect(gust.isSpecial()).toBeTruthy();
+        expect(hiddenPower.isSpecial()).toBeTruthy();
     });
 
-    test("#psyshock", () => {
-        expect(psyshock.psyshock).toBeTruthy();
-        expect(psystrike.psyshock).toBeTruthy();
-        expect(secretSword.psyshock).toBeTruthy();
-        expect(noMove.psyshock).toBeFalsy();
-        expect(gust.psyshock).toBeFalsy();
+    test("#isPsyshockLike()", () => {
+        expect(psyshock.isPsyshockLike()).toBeTruthy();
+        expect(psystrike.isPsyshockLike()).toBeTruthy();
+        expect(secretSword.isPsyshockLike()).toBeTruthy();
+        expect(noMove.isPsyshockLike()).toBeFalsy();
+        expect(gust.isPsyshockLike()).toBeFalsy();
     });
 
-    test("#type", () => {
-        expect(psyshock.type).toEqual(Types.PSYCHIC);
-        expect(struggle.type).toEqual(Types.CURSE);
-        expect(hiddenPower.type).toEqual(Types.NORMAL);
+    test("#type()", () => {
+        expect(psyshock.type()).toEqual(Types.PSYCHIC);
+        expect(struggle.type()).toEqual(Types.CURSE);
+        expect(hiddenPower.type()).toEqual(Types.NORMAL);
     });
 
-    test("#recoils", () => {
-        expect(psyshock.recoils).toBeFalsy();
-        expect(doubleEdge.recoils).toBeTruthy();
-        expect(absorb.recoils).toBeFalsy();
-        expect(noMove.recoils).toBeFalsy();
-        expect(struggle.recoils).toBeFalsy();
+    test("#hasRecoil()", () => {
+        expect(psyshock.hasRecoil()).toBeFalsy();
+        expect(doubleEdge.hasRecoil()).toBeTruthy();
+        expect(absorb.hasRecoil()).toBeFalsy();
+        expect(noMove.hasRecoil()).toBeFalsy();
+        expect(struggle.hasRecoil()).toBeFalsy();
     });
 
-    test("#punch", () => {
-        expect(machPunch.punch).toBeTruthy();
-        expect(tackle.punch).toBeFalsy();
-        expect(noMove.punch).toBeFalsy();
+    test("#isPunch()", () => {
+        expect(machPunch.isPunch()).toBeTruthy();
+        expect(tackle.isPunch()).toBeFalsy();
+        expect(noMove.isPunch()).toBeFalsy();
     });
 
-    test("#flinch", () => {
-        expect(ironHead.flinch).toEqual(30);
-        expect(fakeOut.flinch).toEqual(100);
-        expect(noMove.flinch).toEqual(0);
-        expect(tackle.flinch).toEqual(0);
+    test("#flinchChance()", () => {
+        expect(ironHead.flinchChance()).toEqual(30);
+        expect(fakeOut.flinchChance()).toEqual(100);
+        expect(noMove.flinchChance()).toEqual(0);
+        expect(tackle.flinchChance()).toEqual(0);
     });
 
-    test("#sheerForce", () => {
-        expect(ironHead.sheerForce).toBeTruthy();
-        expect(ancientPower.sheerForce).toBeTruthy();
-        expect(blazeKick.sheerForce).toBeTruthy();
-        expect(chatter.sheerForce).toBeTruthy();
-        expect(psychic.sheerForce).toBeTruthy();
-        expect(noMove.sheerForce).toBeFalsy();
-        expect(tackle.sheerForce).toBeFalsy();
+    test("#affectedBySheerForce()", () => {
+        expect(ironHead.affectedBySheerForce()).toBeTruthy();
+        expect(ancientPower.affectedBySheerForce()).toBeTruthy();
+        expect(blazeKick.affectedBySheerForce()).toBeTruthy();
+        expect(chatter.affectedBySheerForce()).toBeTruthy();
+        expect(psychic.affectedBySheerForce()).toBeTruthy();
+        expect(noMove.affectedBySheerForce()).toBeFalsy();
+        expect(tackle.affectedBySheerForce()).toBeFalsy();
     });
 
-    test("#contact", () => {
-        expect(tackle.contact).toBeTruthy();
-        expect(noMove.contact).toBeFalsy();
-        expect(leer.contact).toBeFalsy();
-        expect(struggle.contact).toBeTruthy();
-        expect(overheat.contact).toBeFalsy();
-        expect(ancientPower.contact).toBeFalsy();
+    test("#isContact()", () => {
+        expect(tackle.isContact()).toBeTruthy();
+        expect(noMove.isContact()).toBeFalsy();
+        expect(leer.isContact()).toBeFalsy();
+        expect(struggle.isContact()).toBeTruthy();
+        expect(overheat.isContact()).toBeFalsy();
+        expect(ancientPower.isContact()).toBeFalsy();
 
         overheat.gen = 3;
-        expect(overheat.contact).toBeTruthy();
+        expect(overheat.isContact()).toBeTruthy();
     });
 
-    test.skip("#contact", () => {
+    test.skip("#isContact()", () => {
         ancientPower.gen = 3;
-        expect(ancientPower.contact).toBeTruthy();
+        expect(ancientPower.isContact()).toBeTruthy();
     });
 
-    test("#sound", () => {
-        expect(chatter.sound).toBeTruthy();
-        expect(noMove.sound).toBeFalsy();
-        expect(tackle.sound).toBeFalsy();
+    test("#isSound()", () => {
+        expect(chatter.isSound()).toBeTruthy();
+        expect(noMove.isSound()).toBeFalsy();
+        expect(tackle.isSound()).toBeFalsy();
     });
 
-    test("#powder", () => {
-        expect(spore.powder).toBeTruthy();
-        expect(noMove.powder).toBeFalsy();
-        expect(tackle.powder).toBeFalsy();
+    test("#isPowder()", () => {
+        expect(spore.isPowder()).toBeTruthy();
+        expect(noMove.isPowder()).toBeFalsy();
+        expect(tackle.isPowder()).toBeFalsy();
     });
 
-    test("#bite", () => {
-        expect(bite.bite).toBeTruthy();
-        expect(noMove.bite).toBeFalsy();
-        expect(tackle.bite).toBeFalsy();
+    test("#isBite()", () => {
+        expect(bite.isBite()).toBeTruthy();
+        expect(noMove.isBite()).toBeFalsy();
+        expect(tackle.isBite()).toBeFalsy();
     });
 
-    test("#pulse", () => {
-        expect(dragonPulse.pulse).toBeTruthy();
-        expect(noMove.pulse).toBeFalsy();
-        expect(tackle.pulse).toBeFalsy();
+    test("#isPulse()", () => {
+        expect(dragonPulse.isPulse()).toBeTruthy();
+        expect(noMove.isPulse()).toBeFalsy();
+        expect(tackle.isPulse()).toBeFalsy();
     });
 
-    test("#ball", () => {
-        expect(shadowBall.ball).toBeTruthy();
-        expect(rockWrecker.ball).toBeTruthy();
-        expect(noMove.ball).toBeFalsy();
-        expect(tackle.ball).toBeFalsy();
+    test("#isBall()", () => {
+        expect(shadowBall.isBall()).toBeTruthy();
+        expect(rockWrecker.isBall()).toBeTruthy();
+        expect(noMove.isBall()).toBeFalsy();
+        expect(tackle.isBall()).toBeFalsy();
     });
 
-    test("#minHits", () => {
-        expect(noMove.minHits).toEqual(0);
-        expect(tackle.minHits).toEqual(1);
-        expect(bulletSeed.minHits).toEqual(2);
-        expect(gearGrind.minHits).toEqual(2);
-        expect(tripleKick.minHits).toEqual(3);
-        expect(beatUp.minHits).toEqual(6);
+    test("#minHits()", () => {
+        expect(noMove.minHits()).toEqual(0);
+        expect(tackle.minHits()).toEqual(1);
+        expect(bulletSeed.minHits()).toEqual(2);
+        expect(gearGrind.minHits()).toEqual(2);
+        expect(tripleKick.minHits()).toEqual(3);
+        expect(beatUp.minHits()).toEqual(6);
     });
 
-    test("#maxHits", () => {
-        expect(noMove.maxHits).toEqual(0);
-        expect(tackle.maxHits).toEqual(1);
-        expect(bulletSeed.maxHits).toEqual(5);
-        expect(gearGrind.maxHits).toEqual(2);
-        expect(tripleKick.maxHits).toEqual(3);
-        expect(beatUp.maxHits).toEqual(6);
+    test("#maxHits()", () => {
+        expect(noMove.maxHits()).toEqual(0);
+        expect(tackle.maxHits()).toEqual(1);
+        expect(bulletSeed.maxHits()).toEqual(5);
+        expect(gearGrind.maxHits()).toEqual(2);
+        expect(tripleKick.maxHits()).toEqual(3);
+        expect(beatUp.maxHits()).toEqual(6);
     });
 
-    test("#multipleTargets", () => {
-        expect(surf.multipleTargets).toBeTruthy();
-        expect(eruption.multipleTargets).toBeTruthy();
-        expect(tackle.multipleTargets).toBeFalsy();
-        expect(noMove.multipleTargets).toBeFalsy();
+    test("#hasMultipleTargets()", () => {
+        expect(surf.hasMultipleTargets()).toBeTruthy();
+        expect(eruption.hasMultipleTargets()).toBeTruthy();
+        expect(tackle.hasMultipleTargets()).toBeFalsy();
+        expect(noMove.hasMultipleTargets()).toBeFalsy();
     });
 
-    test("#ohko", () => {
-        expect(sheerCold.ohko).toBeTruthy();
-        expect(tackle.ohko).toBeFalsy();
-        expect(noMove.ohko).toBeFalsy();
+    test("#isOhko()", () => {
+        expect(sheerCold.isOhko()).toBeTruthy();
+        expect(tackle.isOhko()).toBeFalsy();
+        expect(noMove.isOhko()).toBeFalsy();
     });
 
-    test("#recharge", () => {
-        expect(rockWrecker.recharge).toBeTruthy();
-        expect(tackle.recharge).toBeFalsy();
-        expect(noMove.recharge).toBeFalsy();
+    test("#requiresRecharge()", () => {
+        expect(rockWrecker.requiresRecharge()).toBeTruthy();
+        expect(tackle.requiresRecharge()).toBeFalsy();
+        expect(noMove.requiresRecharge()).toBeFalsy();
     });
 
-    test("#reckless", () => {
-        expect(doubleEdge.reckless).toBeTruthy();
-        expect(jumpKick.reckless).toBeTruthy();
-        expect(highJumpKick.reckless).toBeTruthy();
-        expect(tackle.reckless).toBeFalsy();
-        expect(noMove.reckless).toBeFalsy();
-        expect(struggle.reckless).toBeFalsy();
+    test("#isRecklessBoosted()", () => {
+        expect(doubleEdge.isRecklessBoosted()).toBeTruthy();
+        expect(jumpKick.isRecklessBoosted()).toBeTruthy();
+        expect(highJumpKick.isRecklessBoosted()).toBeTruthy();
+        expect(tackle.isRecklessBoosted()).toBeFalsy();
+        expect(noMove.isRecklessBoosted()).toBeFalsy();
+        expect(struggle.isRecklessBoosted()).toBeFalsy();
     });
 
-    test("#crits", () => {
-        expect(reversal.crits).toBeFalsy();
-        expect(doomDesire.crits).toBeFalsy();
-        expect(tackle.crits).toBeTruthy();
-        expect(noMove.crits).toBeTruthy();
-        expect(struggle.crits).toBeTruthy();
+    test("#canCrit()", () => {
+        expect(reversal.canCrit()).toBeTruthy();
+        expect(doomDesire.canCrit()).toBeTruthy();
+        expect(tackle.canCrit()).toBeTruthy();
+        expect(noMove.canCrit()).toBeTruthy();
+        expect(struggle.canCrit()).toBeTruthy();
+
+        for (let gen = Gens.GSC; gen < Gens.HGSS; gen++) {
+            reversal.gen = gen;
+            doomDesire.gen = gen;
+            tackle.gen = gen;
+            noMove.gen = gen;
+            struggle.gen = gen;
+
+            expect(reversal.canCrit()).toBeFalsy();
+            expect(doomDesire.canCrit()).toBeFalsy();
+            expect(tackle.canCrit()).toBeTruthy();
+            expect(noMove.canCrit()).toBeTruthy();
+            expect(struggle.canCrit()).toBeTruthy();
+        }
     });
 
-    test("#parentalBond", () => {
-        expect(surf.parentalBond).toBeTruthy();
-        expect(bulletSeed.parentalBond).toBeTruthy();
-        expect(explosion.parentalBond).toBeFalsy();
-        expect(tackle.parentalBond).toBeTruthy();
-        expect(struggle.parentalBond).toBeTruthy();
-        expect(noMove.parentalBond).toBeTruthy();
+    test("#affectedByParentalBond()", () => {
+        expect(surf.affectedByParentalBond()).toBeTruthy();
+        expect(bulletSeed.affectedByParentalBond()).toBeTruthy();
+        expect(explosion.affectedByParentalBond()).toBeFalsy();
+        expect(tackle.affectedByParentalBond()).toBeTruthy();
+        expect(struggle.affectedByParentalBond()).toBeTruthy();
+        expect(noMove.affectedByParentalBond()).toBeTruthy();
     });
 
     test(".hiddenPowers()", () => {

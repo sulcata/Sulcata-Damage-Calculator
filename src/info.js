@@ -450,7 +450,7 @@ export function abilityEffects(abilityId, gen) {
     return getInfo(db.abilityEffects, abilityId, gen);
 }
 
-export function ignoredByMoldBreaker(abilityId) {
+export function isIgnoredByMoldBreaker(abilityId) {
     return db.moldBreaker.hasOwnProperty(abilityId);
 }
 
@@ -500,37 +500,37 @@ export function typeDamageClass(typeId) {
     return typeId >= 9 && typeId <= 17 ? 2 : 1;
 }
 
-export function physicalType(typeId) {
+export function isPhysicalType(typeId) {
     return typeDamageClass(typeId) === DamageClasses.PHYSICAL;
 }
 
-export function specialType(typeId) {
+export function isSpecialType(typeId) {
     return typeDamageClass(typeId) === DamageClasses.SPECIAL;
 }
 
-export function lustrousType(typeId) {
+export function isLustrousType(typeId) {
     return typeId === Types.WATER || typeId === Types.DRAGON;
 }
 
-export function adamantType(typeId) {
+export function isAdamantType(typeId) {
     return typeId === Types.STEEL || typeId === Types.DRAGON;
 }
 
-export function griseousType(typeId) {
+export function isGriseousType(typeId) {
     return typeId === Types.GHOST || typeId === Types.DRAGON;
 }
 
-export function soulDewType(typeId) {
+export function isSoulDewType(typeId) {
     return typeId === Types.PSYCHIC || typeId === Types.DRAGON;
 }
 
-export function sandForceType(typeId) {
+export function isSandForceType(typeId) {
     return typeId === Types.GROUND
         || typeId === Types.ROCK
         || typeId === Types.STEEL;
 }
 
-export function effective(attackingTypes, defendingTypes, options = {}) {
+export function effectiveness(attackingTypes, defendingTypes, options = {}) {
     if (!Array.isArray(attackingTypes)) {
         attackingTypes = [attackingTypes];
     }

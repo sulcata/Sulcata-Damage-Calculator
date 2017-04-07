@@ -10,7 +10,7 @@ import {
 
 const {min, trunc} = Math;
 
-const zMoves = [
+const zMoves = new Set([
     "Breakneck Blitz",
     "All-Out Pummeling",
     "Supersonic Skystrike",
@@ -29,7 +29,40 @@ const zMoves = [
     "Devastating Drake",
     "Black Hole Eclipse",
     "Twinkle Tackle"
-];
+]);
+
+const ohkoMoves = new Set([
+    "Guillotine",
+    "Horn Drill",
+    "Fissure",
+    "Sheer Cold"
+]);
+
+const rechargeMoves = new Set([
+    "Hyper Beam",
+    "Giga Impact",
+    "Rock Wrecker",
+    "Roar of Time",
+    "Blast Burn",
+    "Frenzy Plant",
+    "Hydro Cannon"
+]);
+
+const nonCritMoves = new Set([
+    "Reversal",
+    "Flail",
+    "Future Sight",
+    "Doom Desire",
+    "Spit Up"
+]);
+
+const nonParentalBondMoves = new Set([
+    "Fling",
+    "Self-Destruct",
+    "Explosion",
+    "Final Gambit",
+    "Endeavor"
+]);
 
 export default class Move {
 
@@ -37,12 +70,12 @@ export default class Move {
         if (typeof move === "string") {
             this.name = move;
             move = {};
-        } else if (move.baseName) {
-            this.name = move.baseName;
+        } else if (move.id) {
+            this.id = Number(move.id);
         } else if (move.name) {
             this.name = move.name;
         } else {
-            this.id = Number(move.id) || 0;
+            this.id = 0;
         }
 
         this.gen = Number(gen) || Number(move.gen) || maxGen;
@@ -64,65 +97,55 @@ export default class Move {
     }
 
     get name() {
-        return this.zMove ? zMoves[this.type] : moveName(this.id);
+        return this.zMove ? zMoves[this.type()] : moveName(this.id);
     }
 
     set name(moveName) {
         this.id = moveId(moveName);
     }
 
-    get baseName() {
-        return moveName(this.id);
-    }
-
-    get power() {
+    power() {
         return this.zMove ? zMovePower(this.id) : movePower(this.id, this.gen);
     }
 
-    get damageClass() {
-        return moveDamageClass(this.id, this.gen);
-    }
-
-    get physical() {
-        return this.damageClass === DamageClasses.PHYSICAL;
-    }
-
-    get special() {
-        return this.damageClass === DamageClasses.SPECIAL;
-    }
-
-    get other() {
-        return this.gen > Gens.ADV && this.damageClass === DamageClasses.OTHER
-            || this.gen <= Gens.ADV && this.power <= 0;
-    }
-
-    get psyshock() {
-        return [
-            "Psyshock",
-            "Psystrike",
-            "Secret Sword"
-        ].includes(this.name);
-    }
-
-    get type() {
+    type() {
         return moveType(this.id, this.gen);
     }
 
-    get recoils() {
+    damageClass() {
+        return moveDamageClass(this.id, this.gen);
+    }
+
+    isPhysical() {
+        return this.damageClass() === DamageClasses.PHYSICAL;
+    }
+
+    isSpecial() {
+        return this.damageClass() === DamageClasses.SPECIAL;
+    }
+
+    isOther() {
+        return this.gen > Gens.ADV && this.damageClass() === DamageClasses.OTHER
+            || this.gen <= Gens.ADV && this.power() <= 0;
+    }
+
+    isPsyshockLike() {
+        return this.name === "Psyshock"
+            || this.name === "Psystrike"
+            || this.name === "Secret Sword";
+    }
+
+    hasRecoil() {
         // negative is recoil, positive is recovery
         return !(this.gen >= Gens.HGSS && this.name === "Struggle")
             && recoil(this.id, this.gen) < 0;
     }
 
-    get punch() {
-        return moveHasFlags(this.id, 0x80, this.gen);
-    }
-
-    get flinch() {
+    flinchChance() {
         return flinchChance(this.id, this.gen);
     }
 
-    get sheerForce() {
+    affectedBySheerForce() {
         // OffensiveStatusInducingMove = 4
         // OffensiveStatChangingMove = 6
         // OffensiveSelfStatChangingMove = 7
@@ -131,135 +154,115 @@ export default class Move {
         const category = moveCategory(this.id, this.gen);
         return category === 4
             || category === 6
-            || Boolean(this.flinch)
+            || this.flinchChance() > 0
             || (category === 7 && statBoosts(this.id, this.gen)[0] > 0);
     }
 
-    get contact() {
+    isPunch() {
+        return moveHasFlags(this.id, 0x80, this.gen);
+    }
+
+    isContact() {
         return moveHasFlags(this.id, 0x1, this.gen);
     }
 
-    get sound() {
+    isSound() {
         return moveHasFlags(this.id, 0x100, this.gen);
     }
 
-    get powder() {
+    isPowder() {
         return moveHasFlags(this.id, 0x8000, this.gen);
     }
 
-    get bite() {
+    isBite() {
         return moveHasFlags(this.id, 0x4000, this.gen);
     }
 
-    get pulse() {
+    isPulse() {
         return moveHasFlags(this.id, 0x800, this.gen);
     }
 
-    get ball() {
+    isBall() {
         return moveHasFlags(this.id, 0x10000, this.gen);
     }
 
-    get minHits() {
+    minHits() {
         return minHits(this.id, this.gen);
     }
 
-    get maxHits() {
+    maxHits() {
         return maxHits(this.id, this.gen);
     }
 
-    get multipleHits() {
+    hitsMultipleTimes() {
         return this.maxHits > 1;
     }
 
-    get multipleTargets() {
+    hasMultipleTargets() {
         const range = moveRange(this.id, this.gen);
         return range === 4 || range === 5;
     }
 
-    get ohko() {
-        return [
-            "Guillotine",
-            "Horn Drill",
-            "Fissure",
-            "Sheer Cold"
-        ].includes(this.name);
+    isOhko() {
+        return ohkoMoves.has(this.name);
     }
 
-    get recharge() {
-        return [
-            "Hyper Beam",
-            "Giga Impact",
-            "Rock Wrecker",
-            "Roar of Time",
-            "Blast Burn",
-            "Frenzy Plant",
-            "Hydro Cannon"
-        ].includes(this.name);
+    requiresRecharge() {
+        return rechargeMoves.has(this.name);
     }
 
-    get reckless() {
-        return this.recoils
+    isRecklessBoosted() {
+        return this.hasRecoil()
             || this.name === "Jump Kick"
             || this.name === "High Jump Kick";
     }
 
-    get crits() {
-        return ![
-            "Reversal",
-            "Flail",
-            "Future Sight",
-            "Doom Desire",
-            "Spit Up"
-        ].includes(this.name);
+    canCrit() {
+        return this.gen < Gens.GSC
+            || this.gen >= Gens.HGSS
+            || !nonCritMoves.has(this.name);
     }
 
-    get parentalBond() {
-        return ![
-            "Fling",
-            "Self-Destruct",
-            "Explosion",
-            "Final Gambit",
-            "Endeavor"
-        ].includes(this.name);
+    affectedByParentalBond() {
+        return !nonParentalBondMoves.has(this.name);
     }
 
-    get useful() {
+    isUseful() {
         return isMoveUseful(this.id, this.gen);
     }
 
-    get optimalHappiness() {
+    optimalHappiness() {
         return this.name === "Return" ? 255 : 0;
     }
 
     usesHappiness() {
-        return ["Return", "Frustration"].includes(this.name);
+        return this.name === "Return" || this.name === "Frustration";
     }
 
-    get ignoresAbilities() {
-        return ["Moongeist Beam", "Sunsteel Strike"].includes(this.name);
+    ignoresAbilities() {
+        return this.name === "Moongeist Beam"
+            || this.name === "Sunsteel Strike";
     }
 
-    get ignoresDefenseBoosts() {
-        return [
-            "Chip Away",
-            "Sacred Sword",
-            "Darkest Lariat"
-        ].includes(this.name);
+    ignoresDefenseBoosts() {
+        return this.name === "Chip Away"
+            || this.name === "Sacred Sword"
+            || this.name === "Darkest Lariat";
     }
 
-    get boostedByDig() {
-        return ["Earthquake", "Magnitude"].includes(this.name);
+    boostedByDig() {
+        return this.name === "Earthquake" || this.name === "Magnitude";
     }
 
-    get boostedByDive() {
-        return ["Surf", "Whirlpool"].includes(this.name);
+    boostedByDive() {
+        return this.name === "Surf" || this.name === "Whirlpool";
     }
 
-    get boostedByFly() {
-        return ["Gust", "Twister"].includes(this.name);
+    boostedByFly() {
+        return this.name === "Gust" || this.name === "Twister";
     }
 
-    get boostedByMinimize() {
+    boostedByMinimize() {
         switch (this.name) {
             case "Stomp":
                 return this.gen >= Gens.GSC;
@@ -275,9 +278,8 @@ export default class Move {
             case "Shadow Force":
             case "Phantom Force":
                 return this.gen >= Gens.ORAS;
-            // Needs Testing
-            // case "Heavy Slam":
-            //     return this.gen >= Gens.SM;
+            case "Heavy Slam":
+                return this.gen >= Gens.SM;
             default:
                 return false;
         }

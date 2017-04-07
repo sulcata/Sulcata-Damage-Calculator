@@ -7,7 +7,7 @@ import {
 
 const {trunc} = Math;
 
-const heavyItems = [
+const heavyItems = new Set([
     "Iron Ball",
     "Macho Brace",
     "Power Bracer",
@@ -16,7 +16,7 @@ const heavyItems = [
     "Power Band",
     "Power Anklet",
     "Power Weight"
-];
+]);
 
 export default class Item {
 
@@ -43,11 +43,11 @@ export default class Item {
         this.id = itemId(itemName);
     }
 
-    get nonDisabledName() {
+    nonDisabledName() {
         return itemName(this.used ? 0 : this.id);
     }
 
-    get typeBoosted() {
+    boostedType() {
         const v = this.used || this.disabled
             ? null : flagToValue(this.id, "10", this.gen);
         return v === null ? -1 : Number(v);
@@ -58,10 +58,10 @@ export default class Item {
     }
 
     isPlate() {
-        return this.nonDisabledName.endsWith(" Plate");
+        return this.nonDisabledName().endsWith(" Plate");
     }
 
-    get berryTypeResist() {
+    berryTypeResist() {
         if (this.used || this.disabled) return -1;
 
         let v = flagToValue(this.id, "4", this.gen);
@@ -73,54 +73,53 @@ export default class Item {
         return -1;
     }
 
-    get naturalGiftPower() {
+    naturalGiftPower() {
         return naturalGiftPower(
             this.used || this.disabled ? 0 : this.id, this.gen);
     }
 
-    get naturalGiftType() {
+    naturalGiftType() {
         return naturalGiftType(
             this.used || this.disabled ? 0 : this.id);
     }
 
-    get flingPower() {
-        return flingPower(
-            this.used || this.disabled ? 0 : this.id);
+    flingPower() {
+        return flingPower(this.used || this.disabled ? 0 : this.id);
     }
 
-    get gemType() {
+    gemType() {
         const v = this.used || this.disabled
             ? null : flagToValue(this.id, "37", this.gen);
         return v === null ? -1 : Number(v);
     }
 
-    get megaPokeNum() {
-        const v = this.megaPoke;
+    megaPokeNum() {
+        const v = this.megaPoke();
         return v === null ? null : Number(v.split(":")[0]);
     }
 
-    get megaPokeForm() {
-        const v = this.megaPoke;
+    megaPokeForm() {
+        const v = this.megaPoke();
         return v === null ? null : Number(v.split(":")[1]);
     }
 
-    get megaPoke() {
+    megaPoke() {
         return this.used ? null : flagToValue(this.id, "66", this.gen);
     }
 
-    get plateType() {
-        return this.isPlate() ? this.typeBoosted : -1;
+    plateType() {
+        return this.isPlate() ? this.boostedType() : -1;
     }
 
-    get heavy() {
-        return heavyItems.includes(this.nonDisabledName);
+    isHeavy() {
+        return heavyItems.has(this.nonDisabledName());
     }
 
-    get useful() {
+    isUseful() {
         return isItemUseful(this.id);
     }
 
-    get memoryType() {
+    memoryType() {
         return Number(flagToValue(this.id, "68", this.gen)) || Types.NORMAL;
     }
 

@@ -6,13 +6,13 @@ export default function rbyEndOfTurn(attacker, defender) {
     const values = [];
     const messages = [];
     const hp = defender.stat(Stats.HP);
-    if (defender.burned) {
+    if (defender.isBurned()) {
         values.push(-max(1, trunc(hp / 16)));
         messages.push("Burn");
-    } else if (defender.poisoned) {
+    } else if (defender.isPoisoned()) {
         values.push(-max(1, trunc(hp / 16)));
         messages.push("Poison");
-    } else if (defender.badlyPoisoned) {
+    } else if (defender.isBadlyPoisoned()) {
         values.push("toxic");
         messages.push("Toxic");
     }
