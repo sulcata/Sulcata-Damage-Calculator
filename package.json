@@ -50,11 +50,11 @@
         "jest": "^19.0.2",
         "lodash": "^4.17.4",
         "mkdirp": "^0.5.1",
-        "vue": "^2.2.6",
+        "vue": "2.2.6",
         "vue-i18n": "5.0.3",
         "vue-loader": "^11.3.4",
         "vue-multiselect": "2.0.0-beta.15",
-        "vue-template-compiler": "^2.2.6",
+        "vue-template-compiler": "2.2.6",
         "webpack": "^2.3.3",
         "webpack-dev-server": "^2.4.2"
     }
