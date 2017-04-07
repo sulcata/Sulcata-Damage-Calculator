@@ -1,5 +1,5 @@
 import Pokemon from "../src/Pokemon";
-import {Genders, Stats, Statuses, Types} from "../src/utilities";
+import {Genders, Stats, Statuses, Types, Weathers} from "../src/utilities";
 import {
     ImportableEvError, ImportableIvError,
     ImportableLevelError, ImportableLineError
@@ -237,16 +237,16 @@ describe("Pokemon", () => {
         expect(mudkip.nature).toBeUndefined();
     });
 
-    test("#num", () => {
-        expect(missingno.num).toEqual(0);
-        expect(mudkip.num).toEqual(258);
-        expect(megaSwampert.num).toEqual(260);
+    test("#num()", () => {
+        expect(missingno.num()).toEqual(0);
+        expect(mudkip.num()).toEqual(258);
+        expect(megaSwampert.num()).toEqual(260);
     });
 
-    test("#form", () => {
-        expect(missingno.form).toEqual(0);
-        expect(mudkip.form).toEqual(0);
-        expect(megaSwampert.form).toEqual(1);
+    test("#form()", () => {
+        expect(missingno.form()).toEqual(0);
+        expect(mudkip.form()).toEqual(0);
+        expect(megaSwampert.form()).toEqual(1);
     });
 
     test("#stat()", () => {
@@ -421,11 +421,11 @@ describe("Pokemon", () => {
 
         mudkip.ability.name = "Swift Swim";
         expect(mudkip.speed()).toEqual(232);
-        expect(mudkip.speed({rain: true})).toEqual(464);
+        expect(mudkip.speed({weather: Weathers.RAIN})).toEqual(464);
 
         mudkip.ability.name = "Chlorophyll";
         expect(mudkip.speed()).toEqual(232);
-        expect(mudkip.speed({sun: true})).toEqual(464);
+        expect(mudkip.speed({weather: Weathers.SUN})).toEqual(464);
 
         mudkip.ability.name = "(No Ability)";
         mudkip.item.name = "Choice Scarf";
@@ -464,48 +464,48 @@ describe("Pokemon", () => {
         expect(mudkip.speed()).toEqual(464);
     });
 
-    test("#type1", () => {
-        expect(mudkip.type1).toEqual(Types.WATER);
-        expect(marshtomp.type1).toEqual(Types.WATER);
+    test("#type1()", () => {
+        expect(mudkip.type1()).toEqual(Types.WATER);
+        expect(marshtomp.type1()).toEqual(Types.WATER);
 
         const sceptile = new Pokemon("Sceptile");
-        expect(sceptile.type1).toEqual(Types.GRASS);
+        expect(sceptile.type1()).toEqual(Types.GRASS);
 
         const megaSceptile = new Pokemon("Mega Sceptile");
-        expect(megaSceptile.type1).toEqual(Types.GRASS);
+        expect(megaSceptile.type1()).toEqual(Types.GRASS);
     });
 
-    test("#type2", () => {
-        expect(mudkip.type2).toEqual(Types.CURSE);
-        expect(marshtomp.type2).toEqual(Types.GROUND);
+    test("#type2()", () => {
+        expect(mudkip.type2()).toEqual(Types.CURSE);
+        expect(marshtomp.type2()).toEqual(Types.GROUND);
 
         const sceptile = new Pokemon("Sceptile");
-        expect(sceptile.type2).toEqual(Types.CURSE);
+        expect(sceptile.type2()).toEqual(Types.CURSE);
 
         const megaSceptile = new Pokemon("Mega Sceptile");
-        expect(megaSceptile.type2).toEqual(Types.DRAGON);
+        expect(megaSceptile.type2()).toEqual(Types.DRAGON);
     });
 
     test("#overrideTypes", () => {
         mudkip.overrideTypes = [Types.NORMAL, Types.CURSE];
-        expect(mudkip.type1).toEqual(Types.NORMAL);
-        expect(mudkip.type2).toEqual(Types.CURSE);
-        expect(mudkip.types).toEqual([Types.NORMAL]);
+        expect(mudkip.type1()).toEqual(Types.NORMAL);
+        expect(mudkip.type2()).toEqual(Types.CURSE);
+        expect(mudkip.types()).toEqual([Types.NORMAL]);
     });
 
-    test("#types", () => {
-        expect(mudkip.types).toEqual([Types.WATER]);
+    test("#types()", () => {
+        expect(mudkip.types()).toEqual([Types.WATER]);
 
-        expect(swampert.types).toEqual([Types.WATER, Types.GROUND]);
+        expect(swampert.types()).toEqual([Types.WATER, Types.GROUND]);
 
         const clefable = new Pokemon("Clefable");
-        expect(clefable.types).toEqual([Types.FAIRY]);
+        expect(clefable.types()).toEqual([Types.FAIRY]);
 
         clefable.gen = 5;
-        expect(clefable.types).toEqual([Types.NORMAL]);
+        expect(clefable.types()).toEqual([Types.NORMAL]);
 
         clefable.addedType = Types.WATER;
-        expect(clefable.types).toEqual([Types.NORMAL, Types.WATER]);
+        expect(clefable.types()).toEqual([Types.NORMAL, Types.WATER]);
     });
 
     test("#stab()", () => {
@@ -517,30 +517,30 @@ describe("Pokemon", () => {
         expect(swampert.stab(Types.FIRE)).toBeTruthy();
     });
 
-    test("#weight", () => {
-        expect(mudkip.weight).toEqual(76);
-        expect(marshtomp.weight).toEqual(280);
-        expect(swampert.weight).toEqual(819);
-        expect(megaSwampert.weight).toEqual(1020);
+    test("#weight()", () => {
+        expect(mudkip.weight()).toEqual(76);
+        expect(marshtomp.weight()).toEqual(280);
+        expect(swampert.weight()).toEqual(819);
+        expect(megaSwampert.weight()).toEqual(1020);
 
         mudkip.autotomize = true;
-        expect(mudkip.weight).toEqual(1);
+        expect(mudkip.weight()).toEqual(1);
 
         mudkip.ability.name = "Light Metal";
-        expect(mudkip.weight).toEqual(1);
+        expect(mudkip.weight()).toEqual(1);
 
         megaSwampert.autotomize = true;
-        expect(megaSwampert.weight).toEqual(20);
+        expect(megaSwampert.weight()).toEqual(20);
 
         swampert.ability.name = "Light Metal";
-        expect(swampert.weight).toEqual(409);
+        expect(swampert.weight()).toEqual(409);
 
         swampert.ability.name = "Heavy Metal";
-        expect(swampert.weight).toEqual(1638);
+        expect(swampert.weight()).toEqual(1638);
 
         swampert.ability.name = "(No Ability)";
         swampert.item.name = "Float Stone";
-        expect(swampert.weight).toEqual(409);
+        expect(swampert.weight()).toEqual(409);
     });
 
     test("#hasEvolution()", () => {
@@ -572,23 +572,23 @@ describe("Pokemon", () => {
         expect(snorlax.hasPreEvolution()).toBeFalsy();
     });
 
-    test("#ability1", () => {
-        expect(mudkip.ability1.name).toEqual("Torrent");
-        expect(megaSwampert.ability1.name).toEqual("Swift Swim");
+    test("#ability1()", () => {
+        expect(mudkip.ability1().name).toEqual("Torrent");
+        expect(megaSwampert.ability1().name).toEqual("Swift Swim");
         const nidoking = new Pokemon("Nidoking");
-        expect(nidoking.ability1.name).toEqual("Poison Point");
+        expect(nidoking.ability1().name).toEqual("Poison Point");
     });
 
     test("#ability2", () => {
-        expect(mudkip.ability2.name).toEqual("(No Ability)");
+        expect(mudkip.ability2().name).toEqual("(No Ability)");
         const nidoking = new Pokemon("Nidoking");
-        expect(nidoking.ability2.name).toEqual("Rivalry");
+        expect(nidoking.ability2().name).toEqual("Rivalry");
     });
 
     test("#ability3", () => {
-        expect(mudkip.ability3.name).toEqual("Damp");
+        expect(mudkip.ability3().name).toEqual("Damp");
         const nidoking = new Pokemon("Nidoking");
-        expect(nidoking.ability3.name).toEqual("Sheer Force");
+        expect(nidoking.ability3().name).toEqual("Sheer Force");
     });
 
     test("#hurtBySandstorm()", () => {
@@ -624,90 +624,90 @@ describe("Pokemon", () => {
         expect(froslass.hurtByHail()).toBeFalsy();
     });
 
-    test("#poisoned", () => {
-        expect(mudkip.poisoned).toBeFalsy();
+    test("#isPoisoned()", () => {
+        expect(mudkip.isPoisoned()).toBeFalsy();
 
         mudkip.status = Statuses.POISONED;
-        expect(mudkip.poisoned).toBeTruthy();
+        expect(mudkip.isPoisoned()).toBeTruthy();
 
         mudkip.status = Statuses.BADLY_POISONED;
-        expect(mudkip.poisoned).toBeFalsy();
+        expect(mudkip.isPoisoned()).toBeFalsy();
     });
 
-    test("#badlyPoisoned", () => {
-        expect(mudkip.badlyPoisoned).toBeFalsy();
+    test("#isBadlyPoisoned()", () => {
+        expect(mudkip.isBadlyPoisoned()).toBeFalsy();
 
         mudkip.status = Statuses.POISONED;
-        expect(mudkip.badlyPoisoned).toBeFalsy();
+        expect(mudkip.isBadlyPoisoned()).toBeFalsy();
 
         mudkip.status = Statuses.BADLY_POISONED;
-        expect(mudkip.badlyPoisoned).toBeTruthy();
+        expect(mudkip.isBadlyPoisoned()).toBeTruthy();
     });
 
-    test("#burned", () => {
-        expect(mudkip.burned).toBeFalsy();
+    test("#isBurned()", () => {
+        expect(mudkip.isBurned()).toBeFalsy();
 
         mudkip.status = Statuses.POISONED;
-        expect(mudkip.burned).toBeFalsy();
+        expect(mudkip.isBurned()).toBeFalsy();
 
         mudkip.status = Statuses.BURNED;
-        expect(mudkip.burned).toBeTruthy();
+        expect(mudkip.isBurned()).toBeTruthy();
     });
 
-    test("#paralyzed", () => {
-        expect(mudkip.paralyzed).toBeFalsy();
+    test("#isParalyzed()", () => {
+        expect(mudkip.isParalyzed()).toBeFalsy();
 
         mudkip.status = Statuses.POISONED;
-        expect(mudkip.paralyzed).toBeFalsy();
+        expect(mudkip.isParalyzed()).toBeFalsy();
 
         mudkip.status = Statuses.PARALYZED;
-        expect(mudkip.paralyzed).toBeTruthy();
+        expect(mudkip.isParalyzed()).toBeTruthy();
     });
 
-    test("#asleep", () => {
-        expect(mudkip.asleep).toBeFalsy();
+    test("#isAsleep()", () => {
+        expect(mudkip.isAsleep()).toBeFalsy();
 
         mudkip.status = Statuses.POISONED;
-        expect(mudkip.asleep).toBeFalsy();
+        expect(mudkip.isAsleep()).toBeFalsy();
 
         mudkip.status = Statuses.ASLEEP;
-        expect(mudkip.asleep).toBeTruthy();
+        expect(mudkip.isAsleep()).toBeTruthy();
     });
 
-    test("#frozen", () => {
-        expect(mudkip.frozen).toBeFalsy();
+    test("#isFrozen()", () => {
+        expect(mudkip.isFrozen()).toBeFalsy();
 
         mudkip.status = Statuses.POISONED;
-        expect(mudkip.frozen).toBeFalsy();
+        expect(mudkip.isFrozen()).toBeFalsy();
 
         mudkip.status = Statuses.FROZEN;
-        expect(mudkip.frozen).toBeTruthy();
+        expect(mudkip.isFrozen()).toBeTruthy();
     });
 
-    test("#male", () => {
-        expect(mudkip.male).toBeFalsy();
+    test("#isMale()", () => {
+        expect(mudkip.isMale()).toBeFalsy();
 
         mudkip.gender = Genders.MALE;
-        expect(mudkip.male).toBeTruthy();
+        expect(mudkip.isMale()).toBeTruthy();
 
         mudkip.gender = Genders.FEMALE;
-        expect(mudkip.male).toBeFalsy();
+        expect(mudkip.isMale()).toBeFalsy();
 
         mudkip.gender = Genders.NO_GENDER;
-        expect(mudkip.male).toBeFalsy();
+        expect(mudkip.isMale()).toBeFalsy();
     });
 
-    test("#female", () => {
-        expect(mudkip.female).toBeFalsy();
+    test("#isFemale()", () => {
+        expect(mudkip.isFemale()).toBeFalsy();
 
         mudkip.gender = Genders.FEMALE;
-        expect(mudkip.female).toBeTruthy();
+        expect(mudkip.isFemale()).toBeTruthy();
 
         mudkip.gender = Genders.MALE;
-        expect(mudkip.female).toBeFalsy();
+        expect(mudkip.isFemale()).toBeFalsy();
 
         mudkip.gender = Genders.NO_GENDER;
-        expect(mudkip.female).toBeFalsy();
+        expect(mudkip.isFemale()).toBeFalsy();
     });
 
     test("#hasPlate()", () => {

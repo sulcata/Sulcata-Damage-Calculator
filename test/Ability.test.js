@@ -94,92 +94,92 @@ describe("Ability", () => {
         expect(ability.id).toEqual(0);
     });
 
-    test("#pinchType", () => {
-        expect(blaze.pinchType).toEqual(Types.FIRE);
-        expect(swarm.pinchType).toEqual(Types.BUG);
-        expect(magicGuard.pinchType).toEqual(-1);
-        expect(noAbility.pinchType).toEqual(-1);
+    test("#pinchType()", () => {
+        expect(blaze.pinchType()).toEqual(Types.FIRE);
+        expect(swarm.pinchType()).toEqual(Types.BUG);
+        expect(magicGuard.pinchType()).toEqual(-1);
+        expect(noAbility.pinchType()).toEqual(-1);
 
         blaze.disabled = true;
-        expect(blaze.pinchType).toEqual(-1);
+        expect(blaze.pinchType()).toEqual(-1);
     });
 
-    test("#normalToType", () => {
-        expect(pixilate.normalToType).toEqual(Types.FAIRY);
-        expect(refrigerate.normalToType).toEqual(Types.ICE);
-        expect(noAbility.normalToType).toEqual(-1);
+    test("#normalToType()", () => {
+        expect(pixilate.normalToType()).toEqual(Types.FAIRY);
+        expect(refrigerate.normalToType()).toEqual(Types.ICE);
+        expect(noAbility.normalToType()).toEqual(-1);
 
         pixilate.disabled = true;
-        expect(pixilate.normalToType).toEqual(-1);
+        expect(pixilate.normalToType()).toEqual(-1);
     });
 
-    test("#immunityType", () => {
-        expect(noAbility.immunityType).toEqual(-1);
-        expect(waterAbsorb.immunityType).toEqual(Types.WATER);
-        expect(stormDrain.immunityType).toEqual(Types.WATER);
-        expect(sapSipper.immunityType).toEqual(Types.GRASS);
-        expect(levitate.immunityType).toEqual(Types.GROUND);
-        expect(motorDrive.immunityType).toEqual(Types.ELECTRIC);
-        expect(flashFire.immunityType).toEqual(Types.FIRE);
-        expect(drySkin.immunityType).toEqual(Types.WATER);
+    test("#immunityType()", () => {
+        expect(noAbility.immunityType()).toEqual(-1);
+        expect(waterAbsorb.immunityType()).toEqual(Types.WATER);
+        expect(stormDrain.immunityType()).toEqual(Types.WATER);
+        expect(sapSipper.immunityType()).toEqual(Types.GRASS);
+        expect(levitate.immunityType()).toEqual(Types.GROUND);
+        expect(motorDrive.immunityType()).toEqual(Types.ELECTRIC);
+        expect(flashFire.immunityType()).toEqual(Types.FIRE);
+        expect(drySkin.immunityType()).toEqual(Types.WATER);
 
         stormDrain.disabled = true;
-        expect(stormDrain.immunityType).toEqual(-1);
+        expect(stormDrain.immunityType()).toEqual(-1);
 
         stormDrain.disabled = false;
         stormDrain.gen = 4;
-        expect(stormDrain.immunityType).toEqual(-1);
+        expect(stormDrain.immunityType()).toEqual(-1);
 
         const invalidAbility = new Ability({id: -1});
-        expect(invalidAbility.immunityType).toEqual(-1);
+        expect(invalidAbility.immunityType()).toEqual(-1);
     });
 
-    test("#moldBreaker", () => {
-        expect(noAbility.moldBreakerLike).toBeFalsy();
-        expect(moldBreaker.moldBreakerLike).toBeTruthy();
-        expect(turboblaze.moldBreakerLike).toBeTruthy();
-        expect(teravolt.moldBreakerLike).toBeTruthy();
+    test("#ignoresAbilities()", () => {
+        expect(noAbility.ignoresAbilities()).toBeFalsy();
+        expect(moldBreaker.ignoresAbilities()).toBeTruthy();
+        expect(turboblaze.ignoresAbilities()).toBeTruthy();
+        expect(teravolt.ignoresAbilities()).toBeTruthy();
 
         moldBreaker.disabled = true;
-        expect(moldBreaker.moldBreakerLike).toBeFalsy();
+        expect(moldBreaker.ignoresAbilities()).toBeFalsy();
     });
 
-    test("#ignorable", () => {
-        expect(multiscale.ignorable).toBeTruthy();
-        expect(swiftSwim.ignorable).toBeFalsy();
+    test("#isIgnorable()", () => {
+        expect(multiscale.isIgnorable()).toBeTruthy();
+        expect(swiftSwim.isIgnorable()).toBeFalsy();
     });
 
-    test("#sandImmunity", () => {
-        expect(noAbility.sandImmunity).toBeFalsy();
-        expect(magicGuard.sandImmunity).toBeTruthy();
-        expect(overcoat.sandImmunity).toBeTruthy();
-        expect(sandVeil.sandImmunity).toBeTruthy();
-        expect(sandRush.sandImmunity).toBeTruthy();
-        expect(sandForce.sandImmunity).toBeTruthy();
+    test("#isSandImmunity()", () => {
+        expect(noAbility.isSandImmunity()).toBeFalsy();
+        expect(magicGuard.isSandImmunity()).toBeTruthy();
+        expect(overcoat.isSandImmunity()).toBeTruthy();
+        expect(sandVeil.isSandImmunity()).toBeTruthy();
+        expect(sandRush.isSandImmunity()).toBeTruthy();
+        expect(sandForce.isSandImmunity()).toBeTruthy();
 
         magicGuard.disabled = true;
-        expect(magicGuard.sandImmunity).toBeFalsy();
+        expect(magicGuard.isSandImmunity()).toBeFalsy();
     });
 
-    test("#hailImmunity", () => {
-        expect(noAbility.hailImmunity).toBeFalsy();
-        expect(magicGuard.hailImmunity).toBeTruthy();
-        expect(overcoat.hailImmunity).toBeTruthy();
-        expect(iceBody.hailImmunity).toBeTruthy();
-        expect(snowCloak.hailImmunity).toBeTruthy();
+    test("#isHailImmunity()", () => {
+        expect(noAbility.isHailImmunity()).toBeFalsy();
+        expect(magicGuard.isHailImmunity()).toBeTruthy();
+        expect(overcoat.isHailImmunity()).toBeTruthy();
+        expect(iceBody.isHailImmunity()).toBeTruthy();
+        expect(snowCloak.isHailImmunity()).toBeTruthy();
 
         magicGuard.disabled = true;
-        expect(magicGuard.hailImmunity).toBeFalsy();
+        expect(magicGuard.isHailImmunity()).toBeFalsy();
     });
 
-    test("#filterLike", () => {
+    test("#reducesSuperEffective()", () => {
         const filter = new Ability("Filter");
         const solidRock = new Ability("Solid Rock");
         const prismArmor = new Ability("Prism Armor");
-        expect(filter.filterLike).toBeTruthy();
-        expect(solidRock.filterLike).toBeTruthy();
-        expect(prismArmor.filterLike).toBeTruthy();
-        expect(noAbility.filterLike).toBeFalsy();
-        expect(magicGuard.filterLike).toBeFalsy();
+        expect(filter.reducesSuperEffective()).toBeTruthy();
+        expect(solidRock.reducesSuperEffective()).toBeTruthy();
+        expect(prismArmor.reducesSuperEffective()).toBeTruthy();
+        expect(noAbility.reducesSuperEffective()).toBeFalsy();
+        expect(magicGuard.reducesSuperEffective()).toBeFalsy();
     });
 });

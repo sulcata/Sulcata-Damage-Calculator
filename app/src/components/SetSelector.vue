@@ -98,7 +98,7 @@ function importSmogonSet(pokemonId, set, gen) {
     }
 
     if (pokemon.isMega()) {
-        pokemon.ability = pokemon.ability1;
+        pokemon.ability = pokemon.ability1();
     }
 
     return pokemon;

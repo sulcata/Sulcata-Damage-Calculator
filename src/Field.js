@@ -29,46 +29,46 @@ export default class Field {
         this.ionDeluge = Boolean(field.ionDeluge);
     }
 
-    get effectiveWeather() {
+    effectiveWeather() {
         return this.airLock ? Weathers.CLEAR : this.weather;
     }
 
-    get clearWeather() {
-        return this.effectiveWeather === Weathers.CLEAR;
+    isClearWeather() {
+        return this.effectiveWeather() === Weathers.CLEAR;
     }
 
-    get rain() {
+    rain() {
         return [
             Weathers.RAIN,
             Weathers.HEAVY_RAIN
-        ].includes(this.effectiveWeather);
+        ].includes(this.effectiveWeather());
     }
 
-    get sun() {
+    sun() {
         return [
             Weathers.SUN,
             Weathers.HARSH_SUN
-        ].includes(this.effectiveWeather);
+        ].includes(this.effectiveWeather());
     }
 
-    get sand() {
-        return this.effectiveWeather === Weathers.SAND;
+    sand() {
+        return this.effectiveWeather() === Weathers.SAND;
     }
 
-    get hail() {
-        return this.effectiveWeather === Weathers.HAIL;
+    hail() {
+        return this.effectiveWeather() === Weathers.HAIL;
     }
 
-    get heavyRain() {
-        return this.effectiveWeather === Weathers.HEAVY_RAIN;
+    heavyRain() {
+        return this.effectiveWeather() === Weathers.HEAVY_RAIN;
     }
 
-    get harshSun() {
-        return this.effectiveWeather === Weathers.HARSH_SUN;
+    harshSun() {
+        return this.effectiveWeather() === Weathers.HARSH_SUN;
     }
 
-    get strongWinds() {
-        return this.effectiveWeather === Weathers.STRONG_WINDS;
+    strongWinds() {
+        return this.effectiveWeather() === Weathers.STRONG_WINDS;
     }
 
 }

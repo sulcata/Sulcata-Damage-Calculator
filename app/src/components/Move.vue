@@ -82,28 +82,28 @@
                 </select>
 
                 <!-- Minimize -->
-                <button-checkbox v-else-if='move.boostedByMinimize'
+                <button-checkbox v-else-if='move.boostedByMinimize()'
                                  v-model='move.minimize'
                                  size='small'>
                     {{ $tMove("Minimize") }}
                 </button-checkbox>
 
                 <!-- Dig -->
-                <button-checkbox v-else-if='move.boostedByDig'
+                <button-checkbox v-else-if='move.boostedByDig()'
                                  v-model='move.dig'
                                  size='small'>
                     {{ $tMove("Dig") }}
                 </button-checkbox>
 
                 <!-- Dive -->
-                <button-checkbox v-else-if='move.boostedByDive'
+                <button-checkbox v-else-if='move.boostedByDive()'
                                  v-model='move.dive'
                                  size='small'>
                     {{ $tMove("Dive") }}
                 </button-checkbox>
 
                 <!-- Fly -->
-                <button-checkbox v-else-if='move.boostedByFly'
+                <button-checkbox v-else-if='move.boostedByFly()'
                                  v-model='move.fly'
                                  size='small'>
                     {{ $tMove("Fly") }} / {{ $tMove("Bounce") }}
@@ -156,7 +156,7 @@ export default {
                 value: 0,
                 label: "--"
             }];
-            for (let i = this.move.minHits; i <= this.move.maxHits; i++) {
+            for (let i = this.move.minHits(); i <= this.move.maxHits(); i++) {
                 options.push({
                     value: i,
                     label: `${i} hits`
@@ -173,7 +173,8 @@ export default {
             return ordinalHitOptions(5);
         },
         numberOfHitsInput() {
-            return this.move.multipleHits && this.move.name !== "Beat Up";
+            return this.move.hitsMultipleTimes()
+                && this.move.name !== "Beat Up";
         },
         happiness: {
             get() {
@@ -190,7 +191,7 @@ export default {
                 id: $event ? $event.value : 0,
                 gen: this.move.gen
             });
-            this.pokemon.happiness = move.optimalHappiness;
+            this.pokemon.happiness = move.optimalHappiness();
             this.$emit("input", move);
         }
     },

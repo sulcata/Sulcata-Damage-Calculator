@@ -3,7 +3,10 @@ import Move from "./Move";
 import Field from "./Field";
 import Multiset from "./Multiset";
 import {Gens, Stats, Types, addStrs, divideStrs} from "./utilities";
-import {physicalType, natureMultiplier, typeName, effective} from "./info";
+import {
+    isPhysicalType, natureMultiplier,
+    typeName, effectiveness
+} from "./info";
 import {MissingnoError, NoMoveError} from "./errors";
 
 import calculate from "./calculate";
@@ -59,16 +62,15 @@ export default function sulcalc(attacker, defender, move, field) {
     effects.messages.unshift("");
     effects.values.unshift(0);
 
-    if ((attacker.ability.moldBreakerLike || move.ignoresAbilities)
-        && defender.ability.ignorable) {
+    if ((attacker.ability.ignoresAbilities() || move.ignoresAbilities())
+        && defender.ability.isIgnorable()) {
         defender.ability.disabled = false;
     }
 
-    if (defender.ability.critArmor || defender.luckyChant
-        || (field.gen >= Gens.GSC && field.gen < Gens.HGSS && !move.crits)) {
+    if (defender.hasCritArmor() || !move.canCrit()) {
         move.critical = false;
     } else if (attacker.ability.name === "Merciless"
-        && (defender.poisoned || defender.badlyPoisoned)) {
+               && (defender.isPoisoned() || defender.isBadlyPoisoned())) {
         move.critical = true;
     }
 
@@ -93,23 +95,23 @@ export default function sulcalc(attacker, defender, move, field) {
         moveType = Move.hiddenPowerType(attacker.ivs, field.gen);
         movePower = Move.hiddenPowerBp(attacker.ivs, field.gen);
     } else if (move.name === "Weather Ball") {
-        moveType = Move.weatherBall(field.effectiveWeather);
+        moveType = Move.weatherBall(field.effectiveWeather());
         // gen 3 multiplies damage, not BP
         movePower = field.gen >= Gens.HGSS && moveType ? 100 : 50;
     } else if (move.zMove) {
-        moveType = move.type;
-        movePower = move.power;
+        moveType = move.type();
+        movePower = move.power();
     } else {
-        moveType = move.type;
+        moveType = move.type();
         movePower = null; // we'll say null means non-var BP
     }
 
     let a, d;
-    if (move.psyshock) {
+    if (move.isPsyshockLike()) {
         a = Stats.SATK;
         d = Stats.DEF;
-    } else if (field.gen >= Gens.HGSS && move.physical
-        || field.gen < Gens.HGSS && physicalType(moveType)) {
+    } else if (field.gen >= Gens.HGSS && move.isPhysical()
+        || field.gen < Gens.HGSS && isPhysicalType(moveType)) {
         a = Stats.ATK;
         d = Stats.DEF;
     } else {
@@ -142,7 +144,7 @@ export default function sulcalc(attacker, defender, move, field) {
         reportPokes.push(attacker.ability.name);
     }
 
-    if (attacker.burned) {
+    if (attacker.isBurned()) {
         reportPokes.push("burned");
     }
 
@@ -162,7 +164,7 @@ export default function sulcalc(attacker, defender, move, field) {
         reportPokes.push(`(${typeName(moveType)})`);
     } else if (move.name === "Hidden Power") {
         reportPokes.push(`(${typeName(moveType)} ${movePower} BP)`);
-    } else if (move.multipleHits && move.numberOfHits >= 1
+    } else if (move.hitsMultipleTimes() && move.numberOfHits >= 1
         && move.name !== "Beat Up") {
         reportPokes.push(`[${move.numberOfHits} hits]`);
     } else if (move.zMove) {
@@ -232,8 +234,8 @@ export default function sulcalc(attacker, defender, move, field) {
     if (defender.ability.name !== "Magic Guard") {
         let hazardsDmg = 0;
         if (defender.stealthRock) {
-            const {num, den} = effective(
-                Types.ROCK, defender.types, {gen: field.gen});
+            const {num, den} = effectiveness(Types.ROCK, defender.types(),
+                                             {gen: field.gen});
             hazardsDmg += trunc(maxHp * num / (den * 8));
         }
         if (defender.spikes > 0) {
@@ -247,7 +249,7 @@ export default function sulcalc(attacker, defender, move, field) {
         initDmgRange: initDmg,
         initDmgRangeBerry: initDmgBerry,
         effects: effects.values,
-        rechargeTurns: Number(move.recharge),
+        rechargeTurns: Number(move.requiresRecharge()),
         toxicCounter: defender.toxicCounter
     });
 

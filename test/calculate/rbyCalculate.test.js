@@ -25,7 +25,7 @@ describe("rbyCalculate()", () => {
         ]);
     });
 
-    describe("special", () => {
+    test("special", () => {
         const attacker = new Pokemon("Zapdos", 1);
         const defender = new Pokemon("Snorlax", 1);
         const move = new Move("Thunder", 1);
@@ -45,7 +45,7 @@ describe("rbyCalculate()", () => {
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([0]);
     });
 
-    describe("critical", () => {
+    test("critical", () => {
         const attacker = new Pokemon("Zapdos", Gens.RBY);
         const defender = new Pokemon("Snorlax", Gens.RBY);
         const move = new Move({
