@@ -10,8 +10,6 @@
 </template>
 
 <script>
-import isEqual from "lodash/isEqual";
-
 const sizeClasses = {
     small: "btn-group-sm",
     medium: "",
@@ -62,7 +60,7 @@ export default {
             this.$emit("input", option[this.trackBy]);
         },
         isSelected(option) {
-            return isEqual(this.value, option[this.trackBy]);
+            return Object.is(this.value, option[this.trackBy]);
         }
     }
 };
