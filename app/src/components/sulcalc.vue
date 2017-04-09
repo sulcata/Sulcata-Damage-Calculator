@@ -9,10 +9,16 @@
         </div>
 
         <div class='row mt-3'>
-            <div class='col-4' v-for='pokes in pokeGroups'>
+            <div class='col-4'>
                 <button-radio-group layout='vertical'
-                                    v-model='selectedMove'
-                                    :options='moveList(...pokes)'
+                                    v-model='selectedReport'
+                                    :options='attackerReports'
+                ></button-radio-group>
+            </div>
+            <div class='col-4'>
+                <button-radio-group layout='vertical'
+                                    v-model='selectedReport'
+                                    :options='defenderReports'
                 ></button-radio-group>
             </div>
         </div>
@@ -30,7 +36,9 @@
 
         <div class='row mt-3'>
             <div class='col'>
-                <v-pokemon v-model='attacker'></v-pokemon>
+                <v-pokemon v-model='attacker'
+                           @input='selectBestReport()'
+                ></v-pokemon>
             </div>
             <div class='col-4'>
                 <v-field :field='field'
@@ -39,23 +47,24 @@
                 ></v-field>
             </div>
             <div class='col'>
-                <v-pokemon v-model='defender'></v-pokemon>
+                <v-pokemon v-model='defender'
+                           @input='selectBestReport()'
+                ></v-pokemon>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import zip from "lodash/zip";
+
 import translationMixin from "../mixins/translation";
 
 import vPokemon from "./Pokemon.vue";
 import vField from "./Field.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 
-import sulcalc, {
-    Pokemon, Field, maxGen, cmpStrs,
-    NoMoveError, MissingnoError
-} from "sulcalc";
+import sulcalc, {Pokemon, Field, maxGen, cmpStrs} from "sulcalc";
 
 export default {
     data() {
@@ -67,7 +76,7 @@ export default {
             defender,
             field,
             genData: maxGen,
-            selectedMove: null
+            selectedReport: {}
         };
     },
     computed: {
@@ -87,56 +96,67 @@ export default {
             },
             set(value) {
                 this.genData = value;
-                this.selectedMove = null;
+                this.selectedReport = {};
                 this.attacker = new Pokemon({gen: value});
                 this.defender = new Pokemon({gen: value});
                 this.field = new Field({gen: value});
             }
         },
-        pokeGroups() {
-            return [["attacker", "defender"], ["defender", "attacker"]];
-        },
-        report() {
-            if (this.selectedMove) {
-                try {
-                    return sulcalc(this[this.selectedMove.user],
-                                   this[this.selectedMove.target],
-                                   this.selectedMove.move,
-                                   this.field);
-                } catch (error) {
-                    if (!(error instanceof NoMoveError)
-                        && !(error instanceof MissingnoError)) {
-                        throw error;
-                    }
-                }
-            }
-            return {};
-        },
         reportText() {
-            return this.report.report || "";
+            return this.selectedReport.report || "";
         },
         damageRoll() {
-            if (!this.report.damage) return "";
-            if (cmpStrs(this.report.damage.size, "39") > 0) return "";
-            return `(${this.report.damage.toString(entryAsList)})`;
+            if (!this.selectedReport.damage) return "";
+            if (cmpStrs(this.selectedReport.damage.size, "39") > 0) return "";
+            return `(${this.selectedReport.damage.toString(entryAsList)})`;
+        },
+        attackerReports() {
+            const attacker = this.attacker;
+            const defender = this.defender;
+            return attacker.moves.map(move => {
+                try {
+                    return {
+                        value: sulcalc(attacker, defender, move, this.field),
+                        label: this.$tMove(move)
+                    };
+                } catch (error) {
+                    return {
+                        value: {},
+                        label: this.$tMove(move)
+                    };
+                }
+            });
+        },
+        defenderReports() {
+            const attacker = this.attacker;
+            const defender = this.defender;
+            return defender.moves.map(move => {
+                try {
+                    return {
+                        value: sulcalc(defender, attacker, move, this.field),
+                        label: this.$tMove(move)
+                    };
+                } catch (error) {
+                    return {
+                        value: {},
+                        label: this.$tMove(move)
+                    };
+                }
+            });
         }
     },
     methods: {
-        moveList(user, target) {
-            return this[user].moves.map(move => ({
-                value: {
-                    move,
-                    user,
-                    target
-                },
-                label: this.$tMove(move)
-            }));
-        },
         setHp() {
-            const poke = this[this.selectedMove.target];
-            const report = this.report;
+            const poke = this.selectedReport.defender;
+            const report = this.selectedReport;
             poke.currentHpRange = report.remainingHealth;
             poke.currentHpRangeBerry = report.remainingHealthBerry;
+        },
+        selectBestReport() {
+            const reports = [...this.attackerReports, ...this.defenderReports];
+            const bestReport = reports.map(({value}) => value)
+                                      .reduce(betterReport, {});
+            this.selectedReport = bestReport;
         }
     },
     mixins: [translationMixin],
@@ -146,6 +166,16 @@ export default {
         ButtonRadioGroup
     }
 };
+
+function betterReport(report1, report2) {
+    const chances1 = report1.roundedChances || [];
+    const chances2 = report2.roundedChances || [];
+    for (const [chance1 = 0, chance2 = 0] of zip(chances1, chances2)) {
+        if (chance1 > chance2) return report1;
+        if (chance2 > chance1) return report2;
+    }
+    return report1;
+}
 
 function entryAsList([value, multiplicity]) {
     return Array(Number(multiplicity)).fill(value).join(", ");
