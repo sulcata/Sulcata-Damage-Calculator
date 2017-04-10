@@ -98,6 +98,7 @@ export default function smCalculate(attacker, defender, move, field) {
         case "Heat Crash":
             movePower = Move.heavySlam(attacker.weight(), defender.weight());
             break;
+        case "Power Trip":
         case "Stored Power":
             movePower = Move.storedPower(attacker.boosts);
             break;
