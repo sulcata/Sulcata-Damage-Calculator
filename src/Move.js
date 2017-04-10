@@ -285,6 +285,12 @@ export default class Move {
         }
     }
 
+    weakenedByGrassyTerrain() {
+        return this.name === "Earthquake"
+            || this.name === "Magnitude"
+            || this.name === "Bulldoze";
+    }
+
     static hiddenPowers(typeId, gen) {
         if (gen < Gens.ADV) {
             if (typeId < 1 || typeId > 16) {
