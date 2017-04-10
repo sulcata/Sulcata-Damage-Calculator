@@ -398,13 +398,6 @@ export default function smCalculate(attacker, defender, move, field) {
                 movePowerMod = chainMod(0x1800, movePowerMod);
             }
             break;
-        case "Earthquake":
-        case "Magnitude":
-        case "Bulldoze":
-            if (field.grassyTerrain) {
-                movePowerMod = chainMod(0x800, movePowerMod);
-            }
-            break;
         /* no default */
     }
 
@@ -787,6 +780,10 @@ export default function smCalculate(attacker, defender, move, field) {
     if (field.fairyAura && moveType === Types.FAIRY
         || field.darkAura && moveType === Types.DARK) {
         finalMod = chainMod(field.auraBreak ? 0xAAA : 0x1555, finalMod);
+    }
+
+    if (field.grassyTerrain && move.weakenedByGrassyTerrain()) {
+        finalMod = chainMod(0x800, finalMod);
     }
 
     switch (attacker.item.name) {
