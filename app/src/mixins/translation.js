@@ -1,18 +1,16 @@
 import Vue from "vue";
 import VueI18n from "vue-i18n";
-
 import languages from "../../translations/languages";
 import en from "../../translations/en";
-
 import {info} from "sulcalc";
 
-const translations = {en};
 Vue.use(VueI18n);
-Vue.locale("en", translations.en);
-Vue.config.lang = "en";
-if (process.env.NODE_ENV === "production") {
-    Vue.config.missingHandler = () => {};
-}
+
+export const i18n = new VueI18n({
+    locale: "en",
+    fallbackLocale: "en",
+    messages: {en}
+});
 
 export default {
     data() {
@@ -20,12 +18,11 @@ export default {
     },
     methods: {
         async $setLocale(locale) {
-            if (!translations.hasOwnProperty(locale)) {
+            if (!i18n.messages.hasOwnProperty(locale)) {
                 const module = await import(`../../translations/${locale}.js`);
-                translations[locale] = module.default;
-                Vue.locale(locale, translations[locale]);
+                i18n.setLocaleMessage(locale, module.default);
             }
-            Vue.config.lang = locale;
+            i18n.locale = locale;
             return locale;
         },
         $tPokemon(pokemon) {
