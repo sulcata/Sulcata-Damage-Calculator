@@ -41,10 +41,16 @@
                 ></v-pokemon>
             </div>
             <div class='col-4'>
-                <v-field :field='field'
-                         :attacker='attacker'
-                         :defender='defender'
-                ></v-field>
+                <tab-content :tabs='["General", "More Options"]'>
+                    <v-field slot='General'
+                             :field='field'
+                             :attacker='attacker'
+                             :defender='defender'
+                    ></v-field>
+                    <div slot='More Options'>
+
+                    </div>
+                </tab-content>
             </div>
             <div class='col'>
                 <v-pokemon v-model='defender'
@@ -63,6 +69,7 @@ import translationMixin from "../mixins/translation";
 import vPokemon from "./Pokemon.vue";
 import vField from "./Field.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
+import TabContent from "./ui/TabContent.vue";
 
 import sulcalc, {Pokemon, Field, maxGen, cmpStrs} from "sulcalc";
 
@@ -163,7 +170,8 @@ export default {
     components: {
         vPokemon,
         vField,
-        ButtonRadioGroup
+        ButtonRadioGroup,
+        TabContent
     }
 };
 

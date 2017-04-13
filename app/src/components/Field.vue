@@ -1,193 +1,182 @@
 <template>
-    <tab-content :tabs='["General", "More Options"]'>
+    <div class='container-fluid'>
+        <!-- Battle Mode -->
+        <div v-if='field.gen >= Gens.ADV'
+             class='row justify-content-center no-gutters mt-1'>
+            <button-radio-group v-model='field.multiBattle'
+                                :options='battleModes'
+                                size='small'
+            ></button-radio-group>
+        </div>
 
-        <div slot='General' class='container-fluid'>
+        <!-- Inverted Battle -->
+        <div v-if='field.gen === Gens.ORAS'
+             class='row justify-content-center no-gutters mt-1'>
+            <button-checkbox v-model='field.invertedBattle' size='small'>
+                {{ $t("invertedBattle") }}
+            </button-checkbox>
+        </div>
 
-            <!-- Battle Mode -->
-            <div v-if='field.gen >= Gens.ADV'
-                 class='row justify-content-center no-gutters mt-1'>
-                <button-radio-group v-model='field.multiBattle'
-                                    :options='battleModes'
-                                    size='small'
-                ></button-radio-group>
-            </div>
+        <!-- Weather -->
+        <hr v-if='field.gen >= Gens.ORAS' class='row'>
+        <div v-if='field.gen >= Gens.GSC'
+             class='row justify-content-center no-gutters mt-1'>
+            <button-radio-group v-model='field.weather'
+                                :options='weathers'
+                                size='small'
+            ></button-radio-group>
+        </div>
+        <div v-if='field.gen >= Gens.ORAS'
+             class='row justify-content-center no-gutters mt-1'>
+            <button-radio-group v-model='field.weather'
+                                :options='harshWeathers'
+                                size='small'
+            ></button-radio-group>
+        </div>
+        <hr v-if='field.gen >= Gens.ORAS' class='row'>
 
-            <!-- Inverted Battle -->
-            <div v-if='field.gen === Gens.ORAS'
-                 class='row justify-content-center no-gutters mt-1'>
-                <button-checkbox v-model='field.invertedBattle' size='small'>
-                    {{ $t("invertedBattle") }}
+        <!-- Water Sport / Mud Sport -->
+        <div v-if='field.gen >= Gens.ADV'
+             class='row justify-content-center no-gutters mt-1'>
+            <div class='col-auto btn-group btn-group-sm'>
+                <button-checkbox v-model='field.waterSport'>
+                    {{ $tMove("Water Sport") }}
+                </button-checkbox>
+                <button-checkbox v-model='field.mudSport'>
+                    {{ $tMove("Mud Sport") }}
                 </button-checkbox>
             </div>
+        </div>
 
-            <!-- Weather -->
-            <hr v-if='field.gen >= Gens.ORAS' class='row'>
-            <div v-if='field.gen >= Gens.GSC'
-                 class='row justify-content-center no-gutters mt-1'>
-                <button-radio-group v-model='field.weather'
-                                    :options='weathers'
-                                    size='small'
-                ></button-radio-group>
-            </div>
-            <div v-if='field.gen >= Gens.ORAS'
-                 class='row justify-content-center no-gutters mt-1'>
-                <button-radio-group v-model='field.weather'
-                                    :options='harshWeathers'
-                                    size='small'
-                ></button-radio-group>
-            </div>
-            <hr v-if='field.gen >= Gens.ORAS' class='row'>
-
-            <!-- Water Sport / Mud Sport -->
-            <div v-if='field.gen >= Gens.ADV'
-                 class='row justify-content-center no-gutters mt-1'>
-                <div class='col-auto btn-group btn-group-sm'>
-                    <button-checkbox v-model='field.waterSport'>
-                        {{ $tMove("Water Sport") }}
+        <!-- Gravity / Magic Room / Wonder Room -->
+        <div v-if='field.gen >= Gens.HGSS'
+             class='row justify-content-center no-gutters mt-1'>
+            <div class='col-auto btn-group btn-group-sm'>
+                <button-checkbox v-model='field.gravity'>
+                    {{ $tMove("Gravity") }}
+                </button-checkbox>
+                <template v-if='field.gen >= Gens.B2W2'>
+                    <button-checkbox v-model='field.magicRoom'>
+                        {{ $tMove("Magic Room") }}
                     </button-checkbox>
-                    <button-checkbox v-model='field.mudSport'>
-                        {{ $tMove("Mud Sport") }}
+                    <button-checkbox v-model='field.wonderRoom'>
+                        {{ $tMove("Wonder Room") }}
                     </button-checkbox>
-                </div>
-            </div>
-
-            <!-- Gravity / Magic Room / Wonder Room -->
-            <div v-if='field.gen >= Gens.HGSS'
-                 class='row justify-content-center no-gutters mt-1'>
-                <div class='col-auto btn-group btn-group-sm'>
-                    <button-checkbox v-model='field.gravity'>
-                        {{ $tMove("Gravity") }}
-                    </button-checkbox>
-                    <template v-if='field.gen >= Gens.B2W2'>
-                        <button-checkbox v-model='field.magicRoom'>
-                            {{ $tMove("Magic Room") }}
-                        </button-checkbox>
-                        <button-checkbox v-model='field.wonderRoom'>
-                            {{ $tMove("Wonder Room") }}
-                        </button-checkbox>
-                    </template>
-                </div>
-            </div>
-
-            <!-- Grassy Terrain / Electric Terrain / Misty Terrain / Psychic Terrain -->
-            <div v-if='field.gen >= Gens.ORAS'
-                 class='row justify-content-center no-gutters mt-1'>
-                <div class='col-auto btn-group btn-group-sm'>
-                    <button-checkbox v-model='field.grassyTerrain'>
-                        {{ $tMove("Grassy Terrain") }}
-                    </button-checkbox>
-                    <button-checkbox v-model='field.electricTerrain'>
-                        {{ $tMove("Electric Terrain") }}
-                    </button-checkbox>
-                    <button-checkbox v-model='field.mistyTerrain'>
-                        {{ $tMove("Misty Terrain") }}
-                    </button-checkbox>
-                    <button-checkbox v-if='field.gen >= Gens.SM'
-                                     v-model='field.psychicTerrain'>
-                        {{ $tMove("Psychic Terrain") }}
-                    </button-checkbox>
-                </div>
-            </div>
-
-            <!-- Fairy Aura / Dark Aura / Aura Break -->
-            <div v-if='field.gen >= Gens.ORAS'
-                 class='row justify-content-center no-gutters mt-1'>
-                <div class='col-auto btn-group btn-group-sm'>
-                    <button-checkbox v-model='field.fairyAura'>
-                        {{ $tAbility("Fairy Aura") }}
-                    </button-checkbox>
-                    <button-checkbox v-model='field.darkAura'>
-                        {{ $tAbility("Dark Aura") }}
-                    </button-checkbox>
-                    <button-checkbox v-model='field.auraBreak'>
-                        {{ $tAbility("Aura Break") }}
-                    </button-checkbox>
-                </div>
-            </div>
-
-            <!-- Ion Deluge -->
-            <div v-if='field.gen >= Gens.ORAS'
-                 class='row justify-content-center no-gutters mt-1'>
-                <div class='col-auto'>
-                    <button-checkbox v-model='field.ionDeluge' size='small'>
-                        {{ $tMove("Ion Deluge") }}
-                    </button-checkbox>
-                </div>
-            </div>
-
-            <!-- attacker / defender -->
-            <div class='row justify-content-center no-gutters'>
-                <div v-for='pokemon in [attacker, defender]' class='col-6'>
-
-                    <!-- Stealth Rock -->
-                    <button-checkbox v-if='field.gen >= Gens.HGSS'
-                                     v-model='pokemon.stealthRock'
-                                     size='small' class='mt-1'
-                                     :class='pokeAlign(pokemon)'>
-                        {{ $tMove("Stealth Rock") }}
-                    </button-checkbox>
-
-                    <!-- Spikes -->
-                    <button-radio-group v-if='field.gen >= Gens.ADV'
-                                        v-model='pokemon.spikes'
-                                        :options='spikes'
-                                        size='small' class='mt-1'
-                                        :class='pokeAlign(pokemon)'>
-                    </button-radio-group>
-                    <button-checkbox v-if='field.gen === Gens.GSC'
-                                     :value='gscSpikesBoolean(pokemon)'
-                                     size='small' class='mt-1'
-                                     :class='pokeAlign(pokemon)'
-                                     @input='pokemon.spikes = +$event'>
-                        {{ $tMove("Spikes") }}
-                    </button-checkbox>
-
-                    <!-- Reflect / Light Screen -->
-                    <div class='btn-group btn-group-sm mt-1'
-                         :class='pokeAlign(pokemon)'>
-                        <button-checkbox v-model='pokemon.reflect'>
-                            {{ $tMove("Reflect") }}
-                        </button-checkbox>
-                        <button-checkbox v-model='pokemon.lightScreen'>
-                            {{ $tMove("Light Screen") }}
-                        </button-checkbox>
-                    </div>
-
-                    <!-- Foresight -->
-                    <button-checkbox v-if='field.gen >= Gens.GSC'
-                                     v-model='pokemon.foresight'
-                                     size='small' class='mt-1'
-                                     :class='pokeAlign(pokemon)'>
-                        {{ $tMove("Foresight") }}
-                    </button-checkbox>
-
-                    <!-- Friend Guard -->
-                    <button-checkbox v-if='field.gen >= Gens.B2W2'
-                                     v-model='pokemon.friendGuard'
-                                     size='small' class='mt-1'
-                                     :class='pokeAlign(pokemon)'>
-                        {{ $tAbility("Friend Guard") }}
-                    </button-checkbox>
-
-                    <!-- Battery -->
-                    <button-checkbox v-if='field.gen >= Gens.SM'
-                                     v-model='pokemon.battery'
-                                     size='small' class='mt-1'
-                                     :class='pokeAlign(pokemon)'>
-                        {{ $tAbility("Battery") }}
-                    </button-checkbox>
-
-                </div>
+                </template>
             </div>
         </div>
 
-        <div slot='More Options' class='container-fluid'>
-            <div class='row justify-content-center no-gutters'>
-
+        <!-- Grassy Terrain / Electric Terrain / Misty Terrain / Psychic Terrain -->
+        <div v-if='field.gen >= Gens.ORAS'
+             class='row justify-content-center no-gutters mt-1'>
+            <div class='col-auto btn-group btn-group-sm'>
+                <button-checkbox v-model='field.grassyTerrain'>
+                    {{ $tMove("Grassy Terrain") }}
+                </button-checkbox>
+                <button-checkbox v-model='field.electricTerrain'>
+                    {{ $tMove("Electric Terrain") }}
+                </button-checkbox>
+                <button-checkbox v-model='field.mistyTerrain'>
+                    {{ $tMove("Misty Terrain") }}
+                </button-checkbox>
+                <button-checkbox v-if='field.gen >= Gens.SM'
+                                 v-model='field.psychicTerrain'>
+                    {{ $tMove("Psychic Terrain") }}
+                </button-checkbox>
             </div>
         </div>
 
-    </tab-content>
+        <!-- Fairy Aura / Dark Aura / Aura Break -->
+        <div v-if='field.gen >= Gens.ORAS'
+             class='row justify-content-center no-gutters mt-1'>
+            <div class='col-auto btn-group btn-group-sm'>
+                <button-checkbox v-model='field.fairyAura'>
+                    {{ $tAbility("Fairy Aura") }}
+                </button-checkbox>
+                <button-checkbox v-model='field.darkAura'>
+                    {{ $tAbility("Dark Aura") }}
+                </button-checkbox>
+                <button-checkbox v-model='field.auraBreak'>
+                    {{ $tAbility("Aura Break") }}
+                </button-checkbox>
+            </div>
+        </div>
+
+        <!-- Ion Deluge -->
+        <div v-if='field.gen >= Gens.ORAS'
+             class='row justify-content-center no-gutters mt-1'>
+            <div class='col-auto'>
+                <button-checkbox v-model='field.ionDeluge' size='small'>
+                    {{ $tMove("Ion Deluge") }}
+                </button-checkbox>
+            </div>
+        </div>
+
+        <!-- attacker / defender -->
+        <div class='row justify-content-center no-gutters'>
+            <div v-for='pokemon in [attacker, defender]' class='col-6'>
+
+                <!-- Stealth Rock -->
+                <button-checkbox v-if='field.gen >= Gens.HGSS'
+                                 v-model='pokemon.stealthRock'
+                                 size='small' class='mt-1'
+                                 :class='pokeAlign(pokemon)'>
+                    {{ $tMove("Stealth Rock") }}
+                </button-checkbox>
+
+                <!-- Spikes -->
+                <button-radio-group v-if='field.gen >= Gens.ADV'
+                                    v-model='pokemon.spikes'
+                                    :options='spikes'
+                                    size='small' class='mt-1'
+                                    :class='pokeAlign(pokemon)'>
+                </button-radio-group>
+                <button-checkbox v-if='field.gen === Gens.GSC'
+                                 :value='gscSpikesBoolean(pokemon)'
+                                 size='small' class='mt-1'
+                                 :class='pokeAlign(pokemon)'
+                                 @input='pokemon.spikes = +$event'>
+                    {{ $tMove("Spikes") }}
+                </button-checkbox>
+
+                <!-- Reflect / Light Screen -->
+                <div class='btn-group btn-group-sm mt-1'
+                     :class='pokeAlign(pokemon)'>
+                    <button-checkbox v-model='pokemon.reflect'>
+                        {{ $tMove("Reflect") }}
+                    </button-checkbox>
+                    <button-checkbox v-model='pokemon.lightScreen'>
+                        {{ $tMove("Light Screen") }}
+                    </button-checkbox>
+                </div>
+
+                <!-- Foresight -->
+                <button-checkbox v-if='field.gen >= Gens.GSC'
+                                 v-model='pokemon.foresight'
+                                 size='small' class='mt-1'
+                                 :class='pokeAlign(pokemon)'>
+                    {{ $tMove("Foresight") }}
+                </button-checkbox>
+
+                <!-- Friend Guard -->
+                <button-checkbox v-if='field.gen >= Gens.B2W2'
+                                 v-model='pokemon.friendGuard'
+                                 size='small' class='mt-1'
+                                 :class='pokeAlign(pokemon)'>
+                    {{ $tAbility("Friend Guard") }}
+                </button-checkbox>
+
+                <!-- Battery -->
+                <button-checkbox v-if='field.gen >= Gens.SM'
+                                 v-model='pokemon.battery'
+                                 size='small' class='mt-1'
+                                 :class='pokeAlign(pokemon)'>
+                    {{ $tAbility("Battery") }}
+                </button-checkbox>
+
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -198,7 +187,6 @@ import sulcalcMixin from "../mixins/sulcalc";
 
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
-import TabContent from "./ui/TabContent.vue";
 
 import {Field, Pokemon, Weathers, Gens} from "sulcalc";
 
@@ -207,11 +195,6 @@ export default {
         field: Field,
         attacker: Pokemon,
         defender: Pokemon
-    },
-    data() {
-        return {
-            activeTab: "general"
-        };
     },
     computed: {
         battleModes() {
@@ -256,12 +239,6 @@ export default {
         }
     },
     methods: {
-        selectTab(tab) {
-            this.activeTab = tab;
-        },
-        isActive(tab) {
-            return this.activeTab === tab;
-        },
         pokeAlign(pokemon) {
             return {
                 "clear-left": pokemon === this.attacker,
@@ -281,8 +258,7 @@ export default {
     components: {
         Multiselect,
         ButtonCheckbox,
-        ButtonRadioGroup,
-        TabContent
+        ButtonRadioGroup
     }
 };
 </script>
