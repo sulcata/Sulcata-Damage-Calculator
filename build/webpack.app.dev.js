@@ -3,6 +3,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
 const cloneDeep = require("lodash/cloneDeep");
 
 const {version} = require("../package.json");
@@ -29,12 +30,15 @@ config.plugins.push(
     }),
     new HtmlWebpackPlugin({
         template: path.join(__dirname, "../app/index.hbs"),
+        inject: false,
+        hash: true,
         title: "sulcalc",
         description: "A Pokémon damage calculator",
         cdn: false,
         css,
         javascript
-    })
+    }),
+    new ScriptExtHtmlWebpackPlugin({defaultAttribute: "defer"})
 );
 
 config.devServer = {

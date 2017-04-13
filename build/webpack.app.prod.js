@@ -3,7 +3,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
 const BabiliPlugin = require("babili-webpack-plugin");
 
 const cloneDeep = require("lodash/cloneDeep");
@@ -17,18 +17,7 @@ const config = cloneDeep(baseConfig);
 config.module = Object.assign({rules: []}, config.module);
 config.module.rules.push({
     test: /\.vue$/,
-    loader: "vue-loader",
-    options: {
-        loaders: {
-            css: ExtractTextPlugin.extract({
-                use: {
-                    loader: "css-loader",
-                    options: {minimize: true}
-                },
-                fallback: "vue-style-loader"
-            })
-        }
-    }
+    loader: "vue-loader"
 });
 
 config.plugins = config.plugins || [];
@@ -41,17 +30,19 @@ config.plugins.push(
         "process.env.NODE_ENV": JSON.stringify("production"),
         "process.libVersion": JSON.stringify(version)
     }),
-    new ExtractTextPlugin("style.css"),
     new BabiliPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
         name: ["setdex", "sulcalc", "db"]
     }),
     new HtmlWebpackPlugin({
         template: path.join(__dirname, "../app/index.hbs"),
+        inject: false,
+        hash: true,
         cdn: true,
         css,
         javascript
-    })
+    }),
+    new ScriptExtHtmlWebpackPlugin({defaultAttribute: "defer"})
 );
 
 config.externals = Object.assign({}, config.externals, {
