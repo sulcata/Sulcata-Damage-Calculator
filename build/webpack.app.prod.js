@@ -3,7 +3,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
 const BabiliPlugin = require("babili-webpack-plugin");
 
 const cloneDeep = require("lodash/cloneDeep");
@@ -41,8 +40,7 @@ config.plugins.push(
         cdn: true,
         css,
         javascript
-    }),
-    new ScriptExtHtmlWebpackPlugin({defaultAttribute: "defer"})
+    })
 );
 
 config.externals = Object.assign({}, config.externals, {

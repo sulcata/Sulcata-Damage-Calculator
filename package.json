@@ -49,7 +49,6 @@
         "jest": "^19.0.2",
         "lodash": "^4.17.4",
         "mkdirp": "^0.5.1",
-        "script-ext-html-webpack-plugin": "^1.7.1",
         "vue": "2.2.6",
         "vue-i18n": "^6.0.0",
         "vue-loader": "^11.3.4",
