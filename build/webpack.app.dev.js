@@ -3,7 +3,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
 const cloneDeep = require("lodash/cloneDeep");
 
 const {version} = require("../package.json");
@@ -37,8 +36,7 @@ config.plugins.push(
         cdn: false,
         css,
         javascript
-    }),
-    new ScriptExtHtmlWebpackPlugin({defaultAttribute: "defer"})
+    })
 );
 
 config.devServer = {
