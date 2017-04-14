@@ -87,8 +87,8 @@ export default function gscCalculate(attacker, defender, move, field) {
 
     // crits are weird. thanks to crystal_ and the gsc community on
     // the mt. silver boards for figuring them out.
-    const ignorePhysicalBoosts = move.critical && defBoost < atkBoost;
-    const ignoreSpecialBoosts = move.critical && sdefBoost < satkBoost;
+    const ignorePhysicalBoosts = move.critical && atkBoost <= defBoost;
+    const ignoreSpecialBoosts = move.critical && satkBoost <= sdefBoost;
 
     let atk, def;
     if (ignorePhysicalBoosts) {
