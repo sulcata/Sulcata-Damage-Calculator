@@ -25,12 +25,17 @@
 
         <div class='row mt-3' v-if='reportText'>
             <div class='col'>
-                <strong>{{ reportText }}</strong><br>
+                <strong>{{ reportText }}</strong>
+                <br>
                 <small>{{ damageRoll }}</small>
                 <button type='button' class='btn btn-sm btn-secondary'
                         @click='setHp()'>
                     {{ $t("setHp") }}
                 </button>
+                <br>
+                <small v-if='options.showFractions'>
+                    {{ fractionalChances }}
+                </small>
             </div>
         </div>
 
@@ -48,7 +53,10 @@
                              :defender='defender'
                     ></v-field>
                     <div slot='More Options'>
-
+                        <button-checkbox v-model='options.showFractions'
+                                         size='small'>
+                            Show Fractions
+                        </button-checkbox>
                     </div>
                 </tab-content>
             </div>
@@ -68,6 +76,7 @@ import translationMixin from "../mixins/translation";
 
 import vPokemon from "./Pokemon.vue";
 import vField from "./Field.vue";
+import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import TabContent from "./ui/TabContent.vue";
 
@@ -83,7 +92,10 @@ export default {
             defender,
             field,
             genData: maxGen,
-            selectedReport: {}
+            selectedReport: {},
+            options: {
+                showFractions: false
+            }
         };
     },
     computed: {
@@ -113,9 +125,15 @@ export default {
             return this.selectedReport.report || "";
         },
         damageRoll() {
-            if (!this.selectedReport.damage) return "";
-            if (cmpStrs(this.selectedReport.damage.size, "39") > 0) return "";
-            return `(${this.selectedReport.damage.toString(entryAsList)})`;
+            const damage = this.selectedReport.damage;
+            if (!damage) return "";
+            if (cmpStrs(damage.size, "39") > 0) return "";
+            return `(${damage.toString(entryAsList)})`;
+        },
+        fractionalChances() {
+            const chances = this.selectedReport.fractionalChances;
+            if (!chances) return "";
+            return chances.map(chance => chance.join(" / ")).join(", ");
         },
         attackerReports() {
             const attacker = this.attacker;
@@ -170,6 +188,7 @@ export default {
     components: {
         vPokemon,
         vField,
+        ButtonCheckbox,
         ButtonRadioGroup,
         TabContent
     }
