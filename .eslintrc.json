@@ -70,6 +70,8 @@
         "eol-last": "error",
         "eqeqeq": "error",
         "func-call-spacing": "error",
+        "func-name-matching": "error",
+        "func-style": ["error", "declaration", {"allowArrowFunctions": true}],
         "generator-star-spacing": "error",
         "indent": ["error", 4, {
             "SwitchCase": 1,
