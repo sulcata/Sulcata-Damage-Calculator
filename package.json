@@ -50,7 +50,7 @@
         "lodash": "^4.17.4",
         "mkdirp": "^0.5.1",
         "vue": "2.2.6",
-        "vue-i18n": "^6.1.0",
+        "vue-i18n": "6.0.0",
         "vue-loader": "^11.3.4",
         "vue-multiselect": "2.0.0-beta.15",
         "vue-template-compiler": "2.2.6",
