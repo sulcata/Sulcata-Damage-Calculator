@@ -46,16 +46,20 @@
                 ></v-pokemon>
             </div>
             <div class='col-4'>
-                <tab-content :tabs='["General", "More Options"]'>
-                    <v-field slot='General'
+                <tab-content :tabs='[$t("tabs.general"), $t("tabs.moreOptions")]'>
+                    <v-field :slot='$t("tabs.general")'
                              :field='field'
                              :attacker='attacker'
                              :defender='defender'
                     ></v-field>
-                    <div slot='More Options'>
+                    <div :slot='$t("tabs.moreOptions")'>
                         <button-checkbox v-model='options.showFractions'
                                          size='small'>
-                            Show Fractions
+                            {{ $t("showFractions") }}
+                        </button-checkbox>
+                        <button-checkbox v-model='options.showLongRolls'
+                                         size='small'>
+                            {{ $t("showLongDamageRolls") }}
                         </button-checkbox>
                     </div>
                 </tab-content>
@@ -94,7 +98,8 @@ export default {
             genData: maxGen,
             selectedReport: {},
             options: {
-                showFractions: false
+                showFractions: false,
+                showLongRolls: false
             }
         };
     },
@@ -127,7 +132,9 @@ export default {
         damageRoll() {
             const damage = this.selectedReport.damage;
             if (!damage) return "";
-            if (cmpStrs(damage.size, "39") > 0) return "";
+            if (cmpStrs(damage.size, "39") > 0) {
+                return this.options.showLongRolls ? String(damage) : "";
+            }
             return `(${damage.toString(entryAsList)})`;
         },
         fractionalChances() {

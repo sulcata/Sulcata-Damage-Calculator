@@ -3,6 +3,12 @@ import {pokemon, items, abilities, natures, types, moves} from "../../src/db";
 export default {
     bugReports: "Report a Bug",
     setHp: "set hp",
+    showFractions: "Show Fractions",
+    showLongDamageRolls: "Show Long Damage Rolls",
+    tabs: {
+        general: "General",
+        moreOptions: "More Options"
+    },
     gens: [
         "",
         "RBY",
