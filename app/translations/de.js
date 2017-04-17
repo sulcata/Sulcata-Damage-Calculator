@@ -8,6 +8,12 @@ import types from "translations/de/types";
 export default {
     bugReports: "Report a Bug",
     setHp: "set hp",
+    showFractions: "Show Fractions",
+    showLongDamageRolls: "Show Long Damage Rolls",
+    tabs: {
+        general: "General",
+        moreOptions: "More Options"
+    },
     gens: [
         "",
         "RBY",
