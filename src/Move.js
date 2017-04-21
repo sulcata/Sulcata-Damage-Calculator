@@ -477,8 +477,16 @@ export default class Move {
 // Determines how good IVs are in comparison to each other
 // Sort for ideal perfect IVs: Speed > SpA > HP > Def > SpD > Atk
 function ivsCmp(a, b) {
-    for (const s of [5, 3, 0, 2, 4, 1]) {
-        if (a[s] !== b[s]) return b[s] - a[s];
+    const stats = [
+        Stats.SPD,
+        Stats.SATK,
+        Stats.HP,
+        Stats.DEF,
+        Stats.SDEF,
+        Stats.ATK
+    ];
+    for (const stat of stats) {
+        if (a[stat] !== b[stat]) return b[stat] - a[stat];
     }
     return 0;
 }
