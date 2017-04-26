@@ -9,7 +9,6 @@
         "process": false
     },
     "rules": {
-        "import/no-commonjs": "error",
         "import/no-nodejs-modules": "error"
     }
 }

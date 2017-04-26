@@ -1,4 +1,4 @@
-import clamp from "lodash/clamp";
+import {clamp} from "lodash";
 
 import {Gens, DamageClasses, Stats, Types, Weathers, maxGen} from "./utilities";
 

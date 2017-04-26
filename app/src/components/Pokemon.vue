@@ -1,19 +1,19 @@
 <template>
     <div>
-        <v-set-selector :gen='pokemon.gen' :pokemon='pokemon'
+        <set-selector :gen='pokemon.gen' :pokemon='pokemon'
                         @input='updateValue($event)'>
-        </v-set-selector>
+        </set-selector>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.GSC'>
-            <v-item v-model='pokemon.item'></v-item>
+            <item v-model='pokemon.item'></item>
         </div>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
-            <v-ability v-model='pokemon.ability'></v-ability>
+            <ability v-model='pokemon.ability'></ability>
         </div>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
-            <v-nature v-model='pokemon.nature'></v-nature>
+            <nature v-model='pokemon.nature'></nature>
         </div>
 
         <div class='mt-1'>
@@ -24,21 +24,21 @@
         </div>
 
         <div class='mt-1'>
-            <v-stats :pokemon='pokemon'></v-stats>
+            <stats :pokemon='pokemon'></stats>
         </div>
 
         <div class='mt-1' v-for='i in pokemon.moves.length'>
-            <v-move v-model='pokemon.moves[i - 1]' :pokemon='pokemon'></v-move>
+            <move v-model='pokemon.moves[i - 1]' :pokemon='pokemon'></move>
         </div>
 
         <div class='mt-1'>
             <div class='container-fluid p-0'>
                 <div class='row'>
                     <div class='col'>
-                        <v-status v-model='pokemon.status'></v-status>
+                        <status v-model='pokemon.status'></status>
                     </div>
                     <div class='col-auto'>
-                        <v-health :pokemon='pokemon'></v-health>
+                        <health :pokemon='pokemon'></health>
                     </div>
                 </div>
             </div>
@@ -47,18 +47,18 @@
 </template>
 
 <script>
-import clamp from "lodash/clamp";
+import {clamp} from "lodash";
 
 import sulcalcMixin from "../mixins/sulcalc";
 
-import vSetSelector from "./SetSelector.vue";
-import vAbility from "./Ability.vue";
-import vItem from "./Item.vue";
-import vMove from "./Move.vue";
-import vNature from "./Nature.vue";
-import vStatus from "./Status.vue";
-import vStats from "./Stats.vue";
-import vHealth from "./Health.vue";
+import SetSelector from "./SetSelector.vue";
+import Ability from "./Ability.vue";
+import Item from "./Item.vue";
+import Move from "./Move.vue";
+import Nature from "./Nature.vue";
+import Status from "./Status.vue";
+import Stats from "./Stats.vue";
+import Health from "./Health.vue";
 
 import {Pokemon} from "sulcalc";
 
@@ -87,14 +87,14 @@ export default {
     },
     mixins: [sulcalcMixin],
     components: {
-        vSetSelector,
-        vAbility,
-        vItem,
-        vMove,
-        vNature,
-        vStatus,
-        vStats,
-        vHealth
+        SetSelector,
+        Ability,
+        Item,
+        Move,
+        Nature,
+        Status,
+        Stats,
+        Health
     }
 };
 </script>

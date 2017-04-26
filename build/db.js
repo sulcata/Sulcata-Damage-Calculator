@@ -3,8 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const mkdirp = require("mkdirp");
-const isEqual = require("lodash/isEqual");
-const identity = require("lodash/identity");
+const {identity, isEqual} = require("lodash");
 
 const {
     dataToObject,
@@ -16,45 +15,36 @@ const {
 const inDir = path.join(__dirname, "db");
 const outDir = path.join(__dirname, "../dist/db");
 
-function processData(name, files, preFn = identity, postFn = identity) {
-    return new Promise((resolve, reject) => {
-        function write(obj) {
-            fs.writeFile(
-                path.join(outDir, `${name}.json`),
-                JSON.stringify(postFn(obj)),
-                error => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve();
-                    }
-                }
-            );
-        }
-
-        if (Array.isArray(files)) {
-            files = files.map(file => file ? path.join(inDir, file) : file);
-            readFiles(files)
-                .then(dataArray => {
-                    const obj = dataArray.map(
-                        data => dataToObject(data, preFn));
-                    write(obj);
-                    return obj;
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        } else {
+async function processData(name, files, preFn = identity, postFn = identity) {
+    let result;
+    if (Array.isArray(files)) {
+        files = files.map(file => file ? path.join(inDir, file) : file);
+        const dataArray = await readFiles(files);
+        result = dataArray.map(data => dataToObject(data, preFn));
+    } else {
+        const data = await new Promise(resolve => {
             fs.readFile(path.join(inDir, files), (error, data) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                const obj = dataToObject(data, preFn);
-                write(obj);
+                if (error) throw error;
+                resolve(data);
             });
-        }
+        });
+        result = dataToObject(data, preFn);
+    }
+
+    result = postFn(result);
+
+    await new Promise(resolve => {
+        fs.writeFile(
+            path.join(outDir, `${name}.json`),
+            JSON.stringify(result),
+            error => {
+                if (error) throw error;
+                resolve();
+            }
+        );
     });
+
+    return result;
 }
 
 function removeEquivEntries(arr, idx, prop, val) {

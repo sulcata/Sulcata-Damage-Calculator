@@ -1,7 +1,7 @@
 "use strict";
 
 const fs = require("fs");
-const identity = require("lodash/identity");
+const {identity} = require("lodash");
 
 function dataToObject(data, preFunc = identity) {
     if (!data) return data;

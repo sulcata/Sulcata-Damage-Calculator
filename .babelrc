@@ -1,6 +1,7 @@
 {
     "plugins": [
         "syntax-dynamic-import",
+        "transform-export-extensions",
         "transform-es2015-modules-commonjs"
     ],
     "env": {

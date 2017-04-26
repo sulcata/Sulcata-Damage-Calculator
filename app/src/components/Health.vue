@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import clamp from "lodash/clamp";
+import {clamp} from "lodash";
 import {Pokemon, Stats, Multiset} from "sulcalc";
 
 const {ceil, floor, max} = Math;

@@ -41,17 +41,17 @@
 
         <div class='row mt-3'>
             <div class='col'>
-                <v-pokemon v-model='attacker'
+                <pokemon v-model='attacker'
                            @input='selectBestReport()'
-                ></v-pokemon>
+                ></pokemon>
             </div>
             <div class='col-4'>
                 <tab-content :tabs='[$t("tabs.general"), $t("tabs.moreOptions")]'>
-                    <v-field :slot='$t("tabs.general")'
+                    <field :slot='$t("tabs.general")'
                              :field='field'
                              :attacker='attacker'
                              :defender='defender'
-                    ></v-field>
+                    ></field>
                     <div :slot='$t("tabs.moreOptions")'>
                         <button-checkbox v-model='options.showFractions'
                                          size='small'>
@@ -65,21 +65,21 @@
                 </tab-content>
             </div>
             <div class='col'>
-                <v-pokemon v-model='defender'
+                <pokemon v-model='defender'
                            @input='selectBestReport()'
-                ></v-pokemon>
+                ></pokemon>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import zip from "lodash/zip";
+import {zip} from "lodash";
 
 import translationMixin from "../mixins/translation";
 
-import vPokemon from "./Pokemon.vue";
-import vField from "./Field.vue";
+import PokemonComponent from "./Pokemon.vue";
+import FieldComponent from "./Field.vue";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import TabContent from "./ui/TabContent.vue";
@@ -193,8 +193,8 @@ export default {
     },
     mixins: [translationMixin],
     components: {
-        vPokemon,
-        vField,
+        Pokemon: PokemonComponent,
+        Field: FieldComponent,
         ButtonCheckbox,
         ButtonRadioGroup,
         TabContent
