@@ -53,11 +53,10 @@ const fileTypes = [
     }
 ];
 
-function parseTranslationFile(locale, fileType) {
-    const localeOutDir = path.join(outDir, locale, `${fileType.name}.json`);
-    let promise;
+async function parseTranslationFile(locale, fileType) {
+    let result;
     if (fileType.files) {
-        promise = Promise.all(fileType.files.map(file =>
+        result = await Promise.all(fileType.files.map(file =>
             new Promise(resolve => {
                 const localeInDir = path.join(inDir, locale, file);
                 fs.readFile(localeInDir, (error, data) => {
@@ -66,25 +65,27 @@ function parseTranslationFile(locale, fileType) {
             })
         ));
     } else {
-        promise = new Promise(resolve => {
+        result = await new Promise(resolve => {
             const localeInDir = path.join(inDir, locale, fileType.file);
             fs.readFile(localeInDir, (error, data) => {
                 resolve(error ? {} : dataToObject(data, fileType.preFn));
             });
         });
     }
-    return promise.then(obj => new Promise((resolve, reject) => {
-        if (fileType.postFn) {
-            obj = fileType.postFn(obj);
-        }
-        fs.writeFile(localeOutDir, JSON.stringify(obj), error => {
-            if (error) {
-                reject(error);
-            } else {
-                resolve();
-            }
+
+    if (fileType.postFn) {
+        result = fileType.postFn(result);
+    }
+
+    const localeOutDir = path.join(outDir, locale, `${fileType.name}.json`);
+    await new Promise(resolve => {
+        fs.writeFile(localeOutDir, JSON.stringify(result), error => {
+            if (error) throw error;
+            resolve();
         });
-    }));
+    });
+
+    return result;
 }
 
 function translations() {

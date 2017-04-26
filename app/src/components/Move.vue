@@ -114,7 +114,7 @@
 </template>
 
 <script>
-import clamp from "lodash/clamp";
+import {clamp} from "lodash";
 
 import {Multiselect} from "vue-multiselect";
 import translationMixin from "../mixins/translation";

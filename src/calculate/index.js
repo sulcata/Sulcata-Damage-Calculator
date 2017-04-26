@@ -1,4 +1,4 @@
-import clamp from "lodash/clamp";
+import {clamp} from "lodash";
 
 import Multiset from "../Multiset";
 import {Gens, Stats, multiplyStrs, divideStrs, cmpStrs} from "../utilities";

@@ -12,20 +12,19 @@ import {MissingnoError, NoMoveError} from "./errors";
 import calculate from "./calculate";
 import endOfTurn from "./endOfTurn";
 
-// eslint-disable-next-line no-duplicate-imports
-import * as info from "./info";
-
 const {max, min, round, trunc} = Math;
 
-export {default as Multiset} from "./Multiset";
-export {default as Pokemon} from "./Pokemon";
-export {default as Ability} from "./Ability";
-export {default as Item} from "./Item";
-export {default as Move} from "./Move";
-export {default as Field} from "./Field";
+/* eslint-disable object-curly-spacing */
+export Multiset from "./Multiset";
+export Pokemon from "./Pokemon";
+export Ability from "./Ability";
+export Item from "./Item";
+export Move from "./Move";
+export Field from "./Field";
+export * as info from "./info";
+/* eslint-enable object-curly-spacing */
 export * from "./errors";
 export * from "./utilities";
-export {info};
 export const VERSION = process.libVersion;
 
 export default function sulcalc(attacker, defender, move, field) {

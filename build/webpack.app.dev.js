@@ -3,7 +3,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const cloneDeep = require("lodash/cloneDeep");
+const {cloneDeep} = require("lodash");
 
 const {version} = require("../package.json");
 const baseConfig = require("./webpack.app.config");

@@ -24,7 +24,7 @@ export default {
             type: Number,
             default: maxGen,
             validator(value) {
-                return value >= 1 && value <= maxGen;
+                return (1 <= value && value <= maxGen);
             }
         },
         pokemon: Pokemon
