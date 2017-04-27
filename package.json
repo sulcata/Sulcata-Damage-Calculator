@@ -12,6 +12,16 @@
     "bugs": {
         "url": "https://github.com/Sulcata/Sulcata-Damage-Calculator/issues"
     },
+    "jest": {
+        "coverageThreshold": {
+            "global": {
+                "branches": 40,
+                "functions": 80,
+                "lines": 40,
+                "statements": 40
+            }
+        }
+    },
     "scripts": {
         "serve": "webpack-dev-server --config build/webpack.app.dev.js",
         "build": "yarn build:app:production",
@@ -19,9 +29,8 @@
         "build:app:production": "webpack --config build/webpack.app.prod.js",
         "build:lib": "webpack --config build/webpack.lib.config.js",
         "test": "yarn lint && yarn test:unit",
-        "test:unit": "jest",
+        "test:unit": "jest --coverage",
         "lint": "eslint '**/*.{js,vue}'",
-        "coverage": "jest --coverage",
         "setup": "yarn db && yarn setdex && yarn translations",
         "db": "node build/db",
         "setdex": "node build/setdex",
