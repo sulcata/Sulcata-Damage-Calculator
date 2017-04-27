@@ -269,4 +269,10 @@ describe("Item", () => {
         oranBerry.used = true;
         expect(oranBerry.berryHeal()).toEqual(0);
     });
+
+    test("#memoryType()", () => {
+        const waterMemory = new Item("Water Memory");
+        expect(waterMemory.memoryType()).toEqual(Types.WATER);
+        expect(noItem.memoryType()).toEqual(Types.NORMAL);
+    });
 });
