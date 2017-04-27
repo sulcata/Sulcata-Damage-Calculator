@@ -1,7 +1,9 @@
 <template>
     <select class='form-control'>
-        <option v-for='[locale, language] in languages'
-                @click='$setLocale(locale)'>
+        <option
+            v-for='[locale, language] in languages'
+            @click='$setLocale(locale)'
+            >
             {{ language }}
         </option>
     </select>

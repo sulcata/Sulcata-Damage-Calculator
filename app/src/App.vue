@@ -12,17 +12,17 @@
             </ul>
             <form><language></language></form>
         </nav>
-        <v-sulcalc></v-sulcalc>
+        <sulcalc></sulcalc>
     </div>
 </template>
 
 <script>
-import vSulcalc from "./components/sulcalc.vue";
+import Sulcalc from "./components/sulcalc.vue";
 import Language from "./components/Language.vue";
 
 export default {
     components: {
-        vSulcalc,
+        Sulcalc,
         Language
     }
 };

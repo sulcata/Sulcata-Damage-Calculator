@@ -4,12 +4,14 @@
 
             <div class='col-6'>
                 <!-- Move Selection -->
-                <multiselect track-by='value' label='label'
-                             :show-labels='false'
-                             :placeholder='$t("move")'
-                             :value='valueObj'
-                             :options='moves'
-                             @input='updateValue($event)'
+                <multiselect
+                    track-by='value'
+                    label='label'
+                    :show-labels='false'
+                    :placeholder='$t("move")'
+                    :value='valueObj'
+                    :options='moves'
+                    @input='updateValue($event)'
                 ></multiselect>
             </div>
 
@@ -20,60 +22,74 @@
                 </button-checkbox>
 
                 <!-- Z-Move -->
-                <button-checkbox v-if='move.gen >= Gens.SM'
-                                 v-model='move.zMove'
-                                 size='small'>
+                <button-checkbox
+                    v-if='move.gen >= Gens.SM'
+                    v-model='move.zMove'
+                    size='small'
+                    >
                     {{ $t("zMove") }}
                 </button-checkbox>
             </div>
 
             <div class='col'>
                 <!-- Multihit -->
-                <select v-if='numberOfHitsInput'
-                        v-model.number='move.numberOfHits'
-                        class='form-control form-control-sm'>
-                    <option v-for='{value, label} in multiHitOptions'
-                            :value='value'>
+                <select
+                    v-if='numberOfHitsInput'
+                    v-model.number='move.numberOfHits'
+                    class='form-control form-control-sm'
+                    >
+                    <option v-for='{value, label} in multiHitOptions' :value='value'>
                         {{ label }}
                     </option>
                 </select>
 
                 <!-- Return / Frustration -->
-                <input v-else-if='move.usesHappiness()'
-                       type='number' min='0' max='255'
-                       v-model.number='happiness'
-                       class='form-control form-control-sm'>
+                <input
+                    v-else-if='move.usesHappiness()'
+                    type='number'
+                    min='0'
+                    max='255'
+                    v-model.number='happiness'
+                    class='form-control form-control-sm'
+                    >
 
                 <!-- Echoed Voice -->
-                <select v-else-if='move.name === "Fury Cutter"'
-                        v-model.number='move.furyCutter'
-                        class='form-control form-control-sm'>
-                    <option v-for='{value, label} in furyCutterOptions'
-                            :value='value'>
+                <select
+                    v-else-if='move.name === "Fury Cutter"'
+                    v-model.number='move.furyCutter'
+                    class='form-control form-control-sm'
+                    >
+                    <option v-for='{value, label} in furyCutterOptions' :value='value'>
                         {{ label }}
                     </option>
                 </select>
 
                 <!-- Echoed Voice -->
-                <select v-else-if='move.name === "Echoed Voice"'
-                        v-model.number='move.echoedVoice'
-                        class='form-control form-control-sm'>
-                    <option v-for='{value, label} in echoedVoiceOptions'
-                            :value='value'>
+                <select
+                    v-else-if='move.name === "Echoed Voice"'
+                    v-model.number='move.echoedVoice'
+                    class='form-control form-control-sm'
+                    >
+                    <option v-for='{value, label} in echoedVoiceOptions' :value='value'>
                         {{ label }}
                     </option>
                 </select>
 
                 <!-- Round -->
-                <button-checkbox v-else-if='move.name === "Round"'
-                                 v-model='move.roundBoost' size='small'>
+                <button-checkbox
+                    v-else-if='move.name === "Round"'
+                    v-model='move.roundBoost'
+                    size='small'
+                    >
                     {{ $tMove("Round") }}
                 </button-checkbox>
 
                 <!-- Trump Card -->
-                <select v-else-if='move.name === "Trump Card"'
-                        v-model.number='move.trumpPP'
-                        class='form-control form-control-sm'>
+                <select
+                    v-else-if='move.name === "Trump Card"'
+                    v-model.number='move.trumpPP'
+                    class='form-control form-control-sm'
+                    >
                     <option value='4'>4+ PP after use</option>
                     <option value='3'>3 PP after use</option>
                     <option value='2'>2 PP after use</option>
@@ -82,30 +98,38 @@
                 </select>
 
                 <!-- Minimize -->
-                <button-checkbox v-else-if='move.boostedByMinimize()'
-                                 v-model='move.minimize'
-                                 size='small'>
+                <button-checkbox
+                    v-else-if='move.boostedByMinimize()'
+                    v-model='move.minimize'
+                    size='small'
+                    >
                     {{ $tMove("Minimize") }}
                 </button-checkbox>
 
                 <!-- Dig -->
-                <button-checkbox v-else-if='move.boostedByDig()'
-                                 v-model='move.dig'
-                                 size='small'>
+                <button-checkbox
+                    v-else-if='move.boostedByDig()'
+                    v-model='move.dig'
+                    size='small'
+                    >
                     {{ $tMove("Dig") }}
                 </button-checkbox>
 
                 <!-- Dive -->
-                <button-checkbox v-else-if='move.boostedByDive()'
-                                 v-model='move.dive'
-                                 size='small'>
+                <button-checkbox
+                    v-else-if='move.boostedByDive()'
+                    v-model='move.dive'
+                    size='small'
+                    >
                     {{ $tMove("Dive") }}
                 </button-checkbox>
 
                 <!-- Fly -->
-                <button-checkbox v-else-if='move.boostedByFly()'
-                                 v-model='move.fly'
-                                 size='small'>
+                <button-checkbox
+                    v-else-if='move.boostedByFly()'
+                    v-model='move.fly'
+                    size='small'
+                    >
                     {{ $tMove("Fly") }} / {{ $tMove("Bounce") }}
                 </button-checkbox>
             </div>

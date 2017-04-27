@@ -3,9 +3,13 @@
         <label>{{ $t("hp") }}</label>
         <input v-model.lazy='actualHealth' class='form-control small-control'>
         /{{ totalHp }} (
-        <input v-model.lazy='percentHealth'
-               type='number' min='1' max='100'
-               class='form-control small-control'>
+        <input
+            v-model.lazy='percentHealth'
+            type='number'
+            min='1'
+            max='100'
+            class='form-control small-control'
+            >
         %)
     </div>
 </template>

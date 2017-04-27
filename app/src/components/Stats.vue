@@ -8,8 +8,11 @@
             <strong class='col-2'></strong>
         </div>
 
-        <div v-for='(statName, stat) in stats' v-if='statName'
-             class='row align-items-center no-gutters'>
+        <div
+            v-for='(statName, stat) in stats'
+            v-if='statName'
+            class='row align-items-center no-gutters'
+            >
 
             <div class='col-1'>
                 {{ $t(statName) }}
@@ -20,39 +23,66 @@
             </div>
 
             <div class='col'>
-                <input v-if='pokemon.gen <= Gens.GSC && stat === Stats.HP'
-                       type='number' min='0' max='15' disabled
-                       :value='Pokemon.calcHealthDv(pokemon.ivs)'
-                       class='form-control'>
-                <input v-else-if='pokemon.gen <= Gens.GSC && stat === Stats.SDEF'
-                       type='number' min='0' max='15' disabled
-                       :value='pokemon.ivs[Stats.SPC]'
-                       class='form-control'>
-                <input v-else
-                       type='number' min='0' :max='maxIv'
-                       v-model.number='pokemon.ivs[stat]'
-                       @input='validateIv(stat)'
-                       class='form-control'>
+                <input
+                    v-if='pokemon.gen <= Gens.GSC && stat === Stats.HP'
+                    type='number'
+                    min='0'
+                    max='15'
+                    disabled
+                    :value='Pokemon.calcHealthDv(pokemon.ivs)'
+                    class='form-control'
+                    >
+                <input
+                    v-else-if='pokemon.gen <= Gens.GSC && stat === Stats.SDEF'
+                    type='number'
+                    min='0'
+                    max='15'
+                    disabled
+                    :value='pokemon.ivs[Stats.SPC]'
+                    class='form-control'
+                    >
+                <input
+                    v-else
+                    type='number'
+                    min='0'
+                    :max='maxIv'
+                    v-model.number='pokemon.ivs[stat]'
+                    @input='validateIv(stat)'
+                    class='form-control'
+                    >
             </div>
 
             <div class='col'>
-                <input v-if='pokemon.gen <= Gens.GSC && stat === Stats.SDEF'
-                       type='number' min='0' max='252' step='4' disabled
-                       :value='pokemon.evs[Stats.SPC]'
-                       class='form-control'>
-                <input v-else
-                       type='number' min='0' max='252' step='4'
-                       v-model.number='pokemon.evs[stat]'
-                       @input='validateEv(stat)'
-                       class='form-control'>
+                <input
+                    v-if='pokemon.gen <= Gens.GSC && stat === Stats.SDEF'
+                    type='number'
+                    min='0'
+                    max='252'
+                    step='4'
+                    disabled
+                    :value='pokemon.evs[Stats.SPC]'
+                    class='form-control'
+                    >
+                <input
+                    v-else
+                    type='number'
+                    min='0'
+                    max='252'
+                    step='4'
+                    v-model.number='pokemon.evs[stat]'
+                    @input='validateEv(stat)'
+                    class='form-control'
+                    >
             </div>
 
             <div class='col-2 text-center'>{{ pokemon.boostedStat(stat) }}</div>
 
             <div class='col-2'>
-                <select v-model='pokemon.boosts[stat]'
-                        class='form-control'
-                        :class='{invisible: stat === Stats.HP}'>
+                <select
+                    v-model='pokemon.boosts[stat]'
+                    class='form-control'
+                    :class='{invisible: stat === Stats.HP}'
+                    >
                     <option v-for='n in 13' :value='7 - n'>
                         {{ statBoost(7 - n) }}
                     </option>

@@ -1,9 +1,12 @@
 <template>
     <div role='group' :class='groupClasses'>
-        <button type='button' class='btn btn-secondary'
-                :class='{active: isSelected(option)}'
-                v-for='option in options'
-                @click='select(option)'>
+        <button
+            type='button'
+            class='btn btn-secondary'
+            :class='{active: isSelected(option)}'
+            v-for='option in options'
+            @click='select(option)'
+            >
             {{ option[label] }}
         </button>
     </div>
