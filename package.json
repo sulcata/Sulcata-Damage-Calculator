@@ -13,7 +13,14 @@
         "url": "https://github.com/Sulcata/Sulcata-Damage-Calculator/issues"
     },
     "jest": {
-        "coverageReporters": ["json", "lcov"],
+        "coveragePathIgnorePatterns": [
+            "/node_modules/",
+            "/test/"
+        ],
+        "coverageReporters": [
+            "json",
+            "lcov"
+        ],
         "coverageThreshold": {
             "global": {
                 "branches": 40,
