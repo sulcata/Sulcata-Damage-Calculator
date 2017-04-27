@@ -13,11 +13,16 @@ function range(min, max) {
 }
 
 describe("rbyCalculate()", () => {
+    let field;
+
+    beforeEach(() => {
+        field = new Field({gen: Gens.RBY});
+    });
+
     test("physical", () => {
         const attacker = new Pokemon("Snorlax", 1);
         const defender = new Pokemon("Snorlax", 1);
         const move = new Move("Earthquake", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([
             100, 100, 101, 101, 102, 102, 103, 103, 104, 104, 105, 105, 105,
             106, 106, 107, 107, 108, 108, 109, 109, 110, 110, 111, 111, 111,
@@ -29,7 +34,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Zapdos", 1);
         const defender = new Pokemon("Snorlax", 1);
         const move = new Move("Thunder", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([
             197, 198, 199, 200, 201, 201, 202, 203, 204, 205, 206, 207, 208,
             209, 210, 211, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220,
@@ -41,7 +45,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Zapdos", 1);
         const defender = new Pokemon("Snorlax", 1);
         const move = new Move("Agility", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([0]);
     });
 
@@ -53,7 +56,6 @@ describe("rbyCalculate()", () => {
             gen: Gens.RBY,
             critical: true
         });
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([
             385, 387, 389, 390, 392, 394, 396, 397, 399, 401, 403, 405, 406,
             408, 410, 412, 413, 415, 417, 419, 421, 422, 424, 426, 428, 429,
@@ -65,7 +67,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Snorlax", 1);
         const defender = new Pokemon("Snorlax", 1);
         const move = new Move("Body Slam", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([
             127, 128, 128, 129, 130, 130, 131, 131, 132, 132, 133, 134, 134,
             135, 135, 136, 137, 137, 138, 138, 139, 140, 140, 141, 141, 142,
@@ -81,7 +82,6 @@ describe("rbyCalculate()", () => {
             reflect: true
         });
         const move = new Move("Body Slam", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([
             79, 79, 79, 80, 80, 80, 81, 81, 82, 82, 82, 83, 83,
             83, 84, 84, 84, 85, 85, 86, 86, 86, 87, 87, 87, 88,
@@ -97,7 +97,6 @@ describe("rbyCalculate()", () => {
             lightScreen: true
         });
         const move = new Move("Blizzard", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([
             61, 61, 61, 62, 62, 62, 62, 63, 63, 63, 64, 64, 64,
             64, 65, 65, 65, 66, 66, 66, 66, 67, 67, 67, 68, 68,
@@ -113,7 +112,6 @@ describe("rbyCalculate()", () => {
         });
         const defender = new Pokemon("Moltres", 1);
         const move = new Move("Rock Slide", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([
             187, 188, 188, 189, 190, 191, 192, 193, 194, 194, 195, 196, 197,
             198, 199, 200, 201, 201, 202, 203, 204, 205, 206, 207, 207, 208,
@@ -125,7 +123,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Gengar", 1);
         const defender = new Pokemon("Alakazam", 1);
         const move = new Move("Lick", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([0]);
     });
 
@@ -133,7 +130,6 @@ describe("rbyCalculate()", () => {
         const gengar = new Pokemon("Gengar", 1);
         const tauros = new Pokemon("Tauros", 1);
         const explosion = new Move("Explosion", 1);
-        const field = new Field();
         expect(rbyCalculate(gengar, tauros, explosion, field)).toEqual([
             194, 194, 195, 196, 197, 198, 199, 200, 201, 202, 202, 203, 204,
             205, 206, 207, 208, 209, 210, 211, 211, 212, 213, 214, 215, 216,
@@ -154,7 +150,6 @@ describe("rbyCalculate()", () => {
         const defender = new Pokemon("Alakazam", 1);
         const seismicToss = new Move("Seismic Toss", 1);
         const nightShade = new Move("Night Shade", 1);
-        const field = new Field();
 
         expect(rbyCalculate(attacker, defender, seismicToss, field))
             .toEqual([100]);
@@ -172,7 +167,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Snorlax", 1);
         const defender = new Pokemon("Tauros", 1);
         const move = new Move("Dragon Rage", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([40]);
     });
 
@@ -180,7 +174,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Snorlax", 1);
         const defender = new Pokemon("Tauros", 1);
         const move = new Move("Sonic Boom", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([20]);
     });
 
@@ -188,7 +181,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Snorlax", 1);
         const defender = new Pokemon("Tauros", 1);
         const move = new Move("Horn Drill", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([65535]);
     });
 
@@ -196,7 +188,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Snorlax", 1);
         const defender = new Pokemon("Tauros", 1);
         const move = new Move("Super Fang", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field)).toEqual([176]);
 
         defender.currentHp = 1;
@@ -207,7 +198,6 @@ describe("rbyCalculate()", () => {
         const attacker = new Pokemon("Snorlax", 1);
         const defender = new Pokemon("Tauros", 1);
         const move = new Move("Psywave", 1);
-        const field = new Field();
         expect(rbyCalculate(attacker, defender, move, field))
             .toEqual(range(1, 149));
 
