@@ -2,23 +2,26 @@
     <div class='container sulcalc-container'>
         <div class='row justify-content-center mt-3'>
             <div class='col-auto'>
-                <button-radio-group v-model='gen'
-                                    :options='gens'
+                <button-radio-group
+                    v-model='gen'
+                    :options='gens'
                 ></button-radio-group>
             </div>
         </div>
 
         <div class='row mt-3'>
             <div class='col-4'>
-                <button-radio-group layout='vertical'
-                                    v-model='selectedReport'
-                                    :options='attackerReports'
+                <button-radio-group
+                    layout='vertical'
+                    v-model='selectedReport'
+                    :options='attackerReports'
                 ></button-radio-group>
             </div>
             <div class='col-4'>
-                <button-radio-group layout='vertical'
-                                    v-model='selectedReport'
-                                    :options='defenderReports'
+                <button-radio-group
+                    layout='vertical'
+                    v-model='selectedReport'
+                    :options='defenderReports'
                 ></button-radio-group>
             </div>
         </div>
@@ -28,8 +31,11 @@
                 <strong>{{ reportText }}</strong>
                 <br>
                 <small>{{ damageRoll }}</small>
-                <button type='button' class='btn btn-sm btn-secondary'
-                        @click='setHp()'>
+                <button
+                    type='button'
+                    class='btn btn-sm btn-secondary'
+                    @click='setHp()'
+                    >
                     {{ $t("setHp") }}
                 </button>
                 <br>
@@ -41,33 +47,28 @@
 
         <div class='row mt-3'>
             <div class='col'>
-                <pokemon v-model='attacker'
-                           @input='selectBestReport()'
-                ></pokemon>
+                <pokemon v-model='attacker' @input='selectBestReport()'></pokemon>
             </div>
             <div class='col-4'>
                 <tab-content :tabs='[$t("tabs.general"), $t("tabs.moreOptions")]'>
-                    <field :slot='$t("tabs.general")'
-                             :field='field'
-                             :attacker='attacker'
-                             :defender='defender'
+                    <field
+                        :slot='$t("tabs.general")'
+                        :field='field'
+                        :attacker='attacker'
+                        :defender='defender'
                     ></field>
                     <div :slot='$t("tabs.moreOptions")'>
-                        <button-checkbox v-model='options.showFractions'
-                                         size='small'>
+                        <button-checkbox v-model='options.showFractions' size='small'>
                             {{ $t("showFractions") }}
                         </button-checkbox>
-                        <button-checkbox v-model='options.showLongRolls'
-                                         size='small'>
+                        <button-checkbox v-model='options.showLongRolls' size='small'>
                             {{ $t("showLongDamageRolls") }}
                         </button-checkbox>
                     </div>
                 </tab-content>
             </div>
             <div class='col'>
-                <pokemon v-model='defender'
-                           @input='selectBestReport()'
-                ></pokemon>
+                <pokemon v-model='defender' @input='selectBestReport()'></pokemon>
             </div>
         </div>
     </div>

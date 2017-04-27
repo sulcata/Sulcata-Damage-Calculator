@@ -1,11 +1,15 @@
 <template>
-    <multiselect track-by='set' label='pokemonAndSet'
-                 group-values='sets' group-label='pokemon'
-                 :show-labels='false'
-                 :placeholder='$t("pokemon")'
-                 :options='sets'
-                 :value='pokemon.smogonSet'
-                 @input='emitPokemon($event)'>
+    <multiselect
+        track-by='set'
+        label='pokemonAndSet'
+        group-values='sets'
+        group-label='pokemon'
+        :show-labels='false'
+        :placeholder='$t("pokemon")'
+        :options='sets'
+        :value='pokemon.smogonSet'
+        @input='emitPokemon($event)'
+        >
         <template slot='option' scope='props'>
             <span>{{ props.option.setName }}</span>
         </template>

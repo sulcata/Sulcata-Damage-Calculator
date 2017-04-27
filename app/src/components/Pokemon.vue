@@ -1,8 +1,10 @@
 <template>
     <div>
-        <set-selector :gen='pokemon.gen' :pokemon='pokemon'
-                        @input='updateValue($event)'>
-        </set-selector>
+        <set-selector
+            :gen='pokemon.gen'
+            :pokemon='pokemon'
+            @input='updateValue($event)'
+        ></set-selector>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.GSC'>
             <item v-model='pokemon.item'></item>
@@ -18,9 +20,13 @@
 
         <div class='mt-1'>
             <strong>Level: </strong>
-            <input type='number' min='0' max='100'
-                   v-model.number='level'
-                   class='form-control level-control'>
+            <input
+                type='number'
+                min='0'
+                max='100'
+                v-model.number='level'
+                class='form-control level-control'
+                >
         </div>
 
         <div class='mt-1'>

@@ -1,7 +1,10 @@
 <template>
-    <button type='button' class='btn btn-secondary'
-            :class='{active: value, [sizeClass]: true}'
-            @click='toggle()'>
+    <button
+        type='button'
+        class='btn btn-secondary'
+        :class='{active: value, [sizeClass]: true}'
+        @click='toggle()'
+        >
         <slot></slot>
     </button>
 </template>

@@ -1,10 +1,12 @@
 <template>
-    <multiselect track-by='value' label='label'
-                 :show-labels='false'
-                 :placeholder='$t("item")'
-                 :value='valueObj'
-                 :options='items'
-                 @input='updateValue($event)'
+    <multiselect
+        track-by='value'
+        label='label'
+        :show-labels='false'
+        :placeholder='$t("item")'
+        :value='valueObj'
+        :options='items'
+        @input='updateValue($event)'
     ></multiselect>
 </template>
 
