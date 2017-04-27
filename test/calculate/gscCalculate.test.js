@@ -16,7 +16,7 @@ describe("gscCalculate()", () => {
         beforeEach(() => {
             machamp = new Pokemon("Machamp", 2);
             starmie = new Pokemon("Starmie", 2);
-            field = new Field();
+            field = new Field({gen: Gens.GSC});
             crossChopCrit = new Move({
                 name: "Cross Chop",
                 critical: true,

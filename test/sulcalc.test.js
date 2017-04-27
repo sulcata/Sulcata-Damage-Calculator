@@ -72,18 +72,4 @@ describe("sulcalc()", () => {
             sulcalc({name: "Snorlax"}, {name: "Snorlax"}, {id: -1}, {});
         }).toThrow(NoMoveError);
     });
-
-    /*
-        minPercent,
-        maxPercent,
-        damage,
-        damages,
-        remainingHealth,
-        remainingHealthBerry,
-        effectValues,
-        effectMessages,
-        fractionalChances,
-        roundedChances,
-        toString()
-    */
 });
