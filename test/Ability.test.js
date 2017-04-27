@@ -182,4 +182,9 @@ describe("Ability", () => {
         expect(noAbility.reducesSuperEffective()).toBeFalsy();
         expect(magicGuard.reducesSuperEffective()).toBeFalsy();
     });
+
+    test("#isUseful()", () => {
+        expect(noAbility.isUseful()).toBeFalsy();
+        expect(magicGuard.isUseful()).toBeTruthy();
+    });
 });

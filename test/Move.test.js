@@ -218,11 +218,8 @@ describe("Move", () => {
         expect(ancientPower.isContact()).toBeFalsy();
 
         overheat.gen = 3;
-        expect(overheat.isContact()).toBeTruthy();
-    });
-
-    test.skip("#isContact()", () => {
         ancientPower.gen = 3;
+        expect(overheat.isContact()).toBeTruthy();
         expect(ancientPower.isContact()).toBeTruthy();
     });
 
@@ -332,6 +329,158 @@ describe("Move", () => {
         expect(tackle.affectedByParentalBond()).toBeTruthy();
         expect(struggle.affectedByParentalBond()).toBeTruthy();
         expect(noMove.affectedByParentalBond()).toBeTruthy();
+    });
+
+    test("#weakenedByGrassyTerrain()", () => {
+        const earthquake = new Move("Earthquake");
+        const magnitude = new Move("Magnitude");
+        const bulldoze = new Move("Bulldoze");
+        expect(earthquake.weakenedByGrassyTerrain()).toBeTruthy();
+        expect(magnitude.weakenedByGrassyTerrain()).toBeTruthy();
+        expect(bulldoze.weakenedByGrassyTerrain()).toBeTruthy();
+        expect(tackle.weakenedByGrassyTerrain()).toBeFalsy();
+    });
+
+    test("#boostedByMinimize()", () => {
+        const stomp = new Move("Stomp");
+        const astonish = new Move("Astonish");
+        const extrasensory = new Move("Extrasensory");
+        const needleArm = new Move("Needle Arm");
+        const steamroller = new Move("Steamroller");
+        const bodySlam = new Move("Body Slam");
+        const dragonRush = new Move("Dragon Rush");
+        const flyingPress = new Move("Flying Press");
+        const shadowForce = new Move("Shadow Force");
+        const phantomForce = new Move("Phantom Force");
+        const heavySlam = new Move("Heavy Slam");
+        function changeGen(gen) {
+            stomp.gen = gen;
+            astonish.gen = gen;
+            extrasensory.gen = gen;
+            needleArm.gen = gen;
+            steamroller.gen = gen;
+            bodySlam.gen = gen;
+            dragonRush.gen = gen;
+            flyingPress.gen = gen;
+            shadowForce.gen = gen;
+            phantomForce.gen = gen;
+            heavySlam.gen = gen;
+        }
+
+        expect(gust.boostedByMinimize()).toBeFalsy();
+
+        expect(stomp.boostedByMinimize()).toBeTruthy();
+        expect(astonish.boostedByMinimize()).toBeFalsy();
+        expect(extrasensory.boostedByMinimize()).toBeFalsy();
+        expect(needleArm.boostedByMinimize()).toBeFalsy();
+        expect(steamroller.boostedByMinimize()).toBeTruthy();
+        expect(bodySlam.boostedByMinimize()).toBeTruthy();
+        expect(dragonRush.boostedByMinimize()).toBeTruthy();
+        expect(flyingPress.boostedByMinimize()).toBeTruthy();
+        expect(shadowForce.boostedByMinimize()).toBeTruthy();
+        expect(phantomForce.boostedByMinimize()).toBeTruthy();
+        expect(heavySlam.boostedByMinimize()).toBeTruthy();
+
+        changeGen(Gens.ORAS);
+        expect(stomp.boostedByMinimize()).toBeTruthy();
+        expect(astonish.boostedByMinimize()).toBeFalsy();
+        expect(extrasensory.boostedByMinimize()).toBeFalsy();
+        expect(needleArm.boostedByMinimize()).toBeFalsy();
+        expect(steamroller.boostedByMinimize()).toBeTruthy();
+        expect(bodySlam.boostedByMinimize()).toBeTruthy();
+        expect(dragonRush.boostedByMinimize()).toBeTruthy();
+        expect(flyingPress.boostedByMinimize()).toBeTruthy();
+        expect(shadowForce.boostedByMinimize()).toBeTruthy();
+        expect(phantomForce.boostedByMinimize()).toBeTruthy();
+        expect(heavySlam.boostedByMinimize()).toBeFalsy();
+
+        changeGen(Gens.B2W2);
+        expect(steamroller.boostedByMinimize()).toBeTruthy();
+        changeGen(Gens.HGSS);
+        expect(steamroller.boostedByMinimize()).toBeFalsy();
+        for (const gen of [Gens.B2W2, Gens.HGSS]) {
+            changeGen(gen);
+            expect(stomp.boostedByMinimize()).toBeTruthy();
+            expect(astonish.boostedByMinimize()).toBeFalsy();
+            expect(extrasensory.boostedByMinimize()).toBeFalsy();
+            expect(needleArm.boostedByMinimize()).toBeFalsy();
+            expect(bodySlam.boostedByMinimize()).toBeFalsy();
+            expect(dragonRush.boostedByMinimize()).toBeFalsy();
+            expect(flyingPress.boostedByMinimize()).toBeFalsy();
+            expect(shadowForce.boostedByMinimize()).toBeFalsy();
+            expect(phantomForce.boostedByMinimize()).toBeFalsy();
+            expect(heavySlam.boostedByMinimize()).toBeFalsy();
+        }
+
+        changeGen(Gens.ADV);
+        expect(stomp.boostedByMinimize()).toBeTruthy();
+        expect(astonish.boostedByMinimize()).toBeTruthy();
+        expect(extrasensory.boostedByMinimize()).toBeTruthy();
+        expect(needleArm.boostedByMinimize()).toBeTruthy();
+        expect(steamroller.boostedByMinimize()).toBeFalsy();
+        expect(bodySlam.boostedByMinimize()).toBeFalsy();
+        expect(dragonRush.boostedByMinimize()).toBeFalsy();
+        expect(flyingPress.boostedByMinimize()).toBeFalsy();
+        expect(shadowForce.boostedByMinimize()).toBeFalsy();
+        expect(phantomForce.boostedByMinimize()).toBeFalsy();
+        expect(heavySlam.boostedByMinimize()).toBeFalsy();
+
+        changeGen(Gens.GSC);
+        expect(stomp.boostedByMinimize()).toBeTruthy();
+        expect(astonish.boostedByMinimize()).toBeFalsy();
+        expect(extrasensory.boostedByMinimize()).toBeFalsy();
+        expect(needleArm.boostedByMinimize()).toBeFalsy();
+        expect(steamroller.boostedByMinimize()).toBeFalsy();
+        expect(bodySlam.boostedByMinimize()).toBeFalsy();
+        expect(dragonRush.boostedByMinimize()).toBeFalsy();
+        expect(flyingPress.boostedByMinimize()).toBeFalsy();
+        expect(shadowForce.boostedByMinimize()).toBeFalsy();
+        expect(phantomForce.boostedByMinimize()).toBeFalsy();
+        expect(heavySlam.boostedByMinimize()).toBeFalsy();
+    });
+
+    test("#boostedByDig()", () => {
+        const earthquake = new Move("Earthquake");
+        const magnitude = new Move("Magnitude");
+        expect(earthquake.boostedByDig()).toBeTruthy();
+        expect(magnitude.boostedByDig()).toBeTruthy();
+        expect(tackle.boostedByDig()).toBeFalsy();
+    });
+
+    test("#boostedByDive()", () => {
+        const whirlpool = new Move("Whirlpool");
+        expect(surf.boostedByDive()).toBeTruthy();
+        expect(whirlpool.boostedByDive()).toBeTruthy();
+        expect(tackle.boostedByDive()).toBeFalsy();
+    });
+
+    test("#boostedByFly()", () => {
+        const twister = new Move("Twister");
+        expect(gust.boostedByFly()).toBeTruthy();
+        expect(twister.boostedByFly()).toBeTruthy();
+        expect(tackle.boostedByFly()).toBeFalsy();
+    });
+
+    test("#usesHappiness()", () => {
+        const returnMove = new Move("Return");
+        const frustration = new Move("Frustration");
+        expect(returnMove.usesHappiness()).toBeTruthy();
+        expect(frustration.usesHappiness()).toBeTruthy();
+        expect(tackle.usesHappiness()).toBeFalsy();
+    });
+
+    test("#optimalHappiness()", () => {
+        const returnMove = new Move("Return");
+        const frustration = new Move("Frustration");
+        expect(returnMove.optimalHappiness()).toEqual(255);
+        expect(frustration.optimalHappiness()).toEqual(0);
+    });
+
+    test("#isUseful()", () => {
+        expect(noMove.isUseful()).toBeFalsy();
+        expect(leer.isUseful()).toBeFalsy();
+        expect(tackle.isUseful()).toBeTruthy();
+        expect(hiddenPower.isUseful()).toBeTruthy();
     });
 
     test(".hiddenPowers()", () => {

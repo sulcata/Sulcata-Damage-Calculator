@@ -163,7 +163,8 @@ export default class Move {
     }
 
     isContact() {
-        return moveHasFlags(this.id, 0x1, this.gen);
+        return moveHasFlags(this.id, 0x1, this.gen)
+            || this.gen === Gens.ADV && this.name === "Ancient Power";
     }
 
     isSound() {
@@ -488,5 +489,6 @@ function ivsCmp(a, b) {
     for (const stat of stats) {
         if (a[stat] !== b[stat]) return b[stat] - a[stat];
     }
+    /* istanbul ignore next */
     return 0;
 }
