@@ -106,6 +106,7 @@ export default class Pokemon {
         this.battery = Boolean(pokemon.battery);
         this.charge = Boolean(pokemon.charge);
         this.helpingHand = Boolean(pokemon.helpingHand);
+        this.auroraVeil = Boolean(pokemon.auroraVeil);
     }
 
     static "import"(importText, gen = maxGen) {

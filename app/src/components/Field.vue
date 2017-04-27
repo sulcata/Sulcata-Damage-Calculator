@@ -175,6 +175,17 @@
                     {{ $tAbility("Friend Guard") }}
                 </button-checkbox>
 
+                <!-- Aurora Veil -->
+                <button-checkbox
+                    v-if='field.gen >= Gens.SM'
+                    v-model='pokemon.auroraVeil'
+                    size='small'
+                    class='mt-1'
+                    :class='pokeAlign(pokemon)'
+                    >
+                    {{ $tMove("Aurora Veil") }}
+                </button-checkbox>
+
                 <!-- Battery -->
                 <button-checkbox
                     v-if='field.gen >= Gens.SM'

@@ -770,6 +770,10 @@ export default function smCalculate(attacker, defender, move, field) {
         finalMod = chainMod(0xC00, finalMod);
     }
 
+    if (defender.auroraVeil) {
+        finalMod = chainMod(field.multiBattle ? 0xAAA : 0x800, finalMod);
+    }
+
     if (attacker.ability.name === "Sniper" && move.critical) {
         finalMod = chainMod(0x1800, finalMod);
     }
