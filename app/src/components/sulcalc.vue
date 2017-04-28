@@ -47,7 +47,7 @@
 
         <div class='row mt-3'>
             <div class='col'>
-                <pokemon v-model='attacker' @input='selectBestReport()'></pokemon>
+                <pokemon v-model='attacker' @update='removeReportOverride'></pokemon>
             </div>
             <div class='col-4'>
                 <tab-content :tabs='[$t("tabs.general"), $t("tabs.moreOptions")]'>
@@ -68,7 +68,7 @@
                 </tab-content>
             </div>
             <div class='col'>
-                <pokemon v-model='defender' @input='selectBestReport()'></pokemon>
+                <pokemon v-model='defender' @update='removeReportOverride'></pokemon>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@ export default {
             defender,
             field,
             genData: maxGen,
-            selectedReport: {},
+            overrideReport: null,
             options: {
                 showFractions: false,
                 showLongRolls: false
@@ -120,8 +120,8 @@ export default {
                 return this.genData;
             },
             set(value) {
+                this.removeReportOverride();
                 this.genData = value;
-                this.selectedReport = {};
                 this.attacker = new Pokemon({gen: value});
                 this.defender = new Pokemon({gen: value});
                 this.field = new Field({gen: value});
@@ -142,6 +142,9 @@ export default {
             const chances = this.selectedReport.fractionalChances;
             if (!chances) return "";
             return chances.map(chance => chance.join(" / ")).join(", ");
+        },
+        reports() {
+            return [...this.attackerReports, ...this.defenderReports];
         },
         attackerReports() {
             const attacker = this.attacker;
@@ -176,6 +179,16 @@ export default {
                     };
                 }
             });
+        },
+        selectedReport: {
+            get() {
+                if (this.overrideReport) return this.overrideReport;
+                return this.reports.map(({value}) => value)
+                                   .reduce(betterReport, {});
+            },
+            set(value) {
+                this.overrideReport = value;
+            }
         }
     },
     methods: {
@@ -185,11 +198,8 @@ export default {
             poke.currentHpRange = report.remainingHealth;
             poke.currentHpRangeBerry = report.remainingHealthBerry;
         },
-        selectBestReport() {
-            const reports = [...this.attackerReports, ...this.defenderReports];
-            const bestReport = reports.map(({value}) => value)
-                                      .reduce(betterReport, {});
-            this.selectedReport = bestReport;
+        removeReportOverride() {
+            this.overrideReport = null;
         }
     },
     mixins: [translationMixin],
@@ -209,7 +219,9 @@ function betterReport(report1, report2) {
         if (chance1 > chance2) return report1;
         if (chance2 > chance1) return report2;
     }
-    return report1;
+    if (!report2.damage) return report1;
+    if (!report1.damage) return report2;
+    return report1.damage.max() > report2.damage.max() ? report1 : report2;
 }
 
 function entryAsList([value, multiplicity]) {
