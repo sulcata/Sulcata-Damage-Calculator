@@ -1,19 +1,23 @@
 "use strict";
 
 const path = require("path");
+const webpack = require("webpack");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const {version} = require("../package.json");
 
 const config = {
     entry: {
         main: path.join(__dirname, "../app/src/main"),
-        sulcalc: path.join(__dirname, "../src/sulcalc"),
         db: path.join(__dirname, "../src/db"),
-        setdex: path.join(__dirname, "../dist/setdex")
+        setdex: path.join(__dirname, "../dist/setdex"),
+        vendor: ["vue", "vue-i18n", "vue-multiselect"]
     },
     output: {
         filename: "[name].js",
         path: path.join(__dirname, "../dist/app")
     },
-    devtool: "source-map",
     stats: "minimal",
     resolve: {
         alias: {
@@ -28,14 +32,48 @@ const config = {
             {
                 test: /\.js$/,
                 exclude: /(node_modules|db|translations|setdex)\//,
-                loader: "babel-loader"
+                loader: "babel-loader",
+                options: {
+                    babelrc: false,
+                    plugins: [
+                        "syntax-dynamic-import",
+                        "transform-export-extensions",
+                        "lodash"
+                    ]
+                }
             },
             {
                 test: /\.hbs$/,
                 loader: "handlebars-loader"
+            },
+            {
+                test: /\.vue$/,
+                loader: "vue-loader"
+            },
+            {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: "css-loader"
+                })
             }
         ]
-    }
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            "process.libVersion": JSON.stringify(version)
+        }),
+        new ExtractTextPlugin("style.css"),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: ["setdex", "db", "vendor"]
+        }),
+        new HtmlWebpackPlugin({
+            template: path.join(__dirname, "../app/index.hbs"),
+            hash: true,
+            inject: "head"
+        }),
+        new ScriptExtHtmlWebpackPlugin({defaultAttribute: "defer"})
+    ]
 };
 
 module.exports = config;

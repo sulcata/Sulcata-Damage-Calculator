@@ -6,37 +6,7 @@
         <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
         <meta name='description' content='A Pokémon damage calculator'>
         <meta name='keywords' content='damage, calc, pokemon, calculator'>
-
         <title>sulcalc</title>
-
-        {{#if options.cdn}}
-            {{#each options.javascript}}
-                <script crossorigin='anonymous'
-                        src='{{src}}'
-                        integrity='{{integrity}}'
-                        defer
-                ></script>
-            {{/each}}
-        {{/if}}
-        {{#each files.js}}
-            <script src='{{this}}' defer></script>
-        {{/each}}
-
-        {{#if options.cdn}}
-            {{#each options.css}}
-                <link rel='stylesheet'
-                      crossorigin='anonymous'
-                      href='{{src}}'
-                      integrity='{{integrity}}'>
-            {{/each}}
-        {{else}}
-            {{#each options.css}}
-                <link rel='stylesheet' href='{{file}}'>
-            {{/each}}
-        {{/if}}
-        {{#each files.css}}
-            <link rel='stylesheet' href='{{this}}'>
-        {{/each}}
     </head>
 
     <body>
