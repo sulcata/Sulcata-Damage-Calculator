@@ -9,7 +9,7 @@
         "es6": true,
         "node": true
     },
-    "plugins": ["html", "import", "unicorn", "promise"],
+    "plugins": ["html", "import", "unicorn", "promise", "babel"],
     "settings": {
         "html/indent": "0",
         "html/report-bad-indent": "error",
@@ -23,6 +23,8 @@
         "plugin:unicorn/recommended"
     ],
     "rules": {
+        "babel/object-curly-spacing": "error",
+
         "import/extensions": "error",
         "import/first": "error",
         "import/max-dependencies": ["error", {"max": 11}],
@@ -151,7 +153,6 @@
         "no-whitespace-before-property": "error",
         "no-with": "error",
         "nonblock-statement-body-position": "error",
-        "object-curly-spacing": "error",
         "object-shorthand": "error",
         "operator-assignment": "error",
         "operator-linebreak": ["error", "before"],

@@ -1,4 +1,3 @@
-/* eslint-disable object-curly-spacing */
 export abilities1 from "../dist/db/abilities1";
 export abilities2 from "../dist/db/abilities2";
 export abilities3 from "../dist/db/abilities3";
