@@ -10,7 +10,7 @@ config.devtool = "cheap-module-source-map";
 
 config.plugins = config.plugins || [];
 config.plugins.unshift(
-    new webpack.EnvironmentPlugin({NODE_ENV: JSON.stringify("development")})
+    new webpack.EnvironmentPlugin({NODE_ENV: "development"})
 );
 
 config.devServer = {
