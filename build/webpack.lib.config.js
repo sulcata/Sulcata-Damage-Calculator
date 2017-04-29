@@ -3,7 +3,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const BabiliPlugin = require("babili-webpack-plugin");
-
 const {version} = require("../package.json");
 
 const config = {
@@ -23,15 +22,19 @@ const config = {
                 test: /\.js$/,
                 loader: "babel-loader",
                 exclude: /(node_modules|db|translations|setdex)\//,
-                options: {forceEnv: "webpack"}
+                options: {
+                    babelrc: false,
+                    plugins: [
+                        "syntax-dynamic-import",
+                        "transform-export-extensions",
+                        "lodash"
+                    ]
+                }
             }
         ]
     },
     plugins: [
-        new webpack.LoaderOptionsPlugin({
-            forceEnv: "webpack",
-            minimize: true
-        }),
+        new webpack.LoaderOptionsPlugin({minimize: true}),
         new webpack.DefinePlugin({
             "process.env.NODE_ENV": JSON.stringify("production"),
             "process.libVersion": JSON.stringify(version)
