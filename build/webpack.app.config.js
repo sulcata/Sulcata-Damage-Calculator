@@ -15,7 +15,7 @@ const config = {
         vendor: ["vue", "vue-i18n", "vue-multiselect"]
     },
     output: {
-        filename: "[name].js",
+        filename: "[name].[chunkhash].js",
         path: path.join(__dirname, "../dist/app")
     },
     stats: "minimal",
@@ -63,13 +63,12 @@ const config = {
         new webpack.DefinePlugin({
             "process.libVersion": JSON.stringify(version)
         }),
-        new ExtractTextPlugin("style.css"),
+        new ExtractTextPlugin("style.[contenthash].css"),
         new webpack.optimize.CommonsChunkPlugin({
             name: ["setdex", "db", "vendor"]
         }),
         new HtmlWebpackPlugin({
             template: path.join(__dirname, "../app/index.hbs"),
-            hash: true,
             inject: "head"
         }),
         new ScriptExtHtmlWebpackPlugin({defaultAttribute: "defer"})
