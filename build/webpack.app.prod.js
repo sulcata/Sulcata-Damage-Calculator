@@ -12,7 +12,7 @@ config.devtool = "source-map";
 config.plugins = config.plugins || [];
 config.plugins.unshift(
     new webpack.LoaderOptionsPlugin({minimize: true}),
-    new webpack.EnvironmentPlugin({NODE_ENV: JSON.stringify("production")}),
+    new webpack.EnvironmentPlugin({NODE_ENV: "production"}),
     new BabiliPlugin()
 );
 
