@@ -14,7 +14,6 @@ import endOfTurn from "./endOfTurn";
 
 const {max, min, round, trunc} = Math;
 
-/* eslint-disable object-curly-spacing */
 export Multiset from "./Multiset";
 export Pokemon from "./Pokemon";
 export Ability from "./Ability";
@@ -22,7 +21,6 @@ export Item from "./Item";
 export Move from "./Move";
 export Field from "./Field";
 export * as info from "./info";
-/* eslint-enable object-curly-spacing */
 export * from "./errors";
 export * from "./utilities";
 export const VERSION = process.libVersion;
