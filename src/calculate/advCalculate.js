@@ -91,9 +91,9 @@ export default function advCalculate(attacker, defender, move, field) {
     }
 
     let atk = attacker.stat(Stats.ATK);
-    let def = defender.stat(Stats.DEF);
     let satk = attacker.stat(Stats.SATK);
-    let sdef = attacker.stat(Stats.SDEF);
+    let def = defender.stat(Stats.DEF);
+    let sdef = defender.stat(Stats.SDEF);
 
     if (attacker.ability.name === "Huge Power"
         || attacker.ability.name === "Pure Power") {

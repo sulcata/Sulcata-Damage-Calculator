@@ -14,8 +14,8 @@
     },
     "jest": {
         "coveragePathIgnorePatterns": [
-            "/node_modules/",
-            "/test/"
+            "<rootDir>/node_modules/",
+            "<rootDir>/test/"
         ],
         "coverageReporters": [
             "json",
@@ -64,7 +64,7 @@
         "eslint-plugin-promise": "^3.5.0",
         "eslint-plugin-unicorn": "^2.1.1",
         "extract-text-webpack-plugin": "^2.1.0",
-        "handlebars": "^4.0.6",
+        "handlebars": "^4.0.7",
         "handlebars-loader": "^1.5.0",
         "html-webpack-plugin": "^2.28.0",
         "jest": "^19.0.2",

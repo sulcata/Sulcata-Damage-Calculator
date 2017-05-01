@@ -34,4 +34,23 @@ describe("advCalculate()", () => {
         const damage = advCalculate(attacker, defender, move, field);
         expect(max(...damage)).toEqual(127);
     });
+
+    test("ensure proper stats are used", () => {
+        const attacker = new Pokemon({
+            name: "Celebi",
+            boosts: [0, 0, 0, 1, 0, 0],
+            gen: Gens.ADV
+        });
+        const defender = new Pokemon({
+            name: "Dugtrio",
+            evs: [8, 0, 0, 0, 60, 0],
+            gen: Gens.ADV
+        });
+        const move = new Move({
+            name: "Psychic",
+            gen: Gens.ADV
+        });
+        const damage = advCalculate(attacker, defender, move, field);
+        expect(max(...damage)).toEqual(213);
+    });
 });
