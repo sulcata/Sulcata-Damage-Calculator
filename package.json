@@ -12,24 +12,6 @@
     "bugs": {
         "url": "https://github.com/Sulcata/Sulcata-Damage-Calculator/issues"
     },
-    "jest": {
-        "coveragePathIgnorePatterns": [
-            "<rootDir>/node_modules/",
-            "<rootDir>/test/"
-        ],
-        "coverageReporters": [
-            "json",
-            "lcov"
-        ],
-        "coverageThreshold": {
-            "global": {
-                "branches": 45,
-                "functions": 85,
-                "lines": 50,
-                "statements": 50
-            }
-        }
-    },
     "scripts": {
         "serve": "webpack-dev-server --config build/webpack.app.dev.js",
         "build": "yarn build:app:production",
@@ -55,29 +37,29 @@
         "babel-register": "^6.24.1",
         "babili-webpack-plugin": "^0.0.11",
         "bootstrap": "4.0.0-alpha.6",
-        "css-loader": "^0.28.0",
+        "css-loader": "^0.28.1",
         "eslint": "^3.19.0",
         "eslint-import-resolver-webpack": "^0.8.1",
         "eslint-plugin-babel": "^4.1.1",
-        "eslint-plugin-html": "^2.0.0",
+        "eslint-plugin-html": "^2.0.3",
         "eslint-plugin-import": "^2.2.0",
         "eslint-plugin-promise": "^3.5.0",
         "eslint-plugin-unicorn": "^2.1.1",
         "extract-text-webpack-plugin": "^2.1.0",
-        "handlebars": "^4.0.7",
+        "handlebars": "^4.0.8",
         "handlebars-loader": "^1.5.0",
         "html-webpack-plugin": "^2.28.0",
-        "jest": "^19.0.2",
+        "jest": "^20.0.0",
         "lodash": "^4.17.4",
         "mkdirp": "^0.5.1",
         "script-ext-html-webpack-plugin": "^1.7.1",
-        "style-loader": "^0.16.1",
-        "vue": "2.3.0",
+        "style-loader": "^0.17.0",
+        "vue": "2.3.2",
         "vue-i18n": "6.0.0",
-        "vue-loader": "^12.0.2",
+        "vue-loader": "^12.0.3",
         "vue-multiselect": "2.0.0-beta.15",
-        "vue-template-compiler": "2.3.0",
-        "webpack": "^2.4.1",
+        "vue-template-compiler": "2.3.2",
+        "webpack": "^2.5.1",
         "webpack-dev-server": "^2.4.5"
     }
 }
