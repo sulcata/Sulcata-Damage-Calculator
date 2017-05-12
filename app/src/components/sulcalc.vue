@@ -182,9 +182,11 @@ export default {
         },
         selectedReport: {
             get() {
-                if (this.overrideReport) return this.overrideReport;
-                return this.reports.map(({value}) => value)
-                                   .reduce(betterReport, {});
+                const reports = this.reports.map(({value}) => value);
+                if (reports.includes(this.overrideReport)) {
+                    return this.overrideReport;
+                }
+                return reports.reduce(betterReport, {});
             },
             set(value) {
                 this.overrideReport = value;
@@ -193,8 +195,8 @@ export default {
     },
     methods: {
         setHp() {
-            const poke = this.selectedReport.defender;
             const report = this.selectedReport;
+            const poke = report.defender;
             poke.currentHpRange = report.remainingHealth;
             poke.currentHpRangeBerry = report.remainingHealthBerry;
         },
