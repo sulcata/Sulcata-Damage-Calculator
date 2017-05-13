@@ -283,6 +283,9 @@ export default function sulcalc(attacker, defender, move, field) {
         reportResult.push("this might take a while...");
     }
 
+    defender.currentHpRange = chances.remainingHealth;
+    defender.currentHpRangeBerry = chances.remainingHealthBerry;
+
     const pokeInfo = reportPokes.join(" ");
     const damageInfo = reportDamage.join(" ");
     const resultInfo = reportResult.join(" ");
@@ -295,15 +298,10 @@ export default function sulcalc(attacker, defender, move, field) {
         maxPercent,
         damages: dmg.slice(0, dmg.length - 1),
         damage: dmg[0],
-        remainingHealth: chances.remainingHealth,
-        remainingHealthBerry: chances.remainingHealthBerry,
         effectValues: effects.values,
         effectMessages: effects.messages,
         fractionalChances: chances.fractionalChances,
-        roundedChances: chances.roundedChances,
-        toString() {
-            return this.report;
-        }
+        roundedChances: chances.roundedChances
     };
 }
 
