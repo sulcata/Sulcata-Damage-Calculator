@@ -196,12 +196,27 @@ export default {
     methods: {
         setHp() {
             const report = this.selectedReport;
-            const poke = report.defender;
-            poke.currentHpRange = report.remainingHealth;
-            poke.currentHpRangeBerry = report.remainingHealthBerry;
+            const poke = this.selectedReport.defender;
+            if (this.isAttackerReport(report)) {
+                this.defender = poke;
+            } else if (this.isDefenderReport(report)) {
+                this.attacker = poke;
+            }
         },
         removeReportOverride() {
             this.overrideReport = null;
+        },
+        isAttackerReport(report) {
+            const reports = this.attackerReports.map(({value}) => value);
+            return reports.includes(report);
+        },
+        isDefenderReport(report) {
+            const reports = this.defenderReports.map(({value}) => value);
+            return reports.includes(report);
+        },
+        isReport(report) {
+            const reports = this.reports.map(({value}) => value);
+            return reports.includes(report);
         }
     },
     mixins: [translationMixin],
