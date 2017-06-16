@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	"Aerodactyl": {
 		"OU Standard": {"level":100,"item":"Leftovers","moves":["Earthquake","Hidden Power Rock","Wing Attack","Fire Blast"]},
 		"OU Curse": {"level":100,"item":"Leftovers","moves":["Curse","Earthquake","Hidden Power Rock","Substitute"]},

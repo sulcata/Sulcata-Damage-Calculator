@@ -1,5 +1,4 @@
 import {Gens, Types, maxGen} from "./utilities";
-
 import {
     itemId, itemName, naturalGiftPower, naturalGiftType,
     flingPower, isItemUseful, itemEffects
@@ -19,18 +18,13 @@ const heavyItems = new Set([
 ]);
 
 export default class Item {
-
-    constructor(item = {}, gen) {
-        if (typeof item === "string") {
-            this.name = item;
-            item = {};
-        } else if (item.name) {
+    constructor(item = {}) {
+        if (item.name) {
             this.name = item.name;
         } else {
             this.id = Number(item.id) || 0;
         }
-
-        this.gen = Number(gen) || Number(item.gen) || maxGen;
+        this.gen = Number(item.gen) || maxGen;
         this.used = Boolean(item.used);
         this.disabled = Boolean(item.disabled);
     }
@@ -142,7 +136,6 @@ export default class Item {
                 return 0;
         }
     }
-
 }
 
 function flagToValue(id, flag, gen) {

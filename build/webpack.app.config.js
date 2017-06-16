@@ -5,14 +5,13 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const {version} = require("../package.json");
 
 const config = {
     entry: {
         main: path.join(__dirname, "../app/src/main"),
         db: path.join(__dirname, "../src/db"),
         setdex: path.join(__dirname, "../dist/setdex"),
-        vendor: ["vue", "vue-i18n", "vue-multiselect"]
+        vendor: ["vue", "vue-i18n", "vue-multiselect", "lodash"]
     },
     output: {
         filename: "[name].[chunkhash].js",
@@ -60,13 +59,11 @@ const config = {
         ]
     },
     plugins: [
-        new webpack.DefinePlugin({
-            "process.libVersion": JSON.stringify(version)
-        }),
         new ExtractTextPlugin("style.[contenthash].css"),
         new webpack.optimize.CommonsChunkPlugin({
             name: ["setdex", "db", "vendor"]
         }),
+        new webpack.optimize.ModuleConcatenationPlugin(),
         new HtmlWebpackPlugin({
             template: path.join(__dirname, "../app/index.hbs"),
             inject: "head"

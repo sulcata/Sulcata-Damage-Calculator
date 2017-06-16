@@ -12,9 +12,7 @@
 
 <script>
 import {Multiselect} from "vue-multiselect";
-
 import translationMixin from "../mixins/translation";
-
 import {Ability, info} from "sulcalc";
 
 export default {

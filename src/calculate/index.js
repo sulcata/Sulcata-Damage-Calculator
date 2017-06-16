@@ -1,8 +1,6 @@
 import {clamp} from "lodash";
-
 import Multiset from "../Multiset";
 import {Gens, Stats, multiplyStrs, divideStrs, cmpStrs} from "../utilities";
-
 import rbyCalculate from "./rbyCalculate";
 import gscCalculate from "./gscCalculate";
 import advCalculate from "./advCalculate";
@@ -11,7 +9,7 @@ import b2w2Calculate from "./b2w2Calculate";
 import orasCalculate from "./orasCalculate";
 import smCalculate from "./smCalculate";
 
-const {min} = Math;
+const {max, min, trunc} = Math;
 
 export default function calculate(attacker, defender, move, field) {
     const dmg = [];
@@ -155,6 +153,65 @@ function turnCalculate(attacker, defender, move, field) {
 }
 
 function genCalculate(attacker, defender, move, field) {
+    return new Multiset(_genCalculate(attacker, defender, move, field));
+}
+
+function _genCalculate(attacker, defender, move, field) {
+    const gen = field.gen;
+    const maxHp = defender.stat(Stats.HP);
+    const level = attacker.level;
+
+    switch (move.name) {
+        case "Seismic Toss":
+        case "Night Shade":
+            return [attacker.level];
+        case "Dragon Rage":
+            return [40];
+        case "Sonic Boom":
+            return [20];
+        case "Psywave":
+            if (gen <= Gens.GSC) {
+                // intentionally 1-149
+                const range = [];
+                const maxPsywave = trunc(level * 3 / 2);
+                for (let i = 1; i < maxPsywave; i++) {
+                    range.push(i);
+                }
+                return range;
+            }
+            if (gen <= Gens.HGSS) {
+                const range = [];
+                for (let i = 50; i <= 150; i += 10) {
+                    range.push(max(1, trunc(level * i / 100)));
+                }
+                return range;
+            }
+            {
+                const range = [];
+                for (let i = 50; i <= 150; i++) {
+                    range.push(max(1, trunc(level * i / 100)));
+                }
+                return range;
+            }
+        case "Super Fang":
+        case "Nature's Madness":
+            return [max(1, trunc(defender.currentHp / 2))];
+        case "Endeavor":
+            return [max(0, defender.currentHp - attacker.currentHp)];
+        case "Final Gambit":
+            return [attacker.currentHp];
+        default:
+            if (move.isOther()
+                || move.isSound() && defender.ability.name === "Soundproof"
+                || move.isBall() && defender.ability.name === "Bulletproof"
+                || move.isExplosion() && defender.ability.name === "Damp") {
+                return [0];
+            }
+            if (move.isOhko()) {
+                return [maxHp];
+            }
+    }
+
     const calculateFns = [
         undefined, // i swear undefined is a function
         rbyCalculate,
@@ -167,10 +224,9 @@ function genCalculate(attacker, defender, move, field) {
     ];
     let damages = calculateFns[field.gen](attacker, defender, move, field);
 
-    const maxHp = defender.stat(Stats.HP);
     if (defender.ability.name === "Sturdy" && defender.currentHp === maxHp) {
         damages = damages.map(d => min(maxHp - 1, d));
     }
 
-    return new Multiset(damages);
+    return damages;
 }

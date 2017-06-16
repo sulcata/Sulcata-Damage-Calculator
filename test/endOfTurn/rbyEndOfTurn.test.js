@@ -1,14 +1,16 @@
 import rbyEndOfTurn from "../../src/endOfTurn/rbyEndOfTurn";
 import Pokemon from "../../src/Pokemon";
-import {Statuses} from "../../src/utilities";
+import {Gens, Statuses} from "../../src/utilities";
+
+const gen = Gens.RBY;
 
 describe("rbyEndOfTurn()", () => {
     let attacker;
     let defender;
 
     beforeEach(() => {
-        attacker = new Pokemon("Snorlax", 2);
-        defender = new Pokemon("Zapdos", 2);
+        attacker = new Pokemon({name: "Snorlax", gen});
+        defender = new Pokemon({name: "Zapdos", gen});
     });
 
     test("produces no effects with no statuses", () => {

@@ -1,30 +1,20 @@
-import Move from "../Move";
-
+import {effectiveness} from "../info";
 import {
-    Gens, Stats, Types, applyMod, chainMod,
-    roundHalfToZero, damageVariation
+    Gens, Stats, Types, damageVariation,
+    applyMod, chainMod
 } from "../utilities";
-
-import {
-    isSandForceType, isLustrousType, isAdamantType,
-    isGriseousType, isSoulDewType, effectiveness
-} from "../info";
+import moveInfo from "./moveInfo";
 
 const {max, min, trunc} = Math;
 
 /*
  * TODO
  * Moves:
- * Multi-Attack
  * Shell Trap
  * Guardian of Alola 75% HP
- * Thousand Arrows (ORAS too)
  * Revelation Dance
- * Psychic Terrain (needs prio info) (created by psychic surge too)
  * Sparkling Aria heals burns
- * Darkest Lariat (ignores stat changes)
  * Baneful Bunker poisons
- * Z-Moves in general
  * Burn Up
  *
  * Abilities:
@@ -34,420 +24,9 @@ const {max, min, trunc} = Math;
  * Schooling
  */
 export default function smCalculate(attacker, defender, move, field) {
-    let moveType = move.type();
-    let movePower = move.power();
-
-    if (movePower === 0) return [0];
-
-    switch (move.name) {
-        case "Weather Ball":
-            moveType = Move.weatherBall(field.effectiveWeather());
-            movePower = moveType === Types.NORMAL ? 50 : 100;
-            break;
-        case "Frustration":
-            movePower = Move.frustration(attacker.happiness);
-            break;
-        case "Return":
-            movePower = Move.return(attacker.happiness);
-            break;
-        case "Payback":
-            if (defender.movedFirst) movePower *= 2;
-            break;
-        case "Electro Ball":
-            movePower = Move.electroBall(attacker.speed(), defender.speed());
-            break;
-        case "Assurance":
-            if (attacker.damagedPreviously) movePower *= 2;
-            break;
-        case "Avalanche":
-        case "Revenge":
-            if (attacker.damagedPreviously && !attacker.damagedByPainSplit) {
-                movePower *= 2;
-            }
-            break;
-        case "Gyro Ball":
-            movePower = Move.gyroBall(attacker.speed(), defender.speed());
-            break;
-        case "Water Spout":
-        case "Eruption":
-            movePower = Move.eruption(attacker.currentHp,
-                                      attacker.stat(Stats.HP));
-            break;
-        case "Punishment":
-            movePower = Move.punishment(defender.boosts);
-            break;
-        case "Fury Cutter":
-            movePower = min(160, 40 * 2 ** move.furyCutter);
-            break;
-        case "Low Kick":
-        case "Grass Knot":
-            movePower = Move.grassKnot(defender.weight());
-            break;
-        case "Echoed Voice":
-            movePower = min(200, 40 + 40 * move.echoedVoice);
-            break;
-        case "Hex":
-            if (defender.status) movePower *= 2;
-            break;
-        case "Wring Out":
-        case "Crush Grip":
-            movePower = max(1, roundHalfToZero(
-                120 * defender.currentHp / defender.stat(Stats.HP)));
-            break;
-        case "Heavy Slam":
-        case "Heat Crash":
-            movePower = Move.heavySlam(attacker.weight(), defender.weight());
-            break;
-        case "Power Trip":
-        case "Stored Power":
-            movePower = Move.storedPower(attacker.boosts);
-            break;
-        case "Flail":
-        case "Reversal":
-            movePower = Move.flail(attacker.currentHp,
-                                   attacker.stat(Stats.HP),
-                                   Gens.SM);
-            break;
-        case "Trump Card":
-            movePower = Move.trumpCard(move.trumpPP);
-            break;
-        case "Round":
-            if (move.roundBoost) movePower *= 2;
-            break;
-        case "Wake-Up Slap":
-            if (defender.isAsleep()) movePower *= 2;
-            break;
-        case "Smelling Salts":
-            if (defender.isParalyzed()) movePower *= 2;
-            break;
-        case "Beat Up": {
-            const stat = attacker.beatUpStats[move.beatUpHit];
-            movePower = trunc(stat / 10) + 5;
-            break;
-        }
-        case "Hidden Power":
-            movePower = Move.hiddenPowerBp(attacker.ivs, Gens.SM);
-            moveType = Move.hiddenPowerType(attacker.ivs, Gens.SM);
-            break;
-        case "Spit Up":
-            if (attacker.stockpile === 0) return [0];
-            movePower = 100 * attacker.stockpile;
-            break;
-        case "Pursuit":
-            movePower *= 2;
-            break;
-        case "Present":
-            movePower = move.present;
-            break;
-        case "Natural Gift":
-            if (attacker.item.disabled || !attacker.item.isBerry()) return [0];
-            movePower = attacker.item.naturalGiftPower();
-            moveType = attacker.item.naturalGiftType();
-            break;
-        case "Magnitude":
-            movePower = Move.magnitude(move.magnitude);
-            break;
-        case "Rollout":
-        case "Ice Ball":
-            movePower = 30 * 2 ** ((move.rollout - 1) % 5 + move.defenseCurl);
-            break;
-        case "Fling":
-            movePower = attacker.item.flingPower();
-            break;
-        case "Fire Pledge":
-        case "Water Pledge":
-        case "Grass Pledge":
-            if (move.pledgeBoost) movePower *= 2;
-            break;
-        case "Triple Kick":
-            movePower = 10 * move.tripleKickCount;
-            break;
-        case "Judgment":
-            if (attacker.item.plateType() > -1) {
-                moveType = attacker.item.plateType();
-            }
-            break;
-        case "Seismic Toss":
-        case "Night Shade":
-            return [attacker.level];
-        case "Dragon Rage":
-            return [40];
-        case "Sonic Boom":
-            return [20];
-        case "Endeavor":
-            return [max(0, defender.currentHp - attacker.currentHp)];
-        case "Psywave": {
-            const range = [];
-            for (let i = 0; i <= 100; i++) {
-                range.push(max(1, trunc(attacker.level * (i + 50) / 100)));
-            }
-            return range;
-        }
-        case "Super Fang":
-        case "Nature's Madness":
-            return [max(1, trunc(defender.currentHp / 2))];
-        case "Self-Destruct":
-        case "Explosion":
-            if (defender.ability.name === "Damp") return [0];
-            break;
-        case "Final Gambit":
-            return [attacker.currentHp];
-        default:
-            if (move.isOhko()) {
-                return [defender.stat(Stats.HP)];
-            }
-            if (move.isSound() && defender.ability.name === "Soundproof"
-                || move.isBall() && defender.ability.name === "Bulletproof") {
-                return [0];
-            }
-            if (move.fly && move.boostedByFly()) {
-                movePower *= 2;
-            } else if (attacker.ability.name === "Liquid Voice"
-                       && move.isSound()) {
-                moveType = Types.WATER;
-            } else if (move.name === "Multi-Attack") {
-                moveType = attacker.item.memoryType();
-            }
-    }
-
-    const gemBoost = moveType === attacker.item.gemType();
-    attacker.item.used = attacker.item.used || gemBoost;
-
-    if (move.name === "Acrobatics" && attacker.item.name === "(No Item)") {
-        movePower *= 2;
-    }
-
-    let movePowerMod = 0x1000;
-
-    switch (attacker.ability.name) {
-        case "Technician":
-            if (movePower <= 60) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        case "Flare Boost":
-            if (attacker.isBurned() && move.isSpecial()) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        case "Analytic":
-            if (defender.movedFirst) {
-                movePowerMod = chainMod(0x14CD, movePowerMod);
-            }
-            break;
-        case "Reckless":
-            if (move.isRecklessBoosted()) {
-                movePowerMod = chainMod(0x1333, movePowerMod);
-            }
-            break;
-        case "Iron Fist":
-            if (move.isPunch()) {
-                movePowerMod = chainMod(0x1333, movePowerMod);
-            }
-            break;
-        case "Toxic Boost":
-            if ((attacker.isPoisoned() || attacker.isBadlyPoisoned())
-                && move.isPhysical()) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        case "Rivalry":
-            if (attacker.gender && defender.gender) {
-                const m = attacker.gender === defender.gender ? 0xC00 : 0x1400;
-                movePowerMod = chainMod(m, movePowerMod);
-            }
-            break;
-        case "Sand Force":
-            if (field.sand() && isSandForceType(moveType)) {
-                movePowerMod = chainMod(0x14CD, movePowerMod);
-            }
-            break;
-        case "Normalize":
-            moveType = Types.NORMAL;
-            break;
-        case "Tough Claws":
-            if (move.isContact()) {
-                movePowerMod = chainMod(0x1555, movePowerMod);
-            }
-            break;
-        case "Strong Jaw":
-            if (move.isBite()) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        case "Mega Launcher":
-            if (move.isPulse()) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        case "Parental Bond":
-            if (move.secondHit) {
-                movePowerMod = chainMod(0x400, movePowerMod);
-            }
-            break;
-        case "Steelworker":
-            if (moveType === Types.STEEL) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        case "Water Bubble":
-            if (moveType === Types.WATER) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        default:
-            if (attacker.ability.normalToType() > -1
-                && moveType === Types.NORMAL) {
-                // refrigerate, etc.
-                movePowerMod = chainMod(0x1333, movePowerMod);
-                moveType = attacker.ability.normalToType();
-            }
-    }
-
-    if (moveType === Types.FIRE) {
-        switch (defender.ability.name) {
-            case "Heatproof":
-            case "Water Bubble":
-                movePowerMod = chainMod(0x800, movePowerMod);
-                break;
-            case "Dry Skin":
-                movePowerMod = chainMod(0x1400, movePowerMod);
-                break;
-            /* no default */
-        }
-    }
-
-    if (attacker.ability.name === "Sheer Force"
-        && move.affectedBySheerForce()) {
-        movePowerMod = chainMod(0x14CD, movePowerMod);
-    }
-
-    switch (attacker.item.name) {
-        case "Muscle Band":
-            if (move.isPhysical()) {
-                movePowerMod = chainMod(0x1199, movePowerMod);
-            }
-            break;
-        case "Wise Glasses":
-            if (move.isSpecial()) {
-                movePowerMod = chainMod(0x1199, movePowerMod);
-            }
-            break;
-        case "Adamant Orb":
-            if (attacker.name === "Dialga" && isAdamantType(moveType)) {
-                movePowerMod = chainMod(0x1333, movePowerMod);
-            }
-            break;
-        case "Lustrous Orb":
-            if (attacker.name === "Palkia" && isLustrousType(moveType)) {
-                movePowerMod = chainMod(0x1333, movePowerMod);
-            }
-            break;
-        case "Griseous Orb":
-            if (attacker.name.startsWith("Giratina")
-                && isGriseousType(moveType)) {
-                movePowerMod = chainMod(0x1333, movePowerMod);
-            }
-            break;
-        case "Soul Dew":
-            if ((attacker.name === "Latias" || attacker.name === "Latios")
-                && isSoulDewType(moveType)) {
-                movePowerMod = chainMod(0x1333, movePowerMod);
-            }
-            break;
-        default:
-            if (gemBoost) {
-                movePowerMod = chainMod(0x14CD, movePowerMod);
-            } else if (attacker.item.boostedType() === moveType) {
-                movePowerMod = chainMod(0x1333, movePowerMod);
-            }
-    }
-
-    switch (move.name) {
-        case "Facade":
-            if (attacker.status) {
-                movePowerMod = chainMod(0x2000, movePowerMod);
-            }
-            break;
-        case "Brine":
-            if (defender.currentHp * 2 <= defender.stat(Stats.HP)) {
-                movePowerMod = chainMod(0x2000, movePowerMod);
-            }
-            break;
-        case "Venoshock":
-            if (attacker.isPoisoned() || attacker.isBadlyPoisoned()) {
-                movePowerMod = chainMod(0x2000, movePowerMod);
-            }
-            break;
-        case "Retaliate":
-            if (move.previouslyFainted) {
-                movePowerMod = chainMod(0x2000, movePowerMod);
-            }
-            break;
-        case "Fusion Bolt":
-            if (move.fusionFlare) {
-                movePowerMod = chainMod(0x2000, movePowerMod);
-            }
-            break;
-        case "Fusion Flare":
-            if (move.fusionBolt) {
-                movePowerMod = chainMod(0x2000, movePowerMod);
-            }
-            break;
-        case "Knock Off":
-            if (defender.knockOffBoost()) {
-                movePowerMod = chainMod(0x1800, movePowerMod);
-            }
-            break;
-        /* no default */
-    }
-
-    if (move.meFirst) {
-        movePowerMod = chainMod(0x1800, movePowerMod);
-    }
-
-    if (!field.sun() && !field.isClearWeather() && move.name === "Solar Beam") {
-        movePowerMod = chainMod(0x800, movePowerMod);
-    }
-
-    if (attacker.charge && moveType === Types.ELECTRIC) {
-        movePowerMod = chainMod(0x2000, movePowerMod);
-    }
-
-    if (attacker.helpingHand) {
-        movePowerMod = chainMod(0x1800, movePowerMod);
-    }
-
-    if (field.waterSport && moveType === Types.FIRE) {
-        movePowerMod = chainMod(0x548, movePowerMod);
-    }
-
-    if (field.mudSport && moveType === Types.ELECTRIC) {
-        movePowerMod = chainMod(0x548, movePowerMod);
-    }
-
-    if (field.grassyTerrain && attacker.grounded && moveType === Types.GRASS) {
-        movePowerMod = chainMod(0x1800, movePowerMod);
-    }
-
-    if (field.electricTerrain && attacker.grounded
-        && moveType === Types.ELECTRIC) {
-        movePowerMod = chainMod(0x1800, movePowerMod);
-    }
-
-    if (field.mistyTerrain && defender.grounded && moveType === Types.DRAGON) {
-        movePowerMod = chainMod(0x800, movePowerMod);
-    }
-
-    if (field.ionDeluge && moveType === Types.NORMAL) {
-        moveType = Types.ELECTRIC;
-    }
-
-    if (attacker.electrify) {
-        moveType = Types.ELECTRIC;
-    }
-
-    movePower = max(1, applyMod(movePowerMod, movePower));
+    const {moveType, movePower, fail} = moveInfo(attacker, defender,
+                                                 move, field);
+    if (fail) return [0];
 
     const defStat = field.wonderRoom ? Stats.SDEF : Stats.DEF;
     const sdefStat = field.wonderRoom ? Stats.DEF : Stats.SDEF;
@@ -689,11 +268,6 @@ export default function smCalculate(attacker, defender, move, field) {
             } else if (moveType === Types.FIRE) {
                 baseDamage = applyMod(0x800, baseDamage);
             }
-        } else if (field.strongWinds() && defender.stab(Types.FLYING)) {
-            const eff = effectiveness(moveType, Types.FLYING, {gen: Gens.SM});
-            if (eff.num > eff.den) {
-                baseDamage = applyMod(0x800, baseDamage);
-            }
         }
     }
 
@@ -721,7 +295,7 @@ export default function smCalculate(attacker, defender, move, field) {
         scrappy: attacker.ability.name === "Scrappy",
         gravity: field.gravity,
         freezeDry: move.name === "Freeze-Dry",
-        inverted: field.invertedBattle
+        strongWinds: field.strongWinds()
     });
     if (moveTypes.includes(defender.ability.immunityType())) {
         eff = {num: 0, den: 2};
@@ -780,11 +354,6 @@ export default function smCalculate(attacker, defender, move, field) {
 
     if (eff.num > eff.den && defender.ability.reducesSuperEffective()) {
         finalMod = chainMod(0xC00, finalMod);
-    }
-
-    if (field.fairyAura && moveType === Types.FAIRY
-        || field.darkAura && moveType === Types.DARK) {
-        finalMod = chainMod(field.auraBreak ? 0xAAA : 0x1555, finalMod);
     }
 
     if (field.grassyTerrain && move.weakenedByGrassyTerrain()) {

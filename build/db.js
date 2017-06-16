@@ -4,13 +4,15 @@ const fs = require("fs");
 const path = require("path");
 const mkdirp = require("mkdirp");
 const {identity, isEqual} = require("lodash");
-
+const pify = require("pify");
 const {
     dataToObject,
-    readFiles,
     simplifyPokeIds,
     removeAestheticPokes
 } = require("./utils");
+
+const readFile = pify(fs.readFile);
+const writeFile = pify(fs.writeFile);
 
 const inDir = path.join(__dirname, "db");
 const outDir = path.join(__dirname, "../dist/db");
@@ -18,31 +20,21 @@ const outDir = path.join(__dirname, "../dist/db");
 async function processData(name, files, preFn = identity, postFn = identity) {
     let result;
     if (Array.isArray(files)) {
-        files = files.map(file => file ? path.join(inDir, file) : file);
-        const dataArray = await readFiles(files);
+        files = files.map(file => {
+            if (file) {
+                return readFile(path.join(inDir, file));
+            }
+            return Promise.resolve(file);
+        });
+        const dataArray = await Promise.all(files);
         result = dataArray.map(data => dataToObject(data, preFn));
     } else {
-        const data = await new Promise(resolve => {
-            fs.readFile(path.join(inDir, files), (error, data) => {
-                if (error) throw error;
-                resolve(data);
-            });
-        });
-        result = dataToObject(data, preFn);
+        result = dataToObject(await readFile(path.join(inDir, files)), preFn);
     }
-
     result = postFn(result);
 
-    await new Promise(resolve => {
-        fs.writeFile(
-            path.join(outDir, `${name}.json`),
-            JSON.stringify(result),
-            error => {
-                if (error) throw error;
-                resolve();
-            }
-        );
-    });
+    await writeFile(path.join(outDir, `${name}.js`),
+                    `export default ${JSON.stringify(result)}`);
 
     return result;
 }
@@ -59,11 +51,10 @@ function removeEquivEntries(arr, idx, prop, val) {
 function reduceByDiffs(arr) {
     for (let i = 0; i < arr.length; i++) {
         const obj = arr[i];
-
-        if (obj === null) continue;
-
-        for (const prop in obj) {
-            removeEquivEntries(arr, i + 1, prop, obj[prop]);
+        if (obj !== null) {
+            for (const prop in obj) {
+                removeEquivEntries(arr, i + 1, prop, obj[prop]);
+            }
         }
     }
     return arr;
@@ -259,7 +250,7 @@ const dataList = [
             let arr = new Uint32Array([Number(s)]);
             arr = new Int8Array(arr.buffer, 0, 3);
             return Array.from(arr)
-                .filter(s => s)
+                .filter(identity)
                 .reverse();
         },
         postFn: reduceByDiffs

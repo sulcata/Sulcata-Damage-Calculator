@@ -2,7 +2,6 @@ import {
     cmpStrs, addStrs, subtractStrs, multiplyStrs, divideStrs,
     avg, roundHalfToZero, chainMod, applyMod, isGenValid, maxGen
 } from "../src/utilities";
-
 import Multiset from "../src/Multiset";
 
 describe("utilities", () => {

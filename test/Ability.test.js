@@ -13,7 +13,6 @@ describe("Ability", () => {
     let snowCloak;
     let blaze;
     let swarm;
-    let multiscale;
     let pixilate;
     let refrigerate;
     let waterAbsorb;
@@ -23,39 +22,32 @@ describe("Ability", () => {
     let motorDrive;
     let flashFire;
     let drySkin;
-    let moldBreaker;
-    let turboblaze;
-    let teravolt;
 
     beforeEach(() => {
         noAbility = new Ability();
-        swiftSwim = new Ability("Swift Swim");
-        sandRush = new Ability("Sand Rush");
-        magicGuard = new Ability("Magic Guard");
-        overcoat = new Ability("Overcoat");
-        sandVeil = new Ability("Sand Veil");
-        sandForce = new Ability("Sand Force");
-        iceBody = new Ability("Ice Body");
-        snowCloak = new Ability("Snow Cloak");
-        blaze = new Ability("Blaze");
-        swarm = new Ability("Swarm");
-        multiscale = new Ability("Multiscale");
-        pixilate = new Ability("Pixilate");
-        refrigerate = new Ability("Refrigerate");
-        waterAbsorb = new Ability("Water Absorb");
-        stormDrain = new Ability("Storm Drain");
-        sapSipper = new Ability("Sap Sipper");
-        levitate = new Ability("Levitate");
-        motorDrive = new Ability("Motor Drive");
-        flashFire = new Ability("Flash Fire");
-        drySkin = new Ability("Dry Skin");
-        moldBreaker = new Ability("Mold Breaker");
-        turboblaze = new Ability("Turboblaze");
-        teravolt = new Ability("Teravolt");
+        swiftSwim = new Ability({name: "Swift Swim"});
+        sandRush = new Ability({name: "Sand Rush"});
+        magicGuard = new Ability({name: "Magic Guard"});
+        overcoat = new Ability({name: "Overcoat"});
+        sandVeil = new Ability({name: "Sand Veil"});
+        sandForce = new Ability({name: "Sand Force"});
+        iceBody = new Ability({name: "Ice Body"});
+        snowCloak = new Ability({name: "Snow Cloak"});
+        blaze = new Ability({name: "Blaze"});
+        swarm = new Ability({name: "Swarm"});
+        pixilate = new Ability({name: "Pixilate"});
+        refrigerate = new Ability({name: "Refrigerate"});
+        waterAbsorb = new Ability({name: "Water Absorb"});
+        stormDrain = new Ability({name: "Storm Drain"});
+        sapSipper = new Ability({name: "Sap Sipper"});
+        levitate = new Ability({name: "Levitate"});
+        motorDrive = new Ability({name: "Motor Drive"});
+        flashFire = new Ability({name: "Flash Fire"});
+        drySkin = new Ability({name: "Dry Skin"});
     });
 
     test("#constructor()", () => {
-        const ability1 = new Ability("Effect Spore");
+        const ability1 = new Ability({name: "Effect Spore"});
         expect(ability1.id).toEqual(27);
 
         const ability2 = new Ability({
@@ -135,16 +127,19 @@ describe("Ability", () => {
     });
 
     test("#ignoresAbilities()", () => {
+        const moldBreaker = new Ability({name: "Mold Breaker"});
+        const turboblaze = new Ability({name: "Turboblaze"});
+        const teravolt = new Ability({name: "Teravolt"});
         expect(noAbility.ignoresAbilities()).toBeFalsy();
         expect(moldBreaker.ignoresAbilities()).toBeTruthy();
         expect(turboblaze.ignoresAbilities()).toBeTruthy();
         expect(teravolt.ignoresAbilities()).toBeTruthy();
-
         moldBreaker.disabled = true;
         expect(moldBreaker.ignoresAbilities()).toBeFalsy();
     });
 
     test("#isIgnorable()", () => {
+        const multiscale = new Ability({name: "Multiscale"});
         expect(multiscale.isIgnorable()).toBeTruthy();
         expect(swiftSwim.isIgnorable()).toBeFalsy();
     });
@@ -173,9 +168,9 @@ describe("Ability", () => {
     });
 
     test("#reducesSuperEffective()", () => {
-        const filter = new Ability("Filter");
-        const solidRock = new Ability("Solid Rock");
-        const prismArmor = new Ability("Prism Armor");
+        const filter = new Ability({name: "Filter"});
+        const solidRock = new Ability({name: "Solid Rock"});
+        const prismArmor = new Ability({name: "Prism Armor"});
         expect(filter.reducesSuperEffective()).toBeTruthy();
         expect(solidRock.reducesSuperEffective()).toBeTruthy();
         expect(prismArmor.reducesSuperEffective()).toBeTruthy();

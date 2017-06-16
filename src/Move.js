@@ -1,35 +1,33 @@
 import {clamp} from "lodash";
-
 import {Gens, DamageClasses, Stats, Types, Weathers, maxGen} from "./utilities";
-
 import {
     moveId, moveName, movePower, moveDamageClass, moveType, moveCategory,
     recoil, flinchChance, moveHasFlags, statBoosts, minHits, maxHits,
     moveRange, isMoveUseful, zMovePower
 } from "./info";
 
-const {min, trunc} = Math;
+const {max, min, trunc} = Math;
 
-const zMoves = new Set([
-    "Breakneck Blitz",
-    "All-Out Pummeling",
-    "Supersonic Skystrike",
-    "Acid Downpour",
-    "Tectonic Rage",
-    "Continental Crush",
-    "Savage Spin-Out",
-    "Never-Ending Nightmare",
-    "Corkscrew Crash",
-    "Inferno Overdrive",
-    "Hydro Vortex",
-    "Bloom Doom",
-    "Gigavolt Havoc",
-    "Shattered Psyche",
-    "Subzero Slammer",
-    "Devastating Drake",
-    "Black Hole Eclipse",
-    "Twinkle Tackle"
-]);
+const zMoves = {
+    [Types.NORMAL]: "Breakneck Blitz",
+    [Types.FIGHTING]: "All-Out Pummeling",
+    [Types.FLYING]: "Supersonic Skystrike",
+    [Types.POISON]: "Acid Downpour",
+    [Types.GROUND]: "Tectonic Rage",
+    [Types.ROCK]: "Continental Crush",
+    [Types.BUG]: "Savage Spin-Out",
+    [Types.GHOST]: "Never-Ending Nightmare",
+    [Types.STEEL]: "Corkscrew Crash",
+    [Types.FIRE]: "Inferno Overdrive",
+    [Types.WATER]: "Hydro Vortex",
+    [Types.GRASS]: "Bloom Doom",
+    [Types.ELECTRIC]: "Gigavolt Havoc",
+    [Types.PSYCHIC]: "Shattered Psyche",
+    [Types.ICE]: "Subzero Slammer",
+    [Types.DRAGON]: "Devastating Drake",
+    [Types.DARK]: "Black Hole Eclipse",
+    [Types.FAIRY]: "Twinkle Tackle"
+};
 
 const ohkoMoves = new Set([
     "Guillotine",
@@ -65,21 +63,13 @@ const nonParentalBondMoves = new Set([
 ]);
 
 export default class Move {
-
-    constructor(move = {}, gen) {
-        if (typeof move === "string") {
-            this.name = move;
-            move = {};
-        } else if (move.id) {
-            this.id = Number(move.id);
-        } else if (move.name) {
+    constructor(move = {}) {
+        if (move.name) {
             this.name = move.name;
         } else {
-            this.id = 0;
+            this.id = Number(move.id) || 0;
         }
-
-        this.gen = Number(gen) || Number(move.gen) || maxGen;
-
+        this.gen = Number(move.gen) || maxGen;
         this.critical = Boolean(move.critical);
         this.zMove = Boolean(move.zMove);
         this.numberOfHits = Number(move.numberOfHits) || 0;
@@ -206,6 +196,10 @@ export default class Move {
 
     isOhko() {
         return ohkoMoves.has(this.name);
+    }
+
+    isExplosion() {
+        return this.name === "Self-Destruct" || this.name === "Explosion";
     }
 
     requiresRecharge() {
@@ -410,7 +404,7 @@ export default class Move {
     }
 
     static electroBall(attackerSpeed, defenderSpeed) {
-        const s = attackerSpeed / (defenderSpeed || 1);
+        const s = attackerSpeed / max(1, defenderSpeed);
         if (s >= 4) return 150;
         if (s >= 3) return 120;
         if (s >= 2) return 80;
@@ -419,7 +413,7 @@ export default class Move {
     }
 
     static gyroBall(attackerSpeed, defenderSpeed) {
-        return min(150, trunc(25 * defenderSpeed / (attackerSpeed || 1)));
+        return min(150, trunc(25 * defenderSpeed / max(attackerSpeed, 1)));
     }
 
     static grassKnot(weight) {
@@ -462,17 +456,16 @@ export default class Move {
     }
 
     static frustration(happiness) {
-        return trunc((255 - happiness) * 10 / 25) || 1;
+        return max(1, trunc((255 - happiness) * 10 / 25));
     }
 
     static return(happiness) {
-        return trunc(happiness * 10 / 25) || 1;
+        return max(1, trunc(happiness * 10 / 25));
     }
 
     static eruption(hp, totalHp) {
-        return trunc(150 * hp / totalHp) || 1;
+        return max(1, trunc(150 * hp / totalHp));
     }
-
 }
 
 // Determines how good IVs are in comparison to each other

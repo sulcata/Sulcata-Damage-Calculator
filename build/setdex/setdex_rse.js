@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	"Abra": {
 		"NU Showdown Usage": {"level":100,"evs":{"hp":4,"sp":252,"sa":252},"nature":"Timid","ability":"Synchronize","item":"Twisted Spoon","moves":["Psychic","Fire Punch","Ice Punch","Thunder Punch"]},
 	},

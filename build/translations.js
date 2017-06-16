@@ -3,12 +3,15 @@
 const fs = require("fs");
 const path = require("path");
 const mkdirp = require("mkdirp");
-
+const pify = require("pify");
 const {
     dataToObject,
     simplifyPokeIds,
     removeAestheticPokes
 } = require("./utils");
+
+const readFile = pify(fs.readFile);
+const writeFile = pify(fs.writeFile);
 
 const inDir = path.join(__dirname, "translations");
 const outDir = path.join(__dirname, "../dist/translations");
@@ -56,34 +59,31 @@ const fileTypes = [
 async function parseTranslationFile(locale, fileType) {
     let result;
     if (fileType.files) {
-        result = await Promise.all(fileType.files.map(file =>
-            new Promise(resolve => {
-                const localeInDir = path.join(inDir, locale, file);
-                fs.readFile(localeInDir, (error, data) => {
-                    resolve(error ? {} : dataToObject(data, fileType.preFn));
-                });
-            })
-        ));
-    } else {
-        result = await new Promise(resolve => {
-            const localeInDir = path.join(inDir, locale, fileType.file);
-            fs.readFile(localeInDir, (error, data) => {
-                resolve(error ? {} : dataToObject(data, fileType.preFn));
-            });
+        const files = fileType.files.map(async file => {
+            try {
+                const data = await readFile(path.join(inDir, locale, file));
+                return dataToObject(data, fileType.preFn);
+            } catch (error) {
+                return {};
+            }
         });
+        result = await Promise.all(files);
+    } else {
+        try {
+            const file = fileType.file;
+            const data = await readFile(path.join(inDir, locale, file));
+            result = dataToObject(data, fileType.preFn);
+        } catch (error) {
+            result = {};
+        }
     }
 
     if (fileType.postFn) {
         result = fileType.postFn(result);
     }
 
-    const localeOutDir = path.join(outDir, locale, `${fileType.name}.json`);
-    await new Promise(resolve => {
-        fs.writeFile(localeOutDir, JSON.stringify(result), error => {
-            if (error) throw error;
-            resolve();
-        });
-    });
+    await writeFile(path.join(outDir, locale, `${fileType.name}.js`),
+                    `export default ${JSON.stringify(result)}`);
 
     return result;
 }

@@ -21,18 +21,13 @@ const hailImmunityAbilities = new Set([
 ]);
 
 export default class Ability {
-
-    constructor(ability = {}, gen) {
-        if (typeof ability === "string") {
-            this.name = ability;
-            ability = {};
-        } else if (ability.name) {
+    constructor(ability = {}) {
+        if (ability.name) {
             this.name = ability.name;
         } else {
             this.id = Number(ability.id) || 0;
         }
-
-        this.gen = Number(gen) || Number(ability.gen) || maxGen;
+        this.gen = Number(ability.gen) || maxGen;
         this.disabled = Boolean(ability.disabled);
     }
 
@@ -110,7 +105,6 @@ export default class Ability {
     isUseful() {
         return isAbilityUseful(this.id);
     }
-
 }
 
 function flagToValue(id, flag, gen) {

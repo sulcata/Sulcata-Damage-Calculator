@@ -8,7 +8,6 @@ import {
     typeName, effectiveness
 } from "./info";
 import {MissingnoError, NoMoveError} from "./errors";
-
 import calculate from "./calculate";
 import endOfTurn from "./endOfTurn";
 
@@ -23,12 +22,11 @@ export Field from "./Field";
 export * as info from "./info";
 export * from "./errors";
 export * from "./utilities";
-export const VERSION = process.libVersion;
 
 export default function sulcalc(attacker, defender, move, field) {
-    attacker = new Pokemon(attacker, field.gen);
-    defender = new Pokemon(defender, field.gen);
-    move = new Move(move, field.gen);
+    attacker = new Pokemon(attacker);
+    defender = new Pokemon(defender);
+    move = new Move(move);
     field = new Field(field);
 
     const reportPokes = [];
@@ -53,6 +51,21 @@ export default function sulcalc(attacker, defender, move, field) {
     if (attacker.ability.name === "Air Lock"
         || defender.ability.name === "Air Lock") {
         field.airLock = true;
+    }
+
+    if (attacker.ability.name === "Fairy Aura"
+        || defender.ability.name === "Fairy Aura") {
+        field.fairyAura = true;
+    }
+
+    if (attacker.ability.name === "Dark Aura"
+        || defender.ability.name === "Dark Aura") {
+        field.darkAura = true;
+    }
+
+    if (attacker.ability.name === "Aura Break"
+        || defender.ability.name === "Aura Break") {
+        field.auraBreak = true;
     }
 
     const effects = endOfTurn(attacker, defender, field);
@@ -133,7 +146,7 @@ export default function sulcalc(attacker, defender, move, field) {
     }
 
     if (field.gen >= Gens.GSC && attacker.item.name !== "(No Item)"
-        && !attacker.holdingRequiredItem()) {
+        && !attacker.hasRequiredItem()) {
         reportPokes.push(attacker.item.name);
     }
 
@@ -190,7 +203,7 @@ export default function sulcalc(attacker, defender, move, field) {
     }
 
     if (field.gen >= Gens.GSC && defender.item.name !== "(No Item)"
-        && !defender.holdingRequiredItem()) {
+        && !defender.hasRequiredItem()) {
         reportPokes.push(defender.item.name);
     }
 

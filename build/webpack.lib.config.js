@@ -3,7 +3,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const BabiliPlugin = require("babili-webpack-plugin");
-const {version} = require("../package.json");
 
 const config = {
     entry: path.join(__dirname, "../src/sulcalc"),
@@ -35,10 +34,8 @@ const config = {
     },
     plugins: [
         new webpack.LoaderOptionsPlugin({minimize: true}),
-        new webpack.DefinePlugin({
-            "process.env.NODE_ENV": JSON.stringify("production"),
-            "process.libVersion": JSON.stringify(version)
-        }),
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new webpack.EnvironmentPlugin({NODE_ENV: "production"}),
         new BabiliPlugin()
     ]
 };

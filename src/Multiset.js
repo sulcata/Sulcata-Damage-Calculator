@@ -1,7 +1,6 @@
 import {addStrs, cmpStrs, multiplyStrs, divideStrs, gcdStrs} from "./utilities";
 
 export default class Multiset {
-
     constructor(iterable = []) {
         if (iterable instanceof Multiset) {
             this._data = new Map(iterable._data);
@@ -209,9 +208,9 @@ export default class Multiset {
     toString(toStringFn = (entry => entry.join(":")),
              compareFn = (([a], [b]) => (a > b) - (b > a))) {
         return Array.from(this)
-                    .sort(compareFn)
-                    .map(toStringFn)
-                    .join(", ");
+            .sort(compareFn)
+            .map(toStringFn)
+            .join(", ");
     }
 
     union(iterable) {
@@ -235,5 +234,4 @@ export default class Multiset {
     *[Symbol.iterator]() {
         yield* this._data;
     }
-
 }

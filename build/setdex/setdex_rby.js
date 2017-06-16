@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	"Aerodactyl": {
 		"UU Showdown Usage": {"level":100,"moves":["Hyper Beam","Fire Blast","Double-Edge","Sky Attack"]},
 		"OU Physical Attacker": {"level":100,"moves":["Sky Attack","Reflect","Double-Edge","Hyper Beam"]},

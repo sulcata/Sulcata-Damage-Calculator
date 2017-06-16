@@ -4,9 +4,7 @@ require("babel-register");
 
 const path = require("path");
 const fs = require("fs");
-
 const {info, Move, Gens, Stats} = require("../src/sulcalc");
-
 const rby = require("./setdex/setdex_rby");
 const gsc = require("./setdex/setdex_gsc");
 const rse = require("./setdex/setdex_rse");
@@ -113,10 +111,8 @@ function importMove(move, gen) {
 const setdexData = [null, rby, gsc, rse, dpp, bw, xy, sm];
 const minifiedSetdexData = minifySetdexData(setdexData);
 
-fs.writeFile(
-    path.join(__dirname, "../dist/setdex.json"),
-    JSON.stringify(minifiedSetdexData),
-    error => {
-        if (error) throw error;
-    }
-);
+fs.writeFile(path.join(__dirname, "../dist/setdex.js"),
+             `export default ${JSON.stringify(minifiedSetdexData)}`,
+             error => {
+                 if (error) throw error;
+             });
