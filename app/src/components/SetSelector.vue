@@ -90,9 +90,9 @@ function importSmogonSet(pokemonId, set, gen) {
         gen,
         level: set.l,
         nature: set.n,
-        ability: set.a ? {id: set.a} : undefined,
-        item: set.i ? {id: set.i} : undefined,
-        moves: set.m ? set.m.map(id => ({id})) : undefined,
+        ability: set.a ? {id: set.a, gen} : undefined,
+        item: set.i ? {id: set.i, gen} : undefined,
+        moves: set.m ? set.m.map(id => ({id, gen})) : undefined,
         evs: set.e ? set.e.map(ev => 4 * ev) : undefined,
         ivs: set.d ? set.d.slice() : undefined
     });

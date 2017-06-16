@@ -75,7 +75,6 @@ export default class Pokemon {
         }
         this.moves.length = 4;
 
-
         this.overrideTypes = pokemon.overrideTypes || [-1, -1];
         this.overrideStats = pokemon.overrideStats || [];
 
