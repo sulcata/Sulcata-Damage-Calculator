@@ -155,7 +155,7 @@ export default {
 	},
 	"Mewtwo": {
 		"1P Standard": {"level":100,"moves":["Amnesia","Recover","Ice Beam","Psychic"]},
-		"1P Asd Assassin": {"level":100,"moves":["Self-Destruct","Amnesia","Psychic","Thunder-Wave"]},
+		"1P Asd Assassin": {"level":100,"moves":["Self-Destruct","Amnesia","Psychic","Thunder Wave"]},
 		"1P HM Slave (FlashTwo / DisasterTwo)": {"level":100,"moves":["Flash","Amnesia","Recover","Psychic"]},
 	},
 	"Moltres": {
