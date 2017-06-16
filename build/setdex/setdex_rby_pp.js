@@ -1,4 +1,4 @@
-export default = {
+export default {
 	"Abra": {
 		"4U Standard": {"level":100,"moves":["Psychic","Seismic Toss","Thunder Wave","Counter"]},
 	},
