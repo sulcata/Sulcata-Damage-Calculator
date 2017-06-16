@@ -4,14 +4,18 @@ require("babel-register");
 
 const path = require("path");
 const fs = require("fs");
+const {merge} = require("lodash");
 const {info, Move, Gens, Stats} = require("../src/sulcalc");
-const rby = require("./setdex/setdex_rby");
-const gsc = require("./setdex/setdex_gsc");
-const rse = require("./setdex/setdex_rse");
-const dpp = require("./setdex/setdex_dpp");
-const bw = require("./setdex/setdex_bw");
-const xy = require("./setdex/setdex_xy");
-const sm = require("./setdex/setdex_sm");
+const rby = require("./setdex/setdex_rby").default;
+const gsc = require("./setdex/setdex_gsc").default;
+const rse = require("./setdex/setdex_rse").default;
+const dpp = require("./setdex/setdex_dpp").default;
+const bw = require("./setdex/setdex_bw").default;
+const xy = require("./setdex/setdex_xy").default;
+const sm = require("./setdex/setdex_sm").default;
+const pokemonPerfectRby = require("./setdex/setdex_rby_pp").default;
+
+merge(rby, pokemonPerfectRby);
 
 function minifySetdexData(setdexData) {
     return setdexData.map((setdex, gen) => minifySetdex(setdex, gen));
