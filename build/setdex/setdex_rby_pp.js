@@ -28,6 +28,7 @@ export default {
 		"1U Standard": {"level":100,"moves":["Soft-Boiled","Ice Beam","Thunder Wave","Thunderbolt"]},
 		"1U Reflect + Seismic Toss (Raish Chansey)": {"level":100,"moves":["Soft-Boiled","Seismic Toss","Thunder Wave","Reflect"]},
 		"1U Sing + Seismic Toss (Dedicated Status Platform)": {"level":100,"moves":["Soft-Boiled","Seismic Toss","Thunder Wave","Sing"]},
+		"1P Standard": {"level":100,"moves":["Ice Beam","Light Screen","Seismic Toss","Soft-Boiled"]},
 	},
 	"Charizard": {
 		"3U Mixed Attacker": {"level":100,"moves":["Fire Blast","Fire Spin","Slash","Earthquake"]},
@@ -98,6 +99,7 @@ export default {
 	},
 	"Golem": {
 		"1U Standard": {"level":100,"moves":["Earthquake","Rock Slide","Body Slam","Explosion"]},
+		"1P Standard": {"level":100,"moves":["Earthquake","Rock Slide","Explosion","Body Slam"]},
 	},
 	"Graveler": {
 		"4U Standard": {"level":100,"moves":["Earthquake","Rock Slide","Explosion","Body Slam"]},
@@ -115,6 +117,7 @@ export default {
 	},
 	"Jynx": {
 		"1U Standard": {"level":100,"moves":["Lovely Kiss","Blizzard","Psychic","Rest"]},
+		"1P Standard": {"level":100,"moves":["Blizzard","Psychic","Lovely Kiss","Rest"]},
 	},
 	"Kabutops": {
 		"6U Swords Dance": {"level":100,"moves":["Swords Dance","Surf","Hyper Beam","Slash"]},
@@ -149,6 +152,11 @@ export default {
 	},
 	"Marowak": {
 		"6U Pivot": {"level":100,"moves":["Earthquake","Blizzard","Body Slam","Counter"]},
+	},
+	"Mewtwo": {
+		"1P Standard": {"level":100,"moves":["Amnesia","Recover","Ice Beam","Psychic"]},
+		"1P Asd Assassin": {"level":100,"moves":["Self-Destruct","Amnesia","Psychic","Thunder Wave"]},
+		"1P HM Slave (FlashTwo / DisasterTwo)": {"level":100,"moves":["Flash","Amnesia","Recover","Psychic"]},
 	},
 	"Moltres": {
 		"1U Standard": {"level":100,"moves":["Fire Blast","Hyper Beam","Agility","Fire Spin"]},
@@ -241,6 +249,8 @@ export default {
 		"1U Standard Lax": {"level":100,"moves":["Body Slam","Earthquake","Hyper Beam","Self-Destruct"]},
 		"1U ReflectLax": {"level":100,"moves":["Body Slam","Reflect","Rest","Earthquake"]},
 		"1U AmneLax": {"level":100,"moves":["Amnesia","Ice Beam","Body Slam","Rest"]},
+		"1P Standard": {"level":100,"moves":["Self-Destruct","Hyper Beam","Body Slam","Earthquake"]},
+		"1P Amnesia": {"level":100,"moves":["Amnesia","Ice Beam","Rest","Reflect"]},
 	},
 	"Starmie": {
 		"1U The Star of the Show": {"level":100,"moves":["Recover","Thunder Wave","Blizzard","Thunderbolt"]},
