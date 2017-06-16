@@ -1,23 +1,19 @@
 import {clamp} from "lodash";
-
 import Multiset from "./Multiset";
 import Ability from "./Ability";
 import Item from "./Item";
 import Move from "./Move";
 import Field from "./Field";
-
 import {
     Gens, Genders, Stats, Statuses, Types,
     maxGen, roundHalfToZero, avg
 } from "./utilities";
-
 import {
     typeId, typeName, pokemonId, pokemonName, natureName, natureId,
     natureStats, natureMultiplier, baseStats, pokeType1, pokeType2,
     weight, evolutions, preEvolution, ability1, ability2, ability3,
     isPokeUseful, requiredItemForPoke
 } from "./info";
-
 import {
     ImportableEvError, ImportableIvError,
     ImportableLevelError, ImportableLineError
@@ -29,18 +25,14 @@ const statNames = ["HP", "Atk", "Def", "SpA", "SpD", "Spe"];
 const genderShorthands = ["", "(M)", "(F)", ""];
 
 export default class Pokemon {
-
-    constructor(pokemon = {}, gen) {
-        if (typeof pokemon === "string") {
-            this.name = pokemon;
-            pokemon = {};
-        } else if (pokemon.name) {
+    constructor(pokemon = {}) {
+        if (pokemon.name) {
             this.name = pokemon.name;
         } else {
             this.id = pokemon.id || "0:0";
         }
 
-        gen = Number(gen) || Number(pokemon.gen) || maxGen;
+        const gen = Number(pokemon.gen) || maxGen;
         this.gen = gen;
 
         this.evs = pokemon.evs || Array(6).fill(gen >= Gens.ADV ? 0 : 252);
@@ -53,21 +45,45 @@ export default class Pokemon {
             this.nature = Number(pokemon.nature) || 0;
         }
 
-        this.status = Number(pokemon.status) || Statuses.NO_STATUS;
+        this._status = Number(pokemon.status) || Statuses.NO_STATUS;
         this.gender = Number(pokemon.gender) || Genders.NO_GENDER;
-        this.ability = new Ability(pokemon.ability, gen);
-        this.item = new Item(pokemon.item, gen);
-        this.moves = (pokemon.moves || [
-            {id: 0}, {id: 0}, {id: 0}, {id: 0}
-        ]).map(move => new Move(move, gen));
+
+        if (typeof pokemon.ability === "string") {
+            this.ability = new Ability({name: pokemon.ability, gen});
+        } else if (pokemon.item) {
+            this.ability = new Ability(pokemon.ability);
+        } else {
+            this.ability = new Ability({gen});
+        }
+
+        if (typeof pokemon.item === "string") {
+            this.item = new Item({name: pokemon.item, gen});
+        } else if (pokemon.item) {
+            this.item = new Item(pokemon.item);
+        } else {
+            this.item = new Item({gen});
+        }
+
+        this.moves = (pokemon.moves || []).map(move => {
+            if (typeof move === "string") {
+                return new Move({name: move, gen});
+            }
+            return new Move(move);
+        });
+        while (this.moves.length < 4) {
+            this.moves.push(new Move({gen}));
+        }
+        this.moves.length = 4;
+
 
         this.overrideTypes = pokemon.overrideTypes || [-1, -1];
         this.overrideStats = pokemon.overrideStats || [];
 
-        this._currentHp = pokemon._currentHp || this.stat(Stats.HP);
-        this._currentHpRange = new Multiset(pokemon._currentHpRange
-                                            || [this.stat(Stats.HP)]);
-        this._currentHpRangeBerry = new Multiset(pokemon._currentHpRangeBerry);
+        const hp = this.stat(Stats.HP);
+        this._currentHp = pokemon.currentHp || hp;
+        this._currentHpRange = new Multiset(pokemon.currentHpRange || [hp]);
+        this._currentHpRangeBerry = new Multiset(pokemon.currentHpRangeBerry
+                                                 || []);
 
         // GHOST: Trick or Treat, GRASS: Forest's Curse, can't coexist
         this.addedType = Number(pokemon.addedType) || Types.CURSE;
@@ -109,15 +125,15 @@ export default class Pokemon {
         this.auroraVeil = Boolean(pokemon.auroraVeil);
     }
 
-    static "import"(importText, gen = maxGen) {
+    static "import"(importText, gen) {
         const poke = new Pokemon({gen});
 
         let nextMove = 0;
 
         const lines = importText.trim()
-                                .replace("\r", "")
-                                .replace(/ {2,}/g, " ")
-                                .split("\n");
+            .replace("\r", "")
+            .replace(/ {2,}/g, " ")
+            .split("\n");
 
         const [identifier, item] = lines[0].split("@");
 
@@ -133,8 +149,9 @@ export default class Pokemon {
                 poke.gender = genderShorthands.indexOf(
                     firstParens[0].toUpperCase());
                 if (poke.gender > -1) {
-                    const name = identifier.match(/.*?(?=\()/)[0]
-                                           .replace("*", "");
+                    const name = identifier
+                        .match(/.*?(?=\()/)[0]
+                        .replace("*", "");
                     poke.name = name;
                 } else {
                     poke.gender = 0;
@@ -151,9 +168,7 @@ export default class Pokemon {
 
         for (const line of lines.slice(1)) {
             const idx = line.indexOf(":");
-            const key = line.substring(0, idx)
-                            .trim()
-                            .toLowerCase();
+            const key = line.substring(0, idx).trim().toLowerCase();
             const value = line.substring(idx + 1).trim();
             switch (key) {
                 case "level":
@@ -306,7 +321,7 @@ export default class Pokemon {
         }
 
         const base = this.baseStat(s);
-        const lvl = this.level;
+        const level = this.level;
         let ev, iv;
         if (this.gen < Gens.ADV && s === Stats.HP) {
             iv = calcHealthDv(this.ivs);
@@ -324,10 +339,10 @@ export default class Pokemon {
             if (s === Stats.HP) {
                 // (2*(iv+base) + ev/4) * level/100 + level + 10
                 return min(999, trunc(
-                    ((iv + base) * 2 + ev) * lvl / 100) + lvl + 10);
+                    ((iv + base) * 2 + ev) * level / 100) + level + 10);
             }
             // (2*(iv+base) + ev/4) * level/100 + 5
-            return min(999, trunc(((iv + base) * 2 + ev) * lvl / 100) + 5);
+            return min(999, trunc(((iv + base) * 2 + ev) * level / 100) + 5);
         }
 
         if (s === Stats.HP) {
@@ -336,12 +351,12 @@ export default class Pokemon {
                 return 1;
             }
             // (iv + 2*base + ev/4 + 100) * level/100 + 10
-            return trunc((iv + 2 * base + ev + 100) * lvl / 100) + 10;
+            return trunc((iv + 2 * base + ev + 100) * level / 100) + 10;
         }
 
         // ((iv + 2*base + ev/4) * level/100 + 5)*nature
         const n = natureMultiplier(this.nature, s);
-        const stat = trunc((iv + 2 * base + ev) * lvl / 100) + 5;
+        const stat = trunc((iv + 2 * base + ev) * level / 100) + 5;
         return trunc(stat * (10 + n) / 10);
     }
 
@@ -522,7 +537,7 @@ export default class Pokemon {
         });
     }
 
-    holdingRequiredItem() {
+    hasRequiredItem() {
         const item = new Item({
             id: requiredItemForPoke(this.id),
             gen: this.gen
@@ -551,6 +566,17 @@ export default class Pokemon {
                 || this.ability.name === "Shadow Shield");
     }
 
+    get status() {
+        if (this.gen >= Gens.SM && this.ability.name === "Comatose") {
+            return Statuses.ASLEEP;
+        }
+        return this._status;
+    }
+
+    set status(newStatus) {
+        this._status = newStatus;
+    }
+
     isPoisoned() {
         return this.status === Statuses.POISONED;
     }
@@ -568,8 +594,7 @@ export default class Pokemon {
     }
 
     isAsleep() {
-        return this.status === Statuses.ASLEEP
-            || this.ability.name === "Comatose";
+        return this.status === Statuses.ASLEEP;
     }
 
     isFrozen() {
@@ -592,28 +617,45 @@ export default class Pokemon {
         return this.item.nonDisabledName().endsWith(" Drive");
     }
 
+    hasMemory() {
+        return this.item.nonDisabledName().endsWith(" Memory");
+    }
+
+    hasBlueOrb() {
+        return this.item.nonDisabledName() === "Blue Orb";
+    }
+
+    hasRedOrb() {
+        return this.item.nonDisabledName() === "Red Orb";
+    }
+
+    hasGriseousOrb() {
+        return this.item.nonDisabledName() === "Griseous Orb";
+    }
+
     knockOff() {
-        if (this.gen < Gens.B2W2) {
-            return this.item.nonDisabledName() !== "(No Item)"
-                && this.ability.name !== "Sticky Hold"
-                && this.ability.name !== "Multitype"
-                && !(this.item.nonDisabledName() === "Griseous Orb"
-                    && this.name.includes("Giratina"));
-        }
-        return this.knockOffBoost() && this.ability.name !== "Sticky Hold";
+        return this.item.nonDisabledName() !== "(No Item)"
+            && this.ability.name !== "Sticky Hold"
+            && !this.itemLocked();
     }
 
     knockOffBoost() {
         return this.item.nonDisabledName() !== "(No Item)"
-            && !this.item.megaPoke()
-            && !(this.item.nonDisabledName() === "Griseous Orb"
-                && this.name.includes("Giratina"))
-            && !(this.name.includes("Genesect") && this.hasDrive())
-            && !(this.ability.name === "Multitype" && this.hasPlate())
-            && !(this.name.includes("Kyogre")
-                && this.item.nonDisabledName() === "Blue Orb")
-            && !(this.name.includes("Groudon")
-                && this.item.nonDisabledName() === "Red Orb");
+            && !this.itemLocked();
+    }
+
+    itemLocked() {
+        if (this.gen < Gens.B2W2) {
+            return this.ability.name === "Multitype"
+                || this.hasGriseousOrb() && this.name.includes("Giratina");
+        }
+        return this.item.megaPokeNum() === this.num()
+            || this.hasPlate() && this.ability.name === "Multitype"
+            || this.hasBlueOrb() && this.name.includes("Kyogre")
+            || this.hasRedOrb() && this.name.includes("Groudon")
+            || this.hasMemory() && this.name.includes("Silvally")
+            || this.hasDrive() && this.name.includes("Genesect")
+            || this.hasGriseousOrb() && this.name.includes("Giratina");
     }
 
     thickClubBoosted() {
@@ -641,7 +683,6 @@ export default class Pokemon {
     static calcHealthDv(ivs) {
         return calcHealthDv(ivs);
     }
-
 }
 
 const hiddenPowerRegex = /Hidden Power( \[?(\w*)]?)?/i;
@@ -660,18 +701,18 @@ function parseMove(move, poke, nextMove) {
 }
 
 const statMatches = {
-    HP: 0,
-    Atk: 1,
-    Def: 2,
-    SAtk: 3,
-    SpAtk: 3,
-    SpA: 3,
-    Spc: 3,
-    SDef: 4,
-    SpDef: 4,
-    SpD: 4,
-    Spd: 5,
-    Spe: 5
+    HP: Stats.HP,
+    Atk: Stats.ATK,
+    Def: Stats.DEF,
+    SAtk: Stats.SATK,
+    SpAtk: Stats.SATK,
+    SpA: Stats.SATK,
+    SDef: Stats.SDEF,
+    SpDef: Stats.SDEF,
+    SpD: Stats.SDEF,
+    Spd: Stats.SPD,
+    Spe: Stats.SPD,
+    Spc: Stats.SPC
 };
 
 function parseEv(ev) {

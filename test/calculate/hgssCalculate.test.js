@@ -5,31 +5,31 @@ import Field from "../../src/Field";
 import {Gens} from "../../src/utilities";
 
 const {max} = Math;
+const gen = Gens.HGSS;
 
 describe("hgssCalculate()", () => {
     let field;
-
     beforeEach(() => {
-        field = new Field({gen: Gens.HGSS});
+        field = new Field({gen});
     });
 
     test("sanity check", () => {
         const attacker = new Pokemon({
             name: "Azelf",
-            gen: Gens.HGSS,
             evs: [4, 0, 0, 252, 0, 252],
             natureName: "Naive",
-            item: "Choice Band"
+            item: "Choice Band",
+            gen
         });
         const defender = new Pokemon({
             name: "Skarmory",
-            gen: Gens.HGSS,
             evs: [252, 0, 0, 0, 164, 92],
-            natureName: "Careful"
+            natureName: "Careful",
+            gen
         });
         const move = new Move({
             name: "Fire Blast",
-            gen: Gens.HGSS
+            gen
         });
         const damage = hgssCalculate(attacker, defender, move, field);
         expect(max(...damage)).toEqual(298);

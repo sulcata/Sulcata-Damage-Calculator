@@ -76,15 +76,12 @@
 
 <script>
 import {zip} from "lodash";
-
 import translationMixin from "../mixins/translation";
-
 import PokemonComponent from "./Pokemon.vue";
 import FieldComponent from "./Field.vue";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import TabContent from "./ui/TabContent.vue";
-
 import sulcalc, {Pokemon, Field, maxGen, cmpStrs} from "sulcalc";
 
 export default {

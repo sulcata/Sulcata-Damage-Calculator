@@ -22,24 +22,24 @@ describe("Item", () => {
     beforeEach(() => {
         invalidItem = new Item({id: -314});
         noItem = new Item();
-        chopleBerry = new Item("Chople Berry");
-        chilanBerry = new Item("Chilan Berry");
-        mysticWater = new Item("Mystic Water");
-        zapPlate = new Item("Zap Plate");
-        normalGem = new Item("Normal Gem");
-        charizarditeX = new Item("Charizardite X");
-        altarianite = new Item("Altarianite");
-        ironBall = new Item("Iron Ball");
-        luxuryBall = new Item("Luxury Ball");
-        sitrusBerry = new Item("Sitrus Berry");
-        berry = new Item("Berry");
-        oranBerry = new Item("Oran Berry");
-        figyBerry = new Item("Figy Berry");
-        goldBerry = new Item("Gold Berry");
+        chopleBerry = new Item({name: "Chople Berry"});
+        chilanBerry = new Item({name: "Chilan Berry"});
+        mysticWater = new Item({name: "Mystic Water"});
+        zapPlate = new Item({name: "Zap Plate"});
+        normalGem = new Item({name: "Normal Gem"});
+        charizarditeX = new Item({name: "Charizardite X"});
+        altarianite = new Item({name: "Altarianite"});
+        ironBall = new Item({name: "Iron Ball"});
+        luxuryBall = new Item({name: "Luxury Ball"});
+        sitrusBerry = new Item({name: "Sitrus Berry"});
+        berry = new Item({name: "Berry"});
+        oranBerry = new Item({name: "Oran Berry"});
+        figyBerry = new Item({name: "Figy Berry"});
+        goldBerry = new Item({name: "Gold Berry"});
     });
 
     test("#constructor()", () => {
-        const item1 = new Item("Leftovers");
+        const item1 = new Item({name: "Leftovers"});
         expect(item1.id).toEqual(15);
         expect(item1.used).toBeFalsy();
         expect(item1.disabled).toBeFalsy();
@@ -271,7 +271,7 @@ describe("Item", () => {
     });
 
     test("#memoryType()", () => {
-        const waterMemory = new Item("Water Memory");
+        const waterMemory = new Item({name: "Water Memory"});
         expect(waterMemory.memoryType()).toEqual(Types.WATER);
         expect(noItem.memoryType()).toEqual(Types.NORMAL);
     });

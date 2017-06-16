@@ -302,8 +302,8 @@ export function weight(pokeId) {
 }
 
 export function requiredItemForPoke(pokeId) {
-    return requiredItems.hasOwnProperty(pokeId) ? itemId(requiredItems[pokeId])
-                                                : 0;
+    if (!requiredItems.hasOwnProperty(pokeId)) return 0;
+    return itemId(requiredItems[pokeId]);
 }
 
 /* Move Information */
@@ -538,6 +538,10 @@ export function effectiveness(attackingTypes, defendingTypes, options = {}) {
         attackingTypes = [defendingTypes];
     }
 
+    if (options.gravity) {
+        attackingTypes = attackingTypes.filter(type => type !== Types.FLYING);
+    }
+
     let effectiveness = 1;
 
     for (const dType of defendingTypes) {
@@ -567,11 +571,12 @@ function typeEffectiveness(aType, dType, options = {}) {
         return 2;
     }
 
-    if (aType <= 1 && dType === Types.GHOST
+    if (e === 0 && dType === Types.GHOST
         && (options.foresight || options.scrappy)) {
         return 2;
-    } else if (aType === Types.GROUND && dType === Types.FLYING
-               && options.gravity) {
+    }
+
+    if (e > 2 && dType === Types.FLYING && options.strongWinds) {
         return 2;
     }
 

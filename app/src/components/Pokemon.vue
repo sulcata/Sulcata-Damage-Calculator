@@ -54,9 +54,7 @@
 
 <script>
 import {clamp} from "lodash";
-
 import sulcalcMixin from "../mixins/sulcalc";
-
 import SetSelector from "./SetSelector.vue";
 import Ability from "./Ability.vue";
 import Item from "./Item.vue";
@@ -65,7 +63,6 @@ import Nature from "./Nature.vue";
 import Status from "./Status.vue";
 import Stats from "./Stats.vue";
 import Health from "./Health.vue";
-
 import {Pokemon} from "sulcalc";
 
 export default {

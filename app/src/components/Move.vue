@@ -139,12 +139,10 @@
 
 <script>
 import {clamp} from "lodash";
-
 import {Multiselect} from "vue-multiselect";
 import translationMixin from "../mixins/translation";
 import sulcalcMixin from "../mixins/sulcalc";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
-
 import {Move, Pokemon, Gens, info} from "sulcalc";
 
 export default {

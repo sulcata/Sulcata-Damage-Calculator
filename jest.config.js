@@ -3,15 +3,14 @@
 module.exports = {
     coveragePathIgnorePatterns: [
         "<rootDir>/node_modules/",
-        "<rootDir>/test/"
+        "<rootDir>/test/",
+        "<rootDir>/dist/"
     ],
-    coverageReporters: ["json", "lcov"],
     coverageThreshold: {
         global: {
-            branches: 45,
-            functions: 85,
-            lines: 50,
-            statements: 50
+            branches: 55,
+            functions: 90,
+            statements: 60
         }
     }
 };

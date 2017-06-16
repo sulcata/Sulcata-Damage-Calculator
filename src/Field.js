@@ -1,7 +1,6 @@
 import {Weathers, maxGen} from "./utilities";
 
 export default class Field {
-
     constructor(field = {}) {
         this.gen = Number(field.gen) || maxGen;
         this.multiBattle = Boolean(field.multiBattle);
@@ -70,5 +69,4 @@ export default class Field {
     strongWinds() {
         return this.effectiveWeather() === Weathers.STRONG_WINDS;
     }
-
 }

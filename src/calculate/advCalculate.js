@@ -1,94 +1,13 @@
-import Move from "../Move";
 import {Gens, Stats, Types, damageVariation} from "../utilities";
 import {isPhysicalType, isSpecialType, effectiveness} from "../info";
+import moveInfo from "./moveInfo";
 
-const {max, min, trunc} = Math;
+const {max, trunc} = Math;
 
 export default function advCalculate(attacker, defender, move, field) {
-    let moveType = move.type();
-    let movePower = move.power();
-
-    if (movePower === 0) return [0];
-
-    if (move.isSound() && defender.ability.name === "Soundproof") {
-        return [0];
-    }
-
-    switch (move.name) {
-        case "Hidden Power":
-            movePower = Move.hiddenPowerBp(attacker.ivs, Gens.ADV);
-            moveType = Move.hiddenPowerType(attacker.ivs, Gens.ADV);
-            break;
-        case "Reversal":
-        case "Flail":
-            movePower = Move.flail(attacker.currentHp,
-                                   attacker.stat(Stats.HP),
-                                   Gens.ADV);
-            break;
-        case "Frustration":
-            movePower = Move.frustration(attacker.happiness);
-            break;
-        case "Return":
-            movePower = Move.return(attacker.happiness);
-            break;
-        case "Future Sight":
-        case "Doom Desire":
-            moveType = Types.CURSE;
-            break;
-        case "Magnitude":
-            movePower = Move.magnitude(move.magnitude);
-            break;
-        case "Present":
-            movePower = move.present;
-            break;
-        case "Weather Ball":
-            moveType = Move.weatherBall(field.effectiveWeather());
-            break;
-        case "Rollout":
-        case "Ice Ball":
-            movePower = 30 * 2 ** ((move.rollout - 1) % 5 + move.defenseCurl);
-            break;
-        case "Triple Kick":
-            movePower = 10 * move.tripleKickCount;
-            break;
-        case "Water Spout":
-        case "Eruption":
-            movePower = Move.eruption(
-                attacker.currentHp, attacker.stat(Stats.HP));
-            break;
-        case "Fury Cutter":
-            movePower = min(160, 10 * 2 ** move.furyCutter);
-            break;
-        case "Beat Up":
-            moveType = Types.CURSE;
-            break;
-        case "Seismic Toss":
-        case "Night Shade":
-            return [attacker.level];
-        case "Dragon Rage":
-            return [40];
-        case "Sonic Boom":
-            return [20];
-        case "Endeavor":
-            return [max(0, defender.currentHp - attacker.currentHp)];
-        case "Psywave": {
-            const range = [];
-            for (let i = 0; i <= 10; i++) {
-                range.push(max(1, trunc(attacker.level * (10 * i + 50) / 100)));
-            }
-            return range;
-        }
-        case "Super Fang":
-            return [max(1, trunc(defender.currentHp / 2))];
-        default:
-            if (move.isOhko()) return [defender.stat(Stats.HP)];
-    }
-
-    if (move.dig && move.boostedByDig()
-        || move.dive && move.boostedByDive()
-        || move.fly && move.boostedByFly()) {
-        movePower *= 2;
-    }
+    const {moveType, movePower, fail} = moveInfo(attacker, defender,
+                                                 move, field);
+    if (fail) return [0];
 
     let atk = attacker.stat(Stats.ATK);
     let satk = attacker.stat(Stats.SATK);
@@ -173,22 +92,7 @@ export default function advCalculate(attacker, defender, move, field) {
         /* no default */
     }
 
-    if (field.mudSport && moveType === Types.ELECTRIC) {
-        movePower = trunc(movePower / 2);
-    }
-
-    if (field.waterSport && moveType === Types.FIRE) {
-        movePower = trunc(movePower / 2);
-    }
-
-    if (attacker.pinchAbilityActivated(moveType)) {
-        movePower = trunc(movePower * 3 / 2);
-    }
-
-    if (move.name === "Self-Destruct" || move.name === "Explosion") {
-        if (defender.ability.name === "Damp") {
-            return [0];
-        }
+    if (move.isExplosion()) {
         def = max(1, trunc(def / 2));
     }
 
@@ -208,24 +112,24 @@ export default function advCalculate(attacker, defender, move, field) {
                           / max(2, 2 - defender.boosts[Stats.SDEF]));
     }
 
-    let a, d, lvl;
+    let a, d, level;
     if (move.name === "Beat Up") {
         a = attacker.beatUpStats[move.beatUpHit];
-        lvl = attacker.beatUpLevels[move.beatUpHit];
         d = defender.baseStat(Stats.DEF);
+        level = attacker.beatUpLevels[move.beatUpHit];
     } else if (isPhysicalType(moveType)) {
         a = atk;
-        lvl = attacker.level;
         d = def;
+        level = attacker.level;
     } else if (isSpecialType(moveType)) {
         a = satk;
-        lvl = attacker.level;
         d = sdef;
+        level = attacker.level;
     } else {
         return [0];
     }
 
-    let baseDamage = trunc(trunc(trunc(2 * lvl / 5 + 2)
+    let baseDamage = trunc(trunc(trunc(2 * level / 5 + 2)
                                  * movePower * a / d) / 50);
 
     if (move.name !== "Beat Up") {
@@ -236,8 +140,8 @@ export default function advCalculate(attacker, defender, move, field) {
         if (!move.critical
             && (defender.reflect && isPhysicalType(moveType)
                 || defender.lightScreen && isSpecialType(moveType))) {
-            baseDamage = trunc(field.multiBattle ? baseDamage * 2 / 3
-                                                 : baseDamage / 2);
+            baseDamage = trunc(
+                field.multiBattle ? baseDamage * 2 / 3 : baseDamage / 2);
         }
     }
 
@@ -325,9 +229,7 @@ export default function advCalculate(attacker, defender, move, field) {
     if (eff.num === 0) return [0];
     baseDamage = trunc(baseDamage * eff.num / eff.den);
 
-    if (move.name === "Spit Up") {
-        return [attacker.stockpile > 0 ? baseDamage : 0];
-    }
+    if (move.name === "Spit Up") return [baseDamage];
 
     const damages = damageVariation(baseDamage, 85, 100);
 

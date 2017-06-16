@@ -204,13 +204,10 @@
 
 <script>
 import {Multiselect} from "vue-multiselect";
-
 import translationMixin from "../mixins/translation";
 import sulcalcMixin from "../mixins/sulcalc";
-
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
-
 import {Field, Pokemon, Weathers, Gens} from "sulcalc";
 
 export default {

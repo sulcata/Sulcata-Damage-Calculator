@@ -1,13 +1,11 @@
 "use strict";
 
-const fs = require("fs");
 const {identity} = require("lodash");
 
 function dataToObject(data, preFunc = identity) {
     if (!data) return data;
     const obj = {};
-    const lines = stripByteOrderMark(data).toString()
-                                          .split("\n");
+    const lines = String(stripByteOrderMark(data)).split("\n");
     for (let line of lines) {
         line = parseLine(line.split("#", 1)[0]);
         if (!line.key) continue;
@@ -21,25 +19,6 @@ function stripByteOrderMark(data) {
         return data.slice(3);
     }
     return data;
-}
-
-function readFiles(files) {
-    const promises = files.map(file =>
-        new Promise((resolve, reject) => {
-            if (typeof file === "string") {
-                fs.readFile(file, (error, data) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        resolve(data);
-                    }
-                });
-            } else {
-                resolve(null);
-            }
-        })
-    );
-    return Promise.all(promises);
 }
 
 function parseLine(line) {
@@ -105,7 +84,6 @@ function simplifyPokeIds(obj) {
 module.exports = {
     stripByteOrderMark,
     dataToObject,
-    readFiles,
     simplifyPokeIds,
     removeAestheticPokes
 };

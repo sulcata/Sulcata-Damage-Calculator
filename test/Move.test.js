@@ -12,8 +12,6 @@ describe("Move", () => {
     let sheerCold;
     let leer;
     let psyshock;
-    let psystrike;
-    let secretSword;
     let doubleEdge;
     let absorb;
     let machPunch;
@@ -44,69 +42,52 @@ describe("Move", () => {
         invalidMove = new Move();
         invalidMove.id = -2718;
         noMove = new Move();
-        struggle = new Move("Struggle");
-        tackle = new Move("Tackle");
-        gust = new Move("Gust");
-        hiddenPower = new Move("Hidden Power");
-        bulletSeed = new Move("Bullet Seed");
-        sheerCold = new Move("Sheer Cold");
-        leer = new Move("Leer");
-        psyshock = new Move("Psyshock");
-        psystrike = new Move("Psystrike");
-        secretSword = new Move("Secret Sword");
-        doubleEdge = new Move("Double-Edge");
-        absorb = new Move("Absorb");
-        machPunch = new Move("Mach Punch");
-        ironHead = new Move("Iron Head");
-        fakeOut = new Move("Fake Out");
-        ancientPower = new Move("Ancient Power");
-        blazeKick = new Move("Blaze Kick");
-        chatter = new Move("Chatter");
-        psychic = new Move("Psychic");
-        overheat = new Move("Overheat");
-        spore = new Move("Spore");
-        bite = new Move("Bite");
-        dragonPulse = new Move("Dragon Pulse");
-        shadowBall = new Move("Shadow Ball");
-        rockWrecker = new Move("Rock Wrecker");
-        gearGrind = new Move("Gear Grind");
-        tripleKick = new Move("Triple Kick");
-        beatUp = new Move("Beat Up");
-        surf = new Move("Surf");
-        eruption = new Move("Eruption");
-        jumpKick = new Move("Jump Kick");
-        highJumpKick = new Move("High Jump Kick");
-        reversal = new Move("Reversal");
-        doomDesire = new Move("Doom Desire");
-        explosion = new Move("Explosion");
+        struggle = new Move({name: "Struggle"});
+        tackle = new Move({name: "Tackle"});
+        gust = new Move({name: "Gust"});
+        hiddenPower = new Move({name: "Hidden Power"});
+        bulletSeed = new Move({name: "Bullet Seed"});
+        sheerCold = new Move({name: "Sheer Cold"});
+        leer = new Move({name: "Leer"});
+        psyshock = new Move({name: "Psyshock"});
+        doubleEdge = new Move({name: "Double-Edge"});
+        absorb = new Move({name: "Absorb"});
+        machPunch = new Move({name: "Mach Punch"});
+        ironHead = new Move({name: "Iron Head"});
+        fakeOut = new Move({name: "Fake Out"});
+        ancientPower = new Move({name: "Ancient Power"});
+        blazeKick = new Move({name: "Blaze Kick"});
+        chatter = new Move({name: "Chatter"});
+        psychic = new Move({name: "Psychic"});
+        overheat = new Move({name: "Overheat"});
+        spore = new Move({name: "Spore"});
+        bite = new Move({name: "Bite"});
+        dragonPulse = new Move({name: "Dragon Pulse"});
+        shadowBall = new Move({name: "Shadow Ball"});
+        rockWrecker = new Move({name: "Rock Wrecker"});
+        gearGrind = new Move({name: "Gear Grind"});
+        tripleKick = new Move({name: "Triple Kick"});
+        beatUp = new Move({name: "Beat Up"});
+        surf = new Move({name: "Surf"});
+        eruption = new Move({name: "Eruption"});
+        jumpKick = new Move({name: "Jump Kick"});
+        highJumpKick = new Move({name: "High Jump Kick"});
+        reversal = new Move({name: "Reversal"});
+        doomDesire = new Move({name: "Doom Desire"});
+        explosion = new Move({name: "Explosion"});
     });
 
     test("#constructor()", () => {
-        const move1 = new Move("Pound");
+        const move1 = new Move({name: "Pound"});
         expect(move1.id).toEqual(1);
         expect(move1.gen).toEqual(maxGen);
 
-        const move2 = new Move("Pay Day", 3);
+        const move2 = new Move({name: "Pay Day", gen: Gens.ADV});
         expect(move2.id).toEqual(6);
         expect(move2.gen).toEqual(3);
 
-        const move3 = new Move({name: "Pound"});
-        expect(move3.id).toEqual(1);
-        expect(move3.gen).toEqual(maxGen);
-
-        const move4 = new Move({
-            name: "Pay Day",
-            gen: 3
-        });
-        expect(move4.id).toEqual(6);
-        expect(move4.gen).toEqual(3);
-
-        const move5 = new Move({
-            id: 6,
-            gen: 4
-        });
-        expect(move5.id).toEqual(6);
-        expect(move5.gen).toEqual(4);
+        const move3 = new Move({id: 6});
+        expect(move3.id).toEqual(6);
     });
 
     test("#name", () => {
@@ -124,20 +105,31 @@ describe("Move", () => {
         const move3 = new Move();
         move3.name = "b ullet seed";
         expect(move3.id).toEqual(0);
+
+        doubleEdge.zMove = true;
+        expect(doubleEdge.name).toEqual("Breakneck Blitz");
     });
 
-    test("#power()", () => {
-        expect(noMove.power()).toEqual(0);
-        expect(sheerCold.power()).toEqual(1);
-        expect(leer.power()).toEqual(0);
-        expect(struggle.power()).toEqual(50);
-        expect(tackle.power()).toEqual(40);
+    describe("#power()", () => {
+        test("basic tests", () => {
+            expect(noMove.power()).toEqual(0);
+            expect(sheerCold.power()).toEqual(1);
+            expect(leer.power()).toEqual(0);
+            expect(struggle.power()).toEqual(50);
+            expect(tackle.power()).toEqual(40);
+        });
 
-        tackle.gen = 6;
-        expect(tackle.power()).toEqual(50);
+        test("gen changes", () => {
+            tackle.gen = 6;
+            expect(tackle.power()).toEqual(50);
+            tackle.gen = 4;
+            expect(tackle.power()).toEqual(35);
+        });
 
-        tackle.gen = 4;
-        expect(tackle.power()).toEqual(35);
+        test("Z-Moves", () => {
+            doubleEdge.zMove = true;
+            expect(doubleEdge.power()).toEqual(190);
+        });
     });
 
     test("#damageClass()", () => {
@@ -165,6 +157,8 @@ describe("Move", () => {
     });
 
     test("#isPsyshockLike()", () => {
+        const psystrike = new Move({name: "Psystrike"});
+        const secretSword = new Move({name: "Secret Sword"});
         expect(psyshock.isPsyshockLike()).toBeTruthy();
         expect(psystrike.isPsyshockLike()).toBeTruthy();
         expect(secretSword.isPsyshockLike()).toBeTruthy();
@@ -332,9 +326,9 @@ describe("Move", () => {
     });
 
     test("#weakenedByGrassyTerrain()", () => {
-        const earthquake = new Move("Earthquake");
-        const magnitude = new Move("Magnitude");
-        const bulldoze = new Move("Bulldoze");
+        const earthquake = new Move({name: "Earthquake"});
+        const magnitude = new Move({name: "Magnitude"});
+        const bulldoze = new Move({name: "Bulldoze"});
         expect(earthquake.weakenedByGrassyTerrain()).toBeTruthy();
         expect(magnitude.weakenedByGrassyTerrain()).toBeTruthy();
         expect(bulldoze.weakenedByGrassyTerrain()).toBeTruthy();
@@ -342,17 +336,17 @@ describe("Move", () => {
     });
 
     test("#boostedByMinimize()", () => {
-        const stomp = new Move("Stomp");
-        const astonish = new Move("Astonish");
-        const extrasensory = new Move("Extrasensory");
-        const needleArm = new Move("Needle Arm");
-        const steamroller = new Move("Steamroller");
-        const bodySlam = new Move("Body Slam");
-        const dragonRush = new Move("Dragon Rush");
-        const flyingPress = new Move("Flying Press");
-        const shadowForce = new Move("Shadow Force");
-        const phantomForce = new Move("Phantom Force");
-        const heavySlam = new Move("Heavy Slam");
+        const stomp = new Move({name: "Stomp"});
+        const astonish = new Move({name: "Astonish"});
+        const extrasensory = new Move({name: "Extrasensory"});
+        const needleArm = new Move({name: "Needle Arm"});
+        const steamroller = new Move({name: "Steamroller"});
+        const bodySlam = new Move({name: "Body Slam"});
+        const dragonRush = new Move({name: "Dragon Rush"});
+        const flyingPress = new Move({name: "Flying Press"});
+        const shadowForce = new Move({name: "Shadow Force"});
+        const phantomForce = new Move({name: "Phantom Force"});
+        const heavySlam = new Move({name: "Heavy Slam"});
         function changeGen(gen) {
             stomp.gen = gen;
             astonish.gen = gen;
@@ -440,38 +434,38 @@ describe("Move", () => {
     });
 
     test("#boostedByDig()", () => {
-        const earthquake = new Move("Earthquake");
-        const magnitude = new Move("Magnitude");
+        const earthquake = new Move({name: "Earthquake"});
+        const magnitude = new Move({name: "Magnitude"});
         expect(earthquake.boostedByDig()).toBeTruthy();
         expect(magnitude.boostedByDig()).toBeTruthy();
         expect(tackle.boostedByDig()).toBeFalsy();
     });
 
     test("#boostedByDive()", () => {
-        const whirlpool = new Move("Whirlpool");
+        const whirlpool = new Move({name: "Whirlpool"});
         expect(surf.boostedByDive()).toBeTruthy();
         expect(whirlpool.boostedByDive()).toBeTruthy();
         expect(tackle.boostedByDive()).toBeFalsy();
     });
 
     test("#boostedByFly()", () => {
-        const twister = new Move("Twister");
+        const twister = new Move({name: "Twister"});
         expect(gust.boostedByFly()).toBeTruthy();
         expect(twister.boostedByFly()).toBeTruthy();
         expect(tackle.boostedByFly()).toBeFalsy();
     });
 
     test("#usesHappiness()", () => {
-        const returnMove = new Move("Return");
-        const frustration = new Move("Frustration");
+        const returnMove = new Move({name: "Return"});
+        const frustration = new Move({name: "Frustration"});
         expect(returnMove.usesHappiness()).toBeTruthy();
         expect(frustration.usesHappiness()).toBeTruthy();
         expect(tackle.usesHappiness()).toBeFalsy();
     });
 
     test("#optimalHappiness()", () => {
-        const returnMove = new Move("Return");
-        const frustration = new Move("Frustration");
+        const returnMove = new Move({name: "Return"});
+        const frustration = new Move({name: "Frustration"});
         expect(returnMove.optimalHappiness()).toEqual(255);
         expect(frustration.optimalHappiness()).toEqual(0);
     });

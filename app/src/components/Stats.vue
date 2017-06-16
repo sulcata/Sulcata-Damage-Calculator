@@ -95,7 +95,6 @@
 
 <script>
 import {clamp} from "lodash";
-
 import sulcalcMixin from "../mixins/sulcalc";
 import {Pokemon, Gens} from "sulcalc";
 

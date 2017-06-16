@@ -12,7 +12,6 @@ describe("smCalculate()", () => {
     let heatran;
     let lavaPlume;
     let earthquake;
-
     beforeEach(() => {
         field = new Field({gen: Gens.SM});
         heatran = new Pokemon({
@@ -54,6 +53,34 @@ describe("smCalculate()", () => {
         expect(damageMulti).toEqual([
             283, 288, 291, 291, 296, 299, 304, 307,
             312, 312, 315, 320, 323, 328, 331, 336
+        ]);
+    });
+
+    test("Fairy Aura is a move power mod", () => {
+        const xerneas = new Pokemon({
+            name: "Xerneas",
+            gen: Gens.SM,
+            item: "Life Orb",
+            natureName: "Modest",
+            evs: [0, 0, 0, 252, 0, 0]
+        });
+        const genesect = new Pokemon({
+            name: "Genesect",
+            gen: Gens.SM,
+            natureName: "Naive"
+        });
+        const moonblast = new Move({
+            name: "Moonblast",
+            gen: Gens.SM
+        });
+        const auraField = new Field({
+            fairyAura: true,
+            gen: Gens.SM
+        });
+        const damage = smCalculate(xerneas, genesect, moonblast, auraField);
+        expect(damage).toEqual([
+            172, 173, 175, 178, 179, 182, 183, 186,
+            187, 190, 191, 194, 195, 198, 199, 203
         ]);
     });
 });

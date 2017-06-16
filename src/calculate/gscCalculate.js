@@ -1,119 +1,43 @@
-import Move from "../Move";
 import {isPhysicalType, isSpecialType, effectiveness} from "../info";
-
 import {
     Gens, Stats, Types, damageVariation,
     scaleStat, needsScaling
 } from "../utilities";
+import moveInfo from "./moveInfo";
 
 const {max, min, trunc} = Math;
 
 export default function gscCalculate(attacker, defender, move, field) {
-    let moveType = move.type();
-    let movePower = move.power();
+    const {moveType, movePower, fail} = moveInfo(attacker, defender,
+                                                 move, field);
+    if (fail) return [0];
 
-    if (movePower === 0) return [0];
-
-    switch (move.name) {
-        case "Hidden Power":
-            moveType = Move.hiddenPowerType(attacker.ivs, Gens.GSC);
-            movePower = Move.hiddenPowerBp(attacker.ivs, Gens.GSC);
-            break;
-        case "Reversal":
-        case "Flail":
-            movePower = Move.flail(attacker.currentHp,
-                                   attacker.stat(Stats.HP),
-                                   Gens.GSC);
-            break;
-        case "Frustration":
-            movePower = Move.frustration(attacker.happiness);
-            break;
-        case "Return":
-            movePower = Move.return(attacker.happiness);
-            break;
-        case "Future Sight":
-            moveType = Types.CURSE;
-            break;
-        case "Magnitude":
-            movePower = Move.magnitude(move.magnitude);
-            break;
-        case "Present":
-            movePower = move.present;
-            break;
-        case "Rollout":
-            movePower = 30 * 2 ** ((move.rollout - 1) % 5 + move.defenseCurl);
-            break;
-        case "Triple Kick":
-            movePower = 10 * move.tripleKickCount;
-            break;
-        case "Fury Cutter":
-            movePower = min(160, 10 * 2 ** move.furyCutter);
-            break;
-        case "Beat Up":
-            moveType = Types.CURSE;
-            break;
-        case "Seismic Toss":
-        case "Night Shade":
-            return [attacker.level];
-        case "Dragon Rage":
-            return [40];
-        case "Sonic Boom":
-            return [20];
-        case "Psywave": {
-            // according to crystal_, it really is 1-149
-            const range = [];
-            const maxPsywave = trunc(attacker.level * 3 / 2);
-            for (let i = 1; i < maxPsywave; i++) {
-                range.push(i);
-            }
-            return range;
-        }
-        case "Super Fang":
-            return [max(1, trunc(defender.currentHp / 2))];
-        default:
-            if (move.isOhko()) return [65535];
-    }
-
-    if (move.dig && move.boostedByDig()
-        || move.fly && move.boostedByFly()) {
-        movePower *= 2;
-    }
-
-    let lvl = attacker.level;
-    const defBoost = defender.boost(Stats.DEF);
+    let level = attacker.level;
     const atkBoost = attacker.boost(Stats.ATK);
-    const sdefBoost = defender.boost(Stats.SDEF);
+    const defBoost = defender.boost(Stats.DEF);
     const satkBoost = attacker.boost(Stats.SATK);
-
-    // crits are weird. thanks to crystal_ and the gsc community on
-    // the mt. silver boards for figuring them out.
-    const ignorePhysicalBoosts = move.critical && atkBoost <= defBoost;
-    const ignoreSpecialBoosts = move.critical && satkBoost <= sdefBoost;
+    const sdefBoost = defender.boost(Stats.SDEF);
 
     let atk, def;
-    if (ignorePhysicalBoosts) {
+    if (move.critical && atkBoost <= defBoost) {
         atk = attacker.stat(Stats.ATK);
         def = defender.stat(Stats.DEF);
     } else {
         atk = attacker.boostedStat(Stats.ATK);
         def = defender.boostedStat(Stats.DEF);
+        if (attacker.isBurned()) atk = trunc(atk / 2);
+        if (defender.reflect) def *= 2;
     }
 
     let satk, sdef;
-    if (ignoreSpecialBoosts) {
+    if (move.critical && satkBoost <= sdefBoost) {
         satk = attacker.stat(Stats.SATK);
         sdef = defender.stat(Stats.SDEF);
     } else {
         satk = attacker.boostedStat(Stats.SATK);
         sdef = defender.boostedStat(Stats.SDEF);
+        if (defender.lightScreen) sdef *= 2;
     }
-
-    if (attacker.isBurned() && !ignorePhysicalBoosts) {
-        atk = trunc(atk / 2);
-    }
-
-    if (defender.reflect && !ignorePhysicalBoosts) def *= 2;
-    if (defender.lightScreen && !ignoreSpecialBoosts) sdef *= 2;
 
     if (attacker.thickClubBoosted()) atk *= 2;
     if (attacker.lightBallBoosted()) satk *= 2;
@@ -143,18 +67,18 @@ export default function gscCalculate(attacker, defender, move, field) {
         }
     }
 
-    if (move.name === "Explosion" || move.name === "Self-Destruct") {
+    if (move.isExplosion()) {
         d = max(1, trunc(d / 2));
     }
 
     if (move.name === "Beat Up") {
         a = attacker.beatUpStats[move.beatUpHit];
-        lvl = attacker.beatUpLevels[move.beatUpHit];
         d = defender.baseStat(Stats.DEF);
+        level = attacker.beatUpLevels[move.beatUpHit];
     }
 
     d = max(1, d);
-    let baseDamage = trunc(trunc(trunc(2 * lvl / 5 + 2)
+    let baseDamage = trunc(trunc(trunc(2 * level / 5 + 2)
                                  * movePower * a / d) / 50);
 
     if (move.critical) {

@@ -1,10 +1,17 @@
 import sulcalc from "../src/sulcalc";
+import {Gens} from "../src/utilities";
 import Multiset from "../src/Multiset";
 import {MissingnoError, NoMoveError} from "../src/errors";
 
 describe("sulcalc()", () => {
     test("RBY", () => {
-        const results = sulcalc("Snorlax", "Snorlax", "Body Slam", {gen: 1});
+        const gen = Gens.RBY;
+        const results = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Body Slam", gen},
+            {gen}
+        );
         expect(results.damage).toEqual(new Multiset([
             127, 128, 128, 129, 130, 130, 131, 131, 132, 132, 133, 134, 134,
             135, 135, 136, 137, 137, 138, 138, 139, 140, 140, 141, 141, 142,
@@ -13,7 +20,13 @@ describe("sulcalc()", () => {
     });
 
     test("GSC", () => {
-        const results = sulcalc("Snorlax", "Snorlax", "Body Slam", {gen: 2});
+        const gen = Gens.GSC;
+        const results = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Body Slam", gen},
+            {gen}
+        );
         expect(results.damage).toEqual(new Multiset([
             127, 128, 128, 129, 130, 130, 131, 131, 132, 132, 133, 134, 134,
             135, 135, 136, 137, 137, 138, 138, 139, 140, 140, 141, 141, 142,
@@ -22,7 +35,13 @@ describe("sulcalc()", () => {
     });
 
     test("Adv", () => {
-        const results = sulcalc("Snorlax", "Snorlax", "Body Slam", {gen: 3});
+        const gen = Gens.ADV;
+        const results = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Body Slam", gen},
+            {gen}
+        );
         expect(results.damage).toEqual(new Multiset([
             142, 144, 146, 147, 149, 151, 152, 154,
             156, 157, 159, 161, 162, 164, 166, 168
@@ -30,7 +49,13 @@ describe("sulcalc()", () => {
     });
 
     test("HGSS", () => {
-        const results = sulcalc("Snorlax", "Snorlax", "Body Slam", {gen: 4});
+        const gen = Gens.HGSS;
+        const results = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Body Slam", gen},
+            {gen}
+        );
         expect(results.damage).toEqual(new Multiset([
             142, 144, 145, 147, 148, 150, 151, 154,
             156, 157, 159, 160, 162, 163, 165, 168
@@ -38,7 +63,13 @@ describe("sulcalc()", () => {
     });
 
     test("B2W2", () => {
-        const results = sulcalc("Snorlax", "Snorlax", "Body Slam", {gen: 5});
+        const gen = Gens.B2W2;
+        const results = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Body Slam", gen},
+            {gen}
+        );
         expect(results.damage).toEqual(new Multiset([
             142, 144, 145, 147, 148, 150, 151, 154,
             156, 157, 159, 160, 162, 163, 165, 168
@@ -46,7 +77,27 @@ describe("sulcalc()", () => {
     });
 
     test("ORAS", () => {
-        const results = sulcalc("Snorlax", "Snorlax", "Body Slam", {gen: 6});
+        const gen = Gens.ORAS;
+        const results = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Body Slam", gen},
+            {gen}
+        );
+        expect(results.damage).toEqual(new Multiset([
+            142, 144, 145, 147, 148, 150, 151, 154,
+            156, 157, 159, 160, 162, 163, 165, 168
+        ]));
+    });
+
+    test("SM", () => {
+        const gen = Gens.SM;
+        const results = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Body Slam", gen},
+            {gen}
+        );
         expect(results.damage).toEqual(new Multiset([
             142, 144, 145, 147, 148, 150, 151, 154,
             156, 157, 159, 160, 162, 163, 165, 168
