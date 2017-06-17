@@ -36,7 +36,7 @@ function minifySetdex(setdex, gen) {
 function minifySets(sets, gen) {
     const minifiedSets = {};
     for (const setName in sets) {
-        if (!setName.includes("(CAP")) {
+        if (!setName.includes("(CAP") && !setName.includes("Showdown Usage")) {
             minifiedSets[setName] = minifySet(sets[setName], gen);
         }
     }
