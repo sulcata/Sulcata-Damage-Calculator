@@ -97,7 +97,9 @@ describe("advCalculate()", () => {
             gen
         });
         const dragonClaw = new Move({name: "Dragon Claw", gen});
-        const damage = advCalculate(latias, latios, dragonClaw, field);
-        expect(max(...damage)).toEqual(278);
+        const latiasDamage = advCalculate(latias, latios, dragonClaw, field);
+        const latiosDamage = advCalculate(latios, latias, dragonClaw, field);
+        expect(max(...latiasDamage)).toEqual(278);
+        expect(max(...latiosDamage)).toEqual(272);
     });
 });

@@ -46,8 +46,8 @@
                     type='number'
                     min='0'
                     :max='maxIv'
-                    v-model.number='pokemon.ivs[stat]'
-                    @input='validateIv(stat)'
+                    v-model.number.lazy='pokemon.ivs[stat]'
+                    @change='validateIv(stat)'
                     class='form-control'
                     >
             </div>
@@ -69,8 +69,8 @@
                     min='0'
                     max='252'
                     step='4'
-                    v-model.number='pokemon.evs[stat]'
-                    @input='validateEv(stat)'
+                    v-model.number.lazy='pokemon.evs[stat]'
+                    @change='validateEv(stat)'
                     class='form-control'
                     >
             </div>
