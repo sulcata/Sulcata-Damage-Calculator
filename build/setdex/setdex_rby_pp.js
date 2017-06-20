@@ -19,7 +19,7 @@ export default {
 		"1U Reflect + Rest": {"level":100,"moves":["Blizzard","Hyper Beam","Reflect","Rest"]},
 	},
 	"Blastoise": {
-		"3U Standard": {"level":100,"moves":["Surf","Blizzard","Body Slam","Rest"]},
+		"4U Standard": {"level":100,"moves":["Surf","Blizzard","Body Slam","Rest"]},
 	},
 	"Butterfree": {
 		"6U Standard": {"level":100,"moves":["Sleep Powder","Stun Spore","Psychic","Mega Drain"]},
@@ -81,6 +81,7 @@ export default {
 		"3U Standard": {"level":100,"moves":["Drill Peck","Double-Edge","Hyper Beam","Mirror Move"]},
 	},
 	"Flareon": {
+		"6U All-Out Attacker": {"level":100,"moves":["Fire Blast","Fire Spin","Body Slam","Hyper Beam"]},
 		"3U Standard": {"level":100,"moves":["Fire Blast","Body Slam","Hyper Beam","Fire Spin"]},
 		"1U Breaker": {"level":100,"moves":["Fire Blast","Body Slam","Hyper Beam","Fire Spin"]},
 	},
@@ -286,7 +287,7 @@ export default {
 		"1U Swords Dance": {"level":100,"moves":["Swords Dance","Hyper Beam","Razor Leaf","Sleep Powder"]},
 	},
 	"Vileplume": {
-		"Status Spreader": {"level":100,"moves":["Sleep Powder","Stun Spore","Mega Drain","Body Slam"]},
+		"5U Status Spreader": {"level":100,"moves":["Sleep Powder","Stun Spore","Mega Drain","Body Slam"]},
 	},
 	"Wartortle": {
 		"5U Standard": {"level":100,"moves":["Hydro Pump","Ice Beam","Seismic Toss","Rest"]},
