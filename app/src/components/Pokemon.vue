@@ -3,6 +3,7 @@
         <set-selector
             :gen='pokemon.gen'
             :pokemon='pokemon'
+            :sets='sets'
             @input='updateValue($event)'
         ></set-selector>
 
@@ -67,7 +68,18 @@ import {Pokemon} from "sulcalc";
 
 export default {
     props: {
-        pokemon: Pokemon
+        pokemon: Pokemon,
+        sets: {
+            type: Object,
+            default: () => ({
+                smogon: true,
+                pokemonPerfect: false
+            }),
+            validator(value) {
+                return isBoolean(value.smogon)
+                    && isBoolean(value.pokemonPerfect);
+            }
+        }
     },
     model: {
         prop: "pokemon",
@@ -100,6 +112,10 @@ export default {
         Health
     }
 };
+
+function isBoolean(value) {
+    return value === true || value === false;
+}
 </script>
 
 <style scoped>

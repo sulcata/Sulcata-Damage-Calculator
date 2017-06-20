@@ -10,7 +10,8 @@ const config = {
     entry: {
         main: path.join(__dirname, "../app/src/main"),
         db: path.join(__dirname, "../src/db"),
-        setdex: path.join(__dirname, "../dist/setdex"),
+        smogon: path.join(__dirname, "../dist/setdex/smogon"),
+        pokemonPerfect: path.join(__dirname, "../dist/setdex/pokemonPerfect"),
         vendor: ["vue", "vue-i18n", "vue-multiselect", "lodash"]
     },
     output: {
@@ -21,7 +22,6 @@ const config = {
     resolve: {
         alias: {
             sulcalc: path.join(__dirname, "../src/sulcalc"),
-            setdex: path.join(__dirname, "../dist/setdex"),
             translations: path.join(__dirname, "../dist/translations")
         }
     },
@@ -61,7 +61,7 @@ const config = {
     plugins: [
         new ExtractTextPlugin("style.[contenthash].css"),
         new webpack.optimize.CommonsChunkPlugin({
-            name: ["setdex", "db", "vendor"]
+            name: ["smogon", "pokemonPerfect", "db", "vendor"]
         }),
         new webpack.optimize.ModuleConcatenationPlugin(),
         new HtmlWebpackPlugin({

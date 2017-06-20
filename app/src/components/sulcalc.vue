@@ -47,7 +47,11 @@
 
         <div class='row mt-3'>
             <div class='col'>
-                <pokemon v-model='attacker' @update='removeReportOverride'></pokemon>
+                <pokemon
+                    v-model='attacker'
+                    :sets='options.sets'
+                    @update='removeReportOverride'
+                ></pokemon>
             </div>
             <div class='col-4'>
                 <tab-content :tabs='[$t("tabs.general"), $t("tabs.moreOptions")]'>
@@ -58,17 +62,32 @@
                         :defender='defender'
                     ></field>
                     <div :slot='$t("tabs.moreOptions")'>
-                        <button-checkbox v-model='options.showFractions' size='small'>
-                            {{ $t("showFractions") }}
-                        </button-checkbox>
-                        <button-checkbox v-model='options.showLongRolls' size='small'>
-                            {{ $t("showLongDamageRolls") }}
-                        </button-checkbox>
+                        <div class='mt-1'>
+                            {{ $t("setdex") }}:
+                            <button-checkbox v-model='options.sets.smogon' size='small'>
+                                {{ $t("smogon") }}
+                            </button-checkbox>
+                            <button-checkbox v-model='options.sets.pokemonPerfect' size='small'>
+                                {{ $t("pokemonPerfect") }}
+                            </button-checkbox>
+                        </div>
+                        <div class='mt-1'>
+                            <button-checkbox v-model='options.showFractions' size='small'>
+                                {{ $t("showFractions") }}
+                            </button-checkbox>
+                            <button-checkbox v-model='options.showLongRolls' size='small'>
+                                {{ $t("showLongDamageRolls") }}
+                            </button-checkbox>
+                        </div>
                     </div>
                 </tab-content>
             </div>
             <div class='col'>
-                <pokemon v-model='defender' @update='removeReportOverride'></pokemon>
+                <pokemon
+                    v-model='defender'
+                    :sets='options.sets'
+                    @update='removeReportOverride'
+                ></pokemon>
             </div>
         </div>
     </div>
@@ -97,7 +116,11 @@ export default {
             overrideReport: null,
             options: {
                 showFractions: false,
-                showLongRolls: false
+                showLongRolls: false,
+                sets: {
+                    smogon: true,
+                    pokemonPerfect: false
+                }
             }
         };
     },

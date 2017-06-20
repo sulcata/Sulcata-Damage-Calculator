@@ -4,18 +4,28 @@ require("babel-register");
 
 const path = require("path");
 const fs = require("fs");
-const {merge} = require("lodash");
+const mkdirp = require("mkdirp");
 const {info, Move, Gens, Stats} = require("../src/sulcalc");
-const rby = require("./setdex/setdex_rby").default;
-const gsc = require("./setdex/setdex_gsc").default;
-const rse = require("./setdex/setdex_rse").default;
-const dpp = require("./setdex/setdex_dpp").default;
-const bw = require("./setdex/setdex_bw").default;
-const xy = require("./setdex/setdex_xy").default;
-const sm = require("./setdex/setdex_sm").default;
-const pokemonPerfectRby = require("./setdex/setdex_rby_pp").default;
-
-merge(rby, pokemonPerfectRby);
+const smogonSetdex = [
+    null,
+    require("./setdex/setdex_rby").default,
+    require("./setdex/setdex_gsc").default,
+    require("./setdex/setdex_rse").default,
+    require("./setdex/setdex_dpp").default,
+    require("./setdex/setdex_bw").default,
+    require("./setdex/setdex_xy").default,
+    require("./setdex/setdex_sm").default
+];
+const pokemonPerfectSetdex = [
+    null,
+    require("./setdex/setdex_rby_pp").default,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+];
 
 function minifySetdexData(setdexData) {
     return setdexData.map((setdex, gen) => minifySetdex(setdex, gen));
@@ -36,7 +46,7 @@ function minifySetdex(setdex, gen) {
 function minifySets(sets, gen) {
     const minifiedSets = {};
     for (const setName in sets) {
-        if (!setName.includes("(CAP") && !setName.includes("Showdown Usage")) {
+        if (!setName.includes("(CAP")) {
             minifiedSets[setName] = minifySet(sets[setName], gen);
         }
     }
@@ -112,11 +122,23 @@ function importMove(move, gen) {
     return {id: info.moveId(move)};
 }
 
-const setdexData = [null, rby, gsc, rse, dpp, bw, xy, sm];
-const minifiedSetdexData = minifySetdexData(setdexData);
+function setdex() {
+    const outDir = path.join(__dirname, "../dist/setdex");
+    mkdirp.sync(outDir);
+    const minifiedSmogonSetdex = minifySetdexData(smogonSetdex);
+    const minifiedPokemonPerfectSetdex = minifySetdexData(pokemonPerfectSetdex);
+    fs.writeFile(
+        path.join(__dirname, "../dist/setdex/smogon.js"),
+        `export default ${JSON.stringify(minifiedSmogonSetdex)}`,
+        error => {
+            if (error) throw error;
+        });
+    fs.writeFile(
+        path.join(__dirname, "../dist/setdex/pokemonPerfect.js"),
+        `export default ${JSON.stringify(minifiedPokemonPerfectSetdex)}`,
+        error => {
+            if (error) throw error;
+        });
+}
 
-fs.writeFile(path.join(__dirname, "../dist/setdex.js"),
-             `export default ${JSON.stringify(minifiedSetdexData)}`,
-             error => {
-                 if (error) throw error;
-             });
+setdex();

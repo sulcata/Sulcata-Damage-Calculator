@@ -10,6 +10,9 @@ export default {
     setHp: "set hp",
     showFractions: "Show Fractions",
     showLongDamageRolls: "Show Long Damage Rolls",
+    setdex: "Setdex",
+    smogon: "Smogon",
+    pokemonPerfect: "Pokémon Perfect",
     tabs: {
         general: "General",
         moreOptions: "More Options"
