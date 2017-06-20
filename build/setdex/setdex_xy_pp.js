@@ -75,7 +75,7 @@ export default {
 		"1U Specially Defensive": {"level":100,"evs":{"hp":248,"sd":252,"sp":8},"nature":"Calm","ability":"Pressure","item":"Leftovers","moves":["Rest","Sleep Talk","Dragon Tail","Surf"]},
 		"1U Choice Scarf": {"level":100,"evs":{"df":4,"sa":252,"sp":252},"nature":"Modest","ability":"Pressure","item":"Choice Scarf","moves":["Spacial Rend","Hydro Pump","Fire Blast","Sleep Talk"]},
 		"1U Choice Specs": {"level":100,"evs":{"df":4,"sa":252,"sp":252},"nature":"Timid","ability":"Pressure","item":"Choice Specs","moves":["Spacial Rend","Hydro Pump","Draco Meteor","Fire Blast"]},
-		"1U Trick Room": {"level":100,"evs":{"hp":248,"sa":252,"sd":8},"ivs":{"sp":0}"nature":"Quiet","ability":"Pressure","item":"Lustrous Orb","moves":["Trick Room","Spacial Rend","Hydro Pump","Fire Blast"]},
+		"1U Trick Room": {"level":100,"evs":{"hp":248,"sa":252,"sd":8},"ivs":{"sp":0},"nature":"Quiet","ability":"Pressure","item":"Lustrous Orb","moves":["Trick Room","Spacial Rend","Hydro Pump","Fire Blast"]},
 	},
 	"Rayquaza": {
 		"1U MixQuaza": {"level":100,"evs":{"at":252,"sa":40,"sp":216},"nature":"Naive","ability":"Air Lock","item":"Life Orb","moves":["Dragon Ascent","Earthquake","Draco Meteor","Extreme Speed"]},

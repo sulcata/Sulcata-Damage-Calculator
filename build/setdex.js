@@ -23,7 +23,7 @@ const pokemonPerfectSetdex = [
     null,
     null,
     null,
-    null,
+    require("./setdex/setdex_xy_pp").default,
     null
 ];
 
