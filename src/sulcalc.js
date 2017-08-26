@@ -1,8 +1,12 @@
+import {defaultTo} from "lodash";
 import Pokemon from "./Pokemon";
 import Move from "./Move";
 import Field from "./Field";
 import Multiset from "./Multiset";
-import {Gens, Stats, Types, addStrs, divideStrs} from "./utilities";
+import {
+    Gens, Stats, Statuses, Types,
+    Weathers, addStrs, divideStrs
+} from "./utilities";
 import {
     isPhysicalType, natureMultiplier,
     typeName, effectiveness
@@ -23,6 +27,25 @@ export * as info from "./info";
 export * from "./errors";
 export * from "./utilities";
 
+const weatherMessages = {
+    [Weathers.HAIL]: "in Hail",
+    [Weathers.RAIN]: "in Rain",
+    [Weathers.SAND]: "in Sand",
+    [Weathers.SUN]: "in Sun",
+    [Weathers.HEAVY_RAIN]: "in Heavy Rain",
+    [Weathers.HARSH_SUN]: "in Harsh Sun",
+    [Weathers.STRONG_WINDS]: "in Strong Winds"
+};
+
+const statusMessages = {
+    [Statuses.POISONED]: "poisoned",
+    [Statuses.BADLY_POISONED]: "badly poisoned",
+    [Statuses.BURNED]: "burned",
+    [Statuses.PARALYZED]: "paralyzed",
+    [Statuses.ASLEEP]: "asleep",
+    [Statuses.FROZEN]: "frozen"
+};
+
 export default function sulcalc(attacker, defender, move, field) {
     attacker = new Pokemon(attacker);
     defender = new Pokemon(defender);
@@ -41,10 +64,12 @@ export default function sulcalc(attacker, defender, move, field) {
         throw new NoMoveError();
     }
 
-    if (field.magicRoom || attacker.ability.name === "Klutz") {
+    if (field.magicRoom || attacker.ability.name === "Klutz"
+        || defender.ability.name === "Unnerve" && attacker.item.isBerry()) {
         attacker.item.disabled = true;
     }
-    if (field.magicRoom || defender.ability.name === "Klutz") {
+    if (field.magicRoom || defender.ability.name === "Klutz"
+        || attacker.ability.name === "Unnerve" && defender.item.isBerry()) {
         defender.item.disabled = true;
     }
 
@@ -154,11 +179,11 @@ export default function sulcalc(attacker, defender, move, field) {
         reportPokes.push(attacker.ability.name);
     }
 
-    if (attacker.isBurned()) {
-        reportPokes.push("burned");
-    }
-
     reportPokes.push(attacker.name);
+
+    if (!attacker.isHealthy()) {
+        reportPokes.push(`(${statusMessages[attacker.status]})`);
+    }
 
     if (move.critical) {
         reportPokes.push("critical hit");
@@ -191,7 +216,7 @@ export default function sulcalc(attacker, defender, move, field) {
     if (field.gen >= Gens.ADV
         || defender.evs[d] < 252
         || defender.evs[Stats.HP] < 252) {
-        reportPokes.push(defender.evs[Stats.HP], "HP/");
+        reportPokes.push(defender.evs[Stats.HP], "HP /");
         const mult = field.gen >= Gens.ADV
             ? natureMultiplier(defender.nature, d) : 0;
         if (mult) {
@@ -213,6 +238,10 @@ export default function sulcalc(attacker, defender, move, field) {
 
     reportPokes.push(defender.name);
 
+    if (!defender.isHealthy()) {
+        reportPokes.push(`(${statusMessages[defender.status]})`);
+    }
+
     if (defender.currentHp < 100) {
         reportPokes.push(` at ${defender.currentHp}%`);
     }
@@ -223,22 +252,21 @@ export default function sulcalc(attacker, defender, move, field) {
         reportPokes.push("behind Light Screen");
     }
 
-    const weatherMessages = [
-        "",
-        " in Hail",
-        " in Rain",
-        " in Sand",
-        " in Sun",
-        " in Heavy Rain",
-        " in Harsh Sun",
-        " in Strong Winds"
-    ];
+    if (weatherMessages[field.weather]) {
+        reportDamage.push(" " + weatherMessages[field.weather]);
+    }
 
-    reportDamage.push(
-        weatherMessages[field.weather],
-        `${dmg[0].min()} - ${dmg[0].max()}`,
-        `(${minPercent} - ${maxPercent}%)`
-    );
+    if (dmg[0].min() === dmg[0].max()) {
+        reportDamage.push(
+            String(dmg[0].min()),
+            `(${minPercent}%)`
+        );
+    } else {
+        reportDamage.push(
+            `${dmg[0].min()} - ${dmg[0].max()}`,
+            `(${minPercent} - ${maxPercent}%)`
+        );
+    }
 
     // Remove field hazards from current HP for probability calculation
     if (defender.ability.name !== "Magic Guard") {
@@ -304,7 +332,7 @@ export default function sulcalc(attacker, defender, move, field) {
     const resultInfo = reportResult.join(" ");
 
     return {
-        report: `${pokeInfo}: ${damageInfo} -- ${resultInfo}`,
+        summary: `${pokeInfo}: ${damageInfo} -- ${resultInfo}`,
         attacker,
         defender,
         minPercent,
@@ -367,13 +395,13 @@ function chanceToKo(poke, damageRanges, params) {
     const chances = [];
     const totalHp = poke.stat(Stats.HP);
     const berryHeal = poke.item.berryHeal(totalHp);
-    const maxTurns = params.maxTurns || 9;
-    const rechargeTurns = params.rechargeTurns || 0;
-    const effects = params.effects || [0];
+    const maxTurns = defaultTo(params.maxTurns, 9);
+    const rechargeTurns = defaultTo(params.rechargeTurns, 0);
+    const effects = defaultTo(params.effects, [0]);
 
-    let dmg = new Multiset(params.initDmgRange || [0]);
+    let dmg = defaultTo(new Multiset(params.initDmgRange, [0]));
     let berryDmg = new Multiset(params.initDmgRangeBerry);
-    let toxicCounter = params.toxicCounter || 0;
+    let toxicCounter = defaultTo(params.toxicCounter, 0);
 
     let remainingHealth, remainingHealthBerry;
 

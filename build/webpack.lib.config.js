@@ -1,5 +1,4 @@
 "use strict";
-
 const path = require("path");
 const webpack = require("webpack");
 const BabiliPlugin = require("babili-webpack-plugin");
@@ -24,6 +23,7 @@ const config = {
                 options: {
                     babelrc: false,
                     plugins: [
+                        "transform-object-rest-spread",
                         "syntax-dynamic-import",
                         "transform-export-extensions",
                         "lodash"

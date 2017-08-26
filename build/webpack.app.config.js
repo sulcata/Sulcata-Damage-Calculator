@@ -1,5 +1,4 @@
 "use strict";
-
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -9,10 +8,10 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const config = {
     entry: {
         main: path.join(__dirname, "../app/src/main"),
-        db: path.join(__dirname, "../src/db"),
+        db: path.join(__dirname, "../dist/db"),
         smogon: path.join(__dirname, "../dist/setdex/smogon"),
         pokemonPerfect: path.join(__dirname, "../dist/setdex/pokemonPerfect"),
-        vendor: ["vue", "vue-i18n", "vue-multiselect", "lodash"]
+        vendor: ["vue", "vuex", "vue-i18n", "vue-multiselect", "lodash"]
     },
     output: {
         filename: "[name].[chunkhash].js",
@@ -21,6 +20,7 @@ const config = {
     stats: "minimal",
     resolve: {
         alias: {
+            db: path.join(__dirname, "../dist/db"),
             sulcalc: path.join(__dirname, "../src/sulcalc"),
             translations: path.join(__dirname, "../dist/translations")
         }
@@ -30,11 +30,12 @@ const config = {
         rules: [
             {
                 test: /\.js$/,
-                exclude: /(node_modules|db|translations|setdex)\//,
+                exclude: /(node_modules|dist)\//,
                 loader: "babel-loader",
                 options: {
                     babelrc: false,
                     plugins: [
+                        "transform-object-rest-spread",
                         "syntax-dynamic-import",
                         "transform-export-extensions",
                         "lodash"
@@ -63,7 +64,6 @@ const config = {
         new webpack.optimize.CommonsChunkPlugin({
             name: ["smogon", "pokemonPerfect", "db", "vendor"]
         }),
-        new webpack.optimize.ModuleConcatenationPlugin(),
         new HtmlWebpackPlugin({
             template: path.join(__dirname, "../app/index.hbs"),
             inject: "head"

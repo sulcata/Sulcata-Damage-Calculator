@@ -1,63 +1,68 @@
 "use strict";
-
-const fs = require("fs");
 const path = require("path");
-const mkdirp = require("mkdirp");
-const {identity, isEqual} = require("lodash");
-const pify = require("pify");
+const {mkdirs, writeFile, readFile} = require("fs-extra");
+const {
+    chunk, differenceWith, fromPairs, identity,
+    isEqual, omitBy, toPairs, zip
+} = require("lodash");
 const {
     dataToObject,
     simplifyPokeIds,
-    removeAestheticPokes
-} = require("./utils");
-
-const readFile = pify(fs.readFile);
-const writeFile = pify(fs.writeFile);
+    removeAestheticPokes,
+    berriesToItems
+} = require("./utilities");
 
 const inDir = path.join(__dirname, "db");
 const outDir = path.join(__dirname, "../dist/db");
+
+async function createIndex(names) {
+    const exports = [];
+    for (const name of names) {
+        exports.push(`export {default as ${name}} from "./${name}"`);
+    }
+    const indexFileContents = exports.join(";\n");
+    await writeFile(path.join(outDir, "index.js"), indexFileContents);
+}
 
 async function processData(name, files, preFn = identity, postFn = identity) {
     let result;
     if (Array.isArray(files)) {
         files = files.map(file => {
-            if (file) {
-                return readFile(path.join(inDir, file));
-            }
-            return Promise.resolve(file);
+            if (typeof file !== "string") return file;
+            return readFile(path.join(inDir, file));
         });
         const dataArray = await Promise.all(files);
         result = dataArray.map(data => dataToObject(data, preFn));
     } else {
-        result = dataToObject(await readFile(path.join(inDir, files)), preFn);
+        result = dataToObject(
+            await readFile(path.join(inDir, files)),
+            preFn
+        );
     }
     result = postFn(result);
-
-    await writeFile(path.join(outDir, `${name}.js`),
-                    `export default ${JSON.stringify(result)}`);
-
+    await writeFile(
+        path.join(outDir, `${name}.js`),
+        `export default ${JSON.stringify(result)}`
+    );
     return result;
 }
 
-function removeEquivEntries(arr, idx, prop, val) {
-    while (idx < arr.length) {
-        const obj = arr[idx];
-        if (!isEqual(obj[prop], val)) break;
-        delete obj[prop];
-        idx++;
-    }
-}
-
-function reduceByDiffs(arr) {
-    for (let i = 0; i < arr.length; i++) {
-        const obj = arr[i];
-        if (obj !== null) {
-            for (const prop in obj) {
-                removeEquivEntries(arr, i + 1, prop, obj[prop]);
+function reduceByDiffs(arrayOfObjects) {
+    const mergedObject = {};
+    const newArrayOfObjects = [];
+    for (const object of arrayOfObjects) {
+        const mergedPairs = toPairs(mergedObject);
+        const diffs = fromPairs(differenceWith(
+            toPairs(object), mergedPairs, isEqual));
+        for (const [key, value] of mergedPairs) {
+            if (value !== null && !object.hasOwnProperty(key)) {
+                diffs[key] = null;
             }
         }
+        newArrayOfObjects.push(diffs);
+        Object.assign(mergedObject, diffs);
     }
-    return arr;
+    return newArrayOfObjects;
 }
 
 const dataList = [
@@ -136,7 +141,8 @@ const dataList = [
             "moves/6G/flags.txt",
             "moves/7G/flags.txt"
         ],
-        preFn: Number
+        preFn: Number,
+        postFn: reduceByDiffs
     },
     {
         name: "flinchChances",
@@ -166,8 +172,9 @@ const dataList = [
         ],
         postFn(objArr) {
             const [berryEffects, ...itemEffects] = objArr;
-            for (const berryId in berryEffects) {
-                itemEffects[0][Number(berryId) + 8000] = berryEffects[berryId];
+            const berryEffectsAsItems = berriesToItems(berryEffects);
+            for (const itemEffectsGen of itemEffects) {
+                Object.assign(itemEffectsGen, berryEffectsAsItems);
             }
             return reduceByDiffs([null, null, ...itemEffects]);
         }
@@ -184,13 +191,7 @@ const dataList = [
             "items/berry_useful.txt"
         ],
         preFn: () => 1,
-        postFn(objArr) {
-            const items = Object.assign({}, objArr[0]);
-            for (const berryId in objArr[1]) {
-                items[Number(berryId) + 8000] = objArr[1][berryId];
-            }
-            return items;
-        }
+        postFn: ([items, berries]) => ({...items, ...berriesToItems(berries)})
     },
     {
         name: "items",
@@ -198,13 +199,7 @@ const dataList = [
             "items/items.txt",
             "items/berries.txt"
         ],
-        postFn(objArr) {
-            const items = Object.assign({}, objArr[0]);
-            for (const berryId in objArr[1]) {
-                items[Number(berryId) + 8000] = objArr[1][berryId];
-            }
-            return items;
-        }
+        postFn: ([items, berries]) => ({...items, ...berriesToItems(berries)})
     },
     {
         name: "moves",
@@ -313,12 +308,11 @@ const dataList = [
             "pokes/7G/type1.txt"
         ],
         preFn: Number,
-        postFn: arr => reduceByDiffs(arr).map(genObj => {
-            for (const k in genObj) {
-                if (genObj[k] === 18) delete genObj[k];
-            }
-            return simplifyPokeIds(genObj);
-        })
+        postFn(arr) {
+            const simplified = arr.map(
+                genObj => simplifyPokeIds(omitBy(genObj, type => type === 18)));
+            return reduceByDiffs(simplified);
+        }
     },
     {
         name: "pokeTypes2",
@@ -333,12 +327,11 @@ const dataList = [
             "pokes/7G/type2.txt"
         ],
         preFn: Number,
-        postFn: arr => reduceByDiffs(arr).map(genObj => {
-            for (const k in genObj) {
-                if (genObj[k] === 18) delete genObj[k];
-            }
-            return simplifyPokeIds(genObj);
-        })
+        postFn(arr) {
+            const simplified = arr.map(
+                genObj => simplifyPokeIds(omitBy(genObj, type => type === 18)));
+            return reduceByDiffs(simplified);
+        }
     },
     {
         name: "movePowers",
@@ -383,7 +376,10 @@ const dataList = [
             "pokes/7G/stats.txt"
         ],
         preFn: s => s.split(" ").map(Number),
-        postFn: arr => reduceByDiffs(arr).map(simplifyPokeIds)
+        postFn(arr) {
+            const simplified = arr.map(obj => simplifyPokeIds(obj));
+            return reduceByDiffs(simplified);
+        }
     },
     {
         name: "typesTables",
@@ -398,19 +394,7 @@ const dataList = [
             "types/7G/typestable.txt"
         ],
         preFn: s => s.split(" ").map(Number),
-        postFn: arr => reduceByDiffs(arr.map((val, idx) => {
-            if (val === null) {
-                return val;
-            }
-            if (idx < 2) {
-                delete val[8];
-                delete val[16];
-            }
-            if (idx < 6) {
-                delete val[17];
-            }
-            return val;
-        }))
+        postFn: reduceByDiffs
     },
     {
         name: "abilities1",
@@ -475,16 +459,13 @@ const dataList = [
         ],
         preFn: () => 1,
         postFn(objArr) {
-            const items = [];
-            for (let i = 0; i < objArr.length / 2; i++) {
-                const obj = Object.assign({}, objArr[i]);
-                for (const berryId in objArr[i + objArr.length / 2]) {
-                    obj[Number(berryId) + 8000]
-                        = objArr[i + objArr.length / 2][berryId];
-                }
-                items.push(obj);
-            }
-            return [null, null, ...items];
+            const itemsAndBerries = zip(chunk(objArr, objArr.length / 2)).map(
+                ([releasedItems, releasedBerries]) => ({
+                    ...releasedItems,
+                    ...berriesToItems(releasedBerries)
+                })
+            );
+            return reduceByDiffs([null, null, ...itemsAndBerries]);
         }
     },
     {
@@ -499,7 +480,8 @@ const dataList = [
             "moves/6G/moves.txt",
             "moves/7G/moves.txt"
         ],
-        preFn: () => 1
+        preFn: () => 1,
+        postFn: reduceByDiffs
     },
     {
         name: "releasedPokes",
@@ -514,7 +496,12 @@ const dataList = [
             "pokes/7G/released.txt"
         ],
         preFn: () => 1,
-        postFn: arr => arr.map(removeAestheticPokes).map(simplifyPokeIds)
+        postFn(arr) {
+            return reduceByDiffs(
+                arr.map(removeAestheticPokes)
+                    .map(simplifyPokeIds)
+            );
+        }
     },
     {
         name: "zCrystalType",
@@ -528,12 +515,22 @@ const dataList = [
     }
 ];
 
-function db() {
-    mkdirp.sync(inDir);
-    mkdirp.sync(outDir);
-    const promises = dataList.map(entry =>
-        processData(entry.name, entry.files, entry.preFn, entry.postFn));
-    return Promise.all(promises);
+async function db() {
+    await Promise.all([
+        mkdirs(inDir),
+        mkdirs(outDir)
+    ]);
+    await Promise.all([
+        ...dataList.map(entry => processData(
+            entry.name,
+            entry.files,
+            entry.preFn,
+            entry.postFn
+        )),
+        createIndex(dataList.map(entry => entry.name))
+    ]);
 }
 
-db();
+db().catch(error => {
+    console.log(error);
+});

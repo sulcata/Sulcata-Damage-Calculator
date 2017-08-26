@@ -2,7 +2,8 @@
     <select class='form-control'>
         <option
             v-for='[locale, language] in languages'
-            @click='$setLocale(locale)'
+            :key='locale'
+            @click='setLocale({locale})'
             >
             {{ language }}
         </option>
@@ -10,9 +11,18 @@
 </template>
 
 <script>
-import translationMixin from "../mixins/translation";
+import {mapState, mapActions} from "vuex";
 
 export default {
-    mixins: [translationMixin]
+    computed: {
+        ...mapState({
+            languages: state => state.i18n.languages
+        })
+    },
+    methods: {
+        ...mapActions([
+            "setLocale"
+        ])
+    }
 };
 </script>

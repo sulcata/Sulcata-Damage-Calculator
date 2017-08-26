@@ -1,4 +1,4 @@
-import {clamp} from "lodash";
+import {clamp, defaultTo} from "lodash";
 import {Gens, DamageClasses, Stats, Types, Weathers, maxGen} from "./utilities";
 import {
     moveId, moveName, movePower, moveDamageClass, moveType, moveCategory,
@@ -67,18 +67,18 @@ export default class Move {
         if (move.name) {
             this.name = move.name;
         } else {
-            this.id = Number(move.id) || 0;
+            this.id = defaultTo(Number(move.id), 0);
         }
-        this.gen = Number(move.gen) || maxGen;
+        this.gen = defaultTo(Number(move.gen), maxGen);
         this.critical = Boolean(move.critical);
         this.zMove = Boolean(move.zMove);
-        this.numberOfHits = Number(move.numberOfHits) || 0;
-        this.beatUpHit = Number(move.beatUpHit) || 0;
+        this.numberOfHits = defaultTo(Number(move.numberOfHits), 0);
+        this.beatUpHit = defaultTo(Number(move.beatUpHit), 0);
         this.secondHit = Boolean(move.secondHit);
         this.meFirst = Boolean(move.meFirst);
-        this.furyCutter = Number(move.furyCutter) || 0;
-        this.echoedVoice = Number(move.echoedVoice) || 0;
-        this.trumpPP = Number(move.trumpPP) || 5;
+        this.furyCutter = defaultTo(Number(move.furyCutter), 0);
+        this.echoedVoice = defaultTo(Number(move.echoedVoice), 0);
+        this.trumpPP = defaultTo(Number(move.trumpPP), 5);
         this.roundBoost = Boolean(move.roundBoost);
         this.minimize = Boolean(move.minimize);
         this.dig = Boolean(move.dig);
@@ -186,7 +186,7 @@ export default class Move {
     }
 
     hitsMultipleTimes() {
-        return this.maxHits > 1;
+        return this.maxHits() > 1;
     }
 
     hasMultipleTargets() {

@@ -1,18 +1,19 @@
+import {castArray, cond, fromPairs, identity, kebabCase} from "lodash";
+import * as db from "../dist/db";
 import {Gens, Types, DamageClasses} from "./utilities";
-import * as db from "./db";
 
 const {trunc} = Math;
 
+// istanbul ignore else
 if (process.env.NODE_ENV !== "production") {
     (function deepFreeze(obj) {
-        for (const key in obj) {
-            if (obj.hasOwnProperty(key) && obj[key]
-                && typeof obj[key] === "object") {
-                deepFreeze(obj[key]);
+        for (const value of Object.values(obj)) {
+            if (value && typeof value === "object") {
+                deepFreeze(value);
             }
         }
         return Object.freeze(obj);
-    })(db);
+    }(db));
 }
 
 const altPokeNames = {
@@ -152,7 +153,7 @@ const requiredItems = {
 function getInfo(arr, key, gen, defaultValue) {
     // search most to least recent
     // stop at null or after the 0th index
-    while (gen >= Gens.RBY && arr[gen]) {
+    while (arr[gen] && arr[gen][key] !== null) {
         // best way to check since it might be falsy
         if (arr[gen].hasOwnProperty(key)) {
             return arr[gen][key];
@@ -163,22 +164,32 @@ function getInfo(arr, key, gen, defaultValue) {
     return defaultValue;
 }
 
-function normalizeName(name) {
-    return name.trim()
-        .replace(/ {2,}/g, " ")
-        .toLowerCase();
-}
-
 function nameToId(obj, name, defaultId) {
-    const normName = normalizeName(name);
+    const normalizedName = kebabCase(name.toLowerCase());
 
-    for (const id in obj) {
-        if (normalizeName(obj[id]) === normName) {
+    for (const [id, name] of Object.entries(obj)) {
+        if (normalizedName === kebabCase(name.toLowerCase())) {
             return id;
         }
     }
 
     return defaultId;
+}
+
+function createFlagGetter(allEffects, defaultValue, flagsToGet) {
+    return (id, gen) => {
+        const effectString = getInfo(allEffects, id, gen) || "";
+        const effects = fromPairs(
+            effectString.split("|")
+                .map(effect => effect.split("-", 2))
+        );
+        for (const [flag, parser] of Object.entries(flagsToGet)) {
+            if (effects.hasOwnProperty(flag)) {
+                return parser(effects[flag] || true);
+            }
+        }
+        return defaultValue;
+    };
 }
 
 const natureMultArr = [-1, 0, 1, 3, 4, 2];
@@ -237,11 +248,17 @@ export function isPokeUseful(pokeId) {
 }
 
 export function isPokeReleased(pokeId, gen) {
-    return db.releasedPokes[gen].hasOwnProperty(pokeId);
+    return Boolean(getInfo(db.releasedPokes, pokeId, gen));
 }
 
 export function releasedPokes(gen) {
-    return Object.keys(db.releasedPokes[gen]).filter(id => id !== "0:0");
+    return Object.keys(db.pokemon)
+        .filter(id => id !== "0:0" && isPokeReleased(id, gen))
+        .sort((a, b) => {
+            const [aNum, aForm] = a.split(":").map(Number);
+            const [bNum, bForm] = b.split(":").map(Number);
+            return (aNum - bNum) || (aForm - bForm);
+        });
 }
 
 export function pokeType1(pokeId, gen) {
@@ -251,7 +268,7 @@ export function pokeType1(pokeId, gen) {
     type = getInfo(db.pokeTypes1, pokeId.split(":", 1) + ":0", gen);
     if (type !== undefined) return type;
 
-    return 18;
+    return Types.CURSE;
 }
 
 export function pokeType2(pokeId, gen) {
@@ -261,7 +278,7 @@ export function pokeType2(pokeId, gen) {
     type = getInfo(db.pokeTypes2, pokeId.split(":", 1) + ":0", gen);
     if (type !== undefined) return type;
 
-    return 18;
+    return Types.CURSE;
 }
 
 export function baseStats(pokeId, gen) {
@@ -282,11 +299,11 @@ export function evolutions(pokeId, gen) {
 }
 
 export function preEvolution(pokeId, gen) {
-    const species = Number(pokeId.split(":")[0]);
-    for (const e in db.evolutions) {
-        if (db.evolutions[e].includes(species)
-            && isPokeReleased(e + ":0", gen)) {
-            return e + ":0";
+    const pokeNum = Number(pokeId.split(":")[0]);
+    for (const [evoNum, evolutions] of Object.entries(db.evolutions)) {
+        const evoId = evoNum + ":0";
+        if (evolutions.includes(pokeNum) && isPokeReleased(evoId, gen)) {
+            return evoId;
         }
     }
     return undefined;
@@ -321,11 +338,14 @@ export function isMoveUseful(moveId, gen) {
 }
 
 export function isMoveReleased(moveId, gen) {
-    return db.releasedMoves[gen].hasOwnProperty(moveId);
+    return Boolean(db.releasedMoves, moveId, gen);
 }
 
 export function releasedMoves(gen) {
-    return Object.keys(db.releasedMoves[gen]).map(Number);
+    return Object.keys(db.moves)
+        .map(Number)
+        .filter(id => id !== 0 && isMoveReleased(id, gen))
+        .sort((a, b) => a - b);
 }
 
 export function movePower(moveId, gen) {
@@ -394,11 +414,11 @@ export function zMovePower(moveId) {
 /* Item Information */
 
 export function itemName(itemId) {
-    return db.items[itemId] || "(No Item)";
+    return db.items.hasOwnProperty(itemId) ? db.items[itemId] : "(No Item)";
 }
 
 export function itemId(itemName) {
-    return Number(nameToId(db.items, itemName)) || 0;
+    return Number(nameToId(db.items, itemName, 0));
 }
 
 export function isItemUseful(itemId) {
@@ -408,16 +428,36 @@ export function isItemUseful(itemId) {
 }
 
 export function isItemReleased(itemId, gen) {
-    return db.releasedItems[gen].hasOwnProperty(itemId);
+    return Boolean(db.releasedItems, itemId, gen);
 }
 
 export function releasedItems(gen) {
-    return Object.keys(db.releasedItems[gen]).map(Number);
+    return Object.keys(db.items)
+        .map(Number)
+        .filter(id => id !== 0 && isItemReleased(id, gen))
+        .sort((a, b) => a - b);
 }
 
-export function itemEffects(itemId, gen) {
-    return getInfo(db.itemEffects, itemId, gen);
-}
+export const itemBoostedType = createFlagGetter(db.itemEffects, -1, {
+    10: Number
+});
+
+export const berryTypeResist = createFlagGetter(db.itemEffects, -1, {
+    4: Number,
+    5: () => Types.NORMAL
+});
+
+export const gemType = createFlagGetter(db.itemEffects, -1, {
+    37: Number
+});
+
+export const itemMega = createFlagGetter(db.itemEffects, null, {
+    66: identity
+});
+
+export const memoryType = createFlagGetter(db.itemEffects, Types.NORMAL, {
+    68: Number
+});
 
 export function zCrystalType(itemId) {
     return db.zCrystalType.hasOwnProperty(itemId)
@@ -427,7 +467,8 @@ export function zCrystalType(itemId) {
 /* Ability Information */
 
 export function abilityName(abilityId) {
-    return db.abilities[abilityId] || "(No Ability)";
+    return db.abilities.hasOwnProperty(abilityId)
+        ? db.abilities[abilityId] : "(No Ability)";
 }
 
 export function abilityId(abilityName) {
@@ -439,15 +480,14 @@ export function isAbilityUseful(abilityId) {
 }
 
 export function isAbilityReleased(abilityId, gen) {
-    return Number(abilityId) <= [NaN, NaN, NaN, 76, 123, 164, 191][gen];
+    return Number(abilityId) <= [NaN, NaN, NaN, 76, 123, 164, 191, 232][gen];
 }
 
 export function releasedAbilities(gen) {
-    return Object.keys(db.releasedItems[gen]).map(Number);
-}
-
-export function abilityEffects(abilityId, gen) {
-    return getInfo(db.abilityEffects, abilityId, gen);
+    return Object.keys(db.items)
+        .map(Number)
+        .filter(id => id !== 0 && isAbilityReleased(id, gen))
+        .sort((a, b) => a - b);
 }
 
 export function isIgnoredByMoldBreaker(abilityId) {
@@ -472,6 +512,40 @@ export function ability3(pokeId, gen) {
         || 0;
 }
 
+export const abilityImmunityType = (() => {
+    const preB2W2Flags = {
+        70: Number,
+        68: Number,
+        120: () => Types.GROUND,
+        41: () => Types.ELECTRIC,
+        19: () => Types.FIRE,
+        15: () => Types.WATER
+    };
+    const postB2W2Flags = {...preB2W2Flags, 38: Number};
+    return cond([
+        [
+            (id, gen) => gen <= Gens.B2W2,
+            createFlagGetter(db.abilityEffects, -1, preB2W2Flags)
+        ],
+        [
+            () => true,
+            createFlagGetter(db.abilityEffects, -1, postB2W2Flags)
+        ]
+    ]);
+})();
+
+export const ignoresAbilities = createFlagGetter(db.abilityEffects, false, {
+    40: () => true
+});
+
+export const abilityPinchType = createFlagGetter(db.abilityEffects, -1, {
+    7: Number
+});
+
+export const abilityNormalToType = createFlagGetter(db.abilityEffects, -1, {
+    121: Number
+});
+
 /* Type Information */
 
 export function typeName(typeId) {
@@ -483,21 +557,16 @@ export function typeId(typeName) {
 }
 
 export function types(gen) {
-    let types = [];
-    for (let i = 0; i <= 18; i++) {
-        types.push(i);
-    }
-    if (gen < Gens.GSC) {
-        types = types.filter(type => type !== 8 && type !== 16);
-    }
-    if (gen < Gens.ORAS) {
-        types = types.filter(type => type !== 17);
-    }
-    return types;
+    return Object.values(Types)
+        .filter(typeId => gen < Gens.GSC && typeId !== Types.STEEL)
+        .filter(typeId => gen < Gens.GSC && typeId !== Types.DARK)
+        .filter(typeId => gen < Gens.ORAS && typeId !== Types.FAIRY)
+        .sort((a, b) => a - b);
 }
 
 export function typeDamageClass(typeId) {
-    return typeId >= 9 && typeId <= 17 ? 2 : 1;
+    return typeId >= Types.FIRE && typeId <= Types.DARK
+        ? DamageClasses.SPECIAL : DamageClasses.PHYSICAL;
 }
 
 export function isPhysicalType(typeId) {
@@ -531,12 +600,8 @@ export function isSandForceType(typeId) {
 }
 
 export function effectiveness(attackingTypes, defendingTypes, options = {}) {
-    if (!Array.isArray(attackingTypes)) {
-        attackingTypes = [attackingTypes];
-    }
-    if (!Array.isArray(defendingTypes)) {
-        attackingTypes = [defendingTypes];
-    }
+    attackingTypes = castArray(attackingTypes);
+    defendingTypes = castArray(defendingTypes);
 
     if (options.gravity) {
         attackingTypes = attackingTypes.filter(type => type !== Types.FLYING);

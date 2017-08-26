@@ -1,11 +1,12 @@
 <template>
     <div role='group' :class='groupClasses'>
         <button
-            type='button'
-            class='btn btn-secondary'
-            :class='{active: isSelected(option)}'
             v-for='option in options'
+            :key='option[label]'
             @click='select(option)'
+            type='button'
+            :class='buttonClasses(option)'
+            style='cursor: default;'
             >
             {{ option[label] }}
         </button>
@@ -19,12 +20,24 @@ const sizeClasses = {
     large: "btn-group-lg"
 };
 
+const typeClasses = {
+    primary: "btn-primary",
+    secondary: "btn-secondary",
+    success: "btn-success",
+    danger: "btn-danger",
+    warning: "btn-warning",
+    info: "btn-warning",
+    light: "btn-light",
+    dark: "btn-dark",
+    link: "btn-link"
+};
+
 export default {
     props: {
-        value: {},
+        value: null,
         options: {
             type: Array,
-            default: []
+            default: () => []
         },
         layout: {
             type: String,
@@ -39,6 +52,17 @@ export default {
             validator(value) {
                 return sizeClasses.hasOwnProperty(value);
             }
+        },
+        type: {
+            type: String,
+            default: "primary",
+            validator(value) {
+                return typeClasses.hasOwnProperty(value);
+            }
+        },
+        outline: {
+            type: Boolean,
+            default: false
         },
         label: {
             type: String,
@@ -64,6 +88,14 @@ export default {
         },
         isSelected(option) {
             return Object.is(this.value, option[this.trackBy]);
+        },
+        buttonClasses(option) {
+            const outline = this.outline ? "-outline" : "";
+            return {
+                btn: true,
+                active: this.isSelected(option),
+                [typeClasses[this.type] + outline]: true
+            };
         }
     }
 };

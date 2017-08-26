@@ -1,51 +1,64 @@
 <template>
     <div>
-        <set-selector
-            :gen='pokemon.gen'
-            :pokemon='pokemon'
-            :sets='sets'
-            @input='updateValue($event)'
-        ></set-selector>
+        <set-selector :pokemon='pokemon' @input='updatePokemon'></set-selector>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.GSC'>
-            <item v-model='pokemon.item'></item>
+            <item :item='pokemon.item' @input='updateItem'></item>
         </div>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
-            <ability v-model='pokemon.ability'></ability>
+            <ability
+                :ability='pokemon.ability'
+                @input='updateAbility'
+            ></ability>
         </div>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
-            <nature v-model='pokemon.nature'></nature>
+            <nature :nature='pokemon.nature' @input='updateNature'></nature>
         </div>
 
         <div class='mt-1'>
             <strong>Level: </strong>
-            <input
-                type='number'
-                min='0'
-                max='100'
-                v-model.number='level'
-                class='form-control level-control'
-                >
+            <integer
+                :min='1'
+                :max='100'
+                :value='pokemon.level'
+                @input='updateLevel'
+                class='level-control'
+            ></integer>
         </div>
 
         <div class='mt-1'>
-            <stats :pokemon='pokemon'></stats>
+            <stats :pokemon='pokemon' @input='updatePokemon'></stats>
         </div>
 
-        <div class='mt-1' v-for='i in pokemon.moves.length'>
-            <move v-model='pokemon.moves[i - 1]' :pokemon='pokemon'></move>
+        <div class='mt-1' v-for='i in pokemon.moves.length' :key='i'>
+            <move
+                :move='pokemon.moves[i - 1]'
+                :happiness='pokemon.happiness'
+                @input='move => updateMove(i - 1, move)'
+                @input-happiness='updateHappiness'
+            ></move>
         </div>
 
         <div class='mt-1'>
             <div class='container-fluid p-0'>
                 <div class='row'>
                     <div class='col'>
-                        <status v-model='pokemon.status'></status>
+                        <status
+                            :status='pokemon.status'
+                            @input='updateStatus'
+                        ></status>
                     </div>
                     <div class='col-auto'>
-                        <health :pokemon='pokemon'></health>
+                        <health
+                            :total-hp='pokemon.stat(Stats.HP)'
+                            :current-hp='pokemon.currentHp'
+                            :current-hp-range='pokemon.currentHpRange'
+                            :current-hp-range-berry='
+                                pokemon.currentHpRangeBerry'
+                            @input='updateHealth'
+                        ></health>
                     </div>
                 </div>
             </div>
@@ -54,53 +67,23 @@
 </template>
 
 <script>
-import {clamp} from "lodash";
-import sulcalcMixin from "../mixins/sulcalc";
+import {copyWithEvent} from "../utilities";
 import SetSelector from "./SetSelector.vue";
 import Ability from "./Ability.vue";
 import Item from "./Item.vue";
 import Move from "./Move.vue";
 import Nature from "./Nature.vue";
 import Status from "./Status.vue";
-import Stats from "./Stats.vue";
+import StatsComponent from "./Stats.vue";
 import Health from "./Health.vue";
-import {Pokemon} from "sulcalc";
+import Integer from "./ui/Integer.vue";
+import {Gens, Stats, Pokemon} from "sulcalc";
 
 export default {
-    props: {
-        pokemon: Pokemon,
-        sets: {
-            type: Object,
-            default: () => ({
-                smogon: true,
-                pokemonPerfect: false
-            }),
-            validator(value) {
-                return isBoolean(value.smogon)
-                    && isBoolean(value.pokemonPerfect);
-            }
-        }
-    },
     model: {
         prop: "pokemon",
         event: "input"
     },
-    computed: {
-        level: {
-            get() {
-                return this.pokemon.level;
-            },
-            set(value) {
-                this.pokemon.level = clamp(value, 1, 100);
-            }
-        }
-    },
-    methods: {
-        updateValue(newValue) {
-            this.$emit("input", newValue);
-        }
-    },
-    mixins: [sulcalcMixin],
     components: {
         SetSelector,
         Ability,
@@ -108,14 +91,59 @@ export default {
         Move,
         Nature,
         Status,
-        Stats,
-        Health
+        Stats: StatsComponent,
+        Health,
+        Integer
+    },
+    props: {
+        pokemon: {
+            required: true,
+            type: Pokemon
+        }
+    },
+    data() {
+        return {Gens, Stats};
+    },
+    methods: {
+        updatePokemon(pokemon) {
+            this.$emit("input", pokemon);
+        },
+        updateItem(item) {
+            this.$emit("input", copyWithEvent({...this.pokemon, item}));
+        },
+        updateAbility(ability) {
+            this.$emit("input", copyWithEvent({...this.pokemon, ability}));
+        },
+        updateNature(nature) {
+            this.$emit("input", copyWithEvent({...this.pokemon, nature}));
+        },
+        updateLevel(level) {
+            this.$emit("input", copyWithEvent({...this.pokemon, level}));
+        },
+        updateMove(i, move) {
+            const moves = [...this.pokemon.moves];
+            moves[i] = move;
+            if (move.usesHappiness()) {
+                this.$emit("input", copyWithEvent({
+                    ...this.pokemon,
+                    moves,
+                    happiness: move.optimalHappiness()
+                }));
+            } else {
+                this.$emit("input", copyWithEvent({...this.pokemon, moves}));
+            }
+        },
+        updateHappiness(happiness) {
+            this.$emit("input", copyWithEvent({...this.pokemon, happiness}));
+        },
+        updateHealth(health) {
+            this.$emit("input", copyWithEvent({...this.pokemon, ...health}));
+        },
+        updateStatus(status) {
+            this.$emit("input", copyWithEvent({...this.pokemon, status}));
+        }
     }
 };
-
-function isBoolean(value) {
-    return value === true || value === false;
-}
 </script>
 
 <style scoped>

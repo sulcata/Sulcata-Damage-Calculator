@@ -1,0 +1,208 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sulcalc() Ability 1`] = `"+2 252+ Atk Guts Heracross (burned) critical hit Close Combat vs. 248 HP / 252+ Def Sturdy Skarmory: 332 (99.7%) -- guaranteed 2HKO"`;
+
+exports[`sulcalc() Light Screen 1`] = `"252+ SpA Choice Specs Heatran Fire Blast vs. 252 HP / 156+ SpD Klefki behind Light Screen: 256 - 303 (80.5 - 95.3%) -- guaranteed 2HKO"`;
+
+exports[`sulcalc() Psyshock 1`] = `"252 SpA Life Orb Latios Psyshock vs. 252 HP / 252+ Def Eviolite Chansey: 226 - 266 (32.1 - 37.8%) -- 93.8% chance to 3HKO"`;
+
+exports[`sulcalc() Reflect 1`] = `"0 SpA Ferrothorn Fire Blast vs. 4 HP / 0 SpD Starmie: 28 - 33 (10.7 - 12.6%) -- negligible chance to 8HKO, 98.7% chance to 9HKO"`;
+
+exports[`sulcalc() almost guaranteed KO 1`] = `"200 Atk Snorlax Double-Edge vs. Snorlax: 173 - 204 (33.1 - 39%) -- almost guaranteed 3HKO"`;
+
+exports[`sulcalc() bail out on insufficient damage 1`] = `"0 Atk Munchlax Pound vs. 0 HP / 0 Def Aggron: 6 - 7 (2.1 - 2.5%) -- this might take a while..."`;
+
+exports[`sulcalc() guaranteed KO 1`] = `"Snorlax Self-Destruct vs. Raikou: 548 - 645 (143.1 - 168.4%) -- guaranteed OHKO"`;
+
+exports[`sulcalc() negligible chance to KO 1`] = `"176 Atk Tauros Body Slam vs. Snorlax: 112 - 132 (21.4 - 25.2%) -- negligible chance to 4HKO"`;
+
+exports[`sulcalc() sanity check 1`] = `"Snorlax Body Slam vs. Snorlax: 127 - 150 (24.3 - 28.7%) -- 99.2% chance to 4HKO"`;
+
+exports[`sulcalc() sanity check 2`] = `
+Multiset {
+  "_data": Map {
+    127 => "1",
+    128 => "2",
+    129 => "1",
+    130 => "2",
+    131 => "2",
+    132 => "2",
+    133 => "1",
+    134 => "2",
+    135 => "2",
+    136 => "1",
+    137 => "2",
+    138 => "2",
+    139 => "1",
+    140 => "2",
+    141 => "2",
+    142 => "2",
+    143 => "1",
+    144 => "2",
+    145 => "2",
+    146 => "1",
+    147 => "2",
+    148 => "2",
+    149 => "1",
+    150 => "1",
+  },
+}
+`;
+
+exports[`sulcalc() sanity check 3`] = `"Snorlax Body Slam vs. Snorlax: 127 - 150 (24.3 - 28.7%) -- 99.2% chance to 4HKO"`;
+
+exports[`sulcalc() sanity check 4`] = `
+Multiset {
+  "_data": Map {
+    127 => "1",
+    128 => "2",
+    129 => "1",
+    130 => "2",
+    131 => "2",
+    132 => "2",
+    133 => "1",
+    134 => "2",
+    135 => "2",
+    136 => "1",
+    137 => "2",
+    138 => "2",
+    139 => "1",
+    140 => "2",
+    141 => "2",
+    142 => "2",
+    143 => "1",
+    144 => "2",
+    145 => "2",
+    146 => "1",
+    147 => "2",
+    148 => "2",
+    149 => "1",
+    150 => "1",
+  },
+}
+`;
+
+exports[`sulcalc() sanity check 5`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 61.1% chance to 3HKO"`;
+
+exports[`sulcalc() sanity check 6`] = `
+Multiset {
+  "_data": Map {
+    142 => "1",
+    144 => "1",
+    146 => "1",
+    147 => "1",
+    149 => "1",
+    151 => "1",
+    152 => "1",
+    154 => "1",
+    156 => "1",
+    157 => "1",
+    159 => "1",
+    161 => "1",
+    162 => "1",
+    164 => "1",
+    166 => "1",
+    168 => "1",
+  },
+}
+`;
+
+exports[`sulcalc() sanity check 7`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+
+exports[`sulcalc() sanity check 8`] = `
+Multiset {
+  "_data": Map {
+    142 => "1",
+    144 => "1",
+    145 => "1",
+    147 => "1",
+    148 => "1",
+    150 => "1",
+    151 => "1",
+    154 => "1",
+    156 => "1",
+    157 => "1",
+    159 => "1",
+    160 => "1",
+    162 => "1",
+    163 => "1",
+    165 => "1",
+    168 => "1",
+  },
+}
+`;
+
+exports[`sulcalc() sanity check 9`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+
+exports[`sulcalc() sanity check 10`] = `
+Multiset {
+  "_data": Map {
+    142 => "1",
+    144 => "1",
+    145 => "1",
+    147 => "1",
+    148 => "1",
+    150 => "1",
+    151 => "1",
+    154 => "1",
+    156 => "1",
+    157 => "1",
+    159 => "1",
+    160 => "1",
+    162 => "1",
+    163 => "1",
+    165 => "1",
+    168 => "1",
+  },
+}
+`;
+
+exports[`sulcalc() sanity check 11`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+
+exports[`sulcalc() sanity check 12`] = `
+Multiset {
+  "_data": Map {
+    142 => "1",
+    144 => "1",
+    145 => "1",
+    147 => "1",
+    148 => "1",
+    150 => "1",
+    151 => "1",
+    154 => "1",
+    156 => "1",
+    157 => "1",
+    159 => "1",
+    160 => "1",
+    162 => "1",
+    163 => "1",
+    165 => "1",
+    168 => "1",
+  },
+}
+`;
+
+exports[`sulcalc() sanity check 13`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+
+exports[`sulcalc() sanity check 14`] = `
+Multiset {
+  "_data": Map {
+    142 => "1",
+    144 => "1",
+    145 => "1",
+    147 => "1",
+    148 => "1",
+    150 => "1",
+    151 => "1",
+    154 => "1",
+    156 => "1",
+    157 => "1",
+    159 => "1",
+    160 => "1",
+    162 => "1",
+    163 => "1",
+    165 => "1",
+    168 => "1",
+  },
+}
+`;

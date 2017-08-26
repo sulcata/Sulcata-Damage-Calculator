@@ -11,21 +11,28 @@
                     :placeholder='$t("move")'
                     :value='valueObj'
                     :options='moves'
-                    @input='updateValue($event)'
+                    @input='updateMove'
                 ></multiselect>
             </div>
 
             <div class='col-auto'>
                 <!-- Critical Hit -->
-                <button-checkbox v-model='move.critical' size='small'>
+                <button-checkbox
+                    :value='move.critical'
+                    @input='updateCritical'
+                    size='small'
+                    type='secondary'
+                    >
                     {{ $t("crit") }}
                 </button-checkbox>
 
                 <!-- Z-Move -->
                 <button-checkbox
-                    v-if='move.gen >= Gens.SM'
-                    v-model='move.zMove'
+                    v-if='gen >= Gens.SM'
+                    :value='move.zMove'
+                    @input='updateZMove'
                     size='small'
+                    type='secondary'
                     >
                     {{ $t("zMove") }}
                 </button-checkbox>
@@ -35,31 +42,41 @@
                 <!-- Multihit -->
                 <select
                     v-if='numberOfHitsInput'
-                    v-model.number='move.numberOfHits'
+                    :value='move.numberOfHits'
+                    @input='updateNumberOfHits'
                     class='form-control form-control-sm'
                     >
-                    <option v-for='{value, label} in multiHitOptions' :value='value'>
+                    <option
+                        v-for='{value, label} in multiHitOptions'
+                        :key='value'
+                        :value='value'
+                        >
                         {{ label }}
                     </option>
                 </select>
 
                 <!-- Return / Frustration -->
-                <input
+                <integer
                     v-else-if='move.usesHappiness()'
-                    type='number'
-                    min='0'
-                    max='255'
-                    v-model.number='happiness'
-                    class='form-control form-control-sm'
-                    >
+                    :min='0'
+                    :max='255'
+                    :value='happiness'
+                    @input='updateHappiness'
+                    size='small'
+                ></integer>
 
                 <!-- Echoed Voice -->
                 <select
                     v-else-if='move.name === "Fury Cutter"'
-                    v-model.number='move.furyCutter'
+                    :value='move.furyCutter'
+                    @input='updateFuryCutter'
                     class='form-control form-control-sm'
                     >
-                    <option v-for='{value, label} in furyCutterOptions' :value='value'>
+                    <option
+                        v-for='{value, label} in furyCutterOptions'
+                        :key='value'
+                        :value='value'
+                        >
                         {{ label }}
                     </option>
                 </select>
@@ -67,10 +84,15 @@
                 <!-- Echoed Voice -->
                 <select
                     v-else-if='move.name === "Echoed Voice"'
-                    v-model.number='move.echoedVoice'
+                    :value='move.echoedVoice'
+                    @input='updateEchoedVoice'
                     class='form-control form-control-sm'
                     >
-                    <option v-for='{value, label} in echoedVoiceOptions' :value='value'>
+                    <option
+                        v-for='{value, label} in echoedVoiceOptions'
+                        :key='value'
+                        :value='value'
+                        >
                         {{ label }}
                     </option>
                 </select>
@@ -78,8 +100,10 @@
                 <!-- Round -->
                 <button-checkbox
                     v-else-if='move.name === "Round"'
-                    v-model='move.roundBoost'
+                    :value='move.roundBoost'
+                    @input='updateRoundBoost'
                     size='small'
+                    type='secondary'
                     >
                     {{ $tMove("Round") }}
                 </button-checkbox>
@@ -87,7 +111,8 @@
                 <!-- Trump Card -->
                 <select
                     v-else-if='move.name === "Trump Card"'
-                    v-model.number='move.trumpPP'
+                    :value='move.trumpPP'
+                    @input='updateTrumpPP'
                     class='form-control form-control-sm'
                     >
                     <option value='4'>4+ PP after use</option>
@@ -100,8 +125,10 @@
                 <!-- Minimize -->
                 <button-checkbox
                     v-else-if='move.boostedByMinimize()'
-                    v-model='move.minimize'
+                    :value='move.minimize'
+                    @input='updateMinimize'
                     size='small'
+                    type='secondary'
                     >
                     {{ $tMove("Minimize") }}
                 </button-checkbox>
@@ -109,8 +136,10 @@
                 <!-- Dig -->
                 <button-checkbox
                     v-else-if='move.boostedByDig()'
-                    v-model='move.dig'
+                    :value='move.dig'
+                    @input='updateDig'
                     size='small'
+                    type='secondary'
                     >
                     {{ $tMove("Dig") }}
                 </button-checkbox>
@@ -118,17 +147,21 @@
                 <!-- Dive -->
                 <button-checkbox
                     v-else-if='move.boostedByDive()'
-                    v-model='move.dive'
+                    :value='move.dive'
+                    @input='updateDive'
                     size='small'
+                    type='secondary'
                     >
                     {{ $tMove("Dive") }}
                 </button-checkbox>
 
-                <!-- Fly -->
+                <!-- Fly / Bounce -->
                 <button-checkbox
                     v-else-if='move.boostedByFly()'
-                    v-model='move.fly'
+                    :value='move.fly'
+                    @input='updateFly'
                     size='small'
+                    type='secondary'
                     >
                     {{ $tMove("Fly") }} / {{ $tMove("Bounce") }}
                 </button-checkbox>
@@ -138,26 +171,49 @@
 </template>
 
 <script>
-import {clamp} from "lodash";
+import {mapState} from "vuex";
 import {Multiselect} from "vue-multiselect";
 import translationMixin from "../mixins/translation";
-import sulcalcMixin from "../mixins/sulcalc";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
-import {Move, Pokemon, Gens, info} from "sulcalc";
+import Integer from "./ui/Integer.vue";
+import {Move, Gens, info} from "sulcalc";
 
 export default {
-    props: {
-        move: Move,
-        pokemon: Pokemon
-    },
     model: {
         prop: "move",
         event: "input"
     },
+    components: {
+        Multiselect,
+        ButtonCheckbox,
+        Integer
+    },
+    mixins: [
+        translationMixin
+    ],
+    props: {
+        move: {
+            required: true,
+            type: Move
+        },
+        happiness: {
+            type: Number,
+            default: 0,
+            validator(value) {
+                return (0 <= value && value <= 255);
+            }
+        }
+    },
+    data() {
+        return {Gens};
+    },
     computed: {
+        ...mapState([
+            "gen"
+        ]),
         moves() {
-            return info.releasedMoves(this.move.gen)
-                .filter(id => info.isMoveUseful(id, this.move.gen))
+            return info.releasedMoves(this.gen)
+                .filter(id => info.isMoveUseful(id, this.gen))
                 .map(id => ({
                     value: id,
                     label: this.$tMove({id})
@@ -187,8 +243,8 @@ export default {
             return options;
         },
         furyCutterOptions() {
-            if (this.move.gen >= Gens.ORAS) return ordinalHitOptions(3);
-            if (this.move.gen >= Gens.B2W2) return ordinalHitOptions(4);
+            if (this.gen >= Gens.ORAS) return ordinalHitOptions(3);
+            if (this.gen >= Gens.B2W2) return ordinalHitOptions(4);
             return ordinalHitOptions(5);
         },
         echoedVoiceOptions() {
@@ -197,30 +253,64 @@ export default {
         numberOfHitsInput() {
             return this.move.hitsMultipleTimes()
                 && this.move.name !== "Beat Up";
-        },
-        happiness: {
-            get() {
-                return this.pokemon.happiness;
-            },
-            set(value) {
-                this.pokemon.happiness = clamp(value, 0, 255);
-            }
         }
     },
     methods: {
-        updateValue($event) {
+        updateMove(event) {
             const move = new Move({
-                id: $event ? $event.value : 0,
-                gen: this.move.gen
+                id: event ? event.value : 0,
+                gen: this.gen
             });
-            this.pokemon.happiness = move.optimalHappiness();
             this.$emit("input", move);
+        },
+        updateHappiness(happiness) {
+            this.$emit("input-happiness", happiness);
+        },
+        updateCritical(critical) {
+            this.$emit("input", new Move({...this.move, critical}));
+        },
+        updateZMove(zMove) {
+            this.$emit("input", new Move({...this.move, zMove}));
+        },
+        updateNumberOfHits(event) {
+            this.$emit("input", new Move({
+                ...this.move,
+                numberOfHits: Number(event.target.value)
+            }));
+        },
+        updateFuryCutter(event) {
+            this.$emit("input", new Move({
+                ...this.move,
+                furyCutter: Number(event.target.value)
+            }));
+        },
+        updateEchoedVoice(event) {
+            this.$emit("input", new Move({
+                ...this.move,
+                echoedVoice: Number(event.target.value)
+            }));
+        },
+        updateRoundBoost(roundBoost) {
+            this.$emit("input", new Move({...this.move, roundBoost}));
+        },
+        updateTrumpPP(event) {
+            this.$emit("input", new Move({
+                ...this.move,
+                trumpPP: Number(event.target.value)
+            }));
+        },
+        updateMinimize(minimize) {
+            this.$emit("input", new Move({...this.move, minimize}));
+        },
+        updateDig(dig) {
+            this.$emit("input", new Move({...this.move, dig}));
+        },
+        updateDive(dive) {
+            this.$emit("input", new Move({...this.move, dive}));
+        },
+        updateFly(fly) {
+            this.$emit("input", new Move({...this.move, fly}));
         }
-    },
-    mixins: [translationMixin, sulcalcMixin],
-    components: {
-        Multiselect,
-        ButtonCheckbox
     }
 };
 

@@ -6,7 +6,7 @@
         :placeholder='$t("nature")'
         :value='valueObj'
         :options='natures'
-        @input='updateValue($event)'
+        @input='updateValue'
     ></multiselect>
 </template>
 
@@ -16,18 +16,24 @@ import translationMixin from "../mixins/translation";
 import {info} from "sulcalc";
 
 export default {
+    model: {
+        prop: "nature",
+        event: "input"
+    },
+    components: {
+        Multiselect
+    },
+    mixins: [
+        translationMixin
+    ],
     props: {
         nature: {
+            required: true,
             type: Number,
-            default: 0,
             validator(value) {
                 return value >= 0 && value <= 24;
             }
         }
-    },
-    model: {
-        prop: "nature",
-        event: "input"
     },
     computed: {
         natures() {
@@ -49,13 +55,9 @@ export default {
         }
     },
     methods: {
-        updateValue($event) {
-            this.$emit("input", $event ? $event.value : 0);
+        updateValue(event) {
+            this.$emit("input", event ? event.value : 0);
         }
-    },
-    mixins: [translationMixin],
-    components: {
-        Multiselect
     }
 };
 </script>

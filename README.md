@@ -5,7 +5,7 @@ A Pokemon damage calculator.
 
 ## Usage
 ```js
-const report = sulcalc(attacker, defender, move, field).report;
+const {summary} = sulcalc(attacker, defender, move, field);
 ```
 
 ## Installing Dependencies and Setup
@@ -26,6 +26,6 @@ See [LICENSE][]
 
 [Node.js]: https://nodejs.org/ "Node.js"
 [Yarn]: https://yarnpkg.com/en/ "Yarn"
-[Github]: https://github.com/Sulcata/Sulcata-Damage-Calculator/issues "Github Issue Tracker"
+[Github]: https://github.com/sulcata/sulcalc/issues "Github Issue Tracker"
 [Pokemon Online]: http://pokemon-online.eu/threads/27643/ "Pokemon Online Bugs Thread"
 [LICENSE]: LICENSE "MIT License"

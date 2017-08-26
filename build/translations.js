@@ -1,17 +1,12 @@
 "use strict";
-
-const fs = require("fs");
 const path = require("path");
-const mkdirp = require("mkdirp");
-const pify = require("pify");
+const {mkdirs, writeFile, readFile} = require("fs-extra");
 const {
     dataToObject,
     simplifyPokeIds,
-    removeAestheticPokes
-} = require("./utils");
-
-const readFile = pify(fs.readFile);
-const writeFile = pify(fs.writeFile);
+    removeAestheticPokes,
+    berriesToItems
+} = require("./utilities");
 
 const inDir = path.join(__dirname, "translations");
 const outDir = path.join(__dirname, "../dist/translations");
@@ -25,13 +20,7 @@ const fileTypes = [
     {
         name: "items",
         files: ["db/items/items.txt", "db/items/berries.txt"],
-        postFn(obj) {
-            const newObj = Object.assign({}, obj[0]);
-            for (const key in obj[1]) {
-                newObj[Number(key) + 8000] = obj[1][key];
-            }
-            return newObj;
-        }
+        postFn: ([items, berries]) => ({...items, ...berriesToItems(berries)})
     },
     {
         name: "moves",
@@ -82,20 +71,26 @@ async function parseTranslationFile(locale, fileType) {
         result = fileType.postFn(result);
     }
 
-    await writeFile(path.join(outDir, locale, `${fileType.name}.js`),
-                    `export default ${JSON.stringify(result)}`);
+    await writeFile(
+        path.join(outDir, locale, `${fileType.name}.js`),
+        `export default ${JSON.stringify(result)}`
+    );
 
     return result;
 }
 
-function translations() {
-    for (const locale of locales) {
-        mkdirp.sync(path.join(inDir, locale));
-        mkdirp.sync(path.join(outDir, locale));
-        for (const fileType of fileTypes) {
-            parseTranslationFile(locale, fileType);
-        }
-    }
+async function translations() {
+    await locales.map(async locale => {
+        await Promise.all([
+            mkdirs(path.join(inDir, locale)),
+            mkdirs(path.join(outDir, locale))
+        ]);
+        return Promise.all(
+            fileTypes.map(fileType => parseTranslationFile(locale, fileType))
+        );
+    });
 }
 
-translations();
+translations().catch(error => {
+    console.log(error);
+});

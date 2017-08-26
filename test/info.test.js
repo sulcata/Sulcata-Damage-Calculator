@@ -1,5 +1,5 @@
 import * as info from "../src/info";
-import {Stats} from "../src/utilities";
+import {Gens, Stats, Types} from "../src/utilities";
 
 describe("info", () => {
     test("natureName()", () => {
@@ -40,5 +40,39 @@ describe("info", () => {
     test("natureStats()", () => {
         expect(info.natureStats(3)).toEqual([Stats.ATK, Stats.SATK]);
         expect(info.natureStats(0)).toEqual([-1, -1]);
+    });
+
+    test("releasedPokes()", () => {
+        for (const gen of Object.values(Gens)) {
+            expect(info.releasedPokes(gen)).toMatchSnapshot();
+        }
+    });
+
+    test("releasedMoves()", () => {
+        for (const gen of Object.values(Gens)) {
+            expect(info.releasedMoves(gen)).toMatchSnapshot();
+        }
+    });
+
+    test("releasedItems()", () => {
+        for (const gen of Object.values(Gens)) {
+            expect(info.releasedItems(gen)).toMatchSnapshot();
+        }
+    });
+
+    test("releasedAbilities()", () => {
+        for (const gen of Object.values(Gens)) {
+            expect(info.releasedAbilities(gen)).toMatchSnapshot();
+        }
+    });
+
+    test("types()", () => {
+        for (const gen of Object.values(Gens)) {
+            expect(info.types(gen)).toMatchSnapshot();
+        }
+    });
+
+    test("pokeType1()", () => {
+        expect(info.pokeType1("INVALID_ID")).toEqual(Types.CURSE);
     });
 });

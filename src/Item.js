@@ -1,7 +1,9 @@
-import {Gens, Types, maxGen} from "./utilities";
+import {defaultTo} from "lodash";
+import {Gens, maxGen} from "./utilities";
 import {
     itemId, itemName, naturalGiftPower, naturalGiftType,
-    flingPower, isItemUseful, itemEffects
+    flingPower, isItemUseful, itemBoostedType, berryTypeResist,
+    gemType, itemMega, memoryType
 } from "./info";
 
 const {trunc} = Math;
@@ -22,15 +24,15 @@ export default class Item {
         if (item.name) {
             this.name = item.name;
         } else {
-            this.id = Number(item.id) || 0;
+            this.id = defaultTo(Number(item.id), 0);
         }
-        this.gen = Number(item.gen) || maxGen;
+        this.gen = defaultTo(Number(item.gen), maxGen);
         this.used = Boolean(item.used);
         this.disabled = Boolean(item.disabled);
     }
 
     get name() {
-        return itemName(this.used || this.disabled ? 0 : this.id);
+        return itemName(this._effectiveId());
     }
 
     set name(itemName) {
@@ -42,9 +44,7 @@ export default class Item {
     }
 
     boostedType() {
-        const v = this.used || this.disabled
-            ? null : flagToValue(this.id, "10", this.gen);
-        return v === null ? -1 : Number(v);
+        return itemBoostedType(this._effectiveId(), this.gen);
     }
 
     isBerry() {
@@ -56,35 +56,23 @@ export default class Item {
     }
 
     berryTypeResist() {
-        if (this.used || this.disabled) return -1;
-
-        let v = flagToValue(this.id, "4", this.gen);
-        if (v !== null) return Number(v);
-
-        v = flagToValue(this.id, "5", this.gen);
-        if (v) return Types.NORMAL;
-
-        return -1;
+        return berryTypeResist(this._effectiveId(), this.gen);
     }
 
     naturalGiftPower() {
-        return naturalGiftPower(
-            this.used || this.disabled ? 0 : this.id, this.gen);
+        return naturalGiftPower(this._effectiveId(), this.gen);
     }
 
     naturalGiftType() {
-        return naturalGiftType(
-            this.used || this.disabled ? 0 : this.id);
+        return naturalGiftType(this._effectiveId());
     }
 
     flingPower() {
-        return flingPower(this.used || this.disabled ? 0 : this.id);
+        return flingPower(this._effectiveId());
     }
 
     gemType() {
-        const v = this.used || this.disabled
-            ? null : flagToValue(this.id, "37", this.gen);
-        return v === null ? -1 : Number(v);
+        return gemType(this._effectiveId(), this.gen);
     }
 
     megaPokeNum() {
@@ -98,7 +86,7 @@ export default class Item {
     }
 
     megaPoke() {
-        return this.used ? null : flagToValue(this.id, "66", this.gen);
+        return itemMega(this.id, this.gen);
     }
 
     plateType() {
@@ -114,7 +102,7 @@ export default class Item {
     }
 
     memoryType() {
-        return Number(flagToValue(this.id, "68", this.gen)) || Types.NORMAL;
+        return memoryType(this.id, this.gen);
     }
 
     berryHeal(hp) {
@@ -136,19 +124,8 @@ export default class Item {
                 return 0;
         }
     }
-}
 
-function flagToValue(id, flag, gen) {
-    const effects = itemEffects(id, gen);
-
-    if (effects !== undefined) {
-        for (const effect of effects.split("|")) {
-            const [flagId, value] = effect.split("-");
-            if (flagId === flag) {
-                return value || true;
-            }
-        }
+    _effectiveId() {
+        return this.used || this.disabled ? 0 : this.id;
     }
-
-    return null;
 }

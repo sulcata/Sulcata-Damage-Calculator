@@ -224,4 +224,11 @@ describe("gscCalculate()", () => {
         const damage = gscCalculate(moltres, snorlax, fireBlast, field);
         expect(max(...damage)).toEqual(186);
     });
+
+    test("type immunity", () => {
+        const snorlax = new Pokemon({name: "Snorlax", gen});
+        const gengar = new Pokemon({name: "Gengar", gen});
+        const bodySlam = new Move({name: "Body Slam", gen});
+        expect(gscCalculate(snorlax, gengar, bodySlam, field)).toEqual([0]);
+    });
 });

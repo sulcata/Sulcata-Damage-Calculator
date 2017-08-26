@@ -1,5 +1,4 @@
 "use strict";
-
 const webpack = require("webpack");
 const BabiliPlugin = require("babili-webpack-plugin");
 const {cloneDeep} = require("lodash");
@@ -11,6 +10,7 @@ config.devtool = "source-map";
 
 config.plugins = config.plugins || [];
 config.plugins.unshift(
+    new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.LoaderOptionsPlugin({minimize: true}),
     new webpack.EnvironmentPlugin({NODE_ENV: "production"}),
     new BabiliPlugin()

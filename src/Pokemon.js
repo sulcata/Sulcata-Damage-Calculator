@@ -1,12 +1,12 @@
-import {clamp} from "lodash";
+import {clamp, defaultTo} from "lodash";
 import Multiset from "./Multiset";
 import Ability from "./Ability";
 import Item from "./Item";
 import Move from "./Move";
 import Field from "./Field";
 import {
-    Gens, Genders, Stats, Statuses, Types,
-    maxGen, roundHalfToZero, avg
+    Gens, Genders, Stats, Statuses,
+    Types, maxGen, roundHalfToZero
 } from "./utilities";
 import {
     typeId, typeName, pokemonId, pokemonName, natureName, natureId,
@@ -14,10 +14,6 @@ import {
     weight, evolutions, preEvolution, ability1, ability2, ability3,
     isPokeUseful, requiredItemForPoke
 } from "./info";
-import {
-    ImportableEvError, ImportableIvError,
-    ImportableLevelError, ImportableLineError
-} from "./errors";
 
 const {max, min, trunc} = Math;
 
@@ -29,24 +25,38 @@ export default class Pokemon {
         if (pokemon.name) {
             this.name = pokemon.name;
         } else {
-            this.id = pokemon.id || "0:0";
+            this.id = defaultTo(pokemon.id, "0:0");
         }
 
-        const gen = Number(pokemon.gen) || maxGen;
+        const gen = defaultTo(Number(pokemon.gen), maxGen);
         this.gen = gen;
 
-        this.evs = pokemon.evs || Array(6).fill(gen >= Gens.ADV ? 0 : 252);
-        this.ivs = pokemon.ivs || Array(6).fill(gen >= Gens.ADV ? 31 : 15);
+        this.nickname = String(defaultTo(pokemon.nickname, ""));
+
+        if (pokemon.evs) {
+            this.evs = [...pokemon.evs];
+        } else {
+            this.evs = Array(6).fill(gen >= Gens.ADV ? 0 : 252);
+        }
+
+        if (pokemon.ivs) {
+            this.ivs = [...pokemon.ivs];
+        } else {
+            this.ivs = Array(6).fill(gen >= Gens.ADV ? 31 : 15);
+        }
+
         this.boosts = pokemon.boosts || Array(6).fill(0);
-        this.level = Number(pokemon.level) || 100;
+        this.level = defaultTo(Number(pokemon.level), 100);
         if (pokemon.natureName) {
             this.natureName = pokemon.natureName;
         } else {
-            this.nature = Number(pokemon.nature) || 0;
+            this.nature = defaultTo(Number(pokemon.nature), 0);
         }
 
-        this._status = Number(pokemon.status) || Statuses.NO_STATUS;
-        this.gender = Number(pokemon.gender) || Genders.NO_GENDER;
+        this._status = defaultTo(Number(defaultTo(pokemon.status,
+                                                  pokemon._status)),
+                                 Statuses.NO_STATUS);
+        this.gender = defaultTo(Number(pokemon.gender), Genders.NO_GENDER);
 
         if (typeof pokemon.ability === "string") {
             this.ability = new Ability({name: pokemon.ability, gen});
@@ -79,21 +89,25 @@ export default class Pokemon {
         this.overrideStats = pokemon.overrideStats || [];
 
         const hp = this.stat(Stats.HP);
-        this._currentHp = pokemon.currentHp || hp;
-        this._currentHpRange = new Multiset(pokemon.currentHpRange || [hp]);
+        this._currentHp = defaultTo(defaultTo(pokemon.currentHp,
+                                              pokemon._currentHp), hp);
+        this._currentHpRange = new Multiset(pokemon.currentHpRange
+                                            || pokemon._currentHpRange
+                                            || [hp]);
         this._currentHpRangeBerry = new Multiset(pokemon.currentHpRangeBerry
+                                                 || pokemon._currentHpRangeBerry
                                                  || []);
 
         // GHOST: Trick or Treat, GRASS: Forest's Curse, can't coexist
-        this.addedType = Number(pokemon.addedType) || Types.CURSE;
+        this.addedType = defaultTo(Number(pokemon.addedType), Types.CURSE);
 
         this.lightScreen = Boolean(pokemon.lightScreen);
         this.reflect = Boolean(pokemon.reflect);
 
         this.luckyChant = Boolean(pokemon.luckyChant);
-        this.stockpile = Number(pokemon.stockpile) || 0;
+        this.stockpile = defaultTo(Number(pokemon.stockpile), 0);
         this.flashFire = Boolean(pokemon.flashFire);
-        this.metronome = Number(pokemon.metronome) || 0;
+        this.metronome = defaultTo(Number(pokemon.metronome), 0);
         this.switchedOut = Boolean(pokemon.switchedOut);
         this.movedFirst = Boolean(pokemon.movedFirst);
         this.damagedPreviously = Boolean(pokemon.damagedPreviously);
@@ -104,15 +118,15 @@ export default class Pokemon {
         this.plus = Boolean(pokemon.plus);
         this.minus = Boolean(pokemon.minus);
         this.electrify = Boolean(pokemon.electrify);
-        this.happiness = Number(pokemon.happiness) || 0;
+        this.happiness = defaultTo(Number(pokemon.happiness), 0);
         this.brokenMultiscale = Boolean(pokemon.brokenMultiscale);
         this.autotomize = Boolean(pokemon.autotomize);
         this.unburden = Boolean(pokemon.unburden);
         this.tailwind = Boolean(pokemon.tailwind);
         this.slowStart = Boolean(pokemon.slowStart);
-        this.toxicCounter = Number(pokemon.toxicCounter) || 0;
+        this.toxicCounter = defaultTo(Number(pokemon.toxicCounter), 0);
         this.stealthRock = Boolean(pokemon.stealthRock);
-        this.spikes = Number(pokemon.spikes) || 0;
+        this.spikes = defaultTo(Number(pokemon.spikes), 0);
         this.grounded = Boolean(pokemon.grounded);
         this.flowerGift = Boolean(pokemon.flowerGift);
         this.powerTrick = Boolean(pokemon.powerTrick);
@@ -124,7 +138,7 @@ export default class Pokemon {
         this.auroraVeil = Boolean(pokemon.auroraVeil);
     }
 
-    static "import"(importText, gen) {
+    static fromImportable(importText, gen) {
         const poke = new Pokemon({gen});
 
         let nextMove = 0;
@@ -132,7 +146,8 @@ export default class Pokemon {
         const lines = importText.trim()
             .replace("\r", "")
             .replace(/ {2,}/g, " ")
-            .split("\n");
+            .split("\n")
+            .map(line => line.trim());
 
         const [identifier, item] = lines[0].split("@");
 
@@ -142,19 +157,21 @@ export default class Pokemon {
             const secondParens = parensRegex.exec(identifier);
             if (secondParens) {
                 poke.name = firstParens[1];
+                poke.nickname = identifier.slice(0, firstParens.index).trim();
                 poke.gender = genderShorthands.indexOf(
                     secondParens[0].toUpperCase());
             } else {
-                poke.gender = genderShorthands.indexOf(
+                const gender = genderShorthands.indexOf(
                     firstParens[0].toUpperCase());
-                if (poke.gender > -1) {
-                    const name = identifier
-                        .match(/.*?(?=\()/)[0]
-                        .replace("*", "");
-                    poke.name = name;
+                if (gender > -1) {
+                    poke.name = identifier.match(/.*?(?=\()/)[0];
+                    poke.gender = gender;
                 } else {
-                    poke.gender = 0;
                     poke.name = firstParens[1];
+                    poke.nickname = identifier
+                        .slice(0, firstParens.index)
+                        .trim();
+                    poke.gender = Genders.NO_GENDER;
                 }
             }
         } else {
@@ -167,61 +184,53 @@ export default class Pokemon {
 
         for (const line of lines.slice(1)) {
             const idx = line.indexOf(":");
-            const key = line.substring(0, idx).trim().toLowerCase();
-            const value = line.substring(idx + 1).trim();
-            switch (key) {
-                case "level":
-                    poke.level = parseInt(value, 10);
-                    if (poke.level < 1 || poke.level > 100
-                        || Number.isNaN(poke.level)) {
-                        throw new ImportableLevelError(value);
-                    }
-                    break;
-                case "ability":
-                case "trait":
-                    poke.ability.name = value;
-                    break;
-                case "evs":
-                    for (const ev of value.split("/").map(s => s.trim())) {
-                        const [stat, value] = parseEv(ev);
-                        poke.evs[stat] = value;
-                    }
-                    break;
-                case "ivs":
-                    for (const iv of value.split("/").map(s => s.trim())) {
-                        const [stat, value] = parseIv(iv, poke.gen);
-                        poke.ivs[stat] = value;
-                    }
-                    break;
-                case "shiny":
-                    break;
-                default:
-                    if (key) throw new ImportableLineError(line);
-                    if (value.charAt(0) === "-" || value.charAt(0) === "~") {
-                        parseMove(value.slice(1), poke, nextMove);
-                        nextMove++;
-                    } else if (value.split(" ")[1].toLowerCase() === "nature") {
-                        poke.natureName = value.split(" ")[0];
-                    } else {
-                        throw new ImportableLineError(line);
-                    }
+            if (idx < 0) {
+                if (line.startsWith("-") || line.startsWith("~")) {
+                    parseMove(line.slice(1), poke, nextMove);
+                    nextMove++;
+                } else if (line.split(" ")[1].toLowerCase() === "nature") {
+                    poke.natureName = line.split(" ")[0];
+                }
+            } else {
+                const key = line.slice(0, idx).trim().toLowerCase();
+                const value = line.slice(idx + 1).trim();
+                switch (key) {
+                    case "level":
+                        poke.level = clamp(parseInt(value, 10), 1, 100) || 100;
+                        break;
+                    case "ability":
+                    case "trait":
+                        poke.ability.name = value;
+                        break;
+                    case "evs":
+                        poke.evs = parseStats(value, {
+                            min: 0,
+                            max: 252,
+                            multipleOf: 4,
+                            defaultValue: gen >= Gens.ADV ? 0 : 252
+                        });
+                        break;
+                    case "ivs":
+                        poke.ivs = parseStats(value, {
+                            min: 0,
+                            max: gen >= Gens.ADV ? 31 : 15,
+                            defaultValue: gen >= Gens.ADV ? 31 : 15
+                        });
+                        break;
+                    /* no default */
+                }
             }
         }
 
         poke.moves.sort(noMoveLast);
 
-        if (poke.moves.some(move => move.name === "Return")) {
-            poke.happiness = 255;
-        }
+        poke.happiness = max(...poke.moves.map(
+            move => move.optimalHappiness()));
 
         return poke;
     }
 
-    static "export"(poke, options) {
-        return poke.export(options);
-    }
-
-    "export"(options = {}) {
+    toImportable(options = {}) {
         const importable = [];
 
         const firstLine = [];
@@ -284,6 +293,40 @@ export default class Pokemon {
         }
 
         return importable.join("\n");
+    }
+
+    static fromSet(options) {
+        const {set, gen} = options;
+
+        const pokemon = new Pokemon({
+            gen,
+            id: options.id,
+            name: options.name,
+            level: set.l,
+            nature: set.n,
+            ability: set.a ? {id: set.a, gen} : undefined,
+            item: set.i ? {id: set.i, gen} : undefined,
+            moves: set.m ? set.m.map(id => ({id, gen})) : undefined,
+            evs: set.e ? set.e.map(ev => 4 * ev) : undefined,
+            ivs: set.d ? set.d.slice() : undefined
+        });
+
+        pokemon.happiness = max(...pokemon.moves.map(
+            move => move.optimalHappiness()));
+
+        return pokemon;
+    }
+
+    toSet() {
+        return {
+            l: this.level,
+            n: this.nature,
+            a: this.ability.id,
+            i: this.item.id,
+            m: this.moves.map(move => move.id),
+            e: this.evs.map(ev => trunc(ev / 4)),
+            d: this.ivs.slice()
+        };
     }
 
     get name() {
@@ -448,7 +491,8 @@ export default class Pokemon {
 
     set currentHpRange(newHpRange) {
         this._currentHpRange = new Multiset(newHpRange);
-        this._currentHp = avg(newHpRange.union(this.currentHpRangeBerry), 0);
+        const combined = newHpRange.union(this.currentHpRangeBerry);
+        this._currentHp = Multiset.average(combined, 0);
     }
 
     get currentHpRangeBerry() {
@@ -457,7 +501,8 @@ export default class Pokemon {
 
     set currentHpRangeBerry(newHpRange) {
         this._currentHpRangeBerry = new Multiset(newHpRange);
-        this._currentHp = avg(newHpRange.union(this.currentHpRange), 0);
+        const combined = newHpRange.union(this.currentHpRange);
+        this._currentHp = Multiset.average(combined, 0);
     }
 
     type1() {
@@ -574,6 +619,10 @@ export default class Pokemon {
 
     set status(newStatus) {
         this._status = newStatus;
+    }
+
+    isHealthy() {
+        return this.status === Statuses.NO_STATUS;
     }
 
     isPoisoned() {
@@ -699,7 +748,7 @@ function parseMove(move, poke, nextMove) {
     }
 }
 
-const statMatches = {
+const statMatches = Object.assign(Object.create(null), {
     HP: Stats.HP,
     Atk: Stats.ATK,
     Def: Stats.DEF,
@@ -712,25 +761,23 @@ const statMatches = {
     Spd: Stats.SPD,
     Spe: Stats.SPD,
     Spc: Stats.SPC
-};
+});
 
-function parseEv(ev) {
-    const value = parseInt(ev, 10);
-    const stat = statMatches[ev.split(" ")[1]];
-    if (stat === undefined || Number.isNaN(value) || value < 0 || value > 255) {
-        throw new ImportableEvError(ev);
+function parseStats(statsString, {min, max, multipleOf = 1, defaultValue}) {
+    const stats = Array(6).fill(defaultValue);
+    for (const statString of statsString.split("/").map(s => s.trim())) {
+        let value = parseInt(statString, 10);
+        if (Number.isNaN(value)) {
+            value = defaultValue;
+        } else {
+            value = trunc(clamp(value, min, max) / multipleOf) * multipleOf;
+        }
+        const stat = statMatches[statString.split(" ")[1]];
+        if (stat !== undefined) {
+            stats[stat] = value;
+        }
     }
-    return [stat, value];
-}
-
-function parseIv(iv, gen) {
-    const max = gen >= Gens.ADV ? 31 : 15;
-    const value = parseInt(iv, 10);
-    const stat = statMatches[iv.split(" ")[1]];
-    if (stat === undefined || Number.isNaN(value) || value < 0 || value > max) {
-        throw new ImportableIvError(iv);
-    }
-    return [stat, value];
+    return stats;
 }
 
 function noMoveLast(move1, move2) {

@@ -1,12 +1,13 @@
+import {defaultTo} from "lodash";
 import {Weathers, maxGen} from "./utilities";
 
 export default class Field {
     constructor(field = {}) {
-        this.gen = Number(field.gen) || maxGen;
+        this.gen = defaultTo(Number(field.gen), maxGen);
         this.multiBattle = Boolean(field.multiBattle);
         this.invertedBattle = Boolean(field.invertedBattle);
 
-        this.weather = Number(field.weather) || Weathers.CLEAR;
+        this.weather = defaultTo(Number(field.weather), Weathers.CLEAR);
         this.airLock = Boolean(field.airLock);
 
         this.waterSport = Boolean(field.waterSport);

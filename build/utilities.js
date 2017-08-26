@@ -1,6 +1,5 @@
 "use strict";
-
-const {identity} = require("lodash");
+const {identity, mapKeys, omitBy} = require("lodash");
 
 function dataToObject(data, preFunc = identity) {
     if (!data) return data;
@@ -31,8 +30,8 @@ function parseLine(line) {
     }
 
     return {
-        key: line.substring(0, idx).trim(),
-        value: line.substring(idx).trim()
+        key: line.slice(0, idx).trim(),
+        value: line.slice(idx).trim()
     };
 }
 
@@ -64,26 +63,26 @@ function isAesthetic(id) {
 }
 
 function removeAestheticPokes(obj) {
-    for (const key in obj) {
-        if (isAesthetic(key)) delete obj[key];
-    }
-    return obj;
+    return omitBy(obj, (value, id) => isAesthetic(id));
 }
 
 function simplifyPokeIds(obj) {
     if (!obj) return obj;
-    const newObj = {};
+    return mapKeys(obj, (value, key) => key.split(":", 2).join(":"));
+}
 
-    for (const key in obj) {
-        newObj[key.split(":", 2).join(":")] = obj[key];
-    }
+function berryToItem(berryId) {
+    return Number(berryId) + 8000;
+}
 
-    return newObj;
+function berriesToItems(berries) {
+    return mapKeys(berries, (value, key) => berryToItem(key));
 }
 
 module.exports = {
     stripByteOrderMark,
     dataToObject,
     simplifyPokeIds,
-    removeAestheticPokes
+    removeAestheticPokes,
+    berriesToItems
 };

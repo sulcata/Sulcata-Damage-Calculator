@@ -1,8 +1,7 @@
 import {
     cmpStrs, addStrs, subtractStrs, multiplyStrs, divideStrs,
-    avg, roundHalfToZero, chainMod, applyMod, isGenValid, maxGen
+    roundHalfToZero, chainMod, applyMod
 } from "../src/utilities";
-import Multiset from "../src/Multiset";
 
 describe("utilities", () => {
     test("cmpStrs()", () => {
@@ -59,22 +58,6 @@ describe("utilities", () => {
         }
     });
 
-    test("avg()", () => {
-        const emptySet = new Multiset();
-        expect(avg(emptySet)).toEqual(NaN);
-
-        const set1 = new Multiset();
-        set1.add(2436678, "100000000000000000000000000");
-        set1.add(1);
-        expect(avg(set1)).toEqual(2436678);
-
-        const set2 = new Multiset([1, 2, 3, 4, 5, 6, 7, 8, 9, 77, 1]);
-        expect(avg(set2)).toBeCloseTo(11.1818, 4);
-
-        const zeroSet = new Multiset([0, 0, 0]);
-        expect(avg(zeroSet)).toEqual(0);
-    });
-
     test("roundHalfToZero()", () => {
         expect(roundHalfToZero(2.4)).toEqual(2);
         expect(roundHalfToZero(2.5)).toEqual(2);
@@ -95,13 +78,5 @@ describe("utilities", () => {
         expect(applyMod(0x1800, 5)).toEqual(7);
         expect(applyMod(0x1801, 5)).toEqual(8);
         expect(applyMod(0x1800, [2, 5])).toEqual([3, 7]);
-    });
-
-    test("isGenValid()", () => {
-        expect(isGenValid(0)).toBeFalsy();
-        expect(isGenValid(1.1)).toBeFalsy();
-        expect(isGenValid(maxGen + 1)).toBeFalsy();
-        expect(isGenValid(1)).toBeTruthy();
-        expect(isGenValid(maxGen)).toBeTruthy();
     });
 });

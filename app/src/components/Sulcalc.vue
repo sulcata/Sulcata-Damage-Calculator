@@ -2,10 +2,7 @@
     <div class='container sulcalc-container'>
         <div class='row justify-content-center mt-3'>
             <div class='col-auto'>
-                <button-radio-group
-                    v-model='gen'
-                    :options='gens'
-                ></button-radio-group>
+                <generation></generation>
             </div>
         </div>
 
@@ -26,20 +23,20 @@
             </div>
         </div>
 
-        <div class='row mt-3' v-if='reportText'>
+        <div class='row mt-3' v-if='summary'>
             <div class='col'>
-                <strong>{{ reportText }}</strong>
+                <strong>{{ summary }}</strong>
                 <br>
                 <small>{{ damageRoll }}</small>
                 <button
                     type='button'
-                    class='btn btn-sm btn-secondary'
-                    @click='setHp()'
+                    class='btn btn-sm btn-light'
+                    @click='setHp'
                     >
                     {{ $t("setHp") }}
                 </button>
                 <br>
-                <small v-if='options.showFractions'>
+                <small v-if='fractions'>
                     {{ fractionalChances }}
                 </small>
             </div>
@@ -48,45 +45,31 @@
         <div class='row mt-3'>
             <div class='col'>
                 <pokemon
-                    v-model='attacker'
-                    :sets='options.sets'
-                    @update='removeReportOverride'
+                    :pokemon='attacker'
+                    @input='pokemon => setAttacker({pokemon})'
                 ></pokemon>
             </div>
             <div class='col-4'>
-                <tab-content :tabs='[$t("tabs.general"), $t("tabs.moreOptions")]'>
-                    <field
-                        :slot='$t("tabs.general")'
-                        :field='field'
-                        :attacker='attacker'
-                        :defender='defender'
-                    ></field>
-                    <div :slot='$t("tabs.moreOptions")'>
+                <tab-content :tabs='[
+                        $t("tabs.general"),
+                        $t("tabs.importTeam"),
+                        $t("tabs.moreOptions")
+                    ]'>
+                    <field :slot='$t("tabs.general")' class='mt-3'></field>
+                    <div :slot='$t("tabs.importTeam")' class='mt-3'>
+                        <set-importer></set-importer>
+                    </div>
+                    <div :slot='$t("tabs.moreOptions")' class='mt-3'>
                         <div class='mt-1'>
-                            {{ $t("setdex") }}:
-                            <button-checkbox v-model='options.sets.smogon' size='small'>
-                                {{ $t("smogon") }}
-                            </button-checkbox>
-                            <button-checkbox v-model='options.sets.pokemonPerfect' size='small'>
-                                {{ $t("pokemonPerfect") }}
-                            </button-checkbox>
-                        </div>
-                        <div class='mt-1'>
-                            <button-checkbox v-model='options.showFractions' size='small'>
-                                {{ $t("showFractions") }}
-                            </button-checkbox>
-                            <button-checkbox v-model='options.showLongRolls' size='small'>
-                                {{ $t("showLongDamageRolls") }}
-                            </button-checkbox>
+                            <sulcalc-options></sulcalc-options>
                         </div>
                     </div>
                 </tab-content>
             </div>
             <div class='col'>
                 <pokemon
-                    v-model='defender'
-                    :sets='options.sets'
-                    @update='removeReportOverride'
+                    :pokemon='defender'
+                    @input='pokemon => setDefender({pokemon})'
                 ></pokemon>
             </div>
         </div>
@@ -95,66 +78,49 @@
 
 <script>
 import {zip} from "lodash";
+import {mapState, mapMutations} from "vuex";
 import translationMixin from "../mixins/translation";
 import PokemonComponent from "./Pokemon.vue";
 import FieldComponent from "./Field.vue";
-import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
+import SetImporter from "./SetImporter.vue";
+import SulcalcOptions from "./SulcalcOptions.vue";
+import Generation from "./Generation.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import TabContent from "./ui/TabContent.vue";
-import sulcalc, {Pokemon, Field, maxGen, cmpStrs} from "sulcalc";
+import sulcalc, {cmpStrs} from "sulcalc";
 
 export default {
+    components: {
+        Pokemon: PokemonComponent,
+        Field: FieldComponent,
+        SetImporter,
+        SulcalcOptions,
+        Generation,
+        ButtonRadioGroup,
+        TabContent
+    },
+    mixins: [
+        translationMixin
+    ],
     data() {
-        const attacker = new Pokemon();
-        const defender = new Pokemon();
-        const field = new Field();
-        return {
-            attacker,
-            defender,
-            field,
-            genData: maxGen,
-            overrideReport: null,
-            options: {
-                showFractions: false,
-                showLongRolls: false,
-                sets: {
-                    smogon: true,
-                    pokemonPerfect: false
-                }
-            }
-        };
+        return {overrideReport: null};
     },
     computed: {
-        gens() {
-            const options = [];
-            for (let value = 1; value <= maxGen; value++) {
-                options.push({
-                    value,
-                    label: this.$tGen(value)
-                });
-            }
-            return options;
-        },
-        gen: {
-            get() {
-                return this.genData;
-            },
-            set(value) {
-                this.removeReportOverride();
-                this.genData = value;
-                this.attacker = new Pokemon({gen: value});
-                this.defender = new Pokemon({gen: value});
-                this.field = new Field({gen: value});
-            }
-        },
-        reportText() {
-            return this.selectedReport.report || "";
+        ...mapState([
+            "attacker",
+            "defender",
+            "field",
+            "fractions",
+            "longRolls"
+        ]),
+        summary() {
+            return this.selectedReport.summary || "";
         },
         damageRoll() {
             const damage = this.selectedReport.damage;
             if (!damage) return "";
             if (cmpStrs(damage.size, "39") > 0) {
-                return this.options.showLongRolls ? String(damage) : "";
+                return this.longRolls ? String(damage) : "";
             }
             return `(${damage.toString(entryAsList)})`;
         },
@@ -167,12 +133,11 @@ export default {
             return [...this.attackerReports, ...this.defenderReports];
         },
         attackerReports() {
-            const attacker = this.attacker;
-            const defender = this.defender;
+            const {attacker, defender, field} = this;
             return attacker.moves.map(move => {
                 try {
                     return {
-                        value: sulcalc(attacker, defender, move, this.field),
+                        value: sulcalc(attacker, defender, move, field),
                         label: this.$tMove(move)
                     };
                 } catch (error) {
@@ -184,12 +149,11 @@ export default {
             });
         },
         defenderReports() {
-            const attacker = this.attacker;
-            const defender = this.defender;
+            const {attacker, defender, field} = this;
             return defender.moves.map(move => {
                 try {
                     return {
-                        value: sulcalc(defender, attacker, move, this.field),
+                        value: sulcalc(defender, attacker, move, field),
                         label: this.$tMove(move)
                     };
                 } catch (error) {
@@ -214,13 +178,19 @@ export default {
         }
     },
     methods: {
+        ...mapMutations([
+            "setAttacker",
+            "setDefender"
+        ]),
         setHp() {
             const report = this.selectedReport;
-            const poke = this.selectedReport.defender;
+            const pokemon = this.selectedReport.defender;
             if (this.isAttackerReport(report)) {
-                this.defender = poke;
+                pokemon.event = this.defender.event;
+                this.setDefender({pokemon});
             } else if (this.isDefenderReport(report)) {
-                this.attacker = poke;
+                pokemon.event = this.attacker.event;
+                this.setAttacker({pokemon});
             }
         },
         removeReportOverride() {
@@ -233,19 +203,7 @@ export default {
         isDefenderReport(report) {
             const reports = this.defenderReports.map(({value}) => value);
             return reports.includes(report);
-        },
-        isReport(report) {
-            const reports = this.reports.map(({value}) => value);
-            return reports.includes(report);
         }
-    },
-    mixins: [translationMixin],
-    components: {
-        Pokemon: PokemonComponent,
-        Field: FieldComponent,
-        ButtonCheckbox,
-        ButtonRadioGroup,
-        TabContent
     }
 };
 

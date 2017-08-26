@@ -6,29 +6,39 @@
         :placeholder='$t("item")'
         :value='valueObj'
         :options='items'
-        @input='updateValue($event)'
+        @input='updateValue'
     ></multiselect>
 </template>
 
 <script>
+import {mapState} from "vuex";
 import {Multiselect} from "vue-multiselect";
 import translationMixin from "../mixins/translation";
 import {Item, info} from "sulcalc";
 
 export default {
-    props: {
-        item: {
-            type: Item,
-            default: 0
-        }
-    },
     model: {
         prop: "item",
         event: "input"
     },
+    components: {
+        Multiselect
+    },
+    mixins: [
+        translationMixin
+    ],
+    props: {
+        item: {
+            required: true,
+            type: Item
+        }
+    },
     computed: {
+        ...mapState([
+            "gen"
+        ]),
         items() {
-            return info.releasedItems(this.item.gen)
+            return info.releasedItems(this.gen)
                 .filter(id => info.isItemUseful(id))
                 .map(id => ({
                     value: id,
@@ -47,16 +57,12 @@ export default {
         }
     },
     methods: {
-        updateValue($event) {
+        updateValue(event) {
             this.$emit("input", new Item({
-                id: $event ? $event.value : 0,
-                gen: this.item.gen
+                id: event ? event.value : 0,
+                gen: this.gen
             }));
         }
-    },
-    mixins: [translationMixin],
-    components: {
-        Multiselect
     }
 };
 </script>

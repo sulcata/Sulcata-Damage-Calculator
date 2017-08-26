@@ -1,33 +1,38 @@
-{
-    "root": true,
-    "parser": "babel-eslint",
-    "parserOptions": {
-        "ecmaVersion": 2017,
-        "sourceType": "script"
+"use strict";
+
+const src = "src/**/*.js";
+const app = "app/**/*.{js,vue}";
+const test = "test/**/*.js";
+const build = "build/**/*.js";
+
+module.exports = {
+    root: true,
+    parser: "babel-eslint",
+    parserOptions: {
+        ecmaVersion: 2017,
+        sourceType: "script"
     },
-    "env": {
-        "es6": true,
-        "node": true
+    env: {
+        es6: true,
+        node: true
     },
-    "plugins": ["html", "import", "unicorn", "promise", "babel"],
-    "settings": {
-        "html/indent": "0",
-        "html/report-bad-indent": "error",
+    plugins: ["babel", "html", "import", "promise", "unicorn"],
+    settings: {
         "import/resolver": {
-            "webpack": {"config": "build/webpack.app.config.js"}
-        }
+            webpack: {config: "build/webpack.app.config.js"}
+        },
+        "html/report-bad-indent": "error"
     },
-    "extends": [
+    extends: [
         "eslint:recommended",
         "plugin:import/errors",
         "plugin:unicorn/recommended"
     ],
-    "rules": {
+    rules: {
         "babel/object-curly-spacing": "error",
 
         "import/extensions": "error",
         "import/first": "error",
-        "import/max-dependencies": ["error", {"max": 11}],
         "import/newline-after-import": "error",
         "import/no-absolute-path": "error",
         "import/no-deprecated": "error",
@@ -37,9 +42,9 @@
         "import/no-named-as-default": "error",
         "import/no-named-as-default-member": "error",
         "import/no-named-default": "error",
+        "import/no-unassigned-import": ["error", {allow: ["**/*.css"]}],
         "import/no-webpack-loader-syntax": "error",
         "import/order": ["error", {"newlines-between": "never"}],
-        "import/prefer-default-export": "error",
         "import/unambiguous": "error",
 
         "promise/always-return": "error",
@@ -52,7 +57,7 @@
         "promise/prefer-await-to-callbacks": "error",
         "promise/prefer-await-to-then": "error",
 
-        "unicorn/catch-error-name": ["error", {"name": "error"}],
+        "unicorn/catch-error-name": ["error", {name: "error"}],
         "unicorn/filename-case": "off",
 
         "accessor-pairs": "error",
@@ -79,15 +84,16 @@
         "for-direction": "error",
         "func-call-spacing": "error",
         "func-name-matching": "error",
-        "func-style": ["error", "declaration", {"allowArrowFunctions": true}],
+        "func-style": ["error", "declaration", {allowArrowFunctions: true}],
         "generator-star-spacing": "error",
+        "getter-return": "error",
         "indent": ["error", 4, {
-            "SwitchCase": 1,
-            "FunctionDeclaration": {"parameters": "first"},
-            "FunctionExpression": {"parameters": "first"},
-            "CallExpression": {"arguments": "first"}
+            SwitchCase: 1,
+            FunctionDeclaration: {parameters: "first"},
+            FunctionExpression: {parameters: "first"},
+            CallExpression: {arguments: "first"}
         }],
-        "key-spacing": ["error", {"mode": "minimum"}],
+        "key-spacing": ["error", {mode: "minimum"}],
         "keyword-spacing": "error",
         "max-depth": ["error", 3],
         "max-len": "error",
@@ -95,7 +101,7 @@
         "max-statements-per-line": "error",
         "new-cap": "error",
         "new-parens": "error",
-        "newline-per-chained-call": ["error", {"ignoreChainWithDepth": 3}],
+        "newline-per-chained-call": ["error", {ignoreChainWithDepth: 3}],
         "no-alert": "error",
         "no-await-in-loop": "error",
         "no-buffer-constructor": "error",
@@ -139,7 +145,7 @@
         "no-throw-literal": "error",
         "no-trailing-spaces": "error",
         "no-unmodified-loop-condition": "error",
-        "no-unneeded-ternary": ["error", {"defaultAssignment": false}],
+        "no-unneeded-ternary": ["error", {defaultAssignment: false}],
         "no-unsafe-negation": "error",
         "no-unused-expressions": "error",
         "no-use-before-define": ["error", "nofunc"],
@@ -162,11 +168,10 @@
         "prefer-const": "error",
         "prefer-numeric-literals": "error",
         "prefer-promise-reject-errors": "error",
-        "prefer-reflect": ["error", {"exceptions": ["delete"]}],
         "prefer-rest-params": "error",
         "prefer-spread": "error",
         "quote-props": ["error", "consistent-as-needed"],
-        "quotes": ["error", "double", {"allowTemplateLiterals": true}],
+        "quotes": ["error", "double", {allowTemplateLiterals: true}],
         "radix": "error",
         "require-await": "error",
         "rest-spread-spacing": "error",
@@ -184,8 +189,33 @@
         "symbol-description": "error",
         "template-curly-spacing": "error",
         "template-tag-spacing": "error",
-        "wrap-iife": ["error", "inside"],
+        "wrap-iife": "error",
         "yield-star-spacing": "error",
-        "yoda": ["error", "never", {"exceptRange": true}]
-    }
-}
+        "yoda": ["error", "never", {exceptRange: true}]
+    },
+    overrides: [
+        {
+            files: [src, app, test],
+            parserOptions: {sourceType: "module"}
+        },
+        {
+            files: [src, app],
+            env: {node: false},
+            globals: {process: false},
+            rules: {"import/no-nodejs-modules": "error"}
+        },
+        {
+            files: [app],
+            env: {browser: true}
+        },
+        {
+            files: [test],
+            env: {jest: true},
+            rules: {"max-lines": "off"}
+        },
+        {
+            files: [build],
+            rules: {"no-console": "off"}
+        }
+    ]
+};

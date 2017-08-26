@@ -189,11 +189,8 @@ describe("Item", () => {
         expect(altarianite.megaPokeNum()).toEqual(334);
 
         charizarditeX.disabled = true;
+        charizarditeX.used = true;
         expect(charizarditeX.megaPokeNum()).toEqual(6);
-
-        altarianite.disabled = false;
-        altarianite.used = true;
-        expect(altarianite.megaPokeNum()).toBeNull();
     });
 
     test("#megaPokeForm()", () => {
@@ -202,11 +199,8 @@ describe("Item", () => {
         expect(altarianite.megaPokeForm()).toEqual(1);
 
         charizarditeX.disabled = true;
+        charizarditeX.used = true;
         expect(charizarditeX.megaPokeForm()).toEqual(1);
-
-        altarianite.disabled = false;
-        altarianite.used = true;
-        expect(altarianite.megaPokeForm()).toBeNull();
     });
 
     test("#megaPoke()", () => {
@@ -216,11 +210,8 @@ describe("Item", () => {
         expect(altarianite.megaPoke()).toEqual("334:1");
 
         charizarditeX.disabled = true;
+        charizarditeX.used = true;
         expect(charizarditeX.megaPoke()).toEqual("6:1");
-
-        altarianite.disabled = false;
-        altarianite.used = true;
-        expect(altarianite.megaPoke()).toBeNull();
     });
 
     test("#plateType()", () => {

@@ -3,10 +3,6 @@ import {
     Gens, Genders, Stats, Statuses,
     Types, Weathers
 } from "../src/utilities";
-import {
-    ImportableEvError, ImportableIvError,
-    ImportableLevelError, ImportableLineError
-} from "../src/errors";
 import matchers from "./matchers";
 
 expect.extend(matchers);
@@ -28,14 +24,18 @@ describe("Pokemon", () => {
 
     test("#constructor()", () => {
         const snorlax = new Pokemon({name: "Snorlax"});
-        expect(snorlax.id).toEqual("143:0");
-        expect(snorlax.evs).toEqual([0, 0, 0, 0, 0, 0]);
-        expect(snorlax.ivs).toEqual([31, 31, 31, 31, 31, 31]);
+        expect(snorlax).toMatchObject({
+            id: "143:0",
+            evs: [0, 0, 0, 0, 0, 0],
+            ivs: [31, 31, 31, 31, 31, 31]
+        });
 
         const gscSnorlax = new Pokemon({id: "143:0", gen: Gens.GSC});
-        expect(gscSnorlax.id).toEqual("143:0");
-        expect(gscSnorlax.evs).toEqual([252, 252, 252, 252, 252, 252]);
-        expect(gscSnorlax.ivs).toEqual([15, 15, 15, 15, 15, 15]);
+        expect(gscSnorlax).toMatchObject({
+            id: "143:0",
+            evs: [252, 252, 252, 252, 252, 252],
+            ivs: [15, 15, 15, 15, 15, 15]
+        });
 
         const smeargle = new Pokemon({
             name: "Smeargle",
@@ -48,7 +48,271 @@ describe("Pokemon", () => {
         });
     });
 
-    describe("#export()", () => {
+    describe(".fromImportable()", () => {
+        test("handles simple importables", () => {
+            const arceusGround = Pokemon.fromImportable(
+                `Arceus-Ground (M) @ Earth Plate
+                Ability: Multitype
+                EVs: 252 SpA / 4 SpD / 252 Spe
+                Timid Nature
+                IVs: 0 Atk
+                - Judgment
+                - Ice Beam
+                - Refresh
+                - Recover`,
+                Gens.ORAS
+            );
+            expect(arceusGround).toMatchObject({
+                gen: 6,
+                id: "493:4",
+                gender: Genders.MALE,
+                item: {id: 187, gen: 6},
+                ability: {id: 121, gen: 6},
+                level: 100,
+                evs: [0, 0, 0, 252, 4, 252],
+                ivs: [31, 0, 31, 31, 31, 31],
+                nature: 10,
+                moves: [
+                    {id: 449, gen: 6},
+                    {id: 58, gen: 6},
+                    {id: 287, gen: 6},
+                    {id: 105, gen: 6}
+                ]
+            });
+        });
+
+        test("handles LC importables", () => {
+            const chinchou = Pokemon.fromImportable(
+                `sparkle (Chinchou) (F) @ Choice Scarf
+                Ability: Volt Absorb
+                Level: 5
+                EVs: 52 Def / 232 SpA / 224 Spe
+                Timid Nature
+                - Volt Switch
+                - Scald
+                - Ice Beam
+                - Hidden Power [GrOUnd  ]`,
+                Gens.ORAS
+            );
+            expect(chinchou).toMatchObject({
+                id: "170:0",
+                gender: Genders.FEMALE,
+                level: 5
+            });
+        });
+
+        test("handles GSC importables", () => {
+            const snorlax = Pokemon.fromImportable(
+                `zorofat (Snorlax) @ Leftovers
+                - Toxic
+                - Double-Edge
+                - Flamethrower
+                - Rest`,
+                Gens.GSC
+            );
+            expect(snorlax).toMatchObject({
+                gen: Gens.GSC,
+                id: "143:0",
+                gender: Genders.NO_GENDER,
+                item: {id: 15, gen: Gens.GSC},
+                level: 100,
+                evs: [252, 252, 252, 252, 252, 252],
+                ivs: [15, 15, 15, 15, 15, 15],
+                moves: [
+                    {id: 92, gen: Gens.GSC},
+                    {id: 38, gen: Gens.GSC},
+                    {id: 53, gen: Gens.GSC},
+                    {id: 156, gen: Gens.GSC}
+                ]
+            });
+        });
+
+        test("accounts for different IVs for Hidden Power", () => {
+            const landorusTherian = Pokemon.fromImportable(
+                `Landorus-Therian
+                IVs: 30 Spd
+                - Hidden Power [Ice]`,
+                Gens.ORAS
+            );
+            expect(landorusTherian.ivs).toEqual([31, 31, 31, 31, 31, 30]);
+        });
+
+        test("sets happiness to 255 for Return, 0 otherwise", () => {
+            const returnSnorlax = Pokemon.fromImportable(
+                `Snorlax
+                - Return`,
+                Gens.ORAS
+            );
+            expect(returnSnorlax.happiness).toEqual(255);
+
+            const snorlax = Pokemon.fromImportable(
+                `Snorlax
+                - Waterfall`,
+                Gens.ORAS
+            );
+            expect(snorlax.happiness).toEqual(0);
+        });
+
+        test("puts (No Move) last", () => {
+            const landorusTherian = Pokemon.fromImportable(
+                `Landorus-Therian
+                - Hidden Power [Ice]
+                - asdfgrthr
+                - (No Move)
+                - Rest`,
+                Gens.ORAS
+            );
+            expect(landorusTherian.moves).toMatchObject([
+                {id: 237}, {id: 156}, {id: 0}, {id: 0}
+            ]);
+        });
+
+        test("ignores invalid properties", () => {
+            expect(() =>
+                Pokemon.fromImportable(
+                    `sparkle (Chinchou) (F) @ Choice Scarf
+                    Ability: Volt Absorb
+                    Level: 5
+                    EVs: 52 Def / 232 SpA / 224 Spe
+                    INVALID PROP: value
+                    Timid Nature
+                    - Volt Switch
+                    - Scald
+                    - Ice Beam
+                    - Hidden Power [Ground]`,
+                    Gens.ORAS
+                )
+            ).not.toThrow();
+        });
+
+        test("ignores invalid lines", () => {
+            expect(() =>
+                Pokemon.fromImportable(
+                    `sparkle (Chinchou) (F) @ Choice Scarf
+                    Ability: Volt Absorb
+                    Level: 5
+                    EVs: 52 Def / 232 SpA / 224 Spe
+                    NOT A PROPER LINE
+                    Timid Nature
+                    - Volt Switch
+                    - Scald
+                    - Ice Beam
+                    - Hidden Power [Ground]`,
+                    Gens.ORAS
+                )
+            ).not.toThrow();
+        });
+
+        test("clamps and gives default values for invalid EVs", () => {
+            expect(Pokemon.fromImportable(
+                `sparkle (Chinchou) (F) @ Choice Scarf
+                Ability: Volt Absorb
+                Level: 5
+                EVs: 10 HP / -5 Atk / 552 Def / 232 SpA / NaN SpD / 224 Spee
+                Timid Nature
+                - Volt Switch
+                - Scald
+                - Ice Beam
+                - Hidden Power [Ground]`,
+                Gens.ORAS
+            )).toMatchObject({
+                evs: [8, 0, 252, 232, 0, 0]
+            });
+
+            expect(Pokemon.fromImportable(
+                `sparkle (Chinchou) (F) @ Leftovers
+                Level: 5
+                EVs: 10 HP / -5 Atk / 552 Def / 232 SpA / NaN SpD / 224 Spee
+                - Surf
+                - Thunderbolt
+                - Ice Beam
+                - Hidden Power [Ground]`,
+                Gens.GSC
+            )).toMatchObject({
+                evs: [8, 0, 252, 232, 252, 252]
+            });
+        });
+
+        test("clamps and gives default values for invalid IVs", () => {
+            expect(Pokemon.fromImportable(
+                `Arceus-Ground (M) @ Earth Plate
+                Ability: Multitype
+                EVs: 252 SpA / 4 SpD / 252 Spe
+                Timid Nature
+                IVs: NaN Hp / 34 Atk / 0 NOTASTAT / -3 Spe
+                - Judgment
+                - Ice Beam
+                - Refresh
+                - Recover`,
+                Gens.ORAS
+            )).toMatchObject({
+                ivs: [31, 31, 31, 31, 31, 0]
+            });
+
+            expect(Pokemon.fromImportable(
+                `Snorlax @ Leftovers
+                IVs: NaN Hp / 16 Atk / 0 NOTASTAT / -3 Spe
+                - Toxic
+                - Double-Edge
+                - Flamethrower
+                - Rest`,
+                Gens.GSC
+            )).toMatchObject({
+                ivs: [15, 15, 15, 15, 15, 0]
+            });
+        });
+
+        test("clamps and gives default value for an invalid level", () => {
+            expect(Pokemon.fromImportable(
+                `Snorlax
+                Level: -5`,
+                Gens.ORAS
+            )).toMatchObject({level: 1});
+
+            expect(Pokemon.fromImportable(
+                `Snorlax
+                Level: 105`,
+                Gens.ORAS
+            )).toMatchObject({level: 100});
+
+            expect(Pokemon.fromImportable(
+                `Snorlax
+                Level: NaN`,
+                Gens.ORAS
+            )).toMatchObject({level: 100});
+        });
+
+        test("records nickname if available", () => {
+            expect(Pokemon.fromImportable(
+                `  zorofat   (Snorlax)`,
+                Gens.SM
+            )).toMatchObject({
+                id: "143:0",
+                nickname: "zorofat",
+                gender: Genders.NO_GENDER
+            });
+
+            expect(Pokemon.fromImportable(
+                `  zorofat   (Snorlax) (M)`,
+                Gens.SM
+            )).toMatchObject({
+                id: "143:0",
+                nickname: "zorofat",
+                gender: Genders.MALE
+            });
+
+            expect(Pokemon.fromImportable(
+                `Snorlax (M)`,
+                Gens.SM
+            )).toMatchObject({
+                id: "143:0",
+                nickname: "",
+                gender: Genders.MALE
+            });
+        });
+    });
+
+    describe("#toImportable()", () => {
         test("handles simple sets", () => {
             const snorlax = new Pokemon({
                 name: "Snorlax",
@@ -59,7 +323,7 @@ describe("Pokemon", () => {
                 natureName: "Careful",
                 moves: ["Body Slam", "Curse", "Rest", "Earthquake"]
             });
-            expect(snorlax.export()).toEqualImportable(
+            expect(snorlax.toImportable()).toEqualImportable(
                 `Snorlax (M) @ Leftovers
                 Ability: Immunity
                 EVs: 252 HP / 212 Atk / 40 SpD
@@ -79,7 +343,7 @@ describe("Pokemon", () => {
                 natureName: "Sassy",
                 moves: ["Stealth Rock", "Gyro Ball", "Psywave", "Toxic"]
             });
-            expect(bronzong.export()).toEqualImportable(
+            expect(bronzong.toImportable()).toEqualImportable(
                 `Bronzong @ Leftovers
                 Ability: Levitate
                 EVs: 252 HP / 4 Def / 252 SpD
@@ -102,7 +366,7 @@ describe("Pokemon", () => {
                 natureName: "Jolly",
                 moves: ["Brave Bird", "(No Move)", "U-turn", "Sleep Talk"]
             });
-            expect(crobat.export()).toEqualImportable(
+            expect(crobat.toImportable()).toEqualImportable(
                 `Crobat (F) @ Choice Band
                 Ability: Infiltrator
                 EVs: 252 Atk / 4 SpD / 252 Spe
@@ -119,13 +383,13 @@ describe("Pokemon", () => {
                 gender: Genders.MALE,
                 natureName: "Relaxed"
             });
-            expect(munchlax.export({natureInfo: true})).toEqualImportable(
+            expect(munchlax.toImportable({natureInfo: true})).toEqualImportable(
                 `Munchlax (M) @ (No Item)
                 Ability: (No Ability)
                 Relaxed Nature (+Def, -Spe)`
             );
             munchlax.natureName = "Serious";
-            expect(munchlax.export({natureInfo: true})).toEqualImportable(
+            expect(munchlax.toImportable({natureInfo: true})).toEqualImportable(
                 `Munchlax (M) @ (No Item)
                 Ability: (No Ability)
                 Serious Nature`
@@ -141,7 +405,7 @@ describe("Pokemon", () => {
                 natureName: "Calm",
                 moves: ["Ice Beam", "Thunderbolt", "Recover", "Tri Attack"]
             });
-            expect(porygon.export()).toEqualImportable(
+            expect(porygon.toImportable()).toEqualImportable(
                 `Porygon @ Eviolite
                 Ability: Trace
                 EVs: 236 HP / 116 Def / 156 SpD
@@ -161,7 +425,7 @@ describe("Pokemon", () => {
                 moves: ["Thunder", "Hidden Power", "Rest", "Sleep Talk"],
                 gen: Gens.GSC
             });
-            expect(zapdos.export()).toEqualImportable(
+            expect(zapdos.toImportable()).toEqualImportable(
                 `Zapdos @ Leftovers
                 - Thunder
                 - Hidden Power [Ice]
@@ -171,7 +435,7 @@ describe("Pokemon", () => {
 
             zapdos.evs = [252, 252, 252, 40, NaN, 252];
             zapdos.ivs = [NaN, 15, 15, 11, NaN, 15];
-            expect(zapdos.export()).toEqualImportable(
+            expect(zapdos.toImportable()).toEqualImportable(
                 `Zapdos @ Leftovers
                 EVs: 40 SpA / 40 SpD
                 IVs: 11 SpA / 11 SpD
@@ -188,7 +452,7 @@ describe("Pokemon", () => {
                 moves: ["Body Slam", "Hyper Beam", "Earthquake", "Blizzard"],
                 gen: Gens.RBY
             });
-            expect(tauros.export()).toEqualImportable(
+            expect(tauros.toImportable()).toEqualImportable(
                 `Tauros
                 - Body Slam
                 - Hyper Beam
@@ -198,7 +462,7 @@ describe("Pokemon", () => {
 
             tauros.evs = [252, 252, 200, 40, NaN, 252];
             tauros.ivs = [NaN, 15, 10, 11, NaN, 15];
-            expect(tauros.export()).toEqualImportable(
+            expect(tauros.toImportable()).toEqualImportable(
                 `Tauros
                 EVs: 200 Def / 40 Spc
                 IVs: 11 HP / 10 Def / 11 Spc
@@ -207,6 +471,72 @@ describe("Pokemon", () => {
                 - Earthquake
                 - Blizzard`
             );
+        });
+    });
+
+    test(".fromSet()", () => {
+        expect(Pokemon.fromSet({
+            name: "Arceus",
+            gen: Gens.ORAS,
+            set: {
+                l: 42,
+                n: 2,
+                a: 66,
+                i: 15,
+                m: [449, 216, 287, 105],
+                e: [63, 0, 63, 0, 1, 0],
+                d: [0, 31, 31, 31, 31, 31]
+            }
+        })).toMatchObject({
+            id: "493:0",
+            gen: Gens.ORAS,
+            level: 42,
+            nature: 2,
+            ability: {id: 66},
+            item: {id: 15},
+            moves: [{id: 449}, {id: 216}, {id: 287}, {id: 105}],
+            evs: [252, 0, 252, 0, 4, 0],
+            ivs: [0, 31, 31, 31, 31, 31],
+            happiness: 255
+        });
+
+        expect(Pokemon.fromSet({
+            id: "493:0",
+            gen: Gens.ORAS,
+            set: {}
+        })).toMatchObject({
+            id: "493:0",
+            gen: Gens.ORAS,
+            level: 100,
+            nature: 0,
+            ability: {id: 0},
+            item: {id: 0},
+            moves: [{id: 0}, {id: 0}, {id: 0}, {id: 0}],
+            evs: [0, 0, 0, 0, 0, 0],
+            ivs: [31, 31, 31, 31, 31, 31]
+        });
+    });
+
+    test("#toSet()", () => {
+        const arceus = new Pokemon({
+            name: "Arceus",
+            level: 80,
+            natureName: "Timid",
+            ability: "Multitype",
+            item: "Earth Plate",
+            moves: ["Judgment", "Ice Beam", "Recover", "Calm Mind"],
+            evs: [4, 0, 0, 252, 0, 252],
+            ivs: [31, 31, 31, 31, 31, 31],
+            gen: Gens.SM
+        });
+        expect(arceus.toSet()).toMatchObject({
+            l: 80,
+            n: 10,
+            a: 121,
+            i: 187,
+            m: [449, 58, 105, 347],
+            e: [1, 0, 0, 63, 0, 63],
+            d: [31, 31, 31, 31, 31, 31]
         });
     });
 
@@ -1023,338 +1353,5 @@ describe("Pokemon", () => {
         expect(Pokemon.calcHealthDv([NaN, 15, 9, 8, 8, 15])).toEqual(14);
         expect(Pokemon.calcHealthDv([NaN, 1, 15, 5, 5, 4])).toEqual(13);
         expect(Pokemon.calcHealthDv([NaN, 0, 2, 4, 4, 8])).toEqual(0);
-    });
-
-    describe(".import()", () => {
-        test("handles simple importables", () => {
-            const arceusGround = Pokemon.import(
-                `Arceus-Ground (M) @ Earth Plate
-                Ability: Multitype
-                EVs: 252 SpA / 4 SpD / 252 Spe
-                Timid Nature
-                IVs: 0 Atk
-                - Judgment
-                - Ice Beam
-                - Refresh
-                - Recover`,
-                Gens.ORAS
-            );
-            expect(arceusGround).toMatchObject({
-                gen: 6,
-                id: "493:4",
-                gender: Genders.MALE,
-                item: {id: 187, gen: 6},
-                ability: {id: 121, gen: 6},
-                level: 100,
-                evs: [0, 0, 0, 252, 4, 252],
-                ivs: [31, 0, 31, 31, 31, 31],
-                nature: 10,
-                moves: [
-                    {id: 449, gen: 6},
-                    {id: 58, gen: 6},
-                    {id: 287, gen: 6},
-                    {id: 105, gen: 6}
-                ]
-            });
-        });
-
-        test("handles LC importables", () => {
-            const chinchou = Pokemon.import(
-                `sparkle (Chinchou) (F) @ Choice Scarf
-                Ability: Volt Absorb
-                Level: 5
-                EVs: 52 Def / 232 SpA / 224 Spe
-                Timid Nature
-                - Volt Switch
-                - Scald
-                - Ice Beam
-                - Hidden Power [GrOUnd  ]`,
-                Gens.ORAS
-            );
-            expect(chinchou).toMatchObject({
-                id: "170:0",
-                gender: Genders.FEMALE,
-                level: 5
-            });
-        });
-
-        test("handles GSC importables", () => {
-            const snorlax = Pokemon.import(
-                `zorofat (Snorlax) @ Leftovers
-                - Toxic
-                - Double-Edge
-                - Flamethrower
-                - Rest`,
-                Gens.GSC
-            );
-            expect(snorlax).toMatchObject({
-                gen: Gens.GSC,
-                id: "143:0",
-                gender: Genders.NO_GENDER,
-                item: {id: 15, gen: Gens.GSC},
-                level: 100,
-                evs: [252, 252, 252, 252, 252, 252],
-                ivs: [15, 15, 15, 15, 15, 15],
-                moves: [
-                    {id: 92, gen: Gens.GSC},
-                    {id: 38, gen: Gens.GSC},
-                    {id: 53, gen: Gens.GSC},
-                    {id: 156, gen: Gens.GSC}
-                ]
-            });
-        });
-
-        test("accounts for different IVs for Hidden Power", () => {
-            const landorusTherian = Pokemon.import(
-                `Landorus-Therian
-                IVs: 30 Spd
-                - Hidden Power [Ice]`,
-                Gens.ORAS
-            );
-            expect(landorusTherian.ivs).toEqual([31, 31, 31, 31, 31, 30]);
-        });
-
-        test("sets happiness to 255 for Return, 0 otherwise", () => {
-            const returnSnorlax = Pokemon.import(
-                `Snorlax
-                - Return`,
-                Gens.ORAS
-            );
-            expect(returnSnorlax.happiness).toEqual(255);
-
-            const snorlax = Pokemon.import(
-                `Snorlax
-                - Waterfall`,
-                Gens.ORAS
-            );
-            expect(snorlax.happiness).toEqual(0);
-        });
-
-        test("puts (No Move) last", () => {
-            const landorusTherian = Pokemon.import(
-                `Landorus-Therian
-                - Hidden Power [Ice]
-                - asdfgrthr
-                - (No Move)
-                - Rest`,
-                Gens.ORAS
-            );
-            expect(landorusTherian.moves).toMatchObject([
-                {id: 237}, {id: 156}, {id: 0}, {id: 0}
-            ]);
-        });
-
-        test("recognizes the shiny property", () => {
-            expect(() =>
-                Pokemon.import(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 52 Def / 232 SpA / 224 Spe
-                    Shiny: no its sparkly
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).not.toThrow();
-        });
-
-        test("throws an error for invalid properties", () => {
-            expect(() =>
-                Pokemon.import(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 52 Def / 232 SpA / 224 Spe
-                    INVALID PROP: value
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableLineError);
-        });
-
-        test("throws an error for invalid lines", () => {
-            expect(() =>
-                Pokemon.import(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 52 Def / 232 SpA / 224 Spe
-                    NOT A PROPER LINE
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableLineError);
-        });
-
-        test("throws an error for invalid EVs", () => {
-            expect(() =>
-                Pokemon.import(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 552 Def / 232 SpA / 224 Spe
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableEvError);
-
-            expect(() =>
-                Pokemon.import(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 10 Def / -5 SpA / 224 Spe
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableEvError);
-
-            expect(() =>
-                Pokemon.import(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 10 Def / NaN SpA / 224 Spe
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableEvError);
-
-            expect(() =>
-                Pokemon.import(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 52 Def / 232 NOTASTAT / 224 Spe
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableEvError);
-        });
-
-        test("throws an error for invalid IVs", () => {
-            expect(() =>
-                Pokemon.import(
-                    `Arceus-Ground (M) @ Earth Plate
-                    Ability: Multitype
-                    EVs: 252 SpA / 4 SpD / 252 Spe
-                    Timid Nature
-                    IVs: 34 Atk
-                    - Judgment
-                    - Ice Beam
-                    - Refresh
-                    - Recover`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableIvError);
-
-            expect(() =>
-                Pokemon.import(
-                    `Snorlax @ Leftovers
-                    IVs: 16 Atk
-                    - Toxic
-                    - Double-Edge
-                    - Flamethrower
-                    - Rest`,
-                    Gens.GSC
-                )
-            ).toThrow(ImportableIvError);
-
-            expect(() =>
-                Pokemon.import(
-                    `Arceus-Ground (M) @ Earth Plate
-                    Ability: Multitype
-                    EVs: 252 SpA / 4 SpD / 252 Spe
-                    Timid Nature
-                    IVs: -3 Atk
-                    - Judgment
-                    - Ice Beam
-                    - Refresh
-                    - Recover`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableIvError);
-
-            expect(() =>
-                Pokemon.import(
-                    `Arceus-Ground (M) @ Earth Plate
-                    Ability: Multitype
-                    EVs: 252 SpA / 4 SpD / 252 Spe
-                    Timid Nature
-                    IVs: NaN Atk
-                    - Judgment
-                    - Ice Beam
-                    - Refresh
-                    - Recover`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableIvError);
-
-            expect(() =>
-                Pokemon.import(
-                    `Arceus-Ground (M) @ Earth Plate
-                    Ability: Multitype
-                    EVs: 252 SpA / 4 SpD / 252 Spe
-                    Timid Nature
-                    IVs: 0 NOTASTAT
-                    - Judgment
-                    - Ice Beam
-                    - Refresh
-                    - Recover`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableIvError);
-        });
-
-        test("throws an error for an invalid level", () => {
-            expect(() =>
-                Pokemon.import(
-                    `Snorlax
-                    Level: -Infinity`,
-                    Gens.ORAS
-                )
-            ).toThrow(ImportableLevelError);
-        });
-    });
-
-    test(".export()", () => {
-        const munchlax = new Pokemon({
-            name: "Munchlax",
-            gender: Genders.MALE,
-            natureName: "Relaxed"
-        });
-        expect(Pokemon.export(munchlax, {natureInfo: true})).toEqualImportable(
-            `Munchlax (M) @ (No Item)
-            Ability: (No Ability)
-            Relaxed Nature (+Def, -Spe)`
-        );
     });
 });

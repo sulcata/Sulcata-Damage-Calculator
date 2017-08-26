@@ -1,10 +1,6 @@
-/* eslint-disable import/max-dependencies */
 "use strict";
-require("babel-register");
-
 const path = require("path");
-const fs = require("fs");
-const mkdirp = require("mkdirp");
+const {mkdirs, writeFile} = require("fs-extra");
 const {info, Move, Gens, Stats} = require("../src/sulcalc");
 const smogonSetdex = [
     null,
@@ -19,12 +15,12 @@ const smogonSetdex = [
 const pokemonPerfectSetdex = [
     null,
     require("./setdex/setdex_rby_pp").default,
-    null,
-    null,
-    null,
-    null,
+    {},
+    {},
+    {},
+    {},
     require("./setdex/setdex_xy_pp").default,
-    null
+    {}
 ];
 
 function minifySetdexData(setdexData) {
@@ -34,26 +30,26 @@ function minifySetdexData(setdexData) {
 function minifySetdex(setdex, gen) {
     if (setdex === null) return null;
     const minifiedSetdex = {};
-    for (const pokemon in setdex) {
-        const pokemonId = info.pokemonId(pokemon);
+    for (const [pokemonName, sets] of Object.entries(setdex)) {
+        const pokemonId = info.pokemonId(pokemonName);
         if (pokemonId !== "0:0") {
-            minifiedSetdex[pokemonId] = minifySets(setdex[pokemon], gen);
+            minifiedSetdex[pokemonId] = minifySets(sets, pokemonId, gen);
         }
     }
     return minifiedSetdex;
 }
 
-function minifySets(sets, gen) {
+function minifySets(sets, pokemonId, gen) {
     const minifiedSets = {};
-    for (const setName in sets) {
+    for (const [setName, set] of Object.entries(sets)) {
         if (!setName.includes("(CAP")) {
-            minifiedSets[setName] = minifySet(sets[setName], gen);
+            minifiedSets[setName] = minifySet(set, pokemonId, gen);
         }
     }
     return minifiedSets;
 }
 
-function minifySet(set, gen) {
+function minifySet(set, pokemonId, gen) {
     const statMatches = {
         hp: Stats.HP,
         at: Stats.ATK,
@@ -78,6 +74,9 @@ function minifySet(set, gen) {
 
     if (set.ability) {
         minifiedSet.a = info.abilityId(set.ability);
+        if (info.pokemonName(pokemonId).startsWith("Mega ")) {
+            minifiedSet.a = info.ability1(pokemonId, gen);
+        }
     }
 
     if (set.item) {
@@ -92,53 +91,48 @@ function minifySet(set, gen) {
 
     if (set.evs) {
         minifiedSet.e = Array(6).fill(defaultEv);
-        for (const stat in set.evs) {
-            minifiedSet.e[statMatches[stat]] = Math.trunc(set.evs[stat] / 4);
+        for (const [stat, value] of Object.entries(set.evs)) {
+            minifiedSet.e[statMatches[stat]] = Math.trunc(value / 4);
         }
     }
 
     if (!minifiedSet.d && set.ivs) {
         minifiedSet.d = Array(6).fill(defaultIv);
-        for (const stat in set.ivs) {
-            minifiedSet.d[statMatches[stat]] = set.ivs[stat];
+        for (const [stat, value] of Object.entries(set.ivs)) {
+            minifiedSet.d[statMatches[stat]] = value;
         }
     }
 
     return minifiedSet;
 }
 
-const hiddenPowerRegex = /Hidden Power( \[?(\w*)]?)?/i;
-
 function importMove(move, gen) {
-    const match = hiddenPowerRegex.exec(move);
-    if (match) {
-        const type = info.typeId(match[2]);
+    const hiddenPowerMatch = /Hidden Power( \[?(\w*)]?)?/i.exec(move);
+    if (hiddenPowerMatch) {
+        const type = info.typeId(hiddenPowerMatch[2]);
         const ivs = Move.hiddenPowers(type, gen)[0];
-        return {
-            id: info.moveId("Hidden Power"),
-            ivs
-        };
+        return {id: info.moveId("Hidden Power"), ivs};
     }
     return {id: info.moveId(move)};
 }
 
-function setdex() {
+async function setdex() {
     const outDir = path.join(__dirname, "../dist/setdex");
-    mkdirp.sync(outDir);
+    await mkdirs(outDir);
     const minifiedSmogonSetdex = minifySetdexData(smogonSetdex);
     const minifiedPokemonPerfectSetdex = minifySetdexData(pokemonPerfectSetdex);
-    fs.writeFile(
-        path.join(__dirname, "../dist/setdex/smogon.js"),
-        `export default ${JSON.stringify(minifiedSmogonSetdex)}`,
-        error => {
-            if (error) throw error;
-        });
-    fs.writeFile(
-        path.join(__dirname, "../dist/setdex/pokemonPerfect.js"),
-        `export default ${JSON.stringify(minifiedPokemonPerfectSetdex)}`,
-        error => {
-            if (error) throw error;
-        });
+    await Promise.all([
+        writeFile(
+            path.join(__dirname, "../dist/setdex/smogon.js"),
+            `export default ${JSON.stringify(minifiedSmogonSetdex)}`
+        ),
+        writeFile(
+            path.join(__dirname, "../dist/setdex/pokemonPerfect.js"),
+            `export default ${JSON.stringify(minifiedPokemonPerfectSetdex)}`
+        )
+    ]);
 }
 
-setdex();
+setdex().catch(error => {
+    console.log(error);
+});

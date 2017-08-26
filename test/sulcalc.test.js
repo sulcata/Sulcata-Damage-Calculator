@@ -1,107 +1,181 @@
 import sulcalc from "../src/sulcalc";
-import {Gens} from "../src/utilities";
-import Multiset from "../src/Multiset";
+import {Gens, Statuses, maxGen} from "../src/utilities";
 import {MissingnoError, NoMoveError} from "../src/errors";
 
 describe("sulcalc()", () => {
-    test("RBY", () => {
-        const gen = Gens.RBY;
-        const results = sulcalc(
-            {name: "Snorlax", gen},
-            {name: "Snorlax", gen},
-            {name: "Body Slam", gen},
-            {gen}
-        );
-        expect(results.damage).toEqual(new Multiset([
-            127, 128, 128, 129, 130, 130, 131, 131, 132, 132, 133, 134, 134,
-            135, 135, 136, 137, 137, 138, 138, 139, 140, 140, 141, 141, 142,
-            142, 143, 144, 144, 145, 145, 146, 147, 147, 148, 148, 149, 150
-        ]));
+    test("sanity check", () => {
+        for (const gen of Object.values(Gens)) {
+            const {summary, damage} = sulcalc(
+                {name: "Snorlax", gen},
+                {name: "Snorlax", gen},
+                {name: "Body Slam", gen},
+                {gen}
+            );
+            expect(summary).toMatchSnapshot();
+            expect(damage).toMatchSnapshot();
+        }
     });
 
-    test("GSC", () => {
+    test("bail out on insufficient damage", () => {
+        const gen = maxGen;
+        const {summary} = sulcalc(
+            {name: "Munchlax", gen},
+            {name: "Aggron", gen},
+            {name: "Pound", gen},
+            {gen}
+        );
+        expect(summary).toMatchSnapshot();
+    });
+
+    test("guaranteed KO", () => {
         const gen = Gens.GSC;
-        const results = sulcalc(
+        const {summary} = sulcalc(
             {name: "Snorlax", gen},
-            {name: "Snorlax", gen},
-            {name: "Body Slam", gen},
+            {name: "Raikou", gen},
+            {name: "Self-Destruct", gen},
             {gen}
         );
-        expect(results.damage).toEqual(new Multiset([
-            127, 128, 128, 129, 130, 130, 131, 131, 132, 132, 133, 134, 134,
-            135, 135, 136, 137, 137, 138, 138, 139, 140, 140, 141, 141, 142,
-            142, 143, 144, 144, 145, 145, 146, 147, 147, 148, 148, 149, 150
-        ]));
+        expect(summary).toMatchSnapshot();
     });
 
-    test("Adv", () => {
-        const gen = Gens.ADV;
-        const results = sulcalc(
+    test("almost guaranteed KO", () => {
+        const gen = Gens.GSC;
+        const {summary} = sulcalc(
+            {
+                name: "Snorlax",
+                evs: [252, 200, 252, 252, 252, 252],
+                gen
+            },
             {name: "Snorlax", gen},
-            {name: "Snorlax", gen},
-            {name: "Body Slam", gen},
+            {name: "Double-Edge", gen},
             {gen}
         );
-        expect(results.damage).toEqual(new Multiset([
-            142, 144, 146, 147, 149, 151, 152, 154,
-            156, 157, 159, 161, 162, 164, 166, 168
-        ]));
+        expect(summary).toMatchSnapshot();
     });
 
-    test("HGSS", () => {
-        const gen = Gens.HGSS;
-        const results = sulcalc(
-            {name: "Snorlax", gen},
-            {name: "Snorlax", gen},
+    test("negligible chance to KO", () => {
+        const gen = Gens.GSC;
+        const {summary} = sulcalc(
+            {
+                name: "Tauros",
+                evs: [252, 176, 252, 252, 252, 252],
+                gen
+            },
+            {
+                name: "Snorlax",
+                evs: [252, 252, 252, 252, 252, 252],
+                gen
+            },
             {name: "Body Slam", gen},
             {gen}
         );
-        expect(results.damage).toEqual(new Multiset([
-            142, 144, 145, 147, 148, 150, 151, 154,
-            156, 157, 159, 160, 162, 163, 165, 168
-        ]));
+        expect(summary).toMatchSnapshot();
     });
 
-    test("B2W2", () => {
-        const gen = Gens.B2W2;
-        const results = sulcalc(
-            {name: "Snorlax", gen},
-            {name: "Snorlax", gen},
-            {name: "Body Slam", gen},
+    test("Light Screen", () => {
+        const gen = maxGen;
+        const {summary} = sulcalc(
+            {
+                name: "Heatran",
+                item: "Choice Specs",
+                natureName: "Modest",
+                evs: [4, 0, 0, 252, 0, 252],
+                gen
+            },
+            {
+                name: "Klefki",
+                natureName: "Calm",
+                evs: [252, 0, 100, 0, 156, 0],
+                lightScreen: true,
+                gen
+            },
+            {name: "Fire Blast", gen},
             {gen}
         );
-        expect(results.damage).toEqual(new Multiset([
-            142, 144, 145, 147, 148, 150, 151, 154,
-            156, 157, 159, 160, 162, 163, 165, 168
-        ]));
+        expect(summary).toMatchSnapshot();
     });
 
-    test("ORAS", () => {
-        const gen = Gens.ORAS;
-        const results = sulcalc(
-            {name: "Snorlax", gen},
-            {name: "Snorlax", gen},
-            {name: "Body Slam", gen},
+    test("Reflect", () => {
+        const gen = maxGen;
+        const {summary} = sulcalc(
+            {
+                name: "Ferrothorn",
+                natureName: "Relaxed",
+                evs: [252, 40, 100, 0, 0, 0],
+                gen
+            },
+            {
+                name: "Starmie",
+                natureName: "Timid",
+                evs: [4, 0, 0, 252, 0, 252],
+                reflect: true,
+                gen
+            },
+            {name: "Fire Blast", gen},
             {gen}
         );
-        expect(results.damage).toEqual(new Multiset([
-            142, 144, 145, 147, 148, 150, 151, 154,
-            156, 157, 159, 160, 162, 163, 165, 168
-        ]));
+        expect(summary).toMatchSnapshot();
     });
 
-    test("SM", () => {
-        const gen = Gens.SM;
-        const results = sulcalc(
-            {name: "Snorlax", gen},
-            {name: "Snorlax", gen},
-            {name: "Body Slam", gen},
+    test("Psyshock", () => {
+        const gen = maxGen;
+        const {summary} = sulcalc(
+            {
+                name: "Latios",
+                item: "Life Orb",
+                natureName: "Timid",
+                evs: [4, 0, 0, 252, 0, 252],
+                gen
+            },
+            {
+                name: "Chansey",
+                item: "Eviolite",
+                natureName: "Bold",
+                evs: [252, 0, 252, 0, 4, 0],
+                gen
+            },
+            {name: "Psyshock", gen},
             {gen}
         );
-        expect(results.damage).toEqual(new Multiset([
-            142, 144, 145, 147, 148, 150, 151, 154,
-            156, 157, 159, 160, 162, 163, 165, 168
-        ]));
+        expect(summary).toMatchSnapshot();
+    });
+
+    test("Ability", () => {
+        const gen = maxGen;
+        const {summary} = sulcalc(
+            {
+                name: "Heracross",
+                ability: "Guts",
+                natureName: "Adamant",
+                evs: [0, 252, 4, 0, 0, 252],
+                boosts: [0, 2, 0, 0, 0, 0, 0, 0],
+                status: Statuses.BURNED
+            },
+            {
+                name: "Skarmory",
+                ability: "Sturdy",
+                natureName: "Impish",
+                evs: [248, 0, 252, 0, 8, 0]
+            },
+            {
+                name: "Close Combat",
+                critical: true,
+                gen
+            },
+            {gen}
+        );
+        expect(summary).toMatchSnapshot();
+    });
+
+    test("Explosion", () => {
+        const gen = maxGen;
+        const {roundedChances} = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Snorlax", gen},
+            {name: "Explosion", gen},
+            {gen}
+        );
+        expect(roundedChances.length).toEqual(1);
     });
 
     test("throws MissingnoError when either Pokemon is invalid", () => {

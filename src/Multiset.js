@@ -1,5 +1,7 @@
 import {addStrs, cmpStrs, multiplyStrs, divideStrs, gcdStrs} from "./utilities";
 
+const {round} = Math;
+
 export default class Multiset {
     constructor(iterable = []) {
         if (iterable instanceof Multiset) {
@@ -205,6 +207,17 @@ export default class Multiset {
         return false;
     }
 
+    toArray() {
+        const array = Array(Number(this.size));
+        let i = 0;
+        for (const [value, multiplicity] of this) {
+            const m = Number(multiplicity);
+            array.fill(value, i, i + m);
+            i += m;
+        }
+        return array;
+    }
+
     toString(toStringFn = (entry => entry.join(":")),
              compareFn = (([a], [b]) => (a > b) - (b > a))) {
         return Array.from(this)
@@ -233,5 +246,19 @@ export default class Multiset {
 
     *[Symbol.iterator]() {
         yield* this._data;
+    }
+
+    static average(multiSet, digits = 4) {
+        const size = multiSet.size;
+        if (size === "0") return NaN;
+
+        const weightedSum = multiSet.reduce(
+            (sum, v, w) => addStrs(sum, multiplyStrs(String(v), w)), "0");
+        if (weightedSum === "0") return 0;
+
+        const exp = 10 ** (digits + 1);
+        const [quotient] = divideStrs(multiplyStrs(weightedSum, String(exp)),
+                                      size);
+        return round(Number(quotient) / 10) * 10 / exp;
     }
 }

@@ -6,7 +6,7 @@
         :placeholder='$t("status")'
         :value='valueObj'
         :options='statuses'
-        @input='updateValue($event)'
+        @input='updateStatus'
     ></multiselect>
 </template>
 
@@ -24,10 +24,17 @@ const statusTypes = [
 ];
 
 export default {
+    model: {
+        prop: "status",
+        event: "input"
+    },
+    components: {
+        Multiselect
+    },
     props: {
-        value: {
+        status: {
+            required: true,
             type: Number,
-            default: 0,
             validator(value) {
                 return value >= 0 && value <= 5;
             }
@@ -41,22 +48,19 @@ export default {
             }));
         },
         valueObj() {
-            if (this.value === Statuses.NO_STATUS) {
+            if (this.status === Statuses.NO_STATUS) {
                 return {};
             }
             return {
-                value: this.value,
-                label: this.$t(statusTypes[this.value - 1])
+                value: this.status,
+                label: this.$t(statusTypes[this.status - 1])
             };
         }
     },
     methods: {
-        updateValue($event) {
-            this.$emit("input", $event ? $event.value : 0);
+        updateStatus(event) {
+            this.$emit("input", event ? event.value : 0);
         }
-    },
-    components: {
-        Multiselect
     }
 };
 </script>

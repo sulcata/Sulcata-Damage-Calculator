@@ -1,129 +1,73 @@
 <template>
     <multiselect
         track-by='set'
-        label='pokemonAndSet'
+        label='pokemonName'
         group-values='sets'
-        group-label='pokemon'
+        group-label='pokemonName'
         :show-labels='false'
         :placeholder='$t("pokemon")'
-        :options='groupPokemon'
-        :value='pokemon.smogonSet'
-        @input='emitPokemon($event)'
+        :options='translatedSets'
+        :value='pokemon.event'
+        @input='updatePokemon'
         >
         <template slot='option' scope='props'>
-            <span>{{ props.option.setName }}</span>
+            <span v-if='props.option.$isLabel'>
+                {{ props.option.$groupLabel }}
+            </span>
+            <span v-else>
+                {{ props.option.setName }}
+            </span>
         </template>
     </multiselect>
 </template>
 
 <script>
+import {mapState, mapGetters} from "vuex";
 import {Multiselect} from "vue-multiselect";
 import translationMixin from "../mixins/translation";
-import {smogon, pokemonPerfect} from "../setdex";
-import {Pokemon, info, maxGen} from "sulcalc";
+import {Pokemon} from "sulcalc";
 
 export default {
+    components: {
+        Multiselect
+    },
+    mixins: [
+        translationMixin
+    ],
     props: {
-        gen: {
-            type: Number,
-            default: maxGen,
-            validator(value) {
-                return (1 <= value && value <= maxGen);
-            }
-        },
-        pokemon: Pokemon,
-        sets: {
-            type: Object,
-            default: () => ({
-                smogon: true,
-                pokemonPerfect: false
-            }),
-            validator(value) {
-                return isBoolean(value.smogon)
-                    && isBoolean(value.pokemonPerfect);
-            }
+        pokemon: {
+            required: true,
+            type: Pokemon
         }
     },
     computed: {
-        groupPokemon() {
-            const setdexList = [];
-            if (this.sets.smogon) {
-                setdexList.push(smogon[this.gen]);
-            }
-            if (this.sets.pokemonPerfect) {
-                setdexList.push(pokemonPerfect[this.gen]);
-            }
-            const groups = [];
-            for (const pokemonId of info.releasedPokes(this.gen)) {
-                const pokemonName = this.$tPokemon({id: pokemonId});
-                groups.push({
-                    pokemon: pokemonName,
-                    sets: this.groupPokemonSets(setdexList, pokemonId,
-                                                pokemonName)
-                });
-            }
-            return groups.sort((a, b) => a.pokemon.localeCompare(b.pokemon));
+        ...mapState([
+            "gen"
+        ]),
+        ...mapGetters([
+            "sets"
+        ]),
+        translatedSets() {
+            return this.sets.map(setGroup => {
+                const pokemonName = this.$tPokemon({id: setGroup.pokemonId});
+                return {
+                    ...setGroup,
+                    pokemonName,
+                    sets: setGroup.sets.map(set => ({...set, pokemonName}))
+                };
+            }).sort((a, b) => a.pokemonName.localeCompare(b.pokemonName));
         }
     },
     methods: {
-        emitPokemon($event) {
-            const pokemon = importSet($event.pokemonId, $event.set, this.gen);
-            pokemon.smogonSet = $event;
-            this.$emit("input", pokemon);
-        },
-        groupPokemonSets(setdexList, pokemonId, pokemonName) {
-            const sets = [];
-            for (const setdex of setdexList) {
-                const setList = setdex[pokemonId] || {};
-                for (const setName in setList) {
-                    sets.push({
-                        pokemonId,
-                        setName,
-                        pokemonAndSet: `${pokemonName} – ${setName}`,
-                        set: setList[setName]
-                    });
-                }
-            }
-            sets.push({
-                pokemonId,
-                setName: "Blank Set",
-                pokemonAndSet: pokemonName,
-                set: {}
+        updatePokemon(event) {
+            const pokemon = Pokemon.fromSet({
+                id: event.pokemonId,
+                set: event.set,
+                gen: this.gen
             });
-            return sets;
+            pokemon.event = event;
+            this.$emit("input", pokemon);
         }
-    },
-    mixins: [translationMixin],
-    components: {
-        Multiselect
     }
 };
-
-function importSet(pokemonId, set, gen) {
-    const pokemon = new Pokemon({
-        id: pokemonId,
-        gen,
-        level: set.l,
-        nature: set.n,
-        ability: set.a ? {id: set.a, gen} : undefined,
-        item: set.i ? {id: set.i, gen} : undefined,
-        moves: set.m ? set.m.map(id => ({id, gen})) : undefined,
-        evs: set.e ? set.e.map(ev => 4 * ev) : undefined,
-        ivs: set.d ? set.d.slice() : undefined
-    });
-
-    if (pokemon.moves.some(move => move.name === "Return")) {
-        pokemon.happiness = 255;
-    }
-
-    if (pokemon.isMega()) {
-        pokemon.ability = pokemon.ability1();
-    }
-
-    return pokemon;
-}
-
-function isBoolean(value) {
-    return value === true || value === false;
-}
 </script>

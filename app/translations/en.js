@@ -1,15 +1,17 @@
-import {pokemon, items, abilities, natures, types, moves} from "../../src/db";
+import {pokemon, items, abilities, natures, types, moves} from "db";
 
 export default {
     bugReports: "Report a Bug",
     setHp: "set hp",
     showFractions: "Show Fractions",
     showLongDamageRolls: "Show Long Damage Rolls",
-    setdex: "Setdex",
-    smogon: "Smogon",
-    pokemonPerfect: "Pokémon Perfect",
+    smogonSets: "Smogon Sets",
+    pokemonPerfectSets: "Pokémon Perfect Sets",
+    customSets: "Custom Sets",
+    import: "Import",
     tabs: {
         general: "General",
+        importTeam: "Import Team",
         moreOptions: "More Options"
     },
     gens: [

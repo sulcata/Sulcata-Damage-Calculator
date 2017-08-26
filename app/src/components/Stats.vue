@@ -1,89 +1,54 @@
 <template>
     <div class='container-fluid'>
         <div class='row no-gutters'>
-            <strong class='col-2 offset-md-1 text-center'>{{ $t("base") }}</strong>
-            <strong class='col text-center'>{{ $t("ivs") }}</strong>
-            <strong class='col text-center'>{{ $t("evs") }}</strong>
+            <strong class='col-3 offset-2 text-center'>{{ $t("ivs") }}</strong>
+            <strong class='col-3 text-center'>{{ $t("evs") }}</strong>
             <strong class='col-2'></strong>
             <strong class='col-2'></strong>
         </div>
 
         <div
             v-for='(statName, stat) in stats'
+            :key='stat'
             v-if='statName'
             class='row align-items-center no-gutters'
             >
 
-            <div class='col-1'>
+            <div class='col-2'>
                 {{ $t(statName) }}
             </div>
 
-            <div class='col-2 text-center'>
-                {{ pokemon.baseStat(stat) }}
-            </div>
-
-            <div class='col'>
-                <input
-                    v-if='pokemon.gen <= Gens.GSC && stat === Stats.HP'
-                    type='number'
-                    min='0'
-                    max='15'
-                    disabled
-                    :value='Pokemon.calcHealthDv(pokemon.ivs)'
-                    class='form-control'
-                    >
-                <input
-                    v-else-if='pokemon.gen <= Gens.GSC && stat === Stats.SDEF'
-                    type='number'
-                    min='0'
-                    max='15'
-                    disabled
-                    :value='pokemon.ivs[Stats.SPC]'
-                    class='form-control'
-                    >
-                <input
-                    v-else
-                    type='number'
-                    min='0'
+            <div class='col-3'>
+                <integer
+                    :value='computedIv(stat)'
+                    :min='0'
                     :max='maxIv'
-                    v-model.number.lazy='pokemon.ivs[stat]'
-                    @change='validateIv(stat)'
-                    class='form-control'
-                    >
+                    :disabled='isIvDisabled(stat)'
+                    @input='iv => updateIv(stat, iv)'
+                ></integer>
             </div>
 
-            <div class='col'>
-                <input
-                    v-if='pokemon.gen <= Gens.GSC && stat === Stats.SDEF'
-                    type='number'
-                    min='0'
-                    max='252'
-                    step='4'
-                    disabled
-                    :value='pokemon.evs[Stats.SPC]'
-                    class='form-control'
-                    >
-                <input
-                    v-else
-                    type='number'
-                    min='0'
-                    max='252'
-                    step='4'
-                    v-model.number.lazy='pokemon.evs[stat]'
-                    @change='validateEv(stat)'
-                    class='form-control'
-                    >
+            <div class='col-3'>
+                <integer
+                    :value='computedEv(stat)'
+                    :min='0'
+                    :max='252'
+                    :step='4'
+                    :disabled='isEvDisabled(stat)'
+                    @input='ev => updateEv(stat, ev)'
+                ></integer>
             </div>
 
             <div class='col-2 text-center'>{{ pokemon.boostedStat(stat) }}</div>
 
             <div class='col-2'>
                 <select
-                    v-model='pokemon.boosts[stat]'
+                    :value='pokemon.boosts[stat]'
+                    @change='event => updateBoost(stat, event)'
                     class='form-control'
                     :class='{invisible: stat === Stats.HP}'
                     >
-                    <option v-for='n in 13' :value='7 - n'>
+                    <option v-for='n in 13' :key='n' :value='7 - n'>
                         {{ statBoost(7 - n) }}
                     </option>
                 </select>
@@ -94,15 +59,26 @@
 </template>
 
 <script>
-import {clamp} from "lodash";
-import sulcalcMixin from "../mixins/sulcalc";
-import {Pokemon, Gens} from "sulcalc";
-
-const {trunc} = Math;
+import {copyWithEvent} from "../utilities";
+import Integer from "./ui/Integer.vue";
+import {Pokemon, Gens, Stats} from "sulcalc";
 
 export default {
+    model: {
+        prop: "pokemon",
+        event: "input"
+    },
+    components: {
+        Integer
+    },
     props: {
-        pokemon: Pokemon
+        pokemon: {
+            required: true,
+            type: Pokemon
+        }
+    },
+    data() {
+        return {Stats};
     },
     computed: {
         stats() {
@@ -112,6 +88,9 @@ export default {
         },
         maxIv() {
             return this.pokemon.gen >= Gens.ADV ? 31 : 15;
+        },
+        defaultEv() {
+            return this.pokemon.gen >= Gens.ADV ? 0 : 252;
         }
     },
     methods: {
@@ -124,15 +103,65 @@ export default {
             }
             return "--";
         },
-        validateIv(stat) {
-            const iv = this.pokemon.ivs[stat];
-            this.pokemon.ivs[stat] = clamp(iv, 0, this.maxIv);
+        updateIv(stat, iv) {
+            const ivs = [...this.pokemon.ivs];
+            ivs[stat] = iv;
+            if (stat === Stats.HP || this.pokemon.gen <= Gens.GSC) {
+                this.$emit("input", copyWithEvent({
+                    ...this.pokemon,
+                    ivs,
+                    currentHp: null,
+                    currentHpRange: null,
+                    currentHpRangeBerry: null
+                }));
+            } else {
+                this.$emit("input", copyWithEvent({...this.pokemon, ivs}));
+            }
         },
-        validateEv(stat) {
-            const ev = this.pokemon.evs[stat];
-            this.pokemon.evs[stat] = clamp(4 * trunc(ev / 4), 0, 252);
+        updateEv(stat, ev) {
+            const evs = [...this.pokemon.evs];
+            evs[stat] = ev;
+            if (stat === Stats.HP) {
+                this.$emit("input", copyWithEvent({
+                    ...this.pokemon,
+                    evs,
+                    currentHp: null,
+                    currentHpRange: null,
+                    currentHpRangeBerry: null
+                }));
+            } else {
+                this.$emit("input", copyWithEvent({...this.pokemon, evs}));
+            }
+        },
+        updateBoost(stat, event) {
+            const boosts = [...this.pokemon.boosts];
+            boosts[stat] = Number(event.target.value);
+            this.$emit("input", copyWithEvent({...this.pokemon, boosts}));
+        },
+        isIvDisabled(stat) {
+            return this.pokemon.gen <= Gens.GSC
+                && (stat === Stats.HP || stat === Stats.SDEF);
+        },
+        isEvDisabled(stat) {
+            return this.pokemon.gen <= Gens.GSC && stat === Stats.SDEF;
+        },
+        computedIv(stat) {
+            if (this.pokemon.gen <= Gens.GSC) {
+                if (stat === Stats.HP) {
+                    return Pokemon.calcHealthDv(this.pokemon.ivs);
+                }
+                if (stat === Stats.SDEF) {
+                    return this.pokemon.ivs[Stats.SPC];
+                }
+            }
+            return this.pokemon.ivs[stat];
+        },
+        computedEv(stat) {
+            if (this.pokemon.gen <= Gens.GSC && stat === Stats.SDEF) {
+                return this.pokemon.evs[Stats.SPC];
+            }
+            return this.pokemon.evs[stat];
         }
-    },
-    mixins: [sulcalcMixin]
+    }
 };
 </script>

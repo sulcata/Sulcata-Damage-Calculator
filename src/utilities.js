@@ -1,6 +1,4 @@
-const {abs, round, sign, trunc} = Math;
-
-export const maxGen = 7;
+const {abs, max, sign, trunc} = Math;
 
 export const Gens = {
     RBY: 1,
@@ -11,6 +9,8 @@ export const Gens = {
     ORAS: 6,
     SM: 7
 };
+
+export const maxGen = max(...Object.values(Gens));
 
 export const Stats = {
     HP: 0,
@@ -123,7 +123,7 @@ export function subtractStrs(num1, num2) {
     }
     let i = 0;
     while (diff.charAt(i) === "0") i++;
-    return diff.substring(i) || "0";
+    return diff.slice(i) || "0";
 }
 
 export function multiplyStrs(num1, num2) {
@@ -162,7 +162,7 @@ export function divideStrs(num1, num2) {
     // we start our r a digit short as the iteration lends
     // itself more naturally to append the digit at its head
     let quotient = "";
-    let r = num1.substr(0, num2.length - 1);
+    let r = num1.slice(0, num2.length - 1);
     for (let i = num2.length - 1; i < num1.length; i++) {
         // bring down the next digit
         if (r === "0") {
@@ -191,23 +191,6 @@ export function gcdStrs(num1, num2) {
         [a, b] = [b, divideStrs(a, b)[1]];
     }
     return a;
-}
-
-export function avg(multiSet, digits = 4) {
-    const size = multiSet.size;
-    if (size === "0") return NaN;
-
-    const weightedSum = multiSet.reduce(
-        (sum, v, w) => addStrs(sum, multiplyStrs(String(v), w)), "0");
-    if (weightedSum === "0") return 0;
-
-    const exp = 10 ** (digits + 1);
-    const [quotient] = divideStrs(multiplyStrs(weightedSum, String(exp)), size);
-    return round(Number(quotient) / 10) * 10 / exp;
-}
-
-export function isGenValid(gen) {
-    return gen === trunc(gen) && Gens.RBY <= gen && gen <= maxGen;
 }
 
 export function roundHalfToZero(n) {

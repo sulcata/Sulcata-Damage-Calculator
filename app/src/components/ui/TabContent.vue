@@ -1,11 +1,14 @@
 <template>
     <div>
         <ul class='nav nav-tabs' role='tablist'>
-            <li v-for='tab in tabs'
+            <li
+                v-for='tab in tabs'
+                :key='tab'
+                @click='selectTab(tab)'
                 role='presentation'
                 class='nav-item nav-link'
                 :class='{active: isActive(tab)}'
-                @click='selectTab(tab)'
+                style='cursor: pointer; user-select: none;'
                 >
                 {{ tab }}
             </li>
@@ -14,6 +17,7 @@
         <div class='tab-content'>
             <div
                 v-for='tab in tabs'
+                :key='tab'
                 class='tab-pane'
                 :class='{active: isActive(tab)}'
                 >
@@ -26,7 +30,13 @@
 <script>
 export default {
     props: {
-        tabs: Array
+        tabs: {
+            required: true,
+            type: Array,
+            validator(value) {
+                return value.every(item => typeof item === "string");
+            }
+        }
     },
     data() {
         return {

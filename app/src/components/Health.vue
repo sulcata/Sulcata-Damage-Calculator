@@ -1,69 +1,88 @@
 <template>
     <div>
         <label>{{ $t("hp") }}</label>
-        <input v-model.lazy='actualHealth' class='form-control small-control'>
-        /{{ totalHp }} (
         <input
-            v-model.lazy='percentHealth'
-            type='number'
-            min='1'
-            max='100'
+            :value='actualHealth'
+            @change='updateHealth'
             class='form-control small-control'
             >
+        /{{ totalHp }} (
+        <integer
+            :min='1'
+            :max='100'
+            :value='percentHealth'
+            @input='updatePercent'
+            class='small-control'
+        ></integer>
         %)
     </div>
 </template>
 
 <script>
 import {clamp} from "lodash";
-import {Pokemon, Stats, Multiset} from "sulcalc";
+import Integer from "./ui/Integer.vue";
+import {Multiset} from "sulcalc";
 
 const {ceil, floor, max} = Math;
 
 const damageListRegex = /^(\d+(:\d+)?,)*\d+(:\d+)?$/;
-const intRegex = /^\d+$/;
 
 export default {
+    components: {
+        Integer
+    },
     props: {
-        pokemon: Pokemon
+        currentHp: {
+            required: true,
+            type: Number
+        },
+        currentHpRange: {
+            required: true,
+            type: Multiset
+        },
+        currentHpRangeBerry: {
+            required: true,
+            type: Multiset
+        },
+        totalHp: {
+            required: true,
+            type: Number
+        }
     },
     computed: {
-        percentHealth: {
-            get() {
-                return max(1, floor(100 * this.pokemon.currentHp
-                                    / this.totalHp));
-            },
-            set(value) {
-                const normalized = String(value).replace(/\s/g, "");
-                const percent = intRegex.test(normalized)
-                    ? clamp(Number(normalized), 1, 100) : 100;
-                const [minHp, maxHp] = minMaxHp(this.totalHp, percent);
-                const newHealth = new Multiset();
-                for (let hp = minHp; hp <= maxHp; hp++) {
-                    newHealth.add(hp);
-                }
-                this.pokemon.currentHpRange = newHealth;
-                this.pokemon.currentHpRangeBerry = new Multiset();
-            }
+        percentHealth() {
+            return max(1, floor(100 * this.currentHp / this.totalHp));
         },
-        actualHealth: {
-            get() {
-                return this.pokemon.currentHpRange.toString(prettyPrintItems);
-            },
-            set(value) {
-                const normalized = value.replace(/\s/g, "");
-                let newHealth;
-                if (damageListRegex.test(normalized)) {
-                    newHealth = parseHealthList(normalized, 0, this.totalHp);
-                } else {
-                    newHealth = new Multiset([this.totalHp]);
-                }
-                this.pokemon.currentHpRange = newHealth;
-                this.pokemon.currentHpRangeBerry = new Multiset();
+        actualHealth() {
+            return this.currentHpRange.toString(prettyPrintItems);
+        }
+    },
+    methods: {
+        updateHealth(event) {
+            const normalized = event.target.value.replace(/\s/g, "");
+            let newHealth;
+            if (damageListRegex.test(normalized)) {
+                newHealth = parseHealthList(normalized, 0, this.totalHp);
+            } else {
+                newHealth = new Multiset([this.totalHp]);
             }
+            this.$emit("input", {
+                currentHp: Multiset.average(newHealth, 0),
+                currentHpRange: newHealth,
+                currentHpRangeBerry: new Multiset()
+            });
         },
-        totalHp() {
-            return this.pokemon.stat(Stats.HP);
+        updatePercent(percent) {
+            const [minHp, maxHp] = minMaxHp(this.totalHp, percent);
+            const newHealth = new Multiset();
+            for (let hp = minHp; hp <= maxHp; hp++) {
+                newHealth.add(hp);
+            }
+            this.$emit("input", {
+                currentHp: Multiset.average(newHealth, 0),
+                currentHpRange: newHealth,
+                currentHpRangeBerry: new Multiset()
+            });
         }
     }
 };

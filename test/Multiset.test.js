@@ -145,6 +145,11 @@ describe("Multiset", () => {
         expect(set1.toString(e => e.join("#"))).toEqual("1#2, 2#2, 3#2, 4#1");
     });
 
+    test("#toArray()", () => {
+        expect(emptySet.toArray()).toEqual([]);
+        expect(set1.toArray()).toEqual([1, 1, 2, 2, 3, 3, 4]);
+    });
+
     test("#permute()", () => {
         expect(set1.permute(emptySet).toString()).toEqual("");
         expect(set1.permute(set2).toString())
@@ -272,5 +277,21 @@ describe("Multiset", () => {
         for (const multiplicity of set1.multiplicities()) {
             expect(multiplicity).toMatch(/^[0-9]+$/);
         }
+    });
+
+    test(".average()", () => {
+        const emptySet = new Multiset();
+        expect(Multiset.average(emptySet)).toEqual(NaN);
+
+        const set1 = new Multiset();
+        set1.add(2436678, "100000000000000000000000000");
+        set1.add(1);
+        expect(Multiset.average(set1)).toEqual(2436678);
+
+        const set2 = new Multiset([1, 2, 3, 4, 5, 6, 7, 8, 9, 77, 1]);
+        expect(Multiset.average(set2)).toBeCloseTo(11.1818, 4);
+
+        const zeroSet = new Multiset([0, 0, 0]);
+        expect(Multiset.average(zeroSet)).toEqual(0);
     });
 });

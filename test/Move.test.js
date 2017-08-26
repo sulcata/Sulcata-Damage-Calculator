@@ -191,6 +191,19 @@ describe("Move", () => {
         expect(fakeOut.flinchChance()).toEqual(100);
         expect(noMove.flinchChance()).toEqual(0);
         expect(tackle.flinchChance()).toEqual(0);
+
+        expect(new Move({
+            name: "Low Kick",
+            gen: Gens.RBY
+        }).flinchChance()).toBeGreaterThan(0);
+        expect(new Move({
+            name: "Low Kick",
+            gen: Gens.GSC
+        }).flinchChance()).toBeGreaterThan(0);
+        expect(new Move({
+            name: "Low Kick",
+            gen: Gens.ADV
+        }).flinchChance()).toEqual(0);
     });
 
     test("#affectedBySheerForce()", () => {
@@ -264,6 +277,15 @@ describe("Move", () => {
         expect(gearGrind.maxHits()).toEqual(2);
         expect(tripleKick.maxHits()).toEqual(3);
         expect(beatUp.maxHits()).toEqual(6);
+    });
+
+    test("#hitsMultipleTimes()", () => {
+        expect(noMove.hitsMultipleTimes()).toEqual(false);
+        expect(tackle.hitsMultipleTimes()).toEqual(false);
+        expect(bulletSeed.hitsMultipleTimes()).toEqual(true);
+        expect(gearGrind.hitsMultipleTimes()).toEqual(true);
+        expect(tripleKick.hitsMultipleTimes()).toEqual(true);
+        expect(beatUp.hitsMultipleTimes()).toEqual(true);
     });
 
     test("#hasMultipleTargets()", () => {
@@ -479,16 +501,15 @@ describe("Move", () => {
 
     test(".hiddenPowers()", () => {
         const isMaxIv = iv => iv === 30 || iv === 31;
-        for (const typeId in Types) {
-            const type = Types[typeId];
-            for (const ivs of Move.hiddenPowers(type, 5)) {
+        for (const type of Object.values(Types)) {
+            for (const ivs of Move.hiddenPowers(type, Gens.B2W2)) {
                 expect(ivs.every(isMaxIv)).toBeTruthy();
-                expect(Move.hiddenPowerType(ivs, 5)).toEqual(type);
-                expect(Move.hiddenPowerBp(ivs, 5)).toEqual(70);
+                expect(Move.hiddenPowerType(ivs, Gens.B2W2)).toEqual(type);
+                expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).toEqual(70);
             }
-            for (const ivs of Move.hiddenPowers(type, 2)) {
-                expect(Move.hiddenPowerType(ivs, 2)).toEqual(type);
-                expect(Move.hiddenPowerBp(ivs, 2)).toEqual(70);
+            for (const ivs of Move.hiddenPowers(type, Gens.GSC)) {
+                expect(Move.hiddenPowerType(ivs, Gens.GSC)).toEqual(type);
+                expect(Move.hiddenPowerBp(ivs, Gens.GSC)).toEqual(70);
             }
         }
     });
@@ -503,8 +524,8 @@ describe("Move", () => {
         ];
 
         for (const ivs of base70) {
-            expect(Move.hiddenPowerBp(ivs, 5)).toEqual(70);
-            expect(Move.hiddenPowerBp(ivs, 6)).toEqual(60);
+            expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).toEqual(70);
+            expect(Move.hiddenPowerBp(ivs, Gens.ORAS)).toEqual(60);
         }
 
         const notBase70 = [
@@ -516,8 +537,8 @@ describe("Move", () => {
         ];
 
         for (const ivs of notBase70) {
-            expect(Move.hiddenPowerBp(ivs, 5)).not.toEqual(70);
-            expect(Move.hiddenPowerBp(ivs, 6)).toEqual(60);
+            expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).not.toEqual(70);
+            expect(Move.hiddenPowerBp(ivs, Gens.ORAS)).toEqual(60);
         }
 
         const base70Gen2 = [
@@ -529,7 +550,7 @@ describe("Move", () => {
         ];
 
         for (const ivs of base70Gen2) {
-            expect(Move.hiddenPowerBp(ivs, 2)).toEqual(70);
+            expect(Move.hiddenPowerBp(ivs, Gens.GSC)).toEqual(70);
         }
 
         const notBase70Gen2 = [
@@ -541,7 +562,7 @@ describe("Move", () => {
         ];
 
         for (const ivs of notBase70Gen2) {
-            expect(Move.hiddenPowerBp(ivs, 2)).toBeLessThan(70);
+            expect(Move.hiddenPowerBp(ivs, Gens.GSC)).toBeLessThan(70);
         }
     });
 
@@ -555,13 +576,13 @@ describe("Move", () => {
         expect(Move.hiddenPowerType([31, 30, 31, 30, 31, 31]))
             .toEqual(Types.GRASS);
 
-        expect(Move.hiddenPowerType([NaN, 15, 15, 15, NaN, 15], 2))
+        expect(Move.hiddenPowerType([NaN, 15, 15, 15, NaN, 15], Gens.GSC))
             .toEqual(Types.DARK);
-        expect(Move.hiddenPowerType([NaN, 15, 13, 15, NaN, 15], 2))
+        expect(Move.hiddenPowerType([NaN, 15, 13, 15, NaN, 15], Gens.GSC))
             .toEqual(Types.ICE);
-        expect(Move.hiddenPowerType([NaN, 13, 13, 15, NaN, 15], 2))
+        expect(Move.hiddenPowerType([NaN, 13, 13, 15, NaN, 15], Gens.GSC))
             .toEqual(Types.BUG);
-        expect(Move.hiddenPowerType([NaN, 14, 13, 15, NaN, 15], 2))
+        expect(Move.hiddenPowerType([NaN, 14, 13, 15, NaN, 15], Gens.GSC))
             .toEqual(Types.WATER);
     });
 
@@ -579,18 +600,18 @@ describe("Move", () => {
         expect(Move.flail(69, 100)).toEqual(20);
         expect(Move.flail(100, 100)).toEqual(20);
 
-        expect(Move.flail(1, 100, 4)).toEqual(200);
-        expect(Move.flail(3, 100, 4)).toEqual(200);
-        expect(Move.flail(4, 100, 4)).toEqual(150);
-        expect(Move.flail(9, 100, 4)).toEqual(150);
-        expect(Move.flail(10, 100, 4)).toEqual(100);
-        expect(Move.flail(20, 100, 4)).toEqual(100);
-        expect(Move.flail(21, 100, 4)).toEqual(80);
-        expect(Move.flail(34, 100, 4)).toEqual(80);
-        expect(Move.flail(35, 100, 4)).toEqual(40);
-        expect(Move.flail(67, 100, 4)).toEqual(40);
-        expect(Move.flail(68, 100, 4)).toEqual(20);
-        expect(Move.flail(100, 100, 4)).toEqual(20);
+        expect(Move.flail(1, 100, Gens.HGSS)).toEqual(200);
+        expect(Move.flail(3, 100, Gens.HGSS)).toEqual(200);
+        expect(Move.flail(4, 100, Gens.HGSS)).toEqual(150);
+        expect(Move.flail(9, 100, Gens.HGSS)).toEqual(150);
+        expect(Move.flail(10, 100, Gens.HGSS)).toEqual(100);
+        expect(Move.flail(20, 100, Gens.HGSS)).toEqual(100);
+        expect(Move.flail(21, 100, Gens.HGSS)).toEqual(80);
+        expect(Move.flail(34, 100, Gens.HGSS)).toEqual(80);
+        expect(Move.flail(35, 100, Gens.HGSS)).toEqual(40);
+        expect(Move.flail(67, 100, Gens.HGSS)).toEqual(40);
+        expect(Move.flail(68, 100, Gens.HGSS)).toEqual(20);
+        expect(Move.flail(100, 100, Gens.HGSS)).toEqual(20);
     });
 
     test(".magnitude()", () => {

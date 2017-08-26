@@ -10,11 +10,13 @@ export default {
     setHp: "Ajustar PS",
     showFractions: "Show Fractions",
     showLongDamageRolls: "Show Long Damage Rolls",
-    setdex: "Setdex",
-    smogon: "Smogon",
-    pokemonPerfect: "Pokémon Perfect",
+    smogonSets: "Smogon Sets",
+    pokemonPerfectSets: "Pokémon Perfect Sets",
+    customSets: "Custom Sets",
+    import: "Import",
     tabs: {
         general: "General",
+        importTeam: "Import Team",
         moreOptions: "More Options"
     },
     gens: [

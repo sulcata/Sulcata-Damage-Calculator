@@ -1,5 +1,4 @@
 "use strict";
-
 const webpack = require("webpack");
 const {cloneDeep} = require("lodash");
 const baseConfig = require("./webpack.app.config");

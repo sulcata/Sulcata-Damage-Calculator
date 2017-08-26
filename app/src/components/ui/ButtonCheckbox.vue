@@ -1,9 +1,9 @@
 <template>
     <button
         type='button'
-        class='btn btn-secondary'
-        :class='{active: value, [sizeClass]: true}'
-        @click='toggle()'
+        :class='classes'
+        style='cursor: default;'
+        @click='toggle'
         >
         <slot></slot>
     </button>
@@ -14,6 +14,18 @@ const sizeClasses = {
     small: "btn-sm",
     medium: "",
     large: "btn-lg"
+};
+
+const typeClasses = {
+    primary: "btn-primary",
+    secondary: "btn-secondary",
+    success: "btn-success",
+    danger: "btn-danger",
+    warning: "btn-warning",
+    info: "btn-warning",
+    light: "btn-light",
+    dark: "btn-dark",
+    link: "btn-link"
 };
 
 export default {
@@ -28,11 +40,28 @@ export default {
             validator(value) {
                 return sizeClasses.hasOwnProperty(value);
             }
+        },
+        type: {
+            type: String,
+            default: "primary",
+            validator(value) {
+                return typeClasses.hasOwnProperty(value);
+            }
+        },
+        outline: {
+            type: Boolean,
+            default: false
         }
     },
     computed: {
-        sizeClass() {
-            return sizeClasses[this.size];
+        classes() {
+            const outline = this.outline ? "-outline" : "";
+            return {
+                btn: true,
+                active: this.value,
+                [sizeClasses[this.size]]: true,
+                [typeClasses[this.type] + outline]: true
+            };
         }
     },
     methods: {
