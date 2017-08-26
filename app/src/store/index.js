@@ -18,12 +18,12 @@ export default new Store({
         persistencePlugin({
             prefix: "sulcalc",
             saveOn: {
-                addCustomSets: "sets.custom",
-                setSmogonSets: "enabledSets.smogon",
-                setPokemonPerfectSets: "enabledSets.pokemonPerfect",
-                setCustomSets: "enabledSets.custom",
-                setLongRolls: "longRolls",
-                setFractions: "fractions"
+                importPokemon: "sets.custom",
+                toggleSmogonSets: "enabledSets.smogon",
+                togglePokemonPerfectSets: "enabledSets.pokemonPerfect",
+                toggleCustomSets: "enabledSets.custom",
+                toggleLongRolls: "longRolls",
+                toggleFractions: "fractions"
             }
         }),
         i18nPlugin()
