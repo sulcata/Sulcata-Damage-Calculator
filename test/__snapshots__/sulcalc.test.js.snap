@@ -2,6 +2,8 @@
 
 exports[`sulcalc() Ability 1`] = `"+2 252+ Atk Guts Heracross (burned) critical hit Close Combat vs. 248 HP / 252+ Def Sturdy Skarmory: 332 (99.7%) -- guaranteed 2HKO"`;
 
+exports[`sulcalc() Explosion 1`] = `"0 Atk Snorlax Explosion vs. 0 HP / 0 Def Skarmory: 109 - 129 (40.2 - 47.6%) -- this might take a while..."`;
+
 exports[`sulcalc() Light Screen 1`] = `"252+ SpA Choice Specs Heatran Fire Blast vs. 252 HP / 156+ SpD Klefki behind Light Screen: 256 - 303 (80.5 - 95.3%) -- guaranteed 2HKO"`;
 
 exports[`sulcalc() Psyshock 1`] = `"252 SpA Life Orb Latios Psyshock vs. 252 HP / 252+ Def Eviolite Chansey: 226 - 266 (32.1 - 37.8%) -- 93.8% chance to 3HKO"`;

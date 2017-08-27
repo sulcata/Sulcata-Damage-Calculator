@@ -176,6 +176,13 @@ describe("sulcalc()", () => {
             {gen}
         );
         expect(roundedChances.length).toEqual(1);
+        const {summary} = sulcalc(
+            {name: "Snorlax", gen},
+            {name: "Skarmory", gen},
+            {name: "Explosion", gen},
+            {gen}
+        );
+        expect(summary).toMatchSnapshot();
     });
 
     test("throws MissingnoError when either Pokemon is invalid", () => {
