@@ -18,6 +18,7 @@ export default new Store({
         persistencePlugin({
             prefix: "sulcalc",
             saveOn: {
+                setLocale: "i18n.locale",
                 importPokemon: "sets.custom",
                 toggleSmogonSets: "enabledSets.smogon",
                 togglePokemonPerfectSets: "enabledSets.pokemonPerfect",

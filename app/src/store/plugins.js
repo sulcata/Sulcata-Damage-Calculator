@@ -57,5 +57,6 @@ export function i18nPlugin() {
                 }
             }
         );
+        store.dispatch("setLocale", {locale: store.state.i18n.locale});
     };
 }
