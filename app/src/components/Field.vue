@@ -12,7 +12,7 @@
         </div>
 
         <!-- Inverted Battle -->
-        <div v-if='gen === Gens.ORAS' :class='centeredRowClasses'>
+        <div v-if='gen === Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
             <button-checkbox
                 :value='field.invertedBattle'
                 @input='toggleInvertedBattle()'
@@ -25,7 +25,7 @@
 
         <!-- Weather -->
         <hr v-if='gen >= Gens.ORAS' class='row'>
-        <div v-if='gen >= Gens.GSC' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.GSC' class='mt-1' :class='centeredRowClasses'>
             <button-radio-group
                 :value='field.weather'
                 :options='weathers'
@@ -34,7 +34,7 @@
                 type='secondary'
             ></button-radio-group>
         </div>
-        <div v-if='gen >= Gens.ORAS' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
             <button-radio-group
                 :value='field.weather'
                 :options='harshWeathers'
@@ -46,7 +46,7 @@
         <hr v-if='gen >= Gens.ORAS' class='row'>
 
         <!-- Water Sport / Mud Sport -->
-        <div v-if='gen >= Gens.ADV' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.ADV' class='mt-1' :class='centeredRowClasses'>
             <div class='col-auto btn-group btn-group-sm'>
                 <button-checkbox
                     :value='field.waterSport'
@@ -66,7 +66,7 @@
         </div>
 
         <!-- Gravity / Magic Room / Wonder Room -->
-        <div v-if='gen >= Gens.HGSS' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.HGSS' class='mt-1' :class='centeredRowClasses'>
             <div class='col-auto btn-group btn-group-sm'>
                 <button-checkbox
                     :value='field.gravity'
@@ -95,7 +95,7 @@
         </div>
 
         <!-- Grassy / Electric / Misty / Psychic Terrain -->
-        <div v-if='gen >= Gens.ORAS' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
             <div class='col-auto btn-group btn-group-sm'>
                 <button-checkbox
                     :value='field.grassyTerrain'
@@ -130,7 +130,7 @@
         </div>
 
         <!-- Fairy Aura / Dark Aura / Aura Break -->
-        <div v-if='gen >= Gens.ORAS' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
             <div class='col-auto btn-group btn-group-sm'>
                 <button-checkbox
                     :value='field.fairyAura'
@@ -157,7 +157,7 @@
         </div>
 
         <!-- Ion Deluge -->
-        <div v-if='gen >= Gens.ORAS' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
             <div class='col-auto'>
                 <button-checkbox
                     :value='field.ionDeluge'
@@ -171,7 +171,7 @@
         </div>
 
         <!-- attacker / defender -->
-        <div :class='centeredRowClasses'>
+        <div class='mt-1' :class='centeredRowClasses'>
             <div
                 v-for='(pokemon, side) in {attacker, defender}'
                 :key='side'
@@ -315,8 +315,7 @@ export default {
             centeredRowClasses: [
                 "row",
                 "justify-content-center",
-                "no-gutters",
-                "mt-1"
+                "no-gutters"
             ]
         };
     },
