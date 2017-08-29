@@ -9,16 +9,18 @@
         <div class='row mt-3'>
             <div class='col-4'>
                 <button-radio-group
+                    :value='selectedReport'
+                    :options='attackerReportOptions'
+                    @input='report => setReport({report})'
                     layout='vertical'
-                    v-model='selectedReport'
-                    :options='attackerReports'
                 ></button-radio-group>
             </div>
             <div class='col-4'>
                 <button-radio-group
+                    :value='selectedReport'
+                    :options='defenderReportOptions'
+                    @input='report => setReport({report})'
                     layout='vertical'
-                    v-model='selectedReport'
-                    :options='defenderReports'
                 ></button-radio-group>
             </div>
         </div>
@@ -77,22 +79,21 @@
 </template>
 
 <script>
-import {zip} from "lodash";
-import {mapState, mapMutations} from "vuex";
+import {mapState, mapGetters, mapMutations} from "vuex";
 import translationMixin from "../mixins/translation";
-import PokemonComponent from "./Pokemon.vue";
-import FieldComponent from "./Field.vue";
+import Pokemon from "./Pokemon.vue";
+import Field from "./Field.vue";
 import SetImporter from "./SetImporter.vue";
 import SulcalcOptions from "./SulcalcOptions.vue";
 import Generation from "./Generation.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import TabContent from "./ui/TabContent.vue";
-import sulcalc, {cmpStrs} from "sulcalc";
+import {cmpStrs} from "sulcalc";
 
 export default {
     components: {
-        Pokemon: PokemonComponent,
-        Field: FieldComponent,
+        Pokemon,
+        Field,
         SetImporter,
         SulcalcOptions,
         Generation,
@@ -102,9 +103,6 @@ export default {
     mixins: [
         translationMixin
     ],
-    data() {
-        return {overrideReport: null};
-    },
     computed: {
         ...mapState([
             "attacker",
@@ -112,6 +110,11 @@ export default {
             "field",
             "fractions",
             "longRolls"
+        ]),
+        ...mapGetters([
+            "selectedReport",
+            "attackerReports",
+            "defenderReports"
         ]),
         summary() {
             return this.selectedReport.summary || "";
@@ -129,95 +132,38 @@ export default {
             if (!chances) return "";
             return chances.map(chance => chance.join(" / ")).join(", ");
         },
-        reports() {
-            return [...this.attackerReports, ...this.defenderReports];
+        attackerReportOptions() {
+            return this.reportOptions(this.attackerReports);
         },
-        attackerReports() {
-            const {attacker, defender, field} = this;
-            return attacker.moves.map(move => {
-                try {
-                    return {
-                        value: sulcalc(attacker, defender, move, field),
-                        label: this.$tMove(move)
-                    };
-                } catch (error) {
-                    return {
-                        value: {},
-                        label: this.$tMove(move)
-                    };
-                }
-            });
-        },
-        defenderReports() {
-            const {attacker, defender, field} = this;
-            return defender.moves.map(move => {
-                try {
-                    return {
-                        value: sulcalc(defender, attacker, move, field),
-                        label: this.$tMove(move)
-                    };
-                } catch (error) {
-                    return {
-                        value: {},
-                        label: this.$tMove(move)
-                    };
-                }
-            });
-        },
-        selectedReport: {
-            get() {
-                const reports = this.reports.map(({value}) => value);
-                if (reports.includes(this.overrideReport)) {
-                    return this.overrideReport;
-                }
-                return reports.reduce(betterReport, {});
-            },
-            set(value) {
-                this.overrideReport = value;
-            }
+        defenderReportOptions() {
+            return this.reportOptions(this.defenderReports);
         }
     },
     methods: {
         ...mapMutations([
             "setAttacker",
-            "setDefender"
+            "setDefender",
+            "setReport"
         ]),
+        reportOptions(reports) {
+            return reports.map(value => ({
+                value,
+                label: this.$tMove(value.move)
+            }));
+        },
         setHp() {
             const report = this.selectedReport;
             const pokemon = this.selectedReport.defender;
-            if (this.isAttackerReport(report)) {
+            if (this.attackerReports.includes(report)) {
                 pokemon.event = this.defender.event;
                 this.setDefender({pokemon});
-            } else if (this.isDefenderReport(report)) {
+            } else if (this.defenderReports.includes(report)) {
                 pokemon.event = this.attacker.event;
                 this.setAttacker({pokemon});
             }
-        },
-        removeReportOverride() {
-            this.overrideReport = null;
-        },
-        isAttackerReport(report) {
-            const reports = this.attackerReports.map(({value}) => value);
-            return reports.includes(report);
-        },
-        isDefenderReport(report) {
-            const reports = this.defenderReports.map(({value}) => value);
-            return reports.includes(report);
         }
     }
 };
-
-function betterReport(report1, report2) {
-    const chances1 = report1.roundedChances || [];
-    const chances2 = report2.roundedChances || [];
-    for (const [chance1 = 0, chance2 = 0] of zip(chances1, chances2)) {
-        if (chance1 > chance2) return report1;
-        if (chance2 > chance1) return report2;
-    }
-    if (!report2.damage) return report1;
-    if (!report1.damage) return report2;
-    return report1.damage.max() > report2.damage.max() ? report1 : report2;
-}
 
 function entryAsList([value, multiplicity]) {
     return Array(Number(multiplicity)).fill(value).join(", ");

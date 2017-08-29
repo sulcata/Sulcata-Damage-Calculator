@@ -27,5 +27,6 @@ export default {
     gen: maxGen,
     attacker: new Pokemon(),
     defender: new Pokemon(),
-    field: new Field()
+    field: new Field(),
+    overrideReport: null
 };

@@ -335,6 +335,8 @@ export default function sulcalc(attacker, defender, move, field) {
         summary: `${pokeInfo}: ${damageInfo} -- ${resultInfo}`,
         attacker,
         defender,
+        move,
+        field,
         minPercent,
         maxPercent,
         damages: dmg.slice(0, dmg.length - 1),

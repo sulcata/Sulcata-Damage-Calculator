@@ -12,12 +12,12 @@ export const setLocale = (state, {locale}) => {
     state.i18n.locale = locale;
 };
 
-export const importPokemon = (state, {importText}) => {
+export const importPokemon = (state, {importText, gen}) => {
     const importedPokemon = importText.trim()
         .replace("\r", "")
         .split("\n\n")
-        .map(importText => Pokemon.fromImportable(importText, state.gen));
-    const custom = state.sets.custom[state.gen];
+        .map(importText => Pokemon.fromImportable(importText, gen));
+    const custom = state.sets.custom[gen];
     for (const pokemon of importedPokemon) {
         if (!custom.hasOwnProperty(pokemon.id)) {
             Vue.set(custom, pokemon.id, {});
@@ -59,6 +59,10 @@ export const changeGen = (state, {gen}) => {
     state.attacker = new Pokemon({gen});
     state.defender = new Pokemon({gen});
     state.field = new Field({gen});
+};
+
+export const setReport = (state, {report}) => {
+    state.overrideReport = report;
 };
 
 export const setAttacker = (state, {pokemon}) => {
