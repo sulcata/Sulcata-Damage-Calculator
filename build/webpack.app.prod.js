@@ -1,6 +1,6 @@
 "use strict";
 const webpack = require("webpack");
-const BabiliPlugin = require("babili-webpack-plugin");
+const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
 const {cloneDeep} = require("lodash");
 const baseConfig = require("./webpack.app.config");
 
@@ -13,7 +13,7 @@ config.plugins.unshift(
     new webpack.optimize.ModuleConcatenationPlugin(),
     new webpack.LoaderOptionsPlugin({minimize: true}),
     new webpack.EnvironmentPlugin({NODE_ENV: "production"}),
-    new BabiliPlugin()
+    new BabelMinifyPlugin()
 );
 
 module.exports = config;

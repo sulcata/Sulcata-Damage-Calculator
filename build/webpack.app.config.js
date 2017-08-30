@@ -1,8 +1,8 @@
 "use strict";
 const path = require("path");
 const webpack = require("webpack");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
-const ScriptExtHtmlWebpackPlugin = require("script-ext-html-webpack-plugin");
+const HtmlPlugin = require("html-webpack-plugin");
+const ScriptExtHtmlPlugin = require("script-ext-html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const config = {
@@ -64,11 +64,11 @@ const config = {
         new webpack.optimize.CommonsChunkPlugin({
             name: ["smogon", "pokemonPerfect", "db", "vendor"]
         }),
-        new HtmlWebpackPlugin({
+        new HtmlPlugin({
             template: path.join(__dirname, "../app/index.hbs"),
             inject: "head"
         }),
-        new ScriptExtHtmlWebpackPlugin({defaultAttribute: "defer"})
+        new ScriptExtHtmlPlugin({defaultAttribute: "defer"})
     ]
 };
 

@@ -1,7 +1,7 @@
 "use strict";
 const path = require("path");
 const webpack = require("webpack");
-const BabiliPlugin = require("babili-webpack-plugin");
+const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
 
 const config = {
     entry: path.join(__dirname, "../src/sulcalc"),
@@ -36,7 +36,7 @@ const config = {
         new webpack.LoaderOptionsPlugin({minimize: true}),
         new webpack.optimize.ModuleConcatenationPlugin(),
         new webpack.EnvironmentPlugin({NODE_ENV: "production"}),
-        new BabiliPlugin()
+        new BabelMinifyPlugin()
     ]
 };
 
