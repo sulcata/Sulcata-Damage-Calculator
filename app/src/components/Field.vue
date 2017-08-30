@@ -25,7 +25,7 @@
 
         <!-- Weather -->
         <hr v-if='gen >= Gens.ORAS' class='row'>
-        <div v-if='gen >= Gens.GSC' class='mt-1' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.GSC' :class='centeredRowClasses'>
             <button-radio-group
                 :value='field.weather'
                 :options='weathers'
@@ -46,7 +46,7 @@
         <hr v-if='gen >= Gens.ORAS' class='row'>
 
         <!-- Water Sport / Mud Sport -->
-        <div v-if='gen >= Gens.ADV' class='mt-1' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.ADV' :class='centeredRowClasses'>
             <div class='col-auto btn-group btn-group-sm'>
                 <button-checkbox
                     :value='field.waterSport'
@@ -186,7 +186,7 @@
                     size='small'
                     type='secondary'
                     class='mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                     >
                     {{ $tMove("Stealth Rock") }}
                 </button-checkbox>
@@ -200,7 +200,7 @@
                     size='small'
                     type='secondary'
                     class='mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                 ></button-radio-group>
                 <button-checkbox
                     v-if='gen === Gens.GSC'
@@ -209,7 +209,7 @@
                     size='small'
                     type='secondary'
                     class='mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                     >
                     {{ $tMove("Spikes") }}
                 </button-checkbox>
@@ -217,7 +217,7 @@
                 <!-- Reflect / Light Screen -->
                 <div
                     class='btn-group btn-group-sm mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                     >
                     <button-checkbox
                         :value='pokemon.reflect'
@@ -243,7 +243,7 @@
                     size='small'
                     type='secondary'
                     class='mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                     >
                     {{ $tMove("Foresight") }}
                 </button-checkbox>
@@ -256,7 +256,7 @@
                     size='small'
                     type='secondary'
                     class='mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                     >
                     {{ $tAbility("Friend Guard") }}
                 </button-checkbox>
@@ -269,7 +269,7 @@
                     size='small'
                     type='secondary'
                     class='mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                     >
                     {{ $tMove("Aurora Veil") }}
                 </button-checkbox>
@@ -282,7 +282,7 @@
                     size='small'
                     type='secondary'
                     class='mt-1'
-                    :class='pokeAlign(side)'
+                    :style='pokeAlign(side)'
                     >
                     {{ $tAbility("Battery") }}
                 </button-checkbox>
@@ -396,20 +396,10 @@ export default {
         ]),
         pokeAlign(side) {
             if (side === "attacker") {
-                return ["clear-left", "float-left"];
+                return {float: "left", clear: "left"};
             }
-            return ["clear-right", "float-right"];
+            return {float: "right", clear: "right"};
         }
     }
 };
 </script>
-
-<style scoped>
-.clear-left {
-    clear: left;
-}
-
-.clear-right {
-    clear: right;
-}
-</style>

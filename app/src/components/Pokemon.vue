@@ -24,7 +24,7 @@
                 :max='100'
                 :value='pokemon.level'
                 @input='updateLevel'
-                class='level-control'
+                style='width: 6rem; display: inline-block;'
             ></integer>
         </div>
 
@@ -145,10 +145,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.level-control {
-    width: 6em;
-    display: inline-block;
-}
-</style>

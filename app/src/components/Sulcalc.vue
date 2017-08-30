@@ -1,5 +1,5 @@
 <template>
-    <div class='container sulcalc-container'>
+    <div class='container' style='min-width: 95rem;'>
         <div class='row justify-content-center mt-3'>
             <div class='col-auto'>
                 <generation></generation>
@@ -124,9 +124,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-.sulcalc-container {
-    min-width: 95rem;
-}
-</style>
