@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import {eq} from "lodash";
+
 const sizeClasses = {
     small: "btn-group-sm",
     medium: "",
@@ -87,7 +89,7 @@ export default {
             this.$emit("input", option[this.trackBy]);
         },
         isSelected(option) {
-            return Object.is(this.value, option[this.trackBy]);
+            return eq(this.value, option[this.trackBy]);
         },
         buttonClasses(option) {
             const outline = this.outline ? "-outline" : "";
