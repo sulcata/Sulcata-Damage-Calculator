@@ -45,7 +45,7 @@ export default {
             if (cmpStrs(damage.size, "39") > 0) {
                 return this.longRolls ? String(damage) : "";
             }
-            return `(${damage.toString(entryAsList)})`;
+            return `(${damage.toArray().join(", ")})`;
         },
         fractionalChances() {
             const chances = this.selectedReport.fractionalChances;
@@ -71,8 +71,4 @@ export default {
         }
     }
 };
-
-function entryAsList([value, multiplicity]) {
-    return Array(Number(multiplicity)).fill(value).join(", ");
-}
 </script>
