@@ -338,7 +338,7 @@ export function isMoveUseful(moveId, gen) {
 }
 
 export function isMoveReleased(moveId, gen) {
-    return Boolean(db.releasedMoves, moveId, gen);
+    return Boolean(getInfo(db.releasedMoves, moveId, gen));
 }
 
 export function releasedMoves(gen) {
@@ -428,7 +428,7 @@ export function isItemUseful(itemId) {
 }
 
 export function isItemReleased(itemId, gen) {
-    return Boolean(db.releasedItems, itemId, gen);
+    return Boolean(getInfo(db.releasedItems, itemId, gen));
 }
 
 export function releasedItems(gen) {

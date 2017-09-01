@@ -3,7 +3,7 @@ const path = require("path");
 const {mkdirs, writeFile, readFile} = require("fs-extra");
 const {
     chunk, differenceWith, fromPairs, identity,
-    isEqual, omitBy, toPairs, zip
+    isEqual, omitBy, toPairs, unzip
 } = require("lodash");
 const {
     dataToObject,
@@ -459,7 +459,7 @@ const dataList = [
         ],
         preFn: () => 1,
         postFn(objArr) {
-            const itemsAndBerries = zip(chunk(objArr, objArr.length / 2)).map(
+            const itemsAndBerries = unzip(chunk(objArr, objArr.length / 2)).map(
                 ([releasedItems, releasedBerries]) => ({
                     ...releasedItems,
                     ...berriesToItems(releasedBerries)
