@@ -2,49 +2,58 @@
 const path = require("path");
 const {mkdirs, writeFile, readFile} = require("fs-extra");
 const {
-    chunk, differenceWith, fromPairs, identity,
-    isEqual, omitBy, toPairs, unzip
-} = require("lodash");
+    differenceWith, chunk, compact, cond, flow, fromPairs,
+    identity, isEqual, join, map, mapValues, omitBy, replace,
+    reverse, split, spread, toPairs, unzip, __
+} = require("lodash/fp");
 const {
     dataToObject,
     simplifyPokeIds,
     removeAestheticPokes,
-    berriesToItems
+    combineItemsAndBerries
 } = require("./utilities");
 
 const inDir = path.join(__dirname, "db");
 const outDir = path.join(__dirname, "../dist/db");
 
 async function createIndex(names) {
-    const exports = [];
-    for (const name of names) {
-        exports.push(`export {default as ${name}} from "./${name}"`);
-    }
-    const indexFileContents = exports.join(";\n");
-    await writeFile(path.join(outDir, "index.js"), indexFileContents);
+    const exports = flow(
+        map(name => `export {default as ${name}} from "./${name}"`),
+        join("\n")
+    )(names);
+    await writeFile(path.join(outDir, "index.js"), exports);
 }
 
-async function processData(name, files, preFn = identity, postFn = identity) {
-    let result;
-    if (Array.isArray(files)) {
-        files = files.map(file => {
-            if (typeof file !== "string") return file;
-            return readFile(path.join(inDir, file));
-        });
-        const dataArray = await Promise.all(files);
-        result = dataArray.map(data => dataToObject(data, preFn));
-    } else {
-        result = dataToObject(
-            await readFile(path.join(inDir, files)),
-            preFn
+async function processData({name, files, transform = identity}) {
+    const fileToObject = async file => {
+        if (typeof file !== "string") return file;
+        return dataToObject(
+            await readFile(path.join(inDir, file))
         );
-    }
-    result = postFn(result);
+    };
+
+    const result = await cond([
+        [
+            Array.isArray,
+            flow(
+                map(fileToObject),
+                files => Promise.all(files)
+            )
+        ],
+        [
+            () => true,
+            fileToObject
+        ]
+    ])(files);
+
+    const processedResult = transform(result);
+
     await writeFile(
         path.join(outDir, `${name}.js`),
-        `export default ${JSON.stringify(result)}`
+        `export default ${JSON.stringify(processedResult)}`
     );
-    return result;
+
+    return processedResult;
 }
 
 function reduceByDiffs(arrayOfObjects) {
@@ -52,8 +61,11 @@ function reduceByDiffs(arrayOfObjects) {
     const newArrayOfObjects = [];
     for (const object of arrayOfObjects) {
         const mergedPairs = toPairs(mergedObject);
-        const diffs = fromPairs(differenceWith(
-            toPairs(object), mergedPairs, isEqual));
+        const diffs = flow(
+            toPairs,
+            differenceWith(isEqual, __, mergedPairs),
+            fromPairs
+        )(object);
         for (const [key, value] of mergedPairs) {
             if (value !== null && !object.hasOwnProperty(key)) {
                 diffs[key] = null;
@@ -65,6 +77,14 @@ function reduceByDiffs(arrayOfObjects) {
     return newArrayOfObjects;
 }
 
+const createPreprocessor = fn => map(mapValues(fn));
+const omitCurseType = omitBy(type => type === 18);
+const mapValuesToNumbers = mapValues(Number);
+const mapAllValuesToNumbers = map(mapValuesToNumbers);
+const mapValuesToOne = mapValues(() => 1);
+const mapAllValuesToOne = map(mapValuesToOne);
+const parseNumberList = flow(split(" "), map(Number));
+
 const dataList = [
     {
         name: "abilities",
@@ -73,31 +93,31 @@ const dataList = [
     {
         name: "abilityEffects",
         files: [
-            null,
-            null,
-            null,
+            {},
+            {},
+            {},
             "abilities/ability_effects_3G.txt",
             "abilities/ability_effects_4G.txt",
             "abilities/ability_effects_5G.txt",
             "abilities/ability_effects_6G.txt",
             "abilities/ability_effects_7G.txt"
         ],
-        postFn: reduceByDiffs
+        transform: reduceByDiffs
     },
     {
         name: "naturalGiftPowers",
         files: "items/berry_pow.txt",
-        preFn: Number
+        transform: mapValuesToNumbers
     },
     {
         name: "naturalGiftTypes",
         files: "items/berry_type.txt",
-        preFn: Number
+        transform: mapValuesToNumbers
     },
     {
         name: "moveCategories",
         files: [
-            null,
+            {},
             "moves/1G/category.txt",
             "moves/2G/category.txt",
             "moves/3G/category.txt",
@@ -106,33 +126,37 @@ const dataList = [
             "moves/6G/category.txt",
             "moves/7G/category.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "moveDamageClasses",
         files: [
-            null,
-            null,
-            null,
-            null,
+            {},
+            {},
+            {},
+            {},
             "moves/4G/damage_class.txt",
             "moves/5G/damage_class.txt",
             "moves/6G/damage_class.txt",
             "moves/7G/damage_class.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "evolutions",
         files: "pokes/evos.txt",
-        preFn: s => s.split(" ").map(Number)
+        transform: mapValues(parseNumberList)
     },
     {
         name: "moveFlags",
         files: [
-            null,
+            {},
             "moves/1G/flags.txt",
             "moves/2G/flags.txt",
             "moves/3G/flags.txt",
@@ -141,13 +165,15 @@ const dataList = [
             "moves/6G/flags.txt",
             "moves/7G/flags.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "flinchChances",
         files: [
-            null,
+            {},
             "moves/1G/flinch_chance.txt",
             "moves/2G/flinch_chance.txt",
             "moves/3G/flinch_chance.txt",
@@ -156,13 +182,17 @@ const dataList = [
             "moves/6G/flinch_chance.txt",
             "moves/7G/flinch_chance.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "itemEffects",
         files: [
             "items/berry_effects.txt",
+            {},
+            {},
             "items/2G/item_effects.txt",
             "items/3G/item_effects.txt",
             "items/4G/item_effects.txt",
@@ -170,19 +200,23 @@ const dataList = [
             "items/6G/item_effects.txt",
             "items/7G/item_effects.txt"
         ],
-        postFn(objArr) {
-            const [berryEffects, ...itemEffects] = objArr;
-            const berryEffectsAsItems = berriesToItems(berryEffects);
-            for (const itemEffectsGen of itemEffects) {
-                Object.assign(itemEffectsGen, berryEffectsAsItems);
-            }
-            return reduceByDiffs([null, null, ...itemEffects]);
+        transform(objs) {
+            const [berryEffects, ...itemEffectsList] = objs;
+            return flow([
+                map(
+                    itemEffects => combineItemsAndBerries(
+                        itemEffects,
+                        berryEffects
+                    )
+                ),
+                reduceByDiffs
+            ])(itemEffectsList);
         }
     },
     {
         name: "flingPowers",
         files: "items/items_pow.txt",
-        preFn: Number
+        transform: mapValuesToNumbers
     },
     {
         name: "usefulItems",
@@ -190,8 +224,10 @@ const dataList = [
             "items/item_useful.txt",
             "items/berry_useful.txt"
         ],
-        preFn: () => 1,
-        postFn: ([items, berries]) => ({...items, ...berriesToItems(berries)})
+        transform: flow(
+            mapAllValuesToOne,
+            spread(combineItemsAndBerries)
+        )
     },
     {
         name: "items",
@@ -199,7 +235,7 @@ const dataList = [
             "items/items.txt",
             "items/berries.txt"
         ],
-        postFn: ([items, berries]) => ({...items, ...berriesToItems(berries)})
+        transform: spread(combineItemsAndBerries)
     },
     {
         name: "moves",
@@ -212,12 +248,12 @@ const dataList = [
     {
         name: "pokemon",
         files: "pokes/pokemons.txt",
-        postFn: simplifyPokeIds
+        transform: simplifyPokeIds
     },
     {
         name: "recoils",
         files: [
-            null,
+            {},
             "moves/1G/recoil.txt",
             "moves/2G/recoil.txt",
             "moves/3G/recoil.txt",
@@ -226,13 +262,15 @@ const dataList = [
             "moves/6G/recoil.txt",
             "moves/7G/recoil.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "statBoosts",
         files: [
-            null,
+            {},
             "moves/1G/statboost.txt",
             "moves/2G/statboost.txt",
             "moves/3G/statboost.txt",
@@ -241,14 +279,18 @@ const dataList = [
             "moves/6G/statboost.txt",
             "moves/7G/statboost.txt"
         ],
-        preFn(s) {
-            let arr = new Uint32Array([Number(s)]);
-            arr = new Int8Array(arr.buffer, 0, 3);
-            return Array.from(arr)
-                .filter(identity)
-                .reverse();
-        },
-        postFn: reduceByDiffs
+        transform: flow(
+            createPreprocessor(
+                flow(
+                    s => new Uint32Array([Number(s)]),
+                    arr => new Int8Array(arr.buffer, 0, 3),
+                    Array.from,
+                    compact,
+                    reverse
+                )
+            ),
+            reduceByDiffs
+        )
     },
     {
         name: "types",
@@ -257,18 +299,25 @@ const dataList = [
     {
         name: "weights",
         files: "pokes/weight.txt",
-        preFn: s => Number(s.replace(".", "")),
-        postFn: simplifyPokeIds
+        transform: flow(
+            mapValues(
+                flow(
+                    replace(".", ""),
+                    Number
+                )
+            ),
+            simplifyPokeIds
+        )
     },
     {
         name: "moldBreaker",
         files: "abilities/mold_breaker.txt",
-        preFn: () => 1
+        transform: mapValuesToOne
     },
     {
         name: "minMaxHits",
         files: [
-            null,
+            {},
             "moves/1G/min_max_hits.txt",
             "moves/2G/min_max_hits.txt",
             "moves/3G/min_max_hits.txt",
@@ -277,13 +326,15 @@ const dataList = [
             "moves/6G/min_max_hits.txt",
             "moves/7G/min_max_hits.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "moveTypes",
         files: [
-            null,
+            {},
             "moves/1G/type.txt",
             "moves/2G/type.txt",
             "moves/3G/type.txt",
@@ -292,13 +343,15 @@ const dataList = [
             "moves/6G/type.txt",
             "moves/7G/type.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "pokeTypes1",
         files: [
-            null,
+            {},
             "pokes/1G/type1.txt",
             "pokes/2G/type1.txt",
             "pokes/3G/type1.txt",
@@ -307,17 +360,17 @@ const dataList = [
             "pokes/6G/type1.txt",
             "pokes/7G/type1.txt"
         ],
-        preFn: Number,
-        postFn(arr) {
-            const simplified = arr.map(
-                genObj => simplifyPokeIds(omitBy(genObj, type => type === 18)));
-            return reduceByDiffs(simplified);
-        }
+        transform: flow(
+            mapAllValuesToNumbers,
+            map(omitCurseType),
+            map(simplifyPokeIds),
+            reduceByDiffs
+        )
     },
     {
         name: "pokeTypes2",
         files: [
-            null,
+            {},
             "pokes/1G/type2.txt",
             "pokes/2G/type2.txt",
             "pokes/3G/type2.txt",
@@ -326,17 +379,17 @@ const dataList = [
             "pokes/6G/type2.txt",
             "pokes/7G/type2.txt"
         ],
-        preFn: Number,
-        postFn(arr) {
-            const simplified = arr.map(
-                genObj => simplifyPokeIds(omitBy(genObj, type => type === 18)));
-            return reduceByDiffs(simplified);
-        }
+        transform: flow(
+            mapAllValuesToNumbers,
+            map(omitCurseType),
+            map(simplifyPokeIds),
+            reduceByDiffs
+        )
     },
     {
         name: "movePowers",
         files: [
-            null,
+            {},
             "moves/1G/power.txt",
             "moves/2G/power.txt",
             "moves/3G/power.txt",
@@ -345,28 +398,32 @@ const dataList = [
             "moves/6G/power.txt",
             "moves/7G/power.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "moveRanges",
         files: [
-            null,
-            null,
-            null,
+            {},
+            {},
+            {},
             "moves/3G/range.txt",
             "moves/4G/range.txt",
             "moves/5G/range.txt",
             "moves/6G/range.txt",
             "moves/7G/range.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "baseStats",
         files: [
-            null,
+            {},
             "pokes/1G/stats.txt",
             "pokes/2G/stats.txt",
             "pokes/3G/stats.txt",
@@ -375,16 +432,16 @@ const dataList = [
             "pokes/6G/stats.txt",
             "pokes/7G/stats.txt"
         ],
-        preFn: s => s.split(" ").map(Number),
-        postFn(arr) {
-            const simplified = arr.map(obj => simplifyPokeIds(obj));
-            return reduceByDiffs(simplified);
-        }
+        transform: flow(
+            createPreprocessor(parseNumberList),
+            map(simplifyPokeIds),
+            reduceByDiffs
+        )
     },
     {
         name: "typesTables",
         files: [
-            null,
+            {},
             "types/1G/typestable.txt",
             "types/2G/typestable.txt",
             "types/3G/typestable.txt",
@@ -393,63 +450,75 @@ const dataList = [
             "types/6G/typestable.txt",
             "types/7G/typestable.txt"
         ],
-        preFn: s => s.split(" ").map(Number),
-        postFn: reduceByDiffs
+        transform: flow(
+            createPreprocessor(parseNumberList),
+            reduceByDiffs
+        )
     },
     {
         name: "abilities1",
         files: [
-            null,
-            null,
-            null,
+            {},
+            {},
+            {},
             "pokes/3G/ability1.txt",
             "pokes/4G/ability1.txt",
             "pokes/5G/ability1.txt",
             "pokes/6G/ability1.txt",
             "pokes/7G/ability1.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "abilities2",
         files: [
-            null,
-            null,
-            null,
+            {},
+            {},
+            {},
             "pokes/3G/ability2.txt",
             "pokes/4G/ability2.txt",
             "pokes/5G/ability2.txt",
             "pokes/6G/ability2.txt",
             "pokes/7G/ability2.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "abilities3",
         files: [
-            null,
-            null,
-            null,
-            null,
-            null,
+            {},
+            {},
+            {},
+            {},
+            {},
             "pokes/5G/ability3.txt",
             "pokes/6G/ability3.txt",
             "pokes/7G/ability3.txt"
         ],
-        preFn: Number,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToNumbers,
+            reduceByDiffs
+        )
     },
     {
         name: "releasedItems",
         files: [
+            {},
+            {},
             "items/2G/released_items.txt",
             "items/3G/released_items.txt",
             "items/4G/released_items.txt",
             "items/5G/released_items.txt",
             "items/6G/released_items.txt",
             "items/7G/released_items.txt",
+            {},
+            {},
             "items/2G/released_berries.txt",
             "items/3G/released_berries.txt",
             "items/4G/released_berries.txt",
@@ -457,21 +526,18 @@ const dataList = [
             "items/6G/released_berries.txt",
             "items/7G/released_berries.txt"
         ],
-        preFn: () => 1,
-        postFn(objArr) {
-            const itemsAndBerries = unzip(chunk(objArr, objArr.length / 2)).map(
-                ([releasedItems, releasedBerries]) => ({
-                    ...releasedItems,
-                    ...berriesToItems(releasedBerries)
-                })
-            );
-            return reduceByDiffs([null, null, ...itemsAndBerries]);
-        }
+        transform: flow(
+            mapAllValuesToOne,
+            objs => chunk(objs.length / 2, objs),
+            unzip,
+            map(spread(combineItemsAndBerries)),
+            reduceByDiffs
+        )
     },
     {
         name: "releasedMoves",
         files: [
-            null,
+            {},
             "moves/1G/moves.txt",
             "moves/2G/moves.txt",
             "moves/3G/moves.txt",
@@ -480,13 +546,15 @@ const dataList = [
             "moves/6G/moves.txt",
             "moves/7G/moves.txt"
         ],
-        preFn: () => 1,
-        postFn: reduceByDiffs
+        transform: flow(
+            mapAllValuesToOne,
+            reduceByDiffs
+        )
     },
     {
         name: "releasedPokes",
         files: [
-            null,
+            {},
             "pokes/1G/released.txt",
             "pokes/2G/released.txt",
             "pokes/3G/released.txt",
@@ -495,39 +563,30 @@ const dataList = [
             "pokes/6G/released.txt",
             "pokes/7G/released.txt"
         ],
-        preFn: () => 1,
-        postFn(arr) {
-            return reduceByDiffs(
-                arr.map(removeAestheticPokes)
-                    .map(simplifyPokeIds)
-            );
-        }
+        transform: flow(
+            mapAllValuesToOne,
+            map(removeAestheticPokes),
+            map(simplifyPokeIds),
+            reduceByDiffs
+        )
     },
     {
         name: "zCrystalType",
         files: "items/zcrystal_type.txt",
-        preFn: Number
+        transform: mapValuesToOne
     },
     {
         name: "zMovePower",
         files: "moves/7G/zpower.txt",
-        preFn: Number
+        transform: mapValuesToNumbers
     }
 ];
 
 async function db() {
+    await Promise.all(map(mkdirs, [inDir, outDir]));
     await Promise.all([
-        mkdirs(inDir),
-        mkdirs(outDir)
-    ]);
-    await Promise.all([
-        ...dataList.map(entry => processData(
-            entry.name,
-            entry.files,
-            entry.preFn,
-            entry.postFn
-        )),
-        createIndex(dataList.map(entry => entry.name))
+        ...map(processData, dataList),
+        createIndex(map(entry => entry.name, dataList))
     ]);
 }
 

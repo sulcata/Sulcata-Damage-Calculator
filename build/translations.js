@@ -1,11 +1,12 @@
 "use strict";
 const path = require("path");
 const {mkdirs, writeFile, readFile} = require("fs-extra");
+const {cond, flow, identity, map} = require("lodash/fp");
 const {
     dataToObject,
     simplifyPokeIds,
     removeAestheticPokes,
-    berriesToItems
+    combineItemsAndBerries
 } = require("./utilities");
 
 const inDir = path.join(__dirname, "translations");
@@ -15,80 +16,96 @@ const locales = ["de", "es", "fr", "it", "zh-cn"];
 const fileTypes = [
     {
         name: "abilities",
-        file: "db/abilities/abilities.txt"
+        files: "db/abilities/abilities.txt"
     },
     {
         name: "items",
         files: ["db/items/items.txt", "db/items/berries.txt"],
-        postFn: ([items, berries]) => ({...items, ...berriesToItems(berries)})
+        transform: combineItemsAndBerries
     },
     {
         name: "moves",
-        file: "db/moves/moves.txt"
+        files: "db/moves/moves.txt"
     },
     {
         name: "natures",
-        file: "db/natures/nature.txt"
+        files: "db/natures/nature.txt"
     },
     {
         name: "pokemons",
-        file: "db/pokes/pokemons.txt",
-        postFn: obj => simplifyPokeIds(removeAestheticPokes(obj))
+        files: "db/pokes/pokemons.txt",
+        transform: flow(
+            simplifyPokeIds,
+            removeAestheticPokes
+        )
     },
     {
         name: "statuses",
-        file: "db/status/status.txt"
+        files: "db/status/status.txt"
     },
     {
         name: "types",
-        file: "db/types/types.txt"
+        files: "db/types/types.txt"
     }
 ];
 
-async function parseTranslationFile(locale, fileType) {
-    let result;
-    if (fileType.files) {
-        const files = fileType.files.map(async file => {
-            try {
-                const data = await readFile(path.join(inDir, locale, file));
-                return dataToObject(data, fileType.preFn);
-            } catch (error) {
-                return {};
-            }
-        });
-        result = await Promise.all(files);
-    } else {
+async function parseTranslationFile(locale, {
+    name,
+    files,
+    transform = identity
+}) {
+    const fileToObject = async file => {
         try {
-            const file = fileType.file;
-            const data = await readFile(path.join(inDir, locale, file));
-            result = dataToObject(data, fileType.preFn);
+            return dataToObject(
+                await readFile(path.join(inDir, locale, file))
+            );
         } catch (error) {
-            result = {};
+            return {};
         }
-    }
+    };
 
-    if (fileType.postFn) {
-        result = fileType.postFn(result);
-    }
+    const result = await cond([
+        [
+            Array.isArray,
+            flow(
+                map(fileToObject),
+                results => Promise.all(results)
+            )
+        ],
+        [
+            () => true,
+            fileToObject
+        ]
+    ])(files);
+
+    const processedResult = transform(result);
 
     await writeFile(
-        path.join(outDir, locale, `${fileType.name}.js`),
-        `export default ${JSON.stringify(result)}`
+        path.join(outDir, locale, `${name}.js`),
+        `export default ${JSON.stringify(processedResult)}`
     );
 
-    return result;
+    return processedResult;
 }
 
 async function translations() {
-    await locales.map(async locale => {
-        await Promise.all([
-            mkdirs(path.join(inDir, locale)),
-            mkdirs(path.join(outDir, locale))
-        ]);
-        return Promise.all(
-            fileTypes.map(fileType => parseTranslationFile(locale, fileType))
-        );
-    });
+    await Promise.all(
+        map(
+            async locale => {
+                await Promise.all([
+                    mkdirs(path.join(inDir, locale)),
+                    mkdirs(path.join(outDir, locale))
+                ]);
+                return Promise.all(
+                    map(
+                        fileType => parseTranslationFile(locale, fileType),
+                        fileTypes
+                    )
+                );
+            },
+            locales
+        )
+    );
 }
 
 translations().catch(error => {

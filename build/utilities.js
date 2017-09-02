@@ -1,16 +1,18 @@
 "use strict";
-const {identity, mapKeys, omitBy} = require("lodash");
+const {
+    flow, fromPairs, map, mapKeys,
+    pickBy, reject, split, toPairs
+} = require("lodash/fp");
 
-function dataToObject(data, preFunc = identity) {
-    if (!data) return data;
-    const obj = {};
-    const lines = String(stripByteOrderMark(data)).split("\n");
-    for (let line of lines) {
-        line = parseLine(line.split("#", 1)[0]);
-        if (!line.key) continue;
-        obj[line.key] = preFunc(line.value);
-    }
-    return obj;
+function dataToObject(data) {
+    return data && flow(
+        stripByteOrderMark,
+        String,
+        split("\n"),
+        map(parseLine),
+        fromPairs,
+        pickBy((value, key) => key)
+    )(data);
 }
 
 function stripByteOrderMark(data) {
@@ -29,10 +31,10 @@ function parseLine(line) {
         idx = line.length;
     }
 
-    return {
-        key: line.slice(0, idx).trim(),
-        value: line.slice(idx).trim()
-    };
+    return [
+        line.slice(0, idx).trim(),
+        line.slice(idx).trim()
+    ];
 }
 
 const baseFormOnly = [
@@ -63,12 +65,15 @@ function isAesthetic(id) {
 }
 
 function removeAestheticPokes(obj) {
-    return omitBy(obj, (value, id) => isAesthetic(id));
+    return obj && flow(
+        toPairs,
+        reject(entry => isAesthetic(entry[0])),
+        fromPairs
+    )(obj);
 }
 
 function simplifyPokeIds(obj) {
-    if (!obj) return obj;
-    return mapKeys(obj, (value, key) => key.split(":", 2).join(":"));
+    return obj && mapKeys(key => key.split(":", 2).join(":"), obj);
 }
 
 function berryToItem(berryId) {
@@ -76,7 +81,11 @@ function berryToItem(berryId) {
 }
 
 function berriesToItems(berries) {
-    return mapKeys(berries, (value, key) => berryToItem(key));
+    return mapKeys(berryToItem, berries);
+}
+
+function combineItemsAndBerries(items, berries) {
+    return {...items, ...berriesToItems(berries)};
 }
 
 module.exports = {
@@ -84,5 +93,5 @@ module.exports = {
     dataToObject,
     simplifyPokeIds,
     removeAestheticPokes,
-    berriesToItems
+    combineItemsAndBerries
 };

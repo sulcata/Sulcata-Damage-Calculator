@@ -1,7 +1,7 @@
 "use strict";
 const webpack = require("webpack");
 const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
-const {cloneDeep} = require("lodash");
+const {cloneDeep} = require("lodash/fp");
 const baseConfig = require("./webpack.app.config");
 
 const config = cloneDeep(baseConfig);
