@@ -1,28 +1,7 @@
-"use strict";
-const path = require("path");
-const {mkdirs, writeFile} = require("fs-extra");
-const _ = require("lodash/fp");
-const {info, Move, Gens, Stats} = require("../src/sulcalc");
-const smogonSetdex = [
-    null,
-    require("./data/setdex/setdex_rby").default,
-    require("./data/setdex/setdex_gsc").default,
-    require("./data/setdex/setdex_rse").default,
-    require("./data/setdex/setdex_dpp").default,
-    require("./data/setdex/setdex_bw").default,
-    require("./data/setdex/setdex_xy").default,
-    require("./data/setdex/setdex_sm").default
-];
-const pokemonPerfectSetdex = [
-    null,
-    require("./data/setdex/setdex_rby_pp").default,
-    {},
-    {},
-    {},
-    {},
-    require("./data/setdex/setdex_xy_pp").default,
-    {}
-];
+import path from "path";
+import {mkdirs, writeFile} from "fs-extra";
+import _ from "lodash/fp";
+import {info, Move, Gens, Stats} from "../src/sulcalc";
 
 function minifySetdexData(setdexData) {
     return setdexData.map((setdex, gen) => minifySetdex(setdex, gen));
@@ -113,16 +92,49 @@ function importMove(move, gen) {
 }
 
 async function setdex() {
+    const inDir = path.join(__dirname, "data/setdex");
     const outDir = path.join(__dirname, "../dist/setdex");
+    const filesToSetdex = _.map(_.cond([
+        [
+            _.isString,
+            async file => (await import(path.join(inDir, file))).default
+        ],
+        [
+            _.stubTrue,
+            _.identity
+        ]
+    ]));
     await mkdirs(outDir);
     const data = [
         {
             file: "smogon.js",
-            data: smogonSetdex
+            data: await Promise.all(
+                filesToSetdex([
+                    {},
+                    "setdex_rby",
+                    "setdex_gsc",
+                    "setdex_rse",
+                    "setdex_dpp",
+                    "setdex_bw",
+                    "setdex_xy",
+                    "setdex_sm"
+                ])
+            )
         },
         {
             file: "pokemonPerfect.js",
-            data: pokemonPerfectSetdex
+            data: await Promise.all(
+                filesToSetdex([
+                    {},
+                    "setdex_rby_pp",
+                    {},
+                    {},
+                    {},
+                    {},
+                    "setdex_xy_pp",
+                    {}
+                ])
+            )
         }
     ];
     await Promise.all(

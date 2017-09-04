@@ -1,13 +1,12 @@
-"use strict";
-const path = require("path");
-const {mkdirs, writeFile, readFile} = require("fs-extra");
-const _ = require("lodash/fp");
-const {
+import path from "path";
+import {mkdirs, writeFile, readFile} from "fs-extra";
+import _ from "lodash/fp";
+import {
     dataToObject,
     simplifyPokeIds,
     removeAestheticPokes,
     combineItemsAndBerries
-} = require("./utilities");
+} from "./utilities";
 
 const inDir = path.join(__dirname, "data/translations");
 const outDir = path.join(__dirname, "../dist/translations");

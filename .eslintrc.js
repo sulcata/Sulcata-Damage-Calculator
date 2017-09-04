@@ -196,7 +196,7 @@ module.exports = {
     },
     overrides: [
         {
-            files: [src, app, test],
+            files: [src, app, test, scripts],
             parserOptions: {sourceType: "module"}
         },
         {

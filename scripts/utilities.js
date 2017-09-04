@@ -1,7 +1,6 @@
-"use strict";
-const _ = require("lodash/fp");
+import _ from "lodash/fp";
 
-const dataToObject = _.cond([
+export const dataToObject = _.cond([
     [
         _.isBuffer,
         _.flow(
@@ -19,7 +18,7 @@ const dataToObject = _.cond([
     ]
 ]);
 
-function stripByteOrderMark(data) {
+export function stripByteOrderMark(data) {
     if (data.length >= 3 && data.readUIntBE(0, 3) === 0xEFBBBF) {
         return data.slice(3);
     }
@@ -69,7 +68,7 @@ function isAesthetic(id) {
         && baseFormOnly.has(num);
 }
 
-function removeAestheticPokes(obj) {
+export function removeAestheticPokes(obj) {
     return obj && _.flow(
         _.toPairs,
         _.reject(entry => isAesthetic(entry[0])),
@@ -77,7 +76,7 @@ function removeAestheticPokes(obj) {
     )(obj);
 }
 
-function simplifyPokeIds(obj) {
+export function simplifyPokeIds(obj) {
     return obj && _.mapKeys(key => key.split(":", 2).join(":"), obj);
 }
 
@@ -85,14 +84,6 @@ function berryToItem(berryId) {
     return Number(berryId) + 8000;
 }
 
-function combineItemsAndBerries(items, berries) {
+export function combineItemsAndBerries(items, berries) {
     return {...items, ..._.mapKeys(berryToItem, berries)};
 }
-
-module.exports = {
-    stripByteOrderMark,
-    dataToObject,
-    simplifyPokeIds,
-    removeAestheticPokes,
-    combineItemsAndBerries
-};

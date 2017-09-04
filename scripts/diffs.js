@@ -1,7 +1,6 @@
-"use strict";
-const _ = require("lodash/fp");
+import _ from "lodash/fp";
 
-const changes = _.rest(
+export const changes = _.rest(
     _.flow(
         _.reverse,
         _.map(_.toPairs),
@@ -10,7 +9,7 @@ const changes = _.rest(
     )
 );
 
-const deletions = _.overArgs(
+export const deletions = _.overArgs(
     _.rest(
         _.flow(
             _.map(_.keys),
@@ -22,12 +21,12 @@ const deletions = _.overArgs(
     [_.omitBy(_.isNull), _.identity]
 );
 
-const diffs = _.flow(
+export const diffs = _.flow(
     _.over([changes, deletions]),
     _.mergeAll
 );
 
-const reduceByDiffs = _.flow(
+export const reduceByDiffs = _.flow(
     _.over([
         _.flow(_.dropRight(1), _.concat({})),
         _.identity
@@ -35,10 +34,3 @@ const reduceByDiffs = _.flow(
     _.unzip,
     _.map(_.spread(diffs))
 );
-
-module.exports = {
-    changes,
-    deletions,
-    diffs,
-    reduceByDiffs
-};

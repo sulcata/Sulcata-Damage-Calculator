@@ -1,14 +1,13 @@
-"use strict";
-const path = require("path");
-const {mkdirs, writeFile, readFile} = require("fs-extra");
-const _ = require("lodash/fp");
-const {
+import path from "path";
+import {mkdirs, writeFile, readFile} from "fs-extra";
+import _ from "lodash/fp";
+import {
     dataToObject,
     simplifyPokeIds,
     removeAestheticPokes,
     combineItemsAndBerries
-} = require("./utilities");
-const {reduceByDiffs} = require("./diffs");
+} from "./utilities";
+import {reduceByDiffs} from "./diffs";
 
 const inDir = path.join(__dirname, "data/db");
 const outDir = path.join(__dirname, "../dist/db");
@@ -561,7 +560,7 @@ const dataList = [
 ];
 
 async function db() {
-    await Promise.all(_.map(mkdirs, [inDir, outDir]));
+    await mkdirs(outDir);
     await Promise.all([
         ..._.map(processData, dataList),
         createIndex(_.map(entry => entry.name, dataList))
