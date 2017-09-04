@@ -10,7 +10,7 @@ const {
 } = require("./utilities");
 const {reduceByDiffs} = require("./diffs");
 
-const inDir = path.join(__dirname, "db");
+const inDir = path.join(__dirname, "data/db");
 const outDir = path.join(__dirname, "../dist/db");
 
 const createIndex = _.flow(

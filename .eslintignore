@@ -1,6 +1,4 @@
 dist
 coverage
-scripts/db
-scripts/setdex
-scripts/translations
+scripts/data
 !.eslintrc.js

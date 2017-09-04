@@ -9,7 +9,7 @@ const {
     combineItemsAndBerries
 } = require("./utilities");
 
-const inDir = path.join(__dirname, "translations");
+const inDir = path.join(__dirname, "data/translations");
 const outDir = path.join(__dirname, "../dist/translations");
 const locales = ["de", "es", "fr", "it", "zh-cn"];
 

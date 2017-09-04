@@ -5,22 +5,22 @@ const _ = require("lodash/fp");
 const {info, Move, Gens, Stats} = require("../src/sulcalc");
 const smogonSetdex = [
     null,
-    require("./setdex/setdex_rby").default,
-    require("./setdex/setdex_gsc").default,
-    require("./setdex/setdex_rse").default,
-    require("./setdex/setdex_dpp").default,
-    require("./setdex/setdex_bw").default,
-    require("./setdex/setdex_xy").default,
-    require("./setdex/setdex_sm").default
+    require("./data/setdex/setdex_rby").default,
+    require("./data/setdex/setdex_gsc").default,
+    require("./data/setdex/setdex_rse").default,
+    require("./data/setdex/setdex_dpp").default,
+    require("./data/setdex/setdex_bw").default,
+    require("./data/setdex/setdex_xy").default,
+    require("./data/setdex/setdex_sm").default
 ];
 const pokemonPerfectSetdex = [
     null,
-    require("./setdex/setdex_rby_pp").default,
+    require("./data/setdex/setdex_rby_pp").default,
     {},
     {},
     {},
     {},
-    require("./setdex/setdex_xy_pp").default,
+    require("./data/setdex/setdex_xy_pp").default,
     {}
 ];
 
