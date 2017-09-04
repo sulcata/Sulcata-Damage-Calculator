@@ -1,30 +1,25 @@
 "use strict";
 const path = require("path");
 const {mkdirs, writeFile, readFile} = require("fs-extra");
-const {
-    differenceWith, chunk, compact, cond, flow, fromPairs,
-    identity, isEqual, join, map, mapValues, omitBy, replace,
-    reverse, split, spread, toPairs, unzip, __
-} = require("lodash/fp");
+const _ = require("lodash/fp");
 const {
     dataToObject,
     simplifyPokeIds,
     removeAestheticPokes,
     combineItemsAndBerries
 } = require("./utilities");
+const {reduceByDiffs} = require("./diffs");
 
 const inDir = path.join(__dirname, "db");
 const outDir = path.join(__dirname, "../dist/db");
 
-async function createIndex(names) {
-    const exports = flow(
-        map(name => `export {default as ${name}} from "./${name}"`),
-        join("\n")
-    )(names);
-    await writeFile(path.join(outDir, "index.js"), exports);
-}
+const createIndex = _.flow(
+    _.map(name => `export {default as ${name}} from "./${name}"`),
+    _.join("\n"),
+    exports => writeFile(path.join(outDir, "index.js"), exports)
+);
 
-async function processData({name, files, transform = identity}) {
+async function processData({name, files, transform = _.identity}) {
     const fileToObject = async file => {
         if (typeof file !== "string") return file;
         return dataToObject(
@@ -32,16 +27,16 @@ async function processData({name, files, transform = identity}) {
         );
     };
 
-    const result = await cond([
+    const result = await _.cond([
         [
-            Array.isArray,
-            flow(
-                map(fileToObject),
+            _.isArray,
+            _.flow(
+                _.map(fileToObject),
                 files => Promise.all(files)
             )
         ],
         [
-            () => true,
+            _.stubTrue,
             fileToObject
         ]
     ])(files);
@@ -56,34 +51,13 @@ async function processData({name, files, transform = identity}) {
     return processedResult;
 }
 
-function reduceByDiffs(arrayOfObjects) {
-    const mergedObject = {};
-    const newArrayOfObjects = [];
-    for (const object of arrayOfObjects) {
-        const mergedPairs = toPairs(mergedObject);
-        const diffs = flow(
-            toPairs,
-            differenceWith(isEqual, __, mergedPairs),
-            fromPairs
-        )(object);
-        for (const [key, value] of mergedPairs) {
-            if (value !== null && !object.hasOwnProperty(key)) {
-                diffs[key] = null;
-            }
-        }
-        newArrayOfObjects.push(diffs);
-        Object.assign(mergedObject, diffs);
-    }
-    return newArrayOfObjects;
-}
-
-const createPreprocessor = fn => map(mapValues(fn));
-const omitCurseType = omitBy(type => type === 18);
-const mapValuesToNumbers = mapValues(Number);
-const mapAllValuesToNumbers = map(mapValuesToNumbers);
-const mapValuesToOne = mapValues(() => 1);
-const mapAllValuesToOne = map(mapValuesToOne);
-const parseNumberList = flow(split(" "), map(Number));
+const createPreprocessor = fn => _.map(_.mapValues(fn));
+const omitCurseType = _.omitBy(type => type === 18);
+const mapValuesToNumbers = _.mapValues(Number);
+const mapAllValuesToNumbers = _.map(mapValuesToNumbers);
+const mapValuesToOne = _.mapValues(() => 1);
+const mapAllValuesToOne = _.map(mapValuesToOne);
+const parseNumberList = _.flow(_.split(" "), _.map(Number));
 
 const dataList = [
     {
@@ -126,7 +100,7 @@ const dataList = [
             "moves/6G/category.txt",
             "moves/7G/category.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -143,7 +117,7 @@ const dataList = [
             "moves/6G/damage_class.txt",
             "moves/7G/damage_class.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -151,7 +125,7 @@ const dataList = [
     {
         name: "evolutions",
         files: "pokes/evos.txt",
-        transform: mapValues(parseNumberList)
+        transform: _.mapValues(parseNumberList)
     },
     {
         name: "moveFlags",
@@ -165,7 +139,7 @@ const dataList = [
             "moves/6G/flags.txt",
             "moves/7G/flags.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -182,7 +156,7 @@ const dataList = [
             "moves/6G/flinch_chance.txt",
             "moves/7G/flinch_chance.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -202,8 +176,8 @@ const dataList = [
         ],
         transform(objs) {
             const [berryEffects, ...itemEffectsList] = objs;
-            return flow([
-                map(
+            return _.flow([
+                _.map(
                     itemEffects => combineItemsAndBerries(
                         itemEffects,
                         berryEffects
@@ -224,9 +198,9 @@ const dataList = [
             "items/item_useful.txt",
             "items/berry_useful.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToOne,
-            spread(combineItemsAndBerries)
+            _.spread(combineItemsAndBerries)
         )
     },
     {
@@ -235,7 +209,7 @@ const dataList = [
             "items/items.txt",
             "items/berries.txt"
         ],
-        transform: spread(combineItemsAndBerries)
+        transform: _.spread(combineItemsAndBerries)
     },
     {
         name: "moves",
@@ -262,7 +236,7 @@ const dataList = [
             "moves/6G/recoil.txt",
             "moves/7G/recoil.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -279,14 +253,14 @@ const dataList = [
             "moves/6G/statboost.txt",
             "moves/7G/statboost.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             createPreprocessor(
-                flow(
+                _.flow(
                     s => new Uint32Array([Number(s)]),
                     arr => new Int8Array(arr.buffer, 0, 3),
                     Array.from,
-                    compact,
-                    reverse
+                    _.compact,
+                    _.reverse
                 )
             ),
             reduceByDiffs
@@ -299,12 +273,9 @@ const dataList = [
     {
         name: "weights",
         files: "pokes/weight.txt",
-        transform: flow(
-            mapValues(
-                flow(
-                    replace(".", ""),
-                    Number
-                )
+        transform: _.flow(
+            _.mapValues(
+                _.flow(_.replace(".", ""), Number)
             ),
             simplifyPokeIds
         )
@@ -326,7 +297,7 @@ const dataList = [
             "moves/6G/min_max_hits.txt",
             "moves/7G/min_max_hits.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -343,7 +314,7 @@ const dataList = [
             "moves/6G/type.txt",
             "moves/7G/type.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -360,10 +331,10 @@ const dataList = [
             "pokes/6G/type1.txt",
             "pokes/7G/type1.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
-            map(omitCurseType),
-            map(simplifyPokeIds),
+            _.map(omitCurseType),
+            _.map(simplifyPokeIds),
             reduceByDiffs
         )
     },
@@ -379,10 +350,10 @@ const dataList = [
             "pokes/6G/type2.txt",
             "pokes/7G/type2.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
-            map(omitCurseType),
-            map(simplifyPokeIds),
+            _.map(omitCurseType),
+            _.map(simplifyPokeIds),
             reduceByDiffs
         )
     },
@@ -398,7 +369,7 @@ const dataList = [
             "moves/6G/power.txt",
             "moves/7G/power.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -415,7 +386,7 @@ const dataList = [
             "moves/6G/range.txt",
             "moves/7G/range.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -432,9 +403,9 @@ const dataList = [
             "pokes/6G/stats.txt",
             "pokes/7G/stats.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             createPreprocessor(parseNumberList),
-            map(simplifyPokeIds),
+            _.map(simplifyPokeIds),
             reduceByDiffs
         )
     },
@@ -450,7 +421,7 @@ const dataList = [
             "types/6G/typestable.txt",
             "types/7G/typestable.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             createPreprocessor(parseNumberList),
             reduceByDiffs
         )
@@ -467,7 +438,7 @@ const dataList = [
             "pokes/6G/ability1.txt",
             "pokes/7G/ability1.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -484,7 +455,7 @@ const dataList = [
             "pokes/6G/ability2.txt",
             "pokes/7G/ability2.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -501,7 +472,7 @@ const dataList = [
             "pokes/6G/ability3.txt",
             "pokes/7G/ability3.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToNumbers,
             reduceByDiffs
         )
@@ -526,11 +497,18 @@ const dataList = [
             "items/6G/released_berries.txt",
             "items/7G/released_berries.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToOne,
-            objs => chunk(objs.length / 2, objs),
-            unzip,
-            map(spread(combineItemsAndBerries)),
+            _.over([
+                _.flow(
+                    _.property("length"),
+                    _.divide(_, 2)
+                ),
+                _.identity
+            ]),
+            _.spread(_.chunk),
+            _.unzip,
+            _.map(_.spread(combineItemsAndBerries)),
             reduceByDiffs
         )
     },
@@ -546,7 +524,7 @@ const dataList = [
             "moves/6G/moves.txt",
             "moves/7G/moves.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToOne,
             reduceByDiffs
         )
@@ -563,10 +541,10 @@ const dataList = [
             "pokes/6G/released.txt",
             "pokes/7G/released.txt"
         ],
-        transform: flow(
+        transform: _.flow(
             mapAllValuesToOne,
-            map(removeAestheticPokes),
-            map(simplifyPokeIds),
+            _.map(removeAestheticPokes),
+            _.map(simplifyPokeIds),
             reduceByDiffs
         )
     },
@@ -583,10 +561,10 @@ const dataList = [
 ];
 
 async function db() {
-    await Promise.all(map(mkdirs, [inDir, outDir]));
+    await Promise.all(_.map(mkdirs, [inDir, outDir]));
     await Promise.all([
-        ...map(processData, dataList),
-        createIndex(map(entry => entry.name, dataList))
+        ..._.map(processData, dataList),
+        createIndex(_.map(entry => entry.name, dataList))
     ]);
 }
 

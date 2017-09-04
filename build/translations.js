@@ -1,7 +1,7 @@
 "use strict";
 const path = require("path");
 const {mkdirs, writeFile, readFile} = require("fs-extra");
-const {cond, flow, identity, map} = require("lodash/fp");
+const _ = require("lodash/fp");
 const {
     dataToObject,
     simplifyPokeIds,
@@ -34,7 +34,7 @@ const fileTypes = [
     {
         name: "pokemons",
         files: "db/pokes/pokemons.txt",
-        transform: flow(
+        transform: _.flow(
             simplifyPokeIds,
             removeAestheticPokes
         )
@@ -52,7 +52,7 @@ const fileTypes = [
 async function parseTranslationFile(locale, {
     name,
     files,
-    transform = identity
+    transform = _.identity
 }) {
     const fileToObject = async file => {
         try {
@@ -64,16 +64,16 @@ async function parseTranslationFile(locale, {
         }
     };
 
-    const result = await cond([
+    const result = await _.cond([
         [
-            Array.isArray,
-            flow(
-                map(fileToObject),
+            _.isArray,
+            _.flow(
+                _.map(fileToObject),
                 results => Promise.all(results)
             )
         ],
         [
-            () => true,
+            _.stubTrue,
             fileToObject
         ]
     ])(files);
@@ -90,14 +90,14 @@ async function parseTranslationFile(locale, {
 
 async function translations() {
     await Promise.all(
-        map(
+        _.map(
             async locale => {
                 await Promise.all([
                     mkdirs(path.join(inDir, locale)),
                     mkdirs(path.join(outDir, locale))
                 ]);
                 return Promise.all(
-                    map(
+                    _.map(
                         fileType => parseTranslationFile(locale, fileType),
                         fileTypes
                     )

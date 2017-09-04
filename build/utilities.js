@@ -1,19 +1,23 @@
 "use strict";
-const {
-    flow, fromPairs, map, mapKeys,
-    pickBy, reject, split, toPairs
-} = require("lodash/fp");
+const _ = require("lodash/fp");
 
-function dataToObject(data) {
-    return data && flow(
-        stripByteOrderMark,
-        String,
-        split("\n"),
-        map(parseLine),
-        fromPairs,
-        pickBy((value, key) => key)
-    )(data);
-}
+const dataToObject = _.cond([
+    [
+        _.isBuffer,
+        _.flow(
+            stripByteOrderMark,
+            String,
+            _.split("\n"),
+            _.map(parseLine),
+            _.fromPairs,
+            _.pickBy((value, key) => key)
+        )
+    ],
+    [
+        _.stubTrue,
+        _.identity
+    ]
+]);
 
 function stripByteOrderMark(data) {
     if (data.length >= 3 && data.readUIntBE(0, 3) === 0xEFBBBF) {
@@ -37,7 +41,7 @@ function parseLine(line) {
     ];
 }
 
-const baseFormOnly = [
+const baseFormOnly = new Set([
     "201",
     "666",
     "676",
@@ -52,40 +56,37 @@ const baseFormOnly = [
     "423",
     "550",
     "716"
-];
+]);
 
-const exceptions = [
+const exceptions = new Set([
     "670:5"
-];
+]);
 
 function isAesthetic(id) {
-    return !exceptions.includes(id)
-        && id.split(":")[1] !== "0"
-        && baseFormOnly.some(baseId => id.startsWith(baseId));
+    const [num, form] = id.split(":");
+    return form !== "0"
+        && !exceptions.has(id)
+        && baseFormOnly.has(num);
 }
 
 function removeAestheticPokes(obj) {
-    return obj && flow(
-        toPairs,
-        reject(entry => isAesthetic(entry[0])),
-        fromPairs
+    return obj && _.flow(
+        _.toPairs,
+        _.reject(entry => isAesthetic(entry[0])),
+        _.fromPairs
     )(obj);
 }
 
 function simplifyPokeIds(obj) {
-    return obj && mapKeys(key => key.split(":", 2).join(":"), obj);
+    return obj && _.mapKeys(key => key.split(":", 2).join(":"), obj);
 }
 
 function berryToItem(berryId) {
     return Number(berryId) + 8000;
 }
 
-function berriesToItems(berries) {
-    return mapKeys(berryToItem, berries);
-}
-
 function combineItemsAndBerries(items, berries) {
-    return {...items, ...berriesToItems(berries)};
+    return {...items, ..._.mapKeys(berryToItem, berries)};
 }
 
 module.exports = {

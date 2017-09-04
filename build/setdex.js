@@ -1,10 +1,7 @@
 "use strict";
 const path = require("path");
 const {mkdirs, writeFile} = require("fs-extra");
-const {
-    flow, fromPairs, map, mapKeys,
-    mapValues, omitBy, toPairs
-} = require("lodash/fp");
+const _ = require("lodash/fp");
 const {info, Move, Gens, Stats} = require("../src/sulcalc");
 const smogonSetdex = [
     null,
@@ -32,19 +29,19 @@ function minifySetdexData(setdexData) {
 }
 
 function minifySetdex(setdex, gen) {
-    return setdex && flow(
-        mapKeys(info.pokemonId),
-        omitBy((sets, id) => id === "0:0"),
-        toPairs,
-        map(([id, sets]) => [id, minifySets(sets, id, gen)]),
-        fromPairs
+    return setdex && _.flow(
+        _.mapKeys(info.pokemonId),
+        _.omitBy((sets, id) => id === "0:0"),
+        _.toPairs,
+        _.map(([id, sets]) => [id, minifySets(sets, id, gen)]),
+        _.fromPairs
     )(setdex);
 }
 
 function minifySets(sets, pokemonId, gen) {
-    return flow(
-        omitBy((set, setName) => setName.includes("CAP")),
-        mapValues(set => minifySet(set, pokemonId, gen))
+    return _.flow(
+        _.omitBy((set, setName) => setName.includes("CAP")),
+        _.mapValues(set => minifySet(set, pokemonId, gen))
     )(sets);
 }
 
@@ -82,11 +79,11 @@ function minifySet(set, pokemonId, gen) {
         minifiedSet.i = info.itemId(set.item);
     }
 
-    const moves = map(move => importMove(move, gen), set.moves);
+    const moves = _.map(move => importMove(move, gen), set.moves);
     for (const move of moves) {
         if (move.ivs) minifiedSet.d = move.ivs;
     }
-    minifiedSet.m = map(move => move.id, moves);
+    minifiedSet.m = _.map(move => move.id, moves);
 
     if (set.evs) {
         minifiedSet.e = Array(6).fill(defaultEv);
@@ -129,7 +126,7 @@ async function setdex() {
         }
     ];
     await Promise.all(
-        map(
+        _.map(
             entry => writeFile(
                 path.join(outDir, entry.file),
                 `export default ${JSON.stringify(minifySetdexData(entry.data))}`
