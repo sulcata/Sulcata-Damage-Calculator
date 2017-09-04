@@ -22,9 +22,9 @@
         "test:unit": "jest --coverage",
         "lint": "eslint '**/*.{js,vue}'",
         "setup": "yarn db && yarn setdex && yarn translations",
-        "db": "babel-node build/db",
-        "setdex": "babel-node build/setdex",
-        "translations": "babel-node build/translations"
+        "db": "babel-node scripts/db",
+        "setdex": "babel-node scripts/setdex",
+        "translations": "babel-node scripts/translations"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",

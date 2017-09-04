@@ -4,6 +4,7 @@ const src = "src/**/*.js";
 const app = "app/**/*.{js,vue}";
 const test = "test/**/*.js";
 const build = "build/**/*.js";
+const scripts = "scripts/**/*.js";
 
 module.exports = {
     root: true,
@@ -214,7 +215,7 @@ module.exports = {
             rules: {"max-lines": "off"}
         },
         {
-            files: [build],
+            files: [build, scripts],
             rules: {"no-console": "off"}
         }
     ]
