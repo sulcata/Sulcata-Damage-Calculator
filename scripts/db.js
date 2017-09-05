@@ -13,12 +13,13 @@ const inDir = path.join(__dirname, "data/db");
 const outDir = path.join(__dirname, "../dist/db");
 
 const createIndex = _.flow(
-    _.map(name => `export {default as ${name}} from "./${name}"`),
+    _.reject(_.property("exclude")),
+    _.map(({name}) => `export {default as ${name}} from "./${name}"`),
     _.join("\n"),
     exports => writeFile(path.join(outDir, "index.js"), exports)
 );
 
-async function processData({name, files, transform = _.identity}) {
+const processData = async({name, files, transform = _.identity}) => {
     const fileToObject = async file => {
         if (typeof file !== "string") return file;
         return dataToObject(
@@ -26,35 +27,24 @@ async function processData({name, files, transform = _.identity}) {
         );
     };
 
-    const result = await _.cond([
-        [
-            _.isArray,
-            _.flow(
-                _.map(fileToObject),
-                files => Promise.all(files)
-            )
-        ],
-        [
-            _.stubTrue,
-            fileToObject
-        ]
-    ])(files);
-
-    const processedResult = transform(result);
+    const pendingResult = Array.isArray(files)
+        ? Promise.all(_.map(fileToObject, files))
+        : fileToObject(files);
+    const result = transform(await pendingResult);
 
     await writeFile(
         path.join(outDir, `${name}.js`),
-        `export default ${JSON.stringify(processedResult)}`
+        `export default ${JSON.stringify(result)}`
     );
 
-    return processedResult;
-}
+    return result;
+};
 
 const createPreprocessor = fn => _.map(_.mapValues(fn));
-const omitCurseType = _.omitBy(type => type === 18);
+const omitCurseType = _.omitBy(_.eq(18));
 const mapValuesToNumbers = _.mapValues(Number);
 const mapAllValuesToNumbers = _.map(mapValuesToNumbers);
-const mapValuesToOne = _.mapValues(() => 1);
+const mapValuesToOne = _.mapValues(_.constant(1));
 const mapAllValuesToOne = _.map(mapValuesToOne);
 const parseNumberList = _.flow(_.split(" "), _.map(Number));
 
@@ -426,6 +416,7 @@ const dataList = [
         )
     },
     {
+        exclude: true,
         name: "abilities1",
         files: [
             {},
@@ -437,44 +428,7 @@ const dataList = [
             "pokes/6G/ability1.txt",
             "pokes/7G/ability1.txt"
         ],
-        transform: _.flow(
-            mapAllValuesToNumbers,
-            reduceByDiffs
-        )
-    },
-    {
-        name: "abilities2",
-        files: [
-            {},
-            {},
-            {},
-            "pokes/3G/ability2.txt",
-            "pokes/4G/ability2.txt",
-            "pokes/5G/ability2.txt",
-            "pokes/6G/ability2.txt",
-            "pokes/7G/ability2.txt"
-        ],
-        transform: _.flow(
-            mapAllValuesToNumbers,
-            reduceByDiffs
-        )
-    },
-    {
-        name: "abilities3",
-        files: [
-            {},
-            {},
-            {},
-            {},
-            {},
-            "pokes/5G/ability3.txt",
-            "pokes/6G/ability3.txt",
-            "pokes/7G/ability3.txt"
-        ],
-        transform: _.flow(
-            mapAllValuesToNumbers,
-            reduceByDiffs
-        )
+        transform: mapAllValuesToNumbers
     },
     {
         name: "releasedItems",
@@ -499,10 +453,7 @@ const dataList = [
         transform: _.flow(
             mapAllValuesToOne,
             _.over([
-                _.flow(
-                    _.property("length"),
-                    _.divide(_, 2)
-                ),
+                _.flow(_.property("length"), _.divide(_, 2)),
                 _.identity
             ]),
             _.spread(_.chunk),
@@ -559,13 +510,13 @@ const dataList = [
     }
 ];
 
-async function db() {
+const db = async() => {
     await mkdirs(outDir);
     await Promise.all([
         ..._.map(processData, dataList),
-        createIndex(_.map(entry => entry.name, dataList))
+        createIndex(dataList)
     ]);
-}
+};
 
 db().catch(error => {
     console.log(error);

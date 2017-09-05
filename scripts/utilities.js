@@ -1,5 +1,25 @@
 import _ from "lodash/fp";
 
+const omitByUncapped = _.omitBy.convert({cap: false});
+
+const stripByteOrderMark = data => {
+    if (data.length >= 3 && data.readUIntBE(0, 3) === 0xEFBBBF) {
+        return data.slice(3);
+    }
+    return data;
+};
+
+const parseLine = _.flow(
+    _.split("#"),
+    _.head,
+    _.split(" "),
+    _.over([
+        _.head,
+        _.flow(_.tail, _.join(" "))
+    ]),
+    _.map(_.trim)
+);
+
 export const dataToObject = _.cond([
     [
         _.isBuffer,
@@ -17,28 +37,6 @@ export const dataToObject = _.cond([
         _.identity
     ]
 ]);
-
-export function stripByteOrderMark(data) {
-    if (data.length >= 3 && data.readUIntBE(0, 3) === 0xEFBBBF) {
-        return data.slice(3);
-    }
-    return data;
-}
-
-function parseLine(line) {
-    // strip comments
-    line = line.split("#", 1)[0];
-
-    let idx = line.indexOf(" ");
-    if (idx < 0) {
-        idx = line.length;
-    }
-
-    return [
-        line.slice(0, idx).trim(),
-        line.slice(idx).trim()
-    ];
-}
 
 const baseFormOnly = new Set([
     "201",
@@ -61,29 +59,26 @@ const exceptions = new Set([
     "670:5"
 ]);
 
-function isAesthetic(id) {
+const isAesthetic = id => {
     const [num, form] = id.split(":");
     return form !== "0"
         && !exceptions.has(id)
         && baseFormOnly.has(num);
-}
+};
 
-export function removeAestheticPokes(obj) {
-    return obj && _.flow(
-        _.toPairs,
-        _.reject(entry => isAesthetic(entry[0])),
-        _.fromPairs
-    )(obj);
-}
+export const removeAestheticPokes = omitByUncapped(
+    (name, id) => isAesthetic(id)
+);
 
-export function simplifyPokeIds(obj) {
-    return obj && _.mapKeys(key => key.split(":", 2).join(":"), obj);
-}
+export const simplifyPokeIds = _.mapKeys(_.flow(
+    _.split(":"),
+    _.take(2),
+    _.join(":")
+));
 
-function berryToItem(berryId) {
-    return Number(berryId) + 8000;
-}
+const berryToItem = _.flow(_.toNumber, _.add(8000));
 
-export function combineItemsAndBerries(items, berries) {
-    return {...items, ..._.mapKeys(berryToItem, berries)};
-}
+export const combineItemsAndBerries = (items, berries) => ({
+    ...items,
+    ..._.mapKeys(berryToItem, berries)
+});

@@ -48,11 +48,11 @@ const fileTypes = [
     }
 ];
 
-async function parseTranslationFile(locale, {
+const parseTranslationFile = async(locale, {
     name,
     files,
     transform = _.identity
-}) {
+}) => {
     const fileToObject = async file => {
         try {
             return dataToObject(
@@ -63,31 +63,20 @@ async function parseTranslationFile(locale, {
         }
     };
 
-    const result = await _.cond([
-        [
-            _.isArray,
-            _.flow(
-                _.map(fileToObject),
-                results => Promise.all(results)
-            )
-        ],
-        [
-            _.stubTrue,
-            fileToObject
-        ]
-    ])(files);
-
-    const processedResult = transform(result);
+    const pendingResult = Array.isArray(files)
+        ? Promise.all(_.map(fileToObject, files))
+        : fileToObject(files);
+    const result = transform(await pendingResult);
 
     await writeFile(
         path.join(outDir, locale, `${name}.js`),
-        `export default ${JSON.stringify(processedResult)}`
+        `export default ${JSON.stringify(result)}`
     );
 
-    return processedResult;
-}
+    return result;
+};
 
-async function translations() {
+const translations = async() => {
     await Promise.all(
         _.map(
             async locale => {
@@ -105,7 +94,7 @@ async function translations() {
             locales
         )
     );
-}
+};
 
 translations().catch(error => {
     console.log(error);

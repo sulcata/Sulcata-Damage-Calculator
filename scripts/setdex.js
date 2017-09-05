@@ -2,29 +2,22 @@ import path from "path";
 import {mkdirs, writeFile} from "fs-extra";
 import _ from "lodash/fp";
 import {info, Move, Gens, Stats} from "../src/sulcalc";
+import abilities1 from "../dist/db/abilities1";
 
-function minifySetdexData(setdexData) {
-    return setdexData.map((setdex, gen) => minifySetdex(setdex, gen));
-}
+const mapUncapped = _.map.convert({cap: false});
+const mapValuesUncapped = _.mapValues.convert({cap: false});
 
-function minifySetdex(setdex, gen) {
-    return setdex && _.flow(
-        _.mapKeys(info.pokemonId),
-        _.omitBy((sets, id) => id === "0:0"),
-        _.toPairs,
-        _.map(([id, sets]) => [id, minifySets(sets, id, gen)]),
-        _.fromPairs
-    )(setdex);
-}
+const importMove = _.curry((move, gen) => {
+    const hiddenPowerMatch = /Hidden Power( \[?(\w*)]?)?/i.exec(move);
+    if (hiddenPowerMatch) {
+        const type = info.typeId(hiddenPowerMatch[2]);
+        const ivs = Move.hiddenPowers(type, gen)[0];
+        return {id: info.moveId("Hidden Power"), ivs};
+    }
+    return {id: info.moveId(move)};
+});
 
-function minifySets(sets, pokemonId, gen) {
-    return _.flow(
-        _.omitBy((set, setName) => setName.includes("CAP")),
-        _.mapValues(set => minifySet(set, pokemonId, gen))
-    )(sets);
-}
-
-function minifySet(set, pokemonId, gen) {
+const minifySet = _.curry((set, pokemonId, gen) => {
     const statMatches = {
         hp: Stats.HP,
         at: Stats.ATK,
@@ -50,7 +43,7 @@ function minifySet(set, pokemonId, gen) {
     if (set.ability) {
         minifiedSet.a = info.abilityId(set.ability);
         if (info.pokemonName(pokemonId).startsWith("Mega ")) {
-            minifiedSet.a = info.ability1(pokemonId, gen);
+            minifiedSet.a = abilities1[gen][pokemonId];
         }
     }
 
@@ -58,11 +51,11 @@ function minifySet(set, pokemonId, gen) {
         minifiedSet.i = info.itemId(set.item);
     }
 
-    const moves = _.map(move => importMove(move, gen), set.moves);
+    const moves = _.map(importMove(_, gen), set.moves);
     for (const move of moves) {
         if (move.ivs) minifiedSet.d = move.ivs;
     }
-    minifiedSet.m = _.map(move => move.id, moves);
+    minifiedSet.m = _.map(_.property("id"), moves);
 
     if (set.evs) {
         minifiedSet.e = Array(6).fill(defaultEv);
@@ -79,19 +72,22 @@ function minifySet(set, pokemonId, gen) {
     }
 
     return minifiedSet;
-}
+});
 
-function importMove(move, gen) {
-    const hiddenPowerMatch = /Hidden Power( \[?(\w*)]?)?/i.exec(move);
-    if (hiddenPowerMatch) {
-        const type = info.typeId(hiddenPowerMatch[2]);
-        const ivs = Move.hiddenPowers(type, gen)[0];
-        return {id: info.moveId("Hidden Power"), ivs};
-    }
-    return {id: info.moveId(move)};
-}
+const minifySets = _.curry((sets, pokemonId, gen) => {
+    const capRemoved = _.omitBy((set, name) => name.includes("CAP"), sets);
+    return _.mapValues(minifySet(_, pokemonId, gen), capRemoved);
+});
 
-async function setdex() {
+const minifySetdex = (setdex, gen) => {
+    const translated = _.mapKeys(info.pokemonId, setdex);
+    const omitted = _.omitBy((sets, id) => id === "0:0", translated);
+    return mapValuesUncapped(minifySets(_, _, gen), omitted);
+};
+
+const minifySetdexData = mapUncapped(minifySetdex);
+
+const setdex = async() => {
     const inDir = path.join(__dirname, "data/setdex");
     const outDir = path.join(__dirname, "../dist/setdex");
     const filesToSetdex = _.map(_.cond([
@@ -146,7 +142,7 @@ async function setdex() {
             data
         )
     );
-}
+};
 
 setdex().catch(error => {
     console.log(error);

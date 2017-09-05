@@ -494,24 +494,6 @@ export function isIgnoredByMoldBreaker(abilityId) {
     return db.moldBreaker.hasOwnProperty(abilityId);
 }
 
-export function ability1(pokeId, gen) {
-    return getInfo(db.abilities1, pokeId, gen)
-        || getInfo(db.abilities1, pokeId.split(":", 1) + ":0", gen)
-        || 0;
-}
-
-export function ability2(pokeId, gen) {
-    return getInfo(db.abilities2, pokeId, gen)
-        || getInfo(db.abilities2, pokeId.split(":", 1) + ":0", gen)
-        || 0;
-}
-
-export function ability3(pokeId, gen) {
-    return getInfo(db.abilities3, pokeId, gen)
-        || getInfo(db.abilities3, pokeId.split(":", 1) + ":0", gen)
-        || 0;
-}
-
 export const abilityImmunityType = (() => {
     const preB2W2Flags = {
         70: Number,

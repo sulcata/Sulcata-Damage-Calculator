@@ -11,8 +11,7 @@ import {
 import {
     typeId, typeName, pokemonId, pokemonName, natureName, natureId,
     natureStats, natureMultiplier, baseStats, pokeType1, pokeType2,
-    weight, evolutions, preEvolution, ability1, ability2, ability3,
-    isPokeUseful, requiredItemForPoke
+    weight, evolutions, preEvolution, isPokeUseful, requiredItemForPoke
 } from "./info";
 
 const {max, min, trunc} = Math;
@@ -558,27 +557,6 @@ export default class Pokemon {
 
     isMega() {
         return this.name.startsWith("Mega ");
-    }
-
-    ability1() {
-        return new Ability({
-            id: ability1(this.id, this.gen),
-            gen: this.gen
-        });
-    }
-
-    ability2() {
-        return new Ability({
-            id: ability2(this.id, this.gen),
-            gen: this.gen
-        });
-    }
-
-    ability3() {
-        return new Ability({
-            id: ability3(this.id, this.gen),
-            gen: this.gen
-        });
     }
 
     hasRequiredItem() {

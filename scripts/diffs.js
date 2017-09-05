@@ -9,16 +9,13 @@ export const changes = _.rest(
     )
 );
 
-export const deletions = _.overArgs(
-    _.rest(
-        _.flow(
-            _.map(_.keys),
-            _.spread(_.difference),
-            _.invert,
-            _.mapValues(() => null)
-        )
-    ),
-    [_.omitBy(_.isNull), _.identity]
+export const deletions = _.rest(
+    _.flow(
+        _.map(_.keys),
+        _.spread(_.difference),
+        _.invert,
+        _.mapValues(() => null)
+    )
 );
 
 export const diffs = _.flow(

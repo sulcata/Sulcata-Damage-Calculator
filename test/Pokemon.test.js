@@ -920,25 +920,6 @@ describe("Pokemon", () => {
         expect(megaSwampert.isMega()).toBeTruthy();
     });
 
-    test("#ability1()", () => {
-        expect(mudkip.ability1().name).toEqual("Torrent");
-        expect(megaSwampert.ability1().name).toEqual("Swift Swim");
-        const nidoking = new Pokemon({name: "Nidoking"});
-        expect(nidoking.ability1().name).toEqual("Poison Point");
-    });
-
-    test("#ability2()", () => {
-        expect(mudkip.ability2().name).toEqual("(No Ability)");
-        const nidoking = new Pokemon({name: "Nidoking"});
-        expect(nidoking.ability2().name).toEqual("Rivalry");
-    });
-
-    test("#ability3()", () => {
-        expect(mudkip.ability3().name).toEqual("Damp");
-        const nidoking = new Pokemon({name: "Nidoking"});
-        expect(nidoking.ability3().name).toEqual("Sheer Force");
-    });
-
     test("#hasRequiredItem()", () => {
         const primalKyogre = new Pokemon({name: "Primal Kyogre"});
         expect(primalKyogre.hasRequiredItem()).toBeFalsy();
