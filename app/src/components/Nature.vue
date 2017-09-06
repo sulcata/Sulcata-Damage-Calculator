@@ -7,7 +7,7 @@
         :value='valueObj'
         :options='natures'
         @input='updateValue'
-    ></multiselect>
+    />
 </template>
 
 <script>

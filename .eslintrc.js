@@ -8,8 +8,8 @@ const scripts = "scripts/**/*.js";
 
 module.exports = {
     root: true,
-    parser: "babel-eslint",
     parserOptions: {
+        parser: "babel-eslint",
         ecmaVersion: 2017,
         sourceType: "script"
     },
@@ -17,17 +17,17 @@ module.exports = {
         es6: true,
         node: true
     },
-    plugins: ["babel", "html", "import", "promise", "unicorn"],
+    plugins: ["babel", "import", "promise", "unicorn", "vue"],
     settings: {
         "import/resolver": {
             webpack: {config: "build/webpack.app.config.js"}
-        },
-        "html/report-bad-indent": "error"
+        }
     },
     extends: [
         "eslint:recommended",
         "plugin:import/errors",
-        "plugin:unicorn/recommended"
+        "plugin:unicorn/recommended",
+        "plugin:vue/recommended"
     ],
     rules: {
         "babel/object-curly-spacing": "error",
@@ -60,6 +60,30 @@ module.exports = {
 
         "unicorn/catch-error-name": ["error", {name: "error"}],
         "unicorn/filename-case": "off",
+
+        "vue/attribute-hyphenation": "error",
+        "vue/html-quotes": ["error", "single"],
+        "vue/html-self-closing": "error",
+        "vue/max-attributes-per-line": "error",
+        "vue/mustache-interpolation-spacing": "error",
+        "vue/name-property-casing": "error",
+        "vue/no-async-in-computed-properties": "error",
+        "vue/no-dupe-keys": "error",
+        "vue/no-duplicate-attributes": "error",
+        "vue/no-multi-spaces": "error",
+        "vue/no-reserved-keys": "error",
+        "vue/no-shared-component-data": "error",
+        "vue/no-side-effects-in-computed-properties": "error",
+        "vue/no-template-key": "error",
+        "vue/order-in-components": "error",
+        "vue/require-default-prop": "error",
+        "vue/require-prop-types": "error",
+        "vue/require-render-return": "error",
+        "vue/require-valid-default-prop": "error",
+        "vue/return-in-computed-property": "error",
+        "vue/this-in-template": "error",
+        "vue/v-bind-style": "error",
+        "vue/v-on-style": "error",
 
         "accessor-pairs": "error",
         "array-bracket-spacing": "error",

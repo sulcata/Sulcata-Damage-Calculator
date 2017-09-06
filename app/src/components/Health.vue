@@ -14,7 +14,7 @@
             :value='percentHealth'
             @input='updatePercent'
             style='width: 6rem; display: inline-block;'
-        ></integer>
+        />
         %)
     </div>
 </template>

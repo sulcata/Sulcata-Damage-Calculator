@@ -36,7 +36,10 @@ const typeClasses = {
 
 export default {
     props: {
-        value: null,
+        value: {
+            type: null,
+            default: null
+        },
         options: {
             type: Array,
             default: () => []

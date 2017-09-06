@@ -25,7 +25,7 @@
                     :max='maxIv'
                     :disabled='isIvDisabled(stat)'
                     @input='iv => updateIv(stat, iv)'
-                ></integer>
+                />
             </div>
 
             <div class='col-3'>
@@ -36,7 +36,7 @@
                     :step='4'
                     :disabled='isEvDisabled(stat)'
                     @input='ev => updateEv(stat, ev)'
-                ></integer>
+                />
             </div>
 
             <div class='col-2 text-center'>{{ pokemon.boostedStat(stat) }}</div>

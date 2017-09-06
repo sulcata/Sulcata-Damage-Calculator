@@ -15,10 +15,10 @@
                 </li>
             </ul>
             <form>
-                <language></language>
+                <language/>
             </form>
         </nav>
-        <sulcalc></sulcalc>
+        <sulcalc/>
     </div>
 </template>
 

@@ -12,7 +12,7 @@
                     :value='valueObj'
                     :options='moves'
                     @input='updateMove'
-                ></multiselect>
+                />
             </div>
 
             <div class='col-auto'>
@@ -63,7 +63,7 @@
                     :value='happiness'
                     @input='updateHappiness'
                     size='small'
-                ></integer>
+                />
 
                 <!-- Echoed Voice -->
                 <select

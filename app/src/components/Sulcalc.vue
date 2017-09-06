@@ -2,7 +2,7 @@
     <div class='container' style='min-width: 95rem;'>
         <div class='row justify-content-center mt-3'>
             <div class='col-auto'>
-                <generation></generation>
+                <generation/>
             </div>
         </div>
 
@@ -13,7 +13,7 @@
                     :options='attackerReportOptions'
                     @input='report => setReport({report})'
                     layout='vertical'
-                ></button-radio-group>
+                />
             </div>
             <div class='col-4'>
                 <button-radio-group
@@ -21,13 +21,13 @@
                     :options='defenderReportOptions'
                     @input='report => setReport({report})'
                     layout='vertical'
-                ></button-radio-group>
+                />
             </div>
         </div>
 
         <div class='row mt-3' v-if='selectedReport.summary'>
             <div class='col'>
-                <report-display></report-display>
+                <report-display/>
             </div>
         </div>
 
@@ -36,22 +36,18 @@
                 <pokemon
                     :pokemon='attacker'
                     @input='pokemon => setAttacker({pokemon})'
-                ></pokemon>
+                />
             </div>
             <div class='col-4'>
-                <tab-content :tabs='[
-                        $t("tabs.general"),
-                        $t("tabs.importTeam"),
-                        $t("tabs.moreOptions")
-                    ]'>
+                <tab-content :tabs='tabs'>
                     <div :slot='$t("tabs.general")' class='mt-3'>
-                        <field></field>
+                        <field/>
                     </div>
                     <div :slot='$t("tabs.importTeam")' class='mt-3'>
-                        <set-importer></set-importer>
+                        <set-importer/>
                     </div>
                     <div :slot='$t("tabs.moreOptions")' class='mt-3'>
-                        <sulcalc-options></sulcalc-options>
+                        <sulcalc-options/>
                     </div>
                 </tab-content>
             </div>
@@ -59,7 +55,7 @@
                 <pokemon
                     :pokemon='defender'
                     @input='pokemon => setDefender({pokemon})'
-                ></pokemon>
+                />
             </div>
         </div>
     </div>
@@ -107,6 +103,13 @@ export default {
         },
         defenderReportOptions() {
             return this.reportOptions(this.defenderReports);
+        },
+        tabs() {
+            return [
+                "tabs.general",
+                "tabs.importTeam",
+                "tabs.moreOptions"
+            ].map(tab => this.$t(tab));
         }
     },
     methods: {

@@ -7,7 +7,7 @@
         :value='valueObj'
         :options='statuses'
         @input='updateStatus'
-    ></multiselect>
+    />
 </template>
 
 <script>

@@ -8,7 +8,7 @@
                 @input='toggleMultiBattle()'
                 size='small'
                 type='secondary'
-            ></button-radio-group>
+            />
         </div>
 
         <!-- Inverted Battle -->
@@ -32,7 +32,7 @@
                 @input='weather => setWeather({weather})'
                 size='small'
                 type='secondary'
-            ></button-radio-group>
+            />
         </div>
         <div v-if='gen >= Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
             <button-radio-group
@@ -41,7 +41,7 @@
                 @input='weather => setWeather({weather})'
                 size='small'
                 type='secondary'
-            ></button-radio-group>
+            />
         </div>
         <hr v-if='gen >= Gens.ORAS' class='row'>
 
@@ -201,7 +201,7 @@
                     type='secondary'
                     class='mt-1'
                     :style='pokeAlign(side)'
-                ></button-radio-group>
+                />
                 <button-checkbox
                     v-if='gen === Gens.GSC'
                     :value='Boolean(pokemon.spikes)'

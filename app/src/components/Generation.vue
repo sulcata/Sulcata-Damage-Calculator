@@ -4,7 +4,7 @@
         :options='gens'
         @input='gen => changeGen({gen})'
         type='secondary'
-    ></button-radio-group>
+    />
 </template>
 
 <script>

@@ -1,20 +1,17 @@
 <template>
     <div>
-        <set-selector :pokemon='pokemon' @input='updatePokemon'></set-selector>
+        <set-selector :pokemon='pokemon' @input='updatePokemon'/>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.GSC'>
-            <item :item='pokemon.item' @input='updateItem'></item>
+            <item :item='pokemon.item' @input='updateItem'/>
         </div>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
-            <ability
-                :ability='pokemon.ability'
-                @input='updateAbility'
-            ></ability>
+            <ability :ability='pokemon.ability' @input='updateAbility'/>
         </div>
 
         <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
-            <nature :nature='pokemon.nature' @input='updateNature'></nature>
+            <nature :nature='pokemon.nature' @input='updateNature'/>
         </div>
 
         <div class='mt-1'>
@@ -25,11 +22,11 @@
                 :value='pokemon.level'
                 @input='updateLevel'
                 style='width: 6rem; display: inline-block;'
-            ></integer>
+            />
         </div>
 
         <div class='mt-1'>
-            <stats :pokemon='pokemon' @input='updatePokemon'></stats>
+            <stats :pokemon='pokemon' @input='updatePokemon'/>
         </div>
 
         <div class='mt-1' v-for='i in pokemon.moves.length' :key='i'>
@@ -38,17 +35,14 @@
                 :happiness='pokemon.happiness'
                 @input='move => updateMove(i - 1, move)'
                 @input-happiness='updateHappiness'
-            ></move>
+            />
         </div>
 
         <div class='mt-1'>
             <div class='container-fluid p-0'>
                 <div class='row'>
                     <div class='col'>
-                        <status
-                            :status='pokemon.status'
-                            @input='updateStatus'
-                        ></status>
+                        <status :status='pokemon.status' @input='updateStatus'/>
                     </div>
                     <div class='col-auto'>
                         <health
@@ -58,7 +52,7 @@
                             :current-hp-range-berry='
                                 pokemon.currentHpRangeBerry'
                             @input='updateHealth'
-                        ></health>
+                        />
                     </div>
                 </div>
             </div>
