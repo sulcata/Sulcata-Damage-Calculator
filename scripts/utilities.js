@@ -1,7 +1,5 @@
 import _ from "lodash/fp";
 
-const omitByUncapped = _.omitBy.convert({cap: false});
-
 const stripByteOrderMark = data => {
     if (data.length >= 3 && data.readUIntBE(0, 3) === 0xEFBBBF) {
         return data.slice(3);
@@ -25,11 +23,11 @@ export const dataToObject = _.cond([
         _.isBuffer,
         _.flow(
             stripByteOrderMark,
-            String,
+            _.toString,
             _.split("\n"),
             _.map(parseLine),
             _.fromPairs,
-            _.pickBy((value, key) => key)
+            _.pickBy(_.nthArg(1))
         )
     ],
     [
@@ -66,8 +64,8 @@ const isAesthetic = id => {
         && baseFormOnly.has(num);
 };
 
-export const removeAestheticPokes = omitByUncapped(
-    (name, id) => isAesthetic(id)
+export const removeAestheticPokes = _.omitBy.convert({cap: false})(
+    _.flow(_.nthArg(1), isAesthetic)
 );
 
 export const simplifyPokeIds = _.mapKeys(_.flow(
@@ -78,7 +76,7 @@ export const simplifyPokeIds = _.mapKeys(_.flow(
 
 const berryToItem = _.flow(_.toNumber, _.add(8000));
 
-export const combineItemsAndBerries = (items, berries) => ({
+export const combineItemsAndBerries = _.curry((items, berries) => ({
     ...items,
     ..._.mapKeys(berryToItem, berries)
-});
+}));

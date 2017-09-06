@@ -156,7 +156,8 @@ export default function sulcalc(attacker, defender, move, field) {
 
     if (attacker.boosts[a]) {
         reportPokes.push(
-            (attacker.boosts[a] > 0 ? "+" : "") + attacker.boosts[a]);
+            (attacker.boosts[a] > 0 ? "+" : "") + attacker.boosts[a]
+        );
     }
 
     if (field.gen >= Gens.ADV || attacker.evs[a] < 252) {
@@ -210,7 +211,8 @@ export default function sulcalc(attacker, defender, move, field) {
 
     if (defender.boosts[d]) {
         reportPokes.push(
-            (defender.boosts[d] > 0 ? "+" : "") + defender.boosts[d]);
+            (defender.boosts[d] > 0 ? "+" : "") + defender.boosts[d]
+        );
     }
 
     if (field.gen >= Gens.ADV
@@ -272,8 +274,11 @@ export default function sulcalc(attacker, defender, move, field) {
     if (defender.ability.name !== "Magic Guard") {
         let hazardsDmg = 0;
         if (defender.stealthRock) {
-            const {num, den} = effectiveness(Types.ROCK, defender.types(),
-                                             {gen: field.gen});
+            const {num, den} = effectiveness(
+                Types.ROCK,
+                defender.types(),
+                {gen: field.gen}
+            );
             hazardsDmg += trunc(maxHp * num / (den * 8));
         }
         if (defender.spikes > 0) {

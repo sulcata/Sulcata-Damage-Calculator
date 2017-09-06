@@ -22,9 +22,7 @@ const createIndex = _.flow(
 const processData = async({name, files, transform = _.identity}) => {
     const fileToObject = async file => {
         if (typeof file !== "string") return file;
-        return dataToObject(
-            await readFile(path.join(inDir, file))
-        );
+        return dataToObject(await readFile(path.join(inDir, file)));
     };
 
     const pendingResult = Array.isArray(files)
@@ -40,13 +38,13 @@ const processData = async({name, files, transform = _.identity}) => {
     return result;
 };
 
-const createPreprocessor = fn => _.map(_.mapValues(fn));
+const createPreprocessor = _.flow(_.mapValues, _.map);
 const omitCurseType = _.omitBy(_.eq(18));
-const mapValuesToNumbers = _.mapValues(Number);
+const mapValuesToNumbers = _.mapValues(_.toNumber);
 const mapAllValuesToNumbers = _.map(mapValuesToNumbers);
 const mapValuesToOne = _.mapValues(_.constant(1));
 const mapAllValuesToOne = _.map(mapValuesToOne);
-const parseNumberList = _.flow(_.split(" "), _.map(Number));
+const parseNumberList = _.flow(_.split(" "), _.map(_.toNumber));
 
 const dataList = [
     {
@@ -166,12 +164,7 @@ const dataList = [
         transform(objs) {
             const [berryEffects, ...itemEffectsList] = objs;
             return _.flow([
-                _.map(
-                    itemEffects => combineItemsAndBerries(
-                        itemEffects,
-                        berryEffects
-                    )
-                ),
+                _.map(combineItemsAndBerries(_, berryEffects)),
                 reduceByDiffs
             ])(itemEffectsList);
         }
@@ -245,8 +238,10 @@ const dataList = [
         transform: _.flow(
             createPreprocessor(
                 _.flow(
-                    s => new Uint32Array([Number(s)]),
-                    arr => new Int8Array(arr.buffer, 0, 3),
+                    _.toNumber,
+                    _.castArray,
+                    s => new Uint32Array(s),
+                    s => new Int8Array(s.buffer, 0, 3),
                     Array.from,
                     _.compact,
                     _.reverse
@@ -263,9 +258,7 @@ const dataList = [
         name: "weights",
         files: "pokes/weight.txt",
         transform: _.flow(
-            _.mapValues(
-                _.flow(_.replace(".", ""), Number)
-            ),
+            _.mapValues(_.flow(_.replace(".", ""), _.toNumber)),
             simplifyPokeIds
         )
     },

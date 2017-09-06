@@ -17,8 +17,13 @@ export default class Multiset {
     }
 
     add(value, multiplicity = "1") {
-        this._data.set(value, addStrs(this._data.get(value) || "0",
-                                      String(multiplicity)));
+        this._data.set(
+            value,
+            addStrs(
+                this._data.get(value) || "0",
+                String(multiplicity)
+            )
+        );
         return this;
     }
 
@@ -98,8 +103,11 @@ export default class Multiset {
         }
         const mapped = new Multiset();
         for (const entry of this) {
-            const value = Reflect.apply(callbackFn, thisArg,
-                                        [...entry, this, skip]);
+            const value = Reflect.apply(
+                callbackFn,
+                thisArg,
+                [...entry, this, skip]
+            );
             if (skipValue) {
                 skipValue = false;
             } else {
@@ -145,8 +153,10 @@ export default class Multiset {
         const permutation = new Multiset();
         for (const [value1, multiplicity1] of this) {
             for (const [value2, multiplicity2] of multiset) {
-                permutation.add(callbackFn(value1, value2),
-                                multiplyStrs(multiplicity1, multiplicity2));
+                permutation.add(
+                    callbackFn(value1, value2),
+                    multiplyStrs(multiplicity1, multiplicity2)
+                );
             }
         }
         return permutation;
@@ -218,8 +228,10 @@ export default class Multiset {
         return array;
     }
 
-    toString(toStringFn = (entry => entry.join(":")),
-             compareFn = (([a], [b]) => (a > b) - (b > a))) {
+    toString(
+        toStringFn = (entry => entry.join(":")),
+        compareFn = (([a], [b]) => (a > b) - (b > a))
+    ) {
         return Array.from(this)
             .sort(compareFn)
             .map(toStringFn)
@@ -253,12 +265,16 @@ export default class Multiset {
         if (size === "0") return NaN;
 
         const weightedSum = multiSet.reduce(
-            (sum, v, w) => addStrs(sum, multiplyStrs(String(v), w)), "0");
+            (sum, v, w) => addStrs(sum, multiplyStrs(String(v), w)),
+            "0"
+        );
         if (weightedSum === "0") return 0;
 
         const exp = 10 ** (digits + 1);
-        const [quotient] = divideStrs(multiplyStrs(weightedSum, String(exp)),
-                                      size);
+        const [quotient] = divideStrs(
+            multiplyStrs(weightedSum, String(exp)),
+            size
+        );
         return round(Number(quotient) / 10) * 10 / exp;
     }
 }

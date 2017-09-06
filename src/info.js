@@ -179,10 +179,9 @@ function nameToId(obj, name, defaultId) {
 function createFlagGetter(allEffects, defaultValue, flagsToGet) {
     return (id, gen) => {
         const effectString = getInfo(allEffects, id, gen) || "";
-        const effects = fromPairs(
-            effectString.split("|")
-                .map(effect => effect.split("-", 2))
-        );
+        const effectPairs = effectString.split("|")
+            .map(effect => effect.split("-", 2));
+        const effects = fromPairs(effectPairs);
         for (const [flag, parser] of Object.entries(flagsToGet)) {
             if (effects.hasOwnProperty(flag)) {
                 return parser(effects[flag] || true);

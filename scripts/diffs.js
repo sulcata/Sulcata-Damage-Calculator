@@ -14,7 +14,7 @@ export const deletions = _.rest(
         _.map(_.keys),
         _.spread(_.difference),
         _.invert,
-        _.mapValues(() => null)
+        _.mapValues(_.constant(null))
     )
 );
 
@@ -25,7 +25,7 @@ export const diffs = _.flow(
 
 export const reduceByDiffs = _.flow(
     _.over([
-        _.flow(_.dropRight(1), _.concat({})),
+        _.flow(_.initial, _.concat({})),
         _.identity
     ]),
     _.unzip,

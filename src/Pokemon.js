@@ -52,9 +52,10 @@ export default class Pokemon {
             this.nature = defaultTo(Number(pokemon.nature), 0);
         }
 
-        this._status = defaultTo(Number(defaultTo(pokemon.status,
-                                                  pokemon._status)),
-                                 Statuses.NO_STATUS);
+        this._status = defaultTo(
+            Number(defaultTo(pokemon.status, pokemon._status)),
+            Statuses.NO_STATUS
+        );
         this.gender = defaultTo(Number(pokemon.gender), Genders.NO_GENDER);
 
         if (typeof pokemon.ability === "string") {
@@ -73,12 +74,9 @@ export default class Pokemon {
             this.item = new Item({gen});
         }
 
-        this.moves = (pokemon.moves || []).map(move => {
-            if (typeof move === "string") {
-                return new Move({name: move, gen});
-            }
-            return new Move(move);
-        });
+        this.moves = (pokemon.moves || []).map(move => new Move(
+            typeof move === "string" ? {name: move, gen} : move
+        ));
         while (this.moves.length < 4) {
             this.moves.push(new Move({gen}));
         }
@@ -88,14 +86,20 @@ export default class Pokemon {
         this.overrideStats = pokemon.overrideStats || [];
 
         const hp = this.stat(Stats.HP);
-        this._currentHp = defaultTo(defaultTo(pokemon.currentHp,
-                                              pokemon._currentHp), hp);
-        this._currentHpRange = new Multiset(pokemon.currentHpRange
-                                            || pokemon._currentHpRange
-                                            || [hp]);
-        this._currentHpRangeBerry = new Multiset(pokemon.currentHpRangeBerry
-                                                 || pokemon._currentHpRangeBerry
-                                                 || []);
+        this._currentHp = defaultTo(
+            defaultTo(pokemon.currentHp, pokemon._currentHp),
+            hp
+        );
+        this._currentHpRange = new Multiset(
+            pokemon.currentHpRange
+            || pokemon._currentHpRange
+            || [hp]
+        );
+        this._currentHpRangeBerry = new Multiset(
+            pokemon.currentHpRangeBerry
+            || pokemon._currentHpRangeBerry
+            || []
+        );
 
         // GHOST: Trick or Treat, GRASS: Forest's Curse, can't coexist
         this.addedType = defaultTo(Number(pokemon.addedType), Types.CURSE);
@@ -158,10 +162,12 @@ export default class Pokemon {
                 poke.name = firstParens[1];
                 poke.nickname = identifier.slice(0, firstParens.index).trim();
                 poke.gender = genderShorthands.indexOf(
-                    secondParens[0].toUpperCase());
+                    secondParens[0].toUpperCase()
+                );
             } else {
                 const gender = genderShorthands.indexOf(
-                    firstParens[0].toUpperCase());
+                    firstParens[0].toUpperCase()
+                );
                 if (gender > -1) {
                     poke.name = identifier.match(/.*?(?=\()/)[0];
                     poke.gender = gender;
@@ -224,7 +230,8 @@ export default class Pokemon {
         poke.moves.sort(noMoveLast);
 
         poke.happiness = max(...poke.moves.map(
-            move => move.optimalHappiness()));
+            move => move.optimalHappiness()
+        ));
 
         return poke;
     }
@@ -311,7 +318,8 @@ export default class Pokemon {
         });
 
         pokemon.happiness = max(...pokemon.moves.map(
-            move => move.optimalHappiness()));
+            move => move.optimalHappiness()
+        ));
 
         return pokemon;
     }
@@ -379,8 +387,10 @@ export default class Pokemon {
         if (this.gen < Gens.ADV) {
             if (s === Stats.HP) {
                 // (2*(iv+base) + ev/4) * level/100 + level + 10
-                return min(999, trunc(
-                    ((iv + base) * 2 + ev) * level / 100) + level + 10);
+                return min(
+                    999,
+                    trunc(((iv + base) * 2 + ev) * level / 100) + level + 10
+                );
             }
             // (2*(iv+base) + ev/4) * level/100 + 5
             return min(999, trunc(((iv + base) * 2 + ev) * level / 100) + 5);
@@ -418,7 +428,8 @@ export default class Pokemon {
 
         if (this.gen < Gens.ADV) {
             const numerator = trunc(
-                max(2, 2 + boost) / max(2, 2 - boost) * 100);
+                max(2, 2 + boost) / max(2, 2 - boost) * 100
+            );
             return clamp(trunc(stat * numerator / 100), 1, 999);
         }
 

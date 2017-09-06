@@ -106,19 +106,21 @@ function turnCalculate(attacker, defender, move, field) {
         for (let i = 1; i <= move.maxHits(); i++) {
             if (field.gen >= Gens.GSC) {
                 dmgs.push(dmgs[i - 1].permute(
-                    genCalculate(attacker, defender, move, field)));
+                    genCalculate(attacker, defender, move, field)
+                ));
             } else {
                 dmgs.push(
                     genCalculate(attacker, defender, move, field)
-                        .map(d => d * i));
+                        .map(d => d * i)
+                );
             }
             defender.brokenMultiscale = true;
         }
 
         if (move.numberOfHits >= 1) {
-            dmg = dmgs[clamp(move.numberOfHits,
-                             move.minHits(),
-                             move.maxHits())];
+            const min = move.minHits();
+            const max = move.maxHits();
+            dmg = dmgs[clamp(move.numberOfHits, min, max)];
         } else if (move.maxHits() === 2) {
             dmg = dmgs[2];
         } else {
@@ -128,7 +130,8 @@ function turnCalculate(attacker, defender, move, field) {
              * 2 hits (1/3), 3 hits (1/3), 4 hits (1/6), 5 hits (1/6)
              */
             const p = field.gen >= Gens.B2W2
-                ? [0, 0, 2, 2, 1, 1] : [0, 0, 3, 3, 1, 1];
+                ? [0, 0, 2, 2, 1, 1]
+                : [0, 0, 3, 3, 1, 1];
             const product = dmgs.map(dmg => dmg.size).reduce(multiplyStrs);
             const scaledDmgs = dmgs.map(dmg => {
                 const multiplier = divideStrs(product, dmg.size)[0];

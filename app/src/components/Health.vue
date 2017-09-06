@@ -100,8 +100,11 @@ function parseHealthList(list, min, max) {
 
 function minMaxHp(totalHp, percent) {
     const minHp = ceil(percent / 100 * totalHp);
-    const maxHp = clamp(ceil((percent + 1) / 100 * totalHp) - 1,
-                        minHp, totalHp);
+    const maxHp = clamp(
+        ceil((percent + 1) / 100 * totalHp) - 1,
+        minHp,
+        totalHp
+    );
     return percent === 1 ? [1, maxHp] : [minHp, maxHp];
 }
 

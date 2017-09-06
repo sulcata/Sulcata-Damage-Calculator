@@ -168,39 +168,35 @@ describe("Pokemon", () => {
         });
 
         test("ignores invalid properties", () => {
-            expect(() =>
-                Pokemon.fromImportable(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 52 Def / 232 SpA / 224 Spe
-                    INVALID PROP: value
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).not.toThrow();
+            expect(() => Pokemon.fromImportable(
+                `sparkle (Chinchou) (F) @ Choice Scarf
+                Ability: Volt Absorb
+                Level: 5
+                EVs: 52 Def / 232 SpA / 224 Spe
+                INVALID PROP: value
+                Timid Nature
+                - Volt Switch
+                - Scald
+                - Ice Beam
+                - Hidden Power [Ground]`,
+                Gens.ORAS
+            )).not.toThrow();
         });
 
         test("ignores invalid lines", () => {
-            expect(() =>
-                Pokemon.fromImportable(
-                    `sparkle (Chinchou) (F) @ Choice Scarf
-                    Ability: Volt Absorb
-                    Level: 5
-                    EVs: 52 Def / 232 SpA / 224 Spe
-                    NOT A PROPER LINE
-                    Timid Nature
-                    - Volt Switch
-                    - Scald
-                    - Ice Beam
-                    - Hidden Power [Ground]`,
-                    Gens.ORAS
-                )
-            ).not.toThrow();
+            expect(() => Pokemon.fromImportable(
+                `sparkle (Chinchou) (F) @ Choice Scarf
+                Ability: Volt Absorb
+                Level: 5
+                EVs: 52 Def / 232 SpA / 224 Spe
+                NOT A PROPER LINE
+                Timid Nature
+                - Volt Switch
+                - Scald
+                - Ice Beam
+                - Hidden Power [Ground]`,
+                Gens.ORAS
+            )).not.toThrow();
         });
 
         test("clamps and gives default values for invalid EVs", () => {

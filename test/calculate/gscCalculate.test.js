@@ -186,7 +186,8 @@ describe("gscCalculate()", () => {
         });
         const skarmory = new Pokemon({name: "Skarmory", gen});
         expect(gscCalculate(
-            heracross, skarmory, reversal, field)).toEqual([235]);
+            heracross, skarmory, reversal, field
+        )).toEqual([235]);
         expect(gscCalculate(heracross, skarmory, flail, field)).toEqual([78]);
     });
 

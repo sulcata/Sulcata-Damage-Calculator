@@ -5,8 +5,9 @@ import moveInfo from "./moveInfo";
 const {max, min, trunc} = Math;
 
 export default function hgssCalculate(attacker, defender, move, field) {
-    const {moveType, movePower, fail} = moveInfo(attacker, defender,
-                                                 move, field);
+    const {moveType, movePower, fail} = moveInfo(
+        attacker, defender, move, field
+    );
     if (fail) return [0];
 
     let atk, def, sdef, satk;
@@ -17,19 +18,27 @@ export default function hgssCalculate(attacker, defender, move, field) {
             def = defender.stat(Stats.DEF);
             sdef = defender.stat(Stats.SDEF);
         } else {
-            def = min(defender.stat(Stats.DEF),
-                      defender.boostedStat(Stats.DEF));
-            sdef = min(defender.stat(Stats.SDEF),
-                       defender.boostedStat(Stats.SDEF));
+            def = min(
+                defender.stat(Stats.DEF),
+                defender.boostedStat(Stats.DEF)
+            );
+            sdef = min(
+                defender.stat(Stats.SDEF),
+                defender.boostedStat(Stats.SDEF)
+            );
         }
         if (unawareD) {
             atk = attacker.stat(Stats.ATK);
             satk = attacker.stat(Stats.SATK);
         } else {
-            atk = max(attacker.stat(Stats.ATK),
-                      attacker.boostedStat(Stats.ATK));
-            satk = max(attacker.stat(Stats.SATK),
-                       attacker.boostedStat(Stats.SATK));
+            atk = max(
+                attacker.stat(Stats.ATK),
+                attacker.boostedStat(Stats.ATK)
+            );
+            satk = max(
+                attacker.stat(Stats.SATK),
+                attacker.boostedStat(Stats.SATK)
+            );
         }
     } else {
         if (unawareA) {

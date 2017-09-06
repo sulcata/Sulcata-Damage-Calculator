@@ -201,7 +201,9 @@ describe("Multiset", () => {
 
     test("#reduce()", () => {
         const reduced = set1.reduce(
-            (sum, value, multiplicity) => sum + value * multiplicity, 0);
+            (sum, value, multiplicity) => sum + value * multiplicity,
+            0
+        );
         expect(reduced).toEqual(16);
         expect(emptySet.reduce()).toBeUndefined();
         set1.reduce((total, value, multiplicity, set) => {

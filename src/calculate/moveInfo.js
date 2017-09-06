@@ -54,9 +54,11 @@ export default function moveInfo(attacker, defender, move, field) {
             break;
         case "Flail":
         case "Reversal":
-            movePower = Move.flail(attacker.currentHp,
-                                   attacker.stat(Stats.HP),
-                                   gen);
+            movePower = Move.flail(
+                attacker.currentHp,
+                attacker.stat(Stats.HP),
+                gen
+            );
             break;
         case "Fling":
             movePower = attacker.item.flingPower();
@@ -146,8 +148,10 @@ export default function moveInfo(attacker, defender, move, field) {
             break;
         case "Water Spout":
         case "Eruption":
-            movePower = Move.eruption(attacker.currentHp,
-                                      attacker.stat(Stats.HP));
+            movePower = Move.eruption(
+                attacker.currentHp,
+                attacker.stat(Stats.HP)
+            );
             break;
         case "Weather Ball":
             moveType = Move.weatherBall(field.effectiveWeather());

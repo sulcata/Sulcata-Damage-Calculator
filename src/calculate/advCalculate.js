@@ -5,8 +5,9 @@ import moveInfo from "./moveInfo";
 const {max, trunc} = Math;
 
 export default function advCalculate(attacker, defender, move, field) {
-    const {moveType, movePower, fail} = moveInfo(attacker, defender,
-                                                 move, field);
+    const {moveType, movePower, fail} = moveInfo(
+        attacker, defender, move, field
+    );
     if (fail) return [0];
 
     let atk = attacker.stat(Stats.ATK);
@@ -141,7 +142,10 @@ export default function advCalculate(attacker, defender, move, field) {
             && (defender.reflect && isPhysicalType(moveType)
                 || defender.lightScreen && isSpecialType(moveType))) {
             baseDamage = trunc(
-                field.multiBattle ? baseDamage * 2 / 3 : baseDamage / 2);
+                field.multiBattle
+                    ? baseDamage * 2 / 3
+                    : baseDamage / 2
+            );
         }
     }
 

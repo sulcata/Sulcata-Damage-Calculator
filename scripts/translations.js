@@ -48,16 +48,14 @@ const fileTypes = [
     }
 ];
 
-const parseTranslationFile = async(locale, {
+const parseTranslationFile = _.curry(async(locale, {
     name,
     files,
     transform = _.identity
 }) => {
     const fileToObject = async file => {
         try {
-            return dataToObject(
-                await readFile(path.join(inDir, locale, file))
-            );
+            return dataToObject(await readFile(path.join(inDir, locale, file)));
         } catch (error) {
             return {};
         }
@@ -74,26 +72,22 @@ const parseTranslationFile = async(locale, {
     );
 
     return result;
-};
+});
 
 const translations = async() => {
-    await Promise.all(
-        _.map(
-            async locale => {
-                await Promise.all([
-                    mkdirs(path.join(inDir, locale)),
-                    mkdirs(path.join(outDir, locale))
-                ]);
-                return Promise.all(
-                    _.map(
-                        fileType => parseTranslationFile(locale, fileType),
-                        fileTypes
-                    )
-                );
-            },
-            locales
-        )
-    );
+    await Promise.all(_.map(
+        async locale => {
+            await Promise.all([
+                mkdirs(path.join(inDir, locale)),
+                mkdirs(path.join(outDir, locale))
+            ]);
+            return Promise.all(_.map(
+                parseTranslationFile(locale),
+                fileTypes
+            ));
+        },
+        locales
+    ));
 };
 
 translations().catch(error => {

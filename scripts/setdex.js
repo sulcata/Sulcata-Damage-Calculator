@@ -133,15 +133,13 @@ const setdex = async() => {
             )
         }
     ];
-    await Promise.all(
-        _.map(
-            entry => writeFile(
-                path.join(outDir, entry.file),
-                `export default ${JSON.stringify(minifySetdexData(entry.data))}`
-            ),
-            data
-        )
-    );
+    await Promise.all(_.map(
+        entry => writeFile(
+            path.join(outDir, entry.file),
+            `export default ${JSON.stringify(minifySetdexData(entry.data))}`
+        ),
+        data
+    ));
 };
 
 setdex().catch(error => {

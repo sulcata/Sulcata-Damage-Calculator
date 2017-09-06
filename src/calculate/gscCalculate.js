@@ -8,8 +8,9 @@ import moveInfo from "./moveInfo";
 const {max, min, trunc} = Math;
 
 export default function gscCalculate(attacker, defender, move, field) {
-    const {moveType, movePower, fail} = moveInfo(attacker, defender,
-                                                 move, field);
+    const {moveType, movePower, fail} = moveInfo(
+        attacker, defender, move, field
+    );
     if (fail) return [0];
 
     let level = attacker.level;

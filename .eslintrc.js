@@ -86,6 +86,7 @@ module.exports = {
         "func-call-spacing": "error",
         "func-name-matching": "error",
         "func-style": ["error", "declaration", {allowArrowFunctions: true}],
+        "function-paren-newline": ["error", "consistent"],
         "generator-star-spacing": "error",
         "getter-return": "error",
         "indent": ["error", 4, {

@@ -8,8 +8,9 @@ import moveInfo from "./moveInfo";
 const {max, min, trunc} = Math;
 
 export default function b2w2Calculate(attacker, defender, move, field) {
-    const {moveType, movePower, fail} = moveInfo(attacker, defender,
-                                                 move, field);
+    const {moveType, movePower, fail} = moveInfo(
+        attacker, defender, move, field
+    );
     if (fail) return [0];
 
     const defStat = field.wonderRoom ? Stats.SDEF : Stats.DEF;
@@ -23,12 +24,18 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             sdef = defender.stat(sdefStat);
             atk = defender.stat(Stats.ATK);
         } else if (move.critical) {
-            def = min(defender.stat(defStat),
-                      defender.boostedStat(defStat));
-            sdef = min(defender.stat(sdefStat),
-                       defender.boostedStat(sdefStat));
-            atk = max(defender.stat(Stats.ATK),
-                      defender.boostedStat(Stats.ATK));
+            def = min(
+                defender.stat(defStat),
+                defender.boostedStat(defStat)
+            );
+            sdef = min(
+                defender.stat(sdefStat),
+                defender.boostedStat(sdefStat)
+            );
+            atk = max(
+                defender.stat(Stats.ATK),
+                defender.boostedStat(Stats.ATK)
+            );
         } else {
             def = defender.boostedStat(defStat);
             sdef = defender.boostedStat(sdefStat);
@@ -38,8 +45,10 @@ export default function b2w2Calculate(attacker, defender, move, field) {
         if (unawareD) {
             satk = attacker.stat(Stats.SATK);
         } else if (move.critical) {
-            satk = max(attacker.stat(Stats.SATK),
-                       attacker.boostedStat(Stats.SATK));
+            satk = max(
+                attacker.stat(Stats.SATK),
+                attacker.boostedStat(Stats.SATK)
+            );
         } else {
             satk = attacker.boostedStat(Stats.SATK);
         }
@@ -51,10 +60,14 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             atk = attacker.stat(Stats.ATK);
             satk = attacker.stat(Stats.SATK);
         } else if (move.critical) {
-            atk = max(attacker.stat(Stats.ATK),
-                      attacker.boostedStat(Stats.ATK));
-            satk = max(attacker.stat(Stats.SATK),
-                       attacker.boostedStat(Stats.SATK));
+            atk = max(
+                attacker.stat(Stats.ATK),
+                attacker.boostedStat(Stats.ATK)
+            );
+            satk = max(
+                attacker.stat(Stats.SATK),
+                attacker.boostedStat(Stats.SATK)
+            );
         } else {
             atk = attacker.boostedStat(Stats.ATK);
             satk = attacker.boostedStat(Stats.SATK);
@@ -64,10 +77,14 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             def = defender.stat(defStat);
             sdef = defender.stat(sdefStat);
         } else if (move.critical) {
-            def = min(defender.stat(defStat),
-                      defender.boostedStat(defStat));
-            sdef = min(defender.stat(sdefStat),
-                       defender.boostedStat(sdefStat));
+            def = min(
+                defender.stat(defStat),
+                defender.boostedStat(defStat)
+            );
+            sdef = min(
+                defender.stat(sdefStat),
+                defender.boostedStat(sdefStat)
+            );
         } else {
             def = defender.boostedStat(defStat);
             sdef = defender.boostedStat(sdefStat);
@@ -77,10 +94,14 @@ export default function b2w2Calculate(attacker, defender, move, field) {
             atk = attacker.stat(Stats.ATK);
             satk = attacker.stat(Stats.SATK);
         } else if (move.critical) {
-            atk = max(attacker.stat(Stats.ATK),
-                      attacker.boostedStat(Stats.ATK));
-            satk = max(attacker.stat(Stats.SATK),
-                       attacker.boostedStat(Stats.SATK));
+            atk = max(
+                attacker.stat(Stats.ATK),
+                attacker.boostedStat(Stats.ATK)
+            );
+            satk = max(
+                attacker.stat(Stats.SATK),
+                attacker.boostedStat(Stats.SATK)
+            );
         } else {
             atk = attacker.boostedStat(Stats.ATK);
             satk = attacker.boostedStat(Stats.SATK);
