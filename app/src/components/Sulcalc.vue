@@ -106,10 +106,10 @@ export default {
         },
         tabs() {
             return [
-                "tabs.general",
-                "tabs.importTeam",
-                "tabs.moreOptions"
-            ].map(tab => this.$t(tab));
+                this.$t("tabs.general"),
+                this.$t("tabs.importTeam"),
+                this.$t("tabs.moreOptions")
+            ];
         }
     },
     methods: {

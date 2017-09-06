@@ -2,6 +2,7 @@ import {pokemon, items, abilities, natures, types, moves} from "db";
 
 export default {
     bugReports: "Report a Bug",
+    github: "Github",
     setHp: "set hp",
     showFractions: "Show Fractions",
     showLongDamageRolls: "Show Long Damage Rolls",

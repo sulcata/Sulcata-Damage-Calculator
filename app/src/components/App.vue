@@ -31,18 +31,19 @@ export default {
         Sulcalc,
         Language
     },
-    data() {
-        const links = [
-            {
-                href: "https://github.com/sulcata/sulcalc/issues",
-                label: "Report a Bug"
-            },
-            {
-                href: "https://github.com/sulcata/sulcalc/",
-                label: "Github"
-            }
-        ];
-        return {links};
+    computed: {
+        links() {
+            return [
+                {
+                    href: "https://github.com/sulcata/sulcalc/issues",
+                    label: this.$t("bugReports")
+                },
+                {
+                    href: "https://github.com/sulcata/sulcalc/",
+                    label: this.$t("github")
+                }
+            ];
+        }
     }
 };
 </script>

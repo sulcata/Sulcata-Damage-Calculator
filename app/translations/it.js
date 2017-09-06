@@ -7,6 +7,7 @@ import types from "translations/it/types";
 
 export default {
     bugReports: "Report a Bug",
+    github: "Github",
     setHp: "set hp",
     showFractions: "Show Fractions",
     showLongDamageRolls: "Show Long Damage Rolls",
