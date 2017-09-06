@@ -25,7 +25,7 @@
 
         <!-- Weather -->
         <hr v-if='gen >= Gens.ORAS' class='row'>
-        <div v-if='gen >= Gens.GSC' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.GSC' class='mt-1' :class='centeredRowClasses'>
             <button-radio-group
                 :value='field.weather'
                 :options='weathers'
@@ -46,7 +46,7 @@
         <hr v-if='gen >= Gens.ORAS' class='row'>
 
         <!-- Water Sport / Mud Sport -->
-        <div v-if='gen >= Gens.ADV' :class='centeredRowClasses'>
+        <div v-if='gen >= Gens.ADV' class='mt-1' :class='centeredRowClasses'>
             <div class='col-auto btn-group btn-group-sm'>
                 <button-checkbox
                     :value='field.waterSport'
