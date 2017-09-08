@@ -31,10 +31,10 @@ export default class Multiset {
         this._data.clear();
     }
 
-    count(callbackFn = (() => true), thisArg) {
+    count(callbackFn = (() => true)) {
         let sum = "0";
         for (const entry of this) {
-            if (Reflect.apply(callbackFn, thisArg, [...entry, this])) {
+            if (callbackFn(...entry, this)) {
                 sum = addStrs(sum, entry[1]);
             }
         }
@@ -49,18 +49,18 @@ export default class Multiset {
         yield* this._data;
     }
 
-    every(callbackFn, thisArg) {
+    every(callbackFn) {
         for (const entry of this) {
-            if (!Reflect.apply(callbackFn, thisArg, [...entry, this])) {
+            if (!callbackFn(...entry, this)) {
                 return false;
             }
         }
         return true;
     }
 
-    forEach(callbackFn, thisArg) {
+    forEach(callbackFn) {
         for (const entry of this) {
-            Reflect.apply(callbackFn, thisArg, [...entry, this]);
+            callbackFn(...entry, this);
         }
     }
 
@@ -96,18 +96,14 @@ export default class Multiset {
         yield* this._data.keys();
     }
 
-    map(callbackFn, thisArg) {
+    map(callbackFn) {
         let skipValue = false;
         function skip() {
             skipValue = true;
         }
         const mapped = new Multiset();
         for (const entry of this) {
-            const value = Reflect.apply(
-                callbackFn,
-                thisArg,
-                [...entry, this, skip]
-            );
+            const value = callbackFn(...entry, this, skip);
             if (skipValue) {
                 skipValue = false;
             } else {
@@ -208,9 +204,9 @@ export default class Multiset {
         return simplified;
     }
 
-    some(callbackFn, thisArg) {
+    some(callbackFn) {
         for (const entry of this) {
-            if (Reflect.apply(callbackFn, thisArg, [...entry, this])) {
+            if (callbackFn(...entry, this)) {
                 return true;
             }
         }

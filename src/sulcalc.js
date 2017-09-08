@@ -431,19 +431,19 @@ function chanceToKo(poke, damageRanges, params) {
              * prevents extra applications.
              */
             // berries go first to prevent double effect application
-            berryDmg = berryDmg.map(berryDamageMap, {
+            berryDmg = berryDmg.map(berryDamageMap.bind({
                 effects,
                 toxicCounter,
                 totalHp
-            });
+            }));
 
-            dmg = dmg.map(damageMap, {
+            dmg = dmg.map(damageMap.bind({
                 effects,
                 toxicCounter,
                 totalHp,
                 berryHeal,
                 berryDmg
-            });
+            }));
 
             toxicCounter++;
         }

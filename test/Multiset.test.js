@@ -97,38 +97,35 @@ describe("Multiset", () => {
         expect(emptySet.every()).toBeTruthy();
         expect(set1.every(a => a > 0)).toBeTruthy();
         expect(set2.every(a => a > 0)).toBeFalsy();
-        set1.every(function(value, multiplicity, set) {
-            expect(this.a).toEqual(1);
+        set1.every((value, multiplicity, set) => {
             expect(set).toEqual(set1);
             expect(typeof value).toEqual("number");
             expect(multiplicity).toMatch(/^[0-9]+$/);
             return true;
-        }, {a: 1});
+        });
     });
 
     test("#some()", () => {
         expect(emptySet.some()).toBeFalsy();
         expect(set1.some(a => a < 0)).toBeFalsy();
         expect(set2.some(a => a < 0)).toBeTruthy();
-        set1.some(function(value, multiplicity, set) {
-            expect(this.a).toEqual(1);
+        set1.some((value, multiplicity, set) => {
             expect(set).toEqual(set1);
             expect(typeof value).toEqual("number");
             expect(multiplicity).toMatch(/^[0-9]+$/);
             return true;
-        }, {a: 1});
+        });
     });
 
     test("#count()", () => {
         expect(emptySet.count()).toEqual("0");
         expect(set1.count()).toEqual(set1.size);
         expect(set1.count(a => a % 2)).toEqual("4");
-        set1.count(function(value, multiplicity, set) {
-            expect(this.a).toEqual(1);
+        set1.count((value, multiplicity, set) => {
             expect(set).toEqual(set1);
             expect(typeof value).toEqual("number");
             expect(multiplicity).toMatch(/^[0-9]+$/);
-        }, {a: 1});
+        });
     });
 
     test("#clear()", () => {
@@ -177,15 +174,13 @@ describe("Multiset", () => {
     test("#map()", () => {
         expect(emptySet.map().toString()).toEqual("");
         expect(set1.map(v => v + 1).toString()).toEqual("2:2, 3:2, 4:2, 5:1");
-        set1.map(function(value, multiplicity, set, skip) {
-            expect(this.a).toEqual(1);
+        set1.map((value, multiplicity, set, skip) => {
             expect(set).toEqual(set1);
             expect(typeof value).toEqual("number");
             expect(multiplicity).toMatch(/^[0-9]+$/);
             expect(typeof skip).toEqual("function");
-
             return Math.E;
-        }, {a: 1});
+        });
 
         expect(set1.map((v, w, set, skip) => {
             if (v % 2 === 0) skip();
@@ -225,12 +220,11 @@ describe("Multiset", () => {
         });
         expect(runs).toBeTruthy();
 
-        set1.forEach(function(value, multiplicity, set) {
-            expect(this.a).toEqual(1);
+        set1.forEach((value, multiplicity, set) => {
             expect(set).toEqual(set1);
             expect(typeof value).toEqual("number");
             expect(multiplicity).toMatch(/^[0-9]+$/);
-        }, {a: 1});
+        });
     });
 
     test("#[Symbol.iterator]()", () => {
