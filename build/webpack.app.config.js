@@ -11,7 +11,7 @@ const config = {
         db: path.join(__dirname, "../dist/db"),
         smogon: path.join(__dirname, "../dist/setdex/smogon"),
         pokemonPerfect: path.join(__dirname, "../dist/setdex/pokemonPerfect"),
-        vendor: ["vue", "vuex", "vue-i18n", "vue-multiselect", "lodash"]
+        vendor: ["vue", "vuex", "vue-i18n", "vue-multiselect"]
     },
     output: {
         filename: "[name].[chunkhash].js",
