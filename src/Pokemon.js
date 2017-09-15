@@ -1,4 +1,4 @@
-import {clamp, defaultTo} from "lodash";
+import {clamp, defaultTo, isNil} from "lodash";
 import Multiset from "./Multiset";
 import Ability from "./Ability";
 import Item from "./Item";
@@ -21,11 +21,12 @@ const genderShorthands = ["", "(M)", "(F)", ""];
 
 export default class Pokemon {
     constructor(pokemon = {}) {
-        if (pokemon.name) {
+        if (!isNil(pokemon.id)) {
+            this.id = pokemon.id;
+        } else if (pokemon.name) {
             this.name = pokemon.name;
-        } else {
-            this.id = defaultTo(pokemon.id, "0:0");
         }
+        this.id = defaultTo(this.id, "0:0");
 
         const gen = defaultTo(Number(pokemon.gen), maxGen);
         this.gen = gen;

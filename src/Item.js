@@ -1,4 +1,4 @@
-import {defaultTo} from "lodash";
+import {defaultTo, isNil} from "lodash";
 import {Gens, maxGen} from "./utilities";
 import {
     itemId, itemName, naturalGiftPower, naturalGiftType,
@@ -21,11 +21,12 @@ const heavyItems = new Set([
 
 export default class Item {
     constructor(item = {}) {
-        if (item.name) {
+        if (!isNil(item.id)) {
+            this.id = Number(item.id);
+        } else if (item.name) {
             this.name = item.name;
-        } else {
-            this.id = defaultTo(Number(item.id), 0);
         }
+        this.id = defaultTo(this.id, 0);
         this.gen = defaultTo(Number(item.gen), maxGen);
         this.used = Boolean(item.used);
         this.disabled = Boolean(item.disabled);

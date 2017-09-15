@@ -1,4 +1,4 @@
-import {clamp, defaultTo} from "lodash";
+import {clamp, defaultTo, isNil} from "lodash";
 import {Gens, DamageClasses, Stats, Types, Weathers, maxGen} from "./utilities";
 import {
     moveId, moveName, movePower, moveDamageClass, moveType, moveCategory,
@@ -64,11 +64,12 @@ const nonParentalBondMoves = new Set([
 
 export default class Move {
     constructor(move = {}) {
-        if (move.name) {
+        if (!isNil(move.id)) {
+            this.id = Number(move.id);
+        } else if (move.name) {
             this.name = move.name;
-        } else {
-            this.id = defaultTo(Number(move.id), 0);
         }
+        this.id = defaultTo(this.id, 0);
         this.gen = defaultTo(Number(move.gen), maxGen);
         this.critical = Boolean(move.critical);
         this.zMove = Boolean(move.zMove);

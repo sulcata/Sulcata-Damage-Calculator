@@ -1,4 +1,4 @@
-import {defaultTo} from "lodash";
+import {defaultTo, isNil} from "lodash";
 import {maxGen} from "./utilities";
 import {
     abilityName, abilityId, isIgnoredByMoldBreaker, isAbilityUseful,
@@ -23,11 +23,12 @@ const hailImmunityAbilities = new Set([
 
 export default class Ability {
     constructor(ability = {}) {
-        if (ability.name) {
+        if (!isNil(ability.id)) {
+            this.id = Number(ability.id);
+        } else if (ability.name) {
             this.name = ability.name;
-        } else {
-            this.id = defaultTo(Number(ability.id), 0);
         }
+        this.id = defaultTo(this.id, 0);
         this.gen = defaultTo(Number(ability.gen), maxGen);
         this.disabled = Boolean(ability.disabled);
     }

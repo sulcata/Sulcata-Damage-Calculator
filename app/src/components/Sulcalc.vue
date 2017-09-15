@@ -121,7 +121,7 @@ export default {
         reportOptions(reports) {
             return reports.map(value => ({
                 value,
-                label: this.$tMove(value.move)
+                label: this.$tMove({name: value.move.name})
             }));
         }
     }
