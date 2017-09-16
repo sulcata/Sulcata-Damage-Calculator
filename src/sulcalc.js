@@ -366,7 +366,7 @@ function berryDamageMap(v) {
     return min(this.totalHp, v);
 }
 
-function damageMap(v, w, set, skip) {
+function damageMap(v, w, skip) {
     let berryUsed = false;
     for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
         if (this.effects[e] === "toxic") {

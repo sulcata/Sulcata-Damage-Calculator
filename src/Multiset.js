@@ -33,9 +33,9 @@ export default class Multiset {
 
     count(callbackFn = (() => true)) {
         let sum = "0";
-        for (const entry of this) {
-            if (callbackFn(...entry, this)) {
-                sum = addStrs(sum, entry[1]);
+        for (const [value, multiplicity] of this) {
+            if (callbackFn(value, multiplicity)) {
+                sum = addStrs(sum, multiplicity);
             }
         }
         return sum;
@@ -51,17 +51,11 @@ export default class Multiset {
 
     every(callbackFn) {
         for (const entry of this) {
-            if (!callbackFn(...entry, this)) {
+            if (!callbackFn(...entry)) {
                 return false;
             }
         }
         return true;
-    }
-
-    forEach(callbackFn) {
-        for (const entry of this) {
-            callbackFn(...entry, this);
-        }
     }
 
     has(value) {
@@ -98,12 +92,12 @@ export default class Multiset {
 
     map(callbackFn) {
         let skipValue = false;
-        function skip() {
+        const skip = () => {
             skipValue = true;
-        }
+        };
         const mapped = new Multiset();
         for (const entry of this) {
-            const value = callbackFn(...entry, this, skip);
+            const value = callbackFn(...entry, skip);
             if (skipValue) {
                 skipValue = false;
             } else {
@@ -175,7 +169,7 @@ export default class Multiset {
             total = first.value;
         }
         for (const entry of itr) {
-            total = callbackFn(total, ...entry, this);
+            total = callbackFn(total, ...entry);
         }
         return total;
     }
@@ -206,7 +200,7 @@ export default class Multiset {
 
     some(callbackFn) {
         for (const entry of this) {
-            if (callbackFn(...entry, this)) {
+            if (callbackFn(...entry)) {
                 return true;
             }
         }
