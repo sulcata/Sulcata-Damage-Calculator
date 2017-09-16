@@ -67,6 +67,10 @@ export const defenderReports = state => getReportList(
     state.field
 );
 
+export const isReportSelected = (state, getters) => Boolean(
+    getters.selectedReport.summary
+);
+
 function getReportList(attacker, defender, field) {
     const reports = [];
     for (const move of attacker.moves) {

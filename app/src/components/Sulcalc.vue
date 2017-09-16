@@ -8,24 +8,14 @@
 
         <div class='row mt-3'>
             <div class='col-4'>
-                <button-radio-group
-                    :value='selectedReport'
-                    :options='attackerReportOptions'
-                    @input='report => setReport({report})'
-                    layout='vertical'
-                />
+                <report-selector :reports='attackerReports'/>
             </div>
             <div class='col-4'>
-                <button-radio-group
-                    :value='selectedReport'
-                    :options='defenderReportOptions'
-                    @input='report => setReport({report})'
-                    layout='vertical'
-                />
+                <report-selector :reports='defenderReports'/>
             </div>
         </div>
 
-        <div class='row mt-3' v-if='selectedReport.summary'>
+        <div class='row mt-3' v-if='isReportSelected'>
             <div class='col'>
                 <report-display/>
             </div>
@@ -63,14 +53,13 @@
 
 <script>
 import {mapState, mapGetters, mapMutations} from "vuex";
-import translationMixin from "../mixins/translation";
 import Pokemon from "./Pokemon.vue";
 import Field from "./Field.vue";
 import SetImporter from "./SetImporter.vue";
 import SulcalcOptions from "./SulcalcOptions.vue";
 import Generation from "./Generation.vue";
 import ReportDisplay from "./ReportDisplay.vue";
-import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
+import ReportSelector from "./ReportSelector.vue";
 import TabContent from "./ui/TabContent.vue";
 
 export default {
@@ -81,12 +70,9 @@ export default {
         SulcalcOptions,
         Generation,
         ReportDisplay,
-        ButtonRadioGroup,
+        ReportSelector,
         TabContent
     },
-    mixins: [
-        translationMixin
-    ],
     computed: {
         ...mapState([
             "attacker",
@@ -94,16 +80,10 @@ export default {
             "field"
         ]),
         ...mapGetters([
-            "selectedReport",
             "attackerReports",
-            "defenderReports"
+            "defenderReports",
+            "isReportSelected"
         ]),
-        attackerReportOptions() {
-            return this.reportOptions(this.attackerReports);
-        },
-        defenderReportOptions() {
-            return this.reportOptions(this.defenderReports);
-        },
         tabs() {
             return [
                 this.$t("tabs.general"),
@@ -115,15 +95,8 @@ export default {
     methods: {
         ...mapMutations([
             "setAttacker",
-            "setDefender",
-            "setReport"
-        ]),
-        reportOptions(reports) {
-            return reports.map(value => ({
-                value,
-                label: this.$tMove({name: value.move.name})
-            }));
-        }
+            "setDefender"
+        ])
     }
 };
 </script>
