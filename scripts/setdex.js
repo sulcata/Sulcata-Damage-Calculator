@@ -32,7 +32,7 @@ const minifySet = _.curry((set, pokemonId, gen) => {
 
     const minifiedSet = {};
 
-    if (set.l && set.l !== defaultLevel) {
+    if (set.level && set.level !== defaultLevel) {
         minifiedSet.l = set.level;
     }
 

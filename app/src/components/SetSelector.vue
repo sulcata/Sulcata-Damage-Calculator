@@ -10,7 +10,7 @@
         :value='pokemon.event'
         @input='updatePokemon'
         >
-        <template slot='option' scope='props'>
+        <template slot='option' slot-scope='props'>
             <span v-if='props.option.$isLabel'>
                 {{ props.option.$groupLabel }}
             </span>
