@@ -1,7 +1,7 @@
-import {Pokemon} from "sulcalc";
+import { Pokemon } from "sulcalc";
 
 export function copyWithEvent(pokemon) {
-    const copy = new Pokemon(pokemon);
-    copy.event = pokemon.event;
-    return copy;
+  const copy = new Pokemon(pokemon);
+  copy.event = pokemon.event;
+  return copy;
 }

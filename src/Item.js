@@ -1,132 +1,140 @@
-import {defaultTo, isNil} from "lodash";
-import {Gens, maxGen} from "./utilities";
+import { defaultTo, isNil } from "lodash";
+import { Gens, maxGen } from "./utilities";
 import {
-    itemId, itemName, naturalGiftPower, naturalGiftType,
-    flingPower, isItemUseful, itemBoostedType, berryTypeResist,
-    gemType, itemMega, memoryType
+  itemId,
+  itemName,
+  naturalGiftPower,
+  naturalGiftType,
+  flingPower,
+  isItemUseful,
+  itemBoostedType,
+  berryTypeResist,
+  gemType,
+  itemMega,
+  memoryType
 } from "./info";
 
-const {trunc} = Math;
+const { trunc } = Math;
 
 const heavyItems = new Set([
-    "Iron Ball",
-    "Macho Brace",
-    "Power Bracer",
-    "Power Belt",
-    "Power Lens",
-    "Power Band",
-    "Power Anklet",
-    "Power Weight"
+  "Iron Ball",
+  "Macho Brace",
+  "Power Bracer",
+  "Power Belt",
+  "Power Lens",
+  "Power Band",
+  "Power Anklet",
+  "Power Weight"
 ]);
 
 export default class Item {
-    constructor(item = {}) {
-        if (!isNil(item.id)) {
-            this.id = Number(item.id);
-        } else if (item.name) {
-            this.name = item.name;
-        }
-        this.id = defaultTo(this.id, 0);
-        this.gen = defaultTo(Number(item.gen), maxGen);
-        this.used = Boolean(item.used);
-        this.disabled = Boolean(item.disabled);
+  constructor(item = {}) {
+    if (!isNil(item.id)) {
+      this.id = Number(item.id);
+    } else if (item.name) {
+      this.name = item.name;
     }
+    this.id = defaultTo(this.id, 0);
+    this.gen = defaultTo(Number(item.gen), maxGen);
+    this.used = Boolean(item.used);
+    this.disabled = Boolean(item.disabled);
+  }
 
-    get name() {
-        return itemName(this._effectiveId());
-    }
+  get name() {
+    return itemName(this._effectiveId());
+  }
 
-    set name(itemName) {
-        this.id = itemId(itemName);
-    }
+  set name(itemName) {
+    this.id = itemId(itemName);
+  }
 
-    nonDisabledName() {
-        return itemName(this.used ? 0 : this.id);
-    }
+  nonDisabledName() {
+    return itemName(this.used ? 0 : this.id);
+  }
 
-    boostedType() {
-        return itemBoostedType(this._effectiveId(), this.gen);
-    }
+  boostedType() {
+    return itemBoostedType(this._effectiveId(), this.gen);
+  }
 
-    isBerry() {
-        return !this.used && this.id >= 8000;
-    }
+  isBerry() {
+    return !this.used && this.id >= 8000;
+  }
 
-    isPlate() {
-        return this.nonDisabledName().endsWith(" Plate");
-    }
+  isPlate() {
+    return this.nonDisabledName().endsWith(" Plate");
+  }
 
-    berryTypeResist() {
-        return berryTypeResist(this._effectiveId(), this.gen);
-    }
+  berryTypeResist() {
+    return berryTypeResist(this._effectiveId(), this.gen);
+  }
 
-    naturalGiftPower() {
-        return naturalGiftPower(this._effectiveId(), this.gen);
-    }
+  naturalGiftPower() {
+    return naturalGiftPower(this._effectiveId(), this.gen);
+  }
 
-    naturalGiftType() {
-        return naturalGiftType(this._effectiveId());
-    }
+  naturalGiftType() {
+    return naturalGiftType(this._effectiveId());
+  }
 
-    flingPower() {
-        return flingPower(this._effectiveId());
-    }
+  flingPower() {
+    return flingPower(this._effectiveId());
+  }
 
-    gemType() {
-        return gemType(this._effectiveId(), this.gen);
-    }
+  gemType() {
+    return gemType(this._effectiveId(), this.gen);
+  }
 
-    megaPokeNum() {
-        const v = this.megaPoke();
-        return v === null ? null : Number(v.split(":")[0]);
-    }
+  megaPokeNum() {
+    const v = this.megaPoke();
+    return v === null ? null : Number(v.split(":")[0]);
+  }
 
-    megaPokeForm() {
-        const v = this.megaPoke();
-        return v === null ? null : Number(v.split(":")[1]);
-    }
+  megaPokeForm() {
+    const v = this.megaPoke();
+    return v === null ? null : Number(v.split(":")[1]);
+  }
 
-    megaPoke() {
-        return itemMega(this.id, this.gen);
-    }
+  megaPoke() {
+    return itemMega(this.id, this.gen);
+  }
 
-    plateType() {
-        return this.isPlate() ? this.boostedType() : -1;
-    }
+  plateType() {
+    return this.isPlate() ? this.boostedType() : -1;
+  }
 
-    isHeavy() {
-        return heavyItems.has(this.nonDisabledName());
-    }
+  isHeavy() {
+    return heavyItems.has(this.nonDisabledName());
+  }
 
-    isUseful() {
-        return isItemUseful(this.id);
-    }
+  isUseful() {
+    return isItemUseful(this.id);
+  }
 
-    memoryType() {
-        return memoryType(this.id, this.gen);
-    }
+  memoryType() {
+    return memoryType(this.id, this.gen);
+  }
 
-    berryHeal(hp) {
-        switch (this.name) {
-            case "Sitrus Berry":
-                return this.gen >= Gens.HGSS ? trunc(hp / 4) : 30;
-            case "Oran Berry":
-            case "Berry":
-                return 10;
-            case "Figy Berry":
-            case "Wiki Berry":
-            case "Mago Berry":
-            case "Aguav Berry":
-            case "Iapapa Berry":
-                return trunc(hp / 8);
-            case "Gold Berry":
-                return 30;
-            default:
-                return 0;
-        }
+  berryHeal(hp) {
+    switch (this.name) {
+      case "Sitrus Berry":
+        return this.gen >= Gens.HGSS ? trunc(hp / 4) : 30;
+      case "Oran Berry":
+      case "Berry":
+        return 10;
+      case "Figy Berry":
+      case "Wiki Berry":
+      case "Mago Berry":
+      case "Aguav Berry":
+      case "Iapapa Berry":
+        return trunc(hp / 8);
+      case "Gold Berry":
+        return 30;
+      default:
+        return 0;
     }
+  }
 
-    _effectiveId() {
-        return this.used || this.disabled ? 0 : this.id;
-    }
+  _effectiveId() {
+    return this.used || this.disabled ? 0 : this.id;
+  }
 }

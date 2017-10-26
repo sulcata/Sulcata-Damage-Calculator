@@ -1,376 +1,363 @@
-import {effectiveness} from "../info";
+import { effectiveness } from "../info";
 import {
-    Gens, Stats, Types, damageVariation,
-    applyMod, chainMod
+  Gens,
+  Stats,
+  Types,
+  damageVariation,
+  applyMod,
+  chainMod
 } from "../utilities";
 import moveInfo from "./moveInfo";
 
-const {max, min, trunc} = Math;
+const { max, min, trunc } = Math;
 
 export default function b2w2Calculate(attacker, defender, move, field) {
-    const {moveType, movePower, fail} = moveInfo(
-        attacker, defender, move, field
-    );
-    if (fail) return [0];
+  const { moveType, movePower, fail } = moveInfo(
+    attacker,
+    defender,
+    move,
+    field
+  );
+  if (fail) return [0];
 
-    const defStat = field.wonderRoom ? Stats.SDEF : Stats.DEF;
-    const sdefStat = field.wonderRoom ? Stats.DEF : Stats.SDEF;
-    const unawareA = attacker.ability.name === "Unaware";
-    const unawareD = defender.ability.name === "Unaware";
-    let atk, def, satk, sdef;
-    if (move.name === "Foul Play") {
-        if (unawareA) {
-            def = defender.stat(defStat);
-            sdef = defender.stat(sdefStat);
-            atk = defender.stat(Stats.ATK);
-        } else if (move.critical) {
-            def = min(
-                defender.stat(defStat),
-                defender.boostedStat(defStat)
-            );
-            sdef = min(
-                defender.stat(sdefStat),
-                defender.boostedStat(sdefStat)
-            );
-            atk = max(
-                defender.stat(Stats.ATK),
-                defender.boostedStat(Stats.ATK)
-            );
-        } else {
-            def = defender.boostedStat(defStat);
-            sdef = defender.boostedStat(sdefStat);
-            atk = defender.boostedStat(Stats.ATK);
-        }
-
-        if (unawareD) {
-            satk = attacker.stat(Stats.SATK);
-        } else if (move.critical) {
-            satk = max(
-                attacker.stat(Stats.SATK),
-                attacker.boostedStat(Stats.SATK)
-            );
-        } else {
-            satk = attacker.boostedStat(Stats.SATK);
-        }
-    } else if (move.ignoresDefenseBoosts()) {
-        def = defender.stat(defStat);
-        sdef = defender.stat(sdefStat);
-
-        if (unawareD) {
-            atk = attacker.stat(Stats.ATK);
-            satk = attacker.stat(Stats.SATK);
-        } else if (move.critical) {
-            atk = max(
-                attacker.stat(Stats.ATK),
-                attacker.boostedStat(Stats.ATK)
-            );
-            satk = max(
-                attacker.stat(Stats.SATK),
-                attacker.boostedStat(Stats.SATK)
-            );
-        } else {
-            atk = attacker.boostedStat(Stats.ATK);
-            satk = attacker.boostedStat(Stats.SATK);
-        }
+  const defStat = field.wonderRoom ? Stats.SDEF : Stats.DEF;
+  const sdefStat = field.wonderRoom ? Stats.DEF : Stats.SDEF;
+  const unawareA = attacker.ability.name === "Unaware";
+  const unawareD = defender.ability.name === "Unaware";
+  let atk, def, satk, sdef;
+  if (move.name === "Foul Play") {
+    if (unawareA) {
+      def = defender.stat(defStat);
+      sdef = defender.stat(sdefStat);
+      atk = defender.stat(Stats.ATK);
+    } else if (move.critical) {
+      def = min(defender.stat(defStat), defender.boostedStat(defStat));
+      sdef = min(defender.stat(sdefStat), defender.boostedStat(sdefStat));
+      atk = max(defender.stat(Stats.ATK), defender.boostedStat(Stats.ATK));
     } else {
-        if (unawareA) {
-            def = defender.stat(defStat);
-            sdef = defender.stat(sdefStat);
-        } else if (move.critical) {
-            def = min(
-                defender.stat(defStat),
-                defender.boostedStat(defStat)
-            );
-            sdef = min(
-                defender.stat(sdefStat),
-                defender.boostedStat(sdefStat)
-            );
-        } else {
-            def = defender.boostedStat(defStat);
-            sdef = defender.boostedStat(sdefStat);
-        }
-
-        if (unawareD) {
-            atk = attacker.stat(Stats.ATK);
-            satk = attacker.stat(Stats.SATK);
-        } else if (move.critical) {
-            atk = max(
-                attacker.stat(Stats.ATK),
-                attacker.boostedStat(Stats.ATK)
-            );
-            satk = max(
-                attacker.stat(Stats.SATK),
-                attacker.boostedStat(Stats.SATK)
-            );
-        } else {
-            atk = attacker.boostedStat(Stats.ATK);
-            satk = attacker.boostedStat(Stats.SATK);
-        }
+      def = defender.boostedStat(defStat);
+      sdef = defender.boostedStat(sdefStat);
+      atk = defender.boostedStat(Stats.ATK);
     }
 
-    let atkMod = 0x1000;
-    let satkMod = 0x1000;
+    if (unawareD) {
+      satk = attacker.stat(Stats.SATK);
+    } else if (move.critical) {
+      satk = max(attacker.stat(Stats.SATK), attacker.boostedStat(Stats.SATK));
+    } else {
+      satk = attacker.boostedStat(Stats.SATK);
+    }
+  } else if (move.ignoresDefenseBoosts()) {
+    def = defender.stat(defStat);
+    sdef = defender.stat(sdefStat);
 
-    if (defender.ability.name === "Thick Fat"
-        && (moveType === Types.FIRE || moveType === Types.ICE)) {
+    if (unawareD) {
+      atk = attacker.stat(Stats.ATK);
+      satk = attacker.stat(Stats.SATK);
+    } else if (move.critical) {
+      atk = max(attacker.stat(Stats.ATK), attacker.boostedStat(Stats.ATK));
+      satk = max(attacker.stat(Stats.SATK), attacker.boostedStat(Stats.SATK));
+    } else {
+      atk = attacker.boostedStat(Stats.ATK);
+      satk = attacker.boostedStat(Stats.SATK);
+    }
+  } else {
+    if (unawareA) {
+      def = defender.stat(defStat);
+      sdef = defender.stat(sdefStat);
+    } else if (move.critical) {
+      def = min(defender.stat(defStat), defender.boostedStat(defStat));
+      sdef = min(defender.stat(sdefStat), defender.boostedStat(sdefStat));
+    } else {
+      def = defender.boostedStat(defStat);
+      sdef = defender.boostedStat(sdefStat);
+    }
+
+    if (unawareD) {
+      atk = attacker.stat(Stats.ATK);
+      satk = attacker.stat(Stats.SATK);
+    } else if (move.critical) {
+      atk = max(attacker.stat(Stats.ATK), attacker.boostedStat(Stats.ATK));
+      satk = max(attacker.stat(Stats.SATK), attacker.boostedStat(Stats.SATK));
+    } else {
+      atk = attacker.boostedStat(Stats.ATK);
+      satk = attacker.boostedStat(Stats.SATK);
+    }
+  }
+
+  let atkMod = 0x1000;
+  let satkMod = 0x1000;
+
+  if (
+    defender.ability.name === "Thick Fat" &&
+    (moveType === Types.FIRE || moveType === Types.ICE)
+  ) {
+    atkMod = chainMod(0x800, atkMod);
+    satkMod = chainMod(0x800, satkMod);
+  }
+
+  switch (attacker.ability.name) {
+    case "Guts":
+      if (defender.status) atkMod = chainMod(0x1800, atkMod);
+      break;
+    case "Plus":
+      if (attacker.minus) satkMod = chainMod(0x1800, satkMod);
+      break;
+    case "Minus":
+      if (attacker.plus) satkMod = chainMod(0x1800, satkMod);
+      break;
+    case "Defeatist":
+      if (attacker.currentHp * 2 <= attacker.stat(Stats.HP)) {
         atkMod = chainMod(0x800, atkMod);
         satkMod = chainMod(0x800, satkMod);
-    }
-
-    switch (attacker.ability.name) {
-        case "Guts":
-            if (defender.status) atkMod = chainMod(0x1800, atkMod);
-            break;
-        case "Plus":
-            if (attacker.minus) satkMod = chainMod(0x1800, satkMod);
-            break;
-        case "Minus":
-            if (attacker.plus) satkMod = chainMod(0x1800, satkMod);
-            break;
-        case "Defeatist":
-            if (attacker.currentHp * 2 <= attacker.stat(Stats.HP)) {
-                atkMod = chainMod(0x800, atkMod);
-                satkMod = chainMod(0x800, satkMod);
-            }
-            break;
-        case "Huge Power":
-        case "Pure Power":
-            atkMod = chainMod(0x2000, atkMod);
-            break;
-        case "Solar Power":
-            if (field.sun()) satkMod = chainMod(0x1800, satkMod);
-            break;
-        case "Hustle":
-            atk = applyMod(0x1800, atk);
-            break;
-        case "Flash Fire":
-            if (attacker.flashFire && moveType === Types.FIRE) {
-                atkMod = chainMod(0x1800, atkMod);
-                satkMod = chainMod(0x1800, satkMod);
-            }
-            break;
-        case "Slow Start":
-            if (attacker.slowStart) atkMod = chainMod(0x800, atkMod);
-            break;
-        default:
-            if (attacker.pinchAbilityActivated(moveType)) {
-                // blaze, torrent, overgrow, ...
-                atkMod = chainMod(0x1800, atkMod);
-                satkMod = chainMod(0x1800, satkMod);
-            }
-    }
-
-    if (attacker.flowerGift && field.sun()) {
+      }
+      break;
+    case "Huge Power":
+    case "Pure Power":
+      atkMod = chainMod(0x2000, atkMod);
+      break;
+    case "Solar Power":
+      if (field.sun()) satkMod = chainMod(0x1800, satkMod);
+      break;
+    case "Hustle":
+      atk = applyMod(0x1800, atk);
+      break;
+    case "Flash Fire":
+      if (attacker.flashFire && moveType === Types.FIRE) {
         atkMod = chainMod(0x1800, atkMod);
-    }
+        satkMod = chainMod(0x1800, satkMod);
+      }
+      break;
+    case "Slow Start":
+      if (attacker.slowStart) atkMod = chainMod(0x800, atkMod);
+      break;
+    default:
+      if (attacker.pinchAbilityActivated(moveType)) {
+        // blaze, torrent, overgrow, ...
+        atkMod = chainMod(0x1800, atkMod);
+        satkMod = chainMod(0x1800, satkMod);
+      }
+  }
 
-    switch (attacker.item.name) {
-        case "Deep Sea Tooth":
-            if (attacker.name === "Clamperl") {
-                satkMod = chainMod(0x2000, satkMod);
-            }
-            break;
-        case "Soul Dew":
-            if (attacker.name === "Latias" || attacker.name === "Latios") {
-                satkMod = chainMod(0x1800, satkMod);
-            }
-            break;
-        case "Choice Band":
-            atkMod = chainMod(0x1800, atkMod);
-            break;
-        case "Choice Specs":
-            satkMod = chainMod(0x1800, satkMod);
-            break;
-        default:
-            if (attacker.thickClubBoosted()) {
-                atkMod = chainMod(0x2000, atkMod);
-            } else if (attacker.lightBallBoosted()) {
-                atkMod = chainMod(0x2000, atkMod);
-                satkMod = chainMod(0x2000, satkMod);
-            }
-    }
+  if (attacker.flowerGift && field.sun()) {
+    atkMod = chainMod(0x1800, atkMod);
+  }
 
-    atk = applyMod(atkMod, atk);
-    satk = applyMod(satkMod, satk);
+  switch (attacker.item.name) {
+    case "Deep Sea Tooth":
+      if (attacker.name === "Clamperl") {
+        satkMod = chainMod(0x2000, satkMod);
+      }
+      break;
+    case "Soul Dew":
+      if (attacker.name === "Latias" || attacker.name === "Latios") {
+        satkMod = chainMod(0x1800, satkMod);
+      }
+      break;
+    case "Choice Band":
+      atkMod = chainMod(0x1800, atkMod);
+      break;
+    case "Choice Specs":
+      satkMod = chainMod(0x1800, satkMod);
+      break;
+    default:
+      if (attacker.thickClubBoosted()) {
+        atkMod = chainMod(0x2000, atkMod);
+      } else if (attacker.lightBallBoosted()) {
+        atkMod = chainMod(0x2000, atkMod);
+        satkMod = chainMod(0x2000, satkMod);
+      }
+  }
 
-    if (field.sand() && defender.stab(Types.ROCK)) {
-        sdef = applyMod(0x1800, sdef);
-    }
+  atk = applyMod(atkMod, atk);
+  satk = applyMod(satkMod, satk);
 
-    let defMod = 0x1000;
-    let sdefMod = 0x1000;
+  if (field.sand() && defender.stab(Types.ROCK)) {
+    sdef = applyMod(0x1800, sdef);
+  }
 
-    if (defender.ability.name === "Marvel Scale" && defender.status) {
-        defMod = chainMod(0x1800, defMod);
-    }
+  let defMod = 0x1000;
+  let sdefMod = 0x1000;
 
-    if (defender.flowerGift && field.sun()) {
+  if (defender.ability.name === "Marvel Scale" && defender.status) {
+    defMod = chainMod(0x1800, defMod);
+  }
+
+  if (defender.flowerGift && field.sun()) {
+    sdefMod = chainMod(0x1800, sdefMod);
+  }
+
+  switch (defender.item.name) {
+    case "Deep Sea Scale":
+      if (defender.name === "Clamperl") {
         sdefMod = chainMod(0x1800, sdefMod);
+      }
+      break;
+    case "Metal Powder":
+      if (defender.name === "Ditto") {
+        defMod = chainMod(0x2000, defMod);
+      }
+      break;
+    case "Eviolite":
+      if (defender.hasEvolution()) {
+        defMod = chainMod(0x1800, defMod);
+        sdefMod = chainMod(0x1800, sdefMod);
+      }
+      break;
+    case "Soul Dew":
+      if (defender.name === "Latias" || defender.name === "Latios") {
+        sdefMod = chainMod(0x1800, sdefMod);
+      }
+      break;
+    /* no default */
+  }
+
+  def = applyMod(defMod, def);
+  sdef = applyMod(sdefMod, sdef);
+
+  let a = 0,
+    d = 0;
+  if (move.isPsyshockLike()) {
+    a = satk;
+    d = def;
+  } else if (move.isPhysical()) {
+    a = atk;
+    d = def;
+  } else if (move.isSpecial()) {
+    a = satk;
+    d = sdef;
+  } else {
+    return [0];
+  }
+
+  let baseDamage =
+    trunc(trunc(trunc(2 * attacker.level / 5 + 2) * movePower * a / d) / 50) +
+    2;
+
+  if (field.multiBattle && move.hasMultipleTargets()) {
+    baseDamage = applyMod(0xc00, baseDamage);
+  }
+
+  if (move.name !== "Weather Ball") {
+    if (field.sun()) {
+      if (moveType === Types.FIRE) {
+        baseDamage = applyMod(0x1800, baseDamage);
+      } else if (moveType === Types.WATER) {
+        baseDamage = applyMod(0x800, baseDamage);
+      }
+    } else if (field.rain()) {
+      if (moveType === Types.WATER) {
+        baseDamage = applyMod(0x1800, baseDamage);
+      } else if (moveType === Types.FIRE) {
+        baseDamage = applyMod(0x800, baseDamage);
+      }
     }
+  }
 
-    switch (defender.item.name) {
-        case "Deep Sea Scale":
-            if (defender.name === "Clamperl") {
-                sdefMod = chainMod(0x1800, sdefMod);
-            }
-            break;
-        case "Metal Powder":
-            if (defender.name === "Ditto") {
-                defMod = chainMod(0x2000, defMod);
-            }
-            break;
-        case "Eviolite":
-            if (defender.hasEvolution()) {
-                defMod = chainMod(0x1800, defMod);
-                sdefMod = chainMod(0x1800, sdefMod);
-            }
-            break;
-        case "Soul Dew":
-            if (defender.name === "Latias" || defender.name === "Latios") {
-                sdefMod = chainMod(0x1800, sdefMod);
-            }
-            break;
-        /* no default */
-    }
+  if (move.critical) {
+    baseDamage = applyMod(0x2000, baseDamage);
+  }
 
-    def = applyMod(defMod, def);
-    sdef = applyMod(sdefMod, sdef);
+  let damages = damageVariation(baseDamage, 85, 100);
 
-    let a = 0, d = 0;
-    if (move.isPsyshockLike()) {
-        a = satk;
-        d = def;
-    } else if (move.isPhysical()) {
-        a = atk;
-        d = def;
-    } else if (move.isSpecial()) {
-        a = satk;
-        d = sdef;
+  if (attacker.stab(moveType)) {
+    if (attacker.ability.name === "Adaptability") {
+      damages = applyMod(0x2000, damages);
     } else {
-        return [0];
+      damages = applyMod(0x1800, damages);
     }
+  }
 
-    let baseDamage = trunc(trunc(trunc(2 * attacker.level / 5 + 2)
-                                 * movePower * a / d) / 50) + 2;
+  let eff = effectiveness(moveType, defender.types(), {
+    gen: Gens.B2W2,
+    foresight: defender.foresight,
+    scrappy: attacker.ability.name === "Scrappy",
+    gravity: field.gravity
+  });
+  if (moveType === defender.ability.immunityType()) {
+    eff = { num: 0, den: 2 };
+  }
+  if (eff.num === 0) return [0];
+  damages = damages.map(d => trunc(d * eff.num / eff.den));
 
-    if (field.multiBattle && move.hasMultipleTargets()) {
-        baseDamage = applyMod(0xC00, baseDamage);
+  if (
+    attacker.isBurned() &&
+    move.isPhysical() &&
+    attacker.ability.name !== "Guts"
+  ) {
+    damages = damages.map(d => trunc(d / 2));
+  }
+
+  damages = damages.map(d => max(1, d));
+
+  let finalMod = 0x1000;
+
+  if (!move.critical && attacker.ability.name !== "Infiltrator") {
+    if (defender.reflect && (move.isPhysical() || move.isPsyshockLike())) {
+      finalMod = chainMod(field.multiBattle ? 0xa8f : 0x800, finalMod);
     }
-
-    if (move.name !== "Weather Ball") {
-        if (field.sun()) {
-            if (moveType === Types.FIRE) {
-                baseDamage = applyMod(0x1800, baseDamage);
-            } else if (moveType === Types.WATER) {
-                baseDamage = applyMod(0x800, baseDamage);
-            }
-        } else if (field.rain()) {
-            if (moveType === Types.WATER) {
-                baseDamage = applyMod(0x1800, baseDamage);
-            } else if (moveType === Types.FIRE) {
-                baseDamage = applyMod(0x800, baseDamage);
-            }
-        }
+    if (defender.lightScreen && move.isSpecial() && !move.isPsyshockLike()) {
+      finalMod = chainMod(field.multiBattle ? 0xa8f : 0x800, finalMod);
     }
+  }
 
-    if (move.critical) {
-        baseDamage = applyMod(0x2000, baseDamage);
-    }
+  if (defender.multiscaleIsActive()) {
+    finalMod = chainMod(0x800, finalMod);
+  }
 
-    let damages = damageVariation(baseDamage, 85, 100);
+  if (attacker.ability.name === "Tinted Lens" && eff.num < eff.den) {
+    finalMod = chainMod(0x2000, finalMod);
+  }
 
-    if (attacker.stab(moveType)) {
-        if (attacker.ability.name === "Adaptability") {
-            damages = applyMod(0x2000, damages);
-        } else {
-            damages = applyMod(0x1800, damages);
-        }
-    }
+  if (defender.friendGuard) {
+    finalMod = chainMod(0xc00, finalMod);
+  }
 
-    let eff = effectiveness(moveType, defender.types(), {
-        gen: Gens.B2W2,
-        foresight: defender.foresight,
-        scrappy: attacker.ability.name === "Scrappy",
-        gravity: field.gravity
-    });
-    if (moveType === defender.ability.immunityType()) {
-        eff = {num: 0, den: 2};
-    }
-    if (eff.num === 0) return [0];
-    damages = damages.map(d => trunc(d * eff.num / eff.den));
+  if (attacker.ability.name === "Sniper" && move.critical) {
+    finalMod = chainMod(0x1800, finalMod);
+  }
 
-    if (attacker.isBurned() && move.isPhysical()
-        && attacker.ability.name !== "Guts") {
-        damages = damages.map(d => trunc(d / 2));
-    }
+  if (eff.num > eff.den && defender.ability.reducesSuperEffective()) {
+    finalMod = chainMod(0xc00, finalMod);
+  }
 
-    damages = damages.map(d => max(1, d));
-
-    let finalMod = 0x1000;
-
-    if (!move.critical && attacker.ability.name !== "Infiltrator") {
-        if (defender.reflect && (move.isPhysical() || move.isPsyshockLike())) {
-            finalMod = chainMod(field.multiBattle ? 0xA8F : 0x800, finalMod);
-        }
-        if (defender.lightScreen && move.isSpecial()
-            && !move.isPsyshockLike()) {
-            finalMod = chainMod(field.multiBattle ? 0xA8F : 0x800, finalMod);
-        }
-    }
-
-    if (defender.multiscaleIsActive()) {
-        finalMod = chainMod(0x800, finalMod);
-    }
-
-    if (attacker.ability.name === "Tinted Lens" && eff.num < eff.den) {
+  switch (attacker.item.name) {
+    case "Metronome":
+      if (attacker.metronome <= 4) {
+        const mod = 0x1000 + attacker.metronome * 0x333;
+        finalMod = chainMod(mod, finalMod);
+      } else {
         finalMod = chainMod(0x2000, finalMod);
-    }
+      }
+      break;
+    case "Expert Belt":
+      if (eff.num > eff.den) {
+        finalMod = chainMod(0x1333, finalMod);
+      }
+      break;
+    case "Life Orb":
+      finalMod = chainMod(0x14cc, finalMod);
+      break;
+    /* no default */
+  }
 
-    if (defender.friendGuard) {
-        finalMod = chainMod(0xC00, finalMod);
-    }
+  if (
+    moveType === defender.item.berryTypeResist() &&
+    (eff.num > eff.den || moveType === Types.NORMAL)
+  ) {
+    finalMod = chainMod(0x800, finalMod);
+    defender.item.used = true;
+  }
 
-    if (attacker.ability.name === "Sniper" && move.critical) {
-        finalMod = chainMod(0x1800, finalMod);
-    }
+  if (
+    (move.dig && move.boostedByDig()) ||
+    (move.dive && move.boostedByDive()) ||
+    (move.minimize && move.boostedByMinimize())
+  ) {
+    finalMod = chainMod(0x2000, finalMod);
+  }
 
-    if (eff.num > eff.den && defender.ability.reducesSuperEffective()) {
-        finalMod = chainMod(0xC00, finalMod);
-    }
+  damages = applyMod(finalMod, damages);
 
-    switch (attacker.item.name) {
-        case "Metronome":
-            if (attacker.metronome <= 4) {
-                const mod = 0x1000 + attacker.metronome * 0x333;
-                finalMod = chainMod(mod, finalMod);
-            } else {
-                finalMod = chainMod(0x2000, finalMod);
-            }
-            break;
-        case "Expert Belt":
-            if (eff.num > eff.den) {
-                finalMod = chainMod(0x1333, finalMod);
-            }
-            break;
-        case "Life Orb":
-            finalMod = chainMod(0x14CC, finalMod);
-            break;
-        /* no default */
-    }
-
-    if (moveType === defender.item.berryTypeResist()
-        && (eff.num > eff.den || moveType === Types.NORMAL)) {
-        finalMod = chainMod(0x800, finalMod);
-        defender.item.used = true;
-    }
-
-    if (move.dig && move.boostedByDig()
-        || move.dive && move.boostedByDive()
-        || move.minimize && move.boostedByMinimize()) {
-        finalMod = chainMod(0x2000, finalMod);
-    }
-
-    damages = applyMod(finalMod, damages);
-
-    return damages;
+  return damages;
 }

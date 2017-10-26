@@ -1,107 +1,107 @@
 <template>
-    <div role='group' :class='groupClasses'>
-        <button
-            v-for='option in options'
-            :key='option[label]'
-            @click='select(option)'
-            type='button'
-            :class='buttonClasses(option)'
-            style='cursor: default;'
-            >
-            {{ option[label] }}
-        </button>
-    </div>
+  <div role='group' :class='groupClasses'>
+    <button
+      v-for='option in options'
+      :key='option[label]'
+      @click='select(option)'
+      type='button'
+      :class='buttonClasses(option)'
+      style='cursor: default;'
+      >
+      {{ option[label] }}
+    </button>
+  </div>
 </template>
 
 <script>
-import {eq} from "lodash";
+import { eq } from "lodash";
 
 const sizeClasses = {
-    small: "btn-group-sm",
-    medium: "",
-    large: "btn-group-lg"
+  small: "btn-group-sm",
+  medium: "",
+  large: "btn-group-lg"
 };
 
 const typeClasses = {
-    primary: "btn-primary",
-    secondary: "btn-secondary",
-    success: "btn-success",
-    danger: "btn-danger",
-    warning: "btn-warning",
-    info: "btn-warning",
-    light: "btn-light",
-    dark: "btn-dark",
-    link: "btn-link"
+  primary: "btn-primary",
+  secondary: "btn-secondary",
+  success: "btn-success",
+  danger: "btn-danger",
+  warning: "btn-warning",
+  info: "btn-warning",
+  light: "btn-light",
+  dark: "btn-dark",
+  link: "btn-link"
 };
 
 export default {
-    props: {
-        value: {
-            type: null,
-            default: null
-        },
-        options: {
-            type: Array,
-            default: () => []
-        },
-        layout: {
-            type: String,
-            default: "horizontal",
-            validator(value) {
-                return value === "horizontal" || value === "vertical";
-            }
-        },
-        size: {
-            type: String,
-            default: "medium",
-            validator(value) {
-                return sizeClasses.hasOwnProperty(value);
-            }
-        },
-        type: {
-            type: String,
-            default: "primary",
-            validator(value) {
-                return typeClasses.hasOwnProperty(value);
-            }
-        },
-        outline: {
-            type: Boolean,
-            default: false
-        },
-        label: {
-            type: String,
-            default: "label"
-        },
-        trackBy: {
-            type: String,
-            default: "value"
-        }
+  props: {
+    value: {
+      type: null,
+      default: null
     },
-    computed: {
-        groupClasses() {
-            return {
-                "btn-group": this.layout === "horizontal",
-                "btn-group-vertical": this.layout === "vertical",
-                [sizeClasses[this.size]]: true
-            };
-        }
+    options: {
+      type: Array,
+      default: () => []
     },
-    methods: {
-        select(option) {
-            this.$emit("input", option[this.trackBy]);
-        },
-        isSelected(option) {
-            return eq(this.value, option[this.trackBy]);
-        },
-        buttonClasses(option) {
-            const outline = this.outline ? "-outline" : "";
-            return {
-                btn: true,
-                active: this.isSelected(option),
-                [typeClasses[this.type] + outline]: true
-            };
-        }
+    layout: {
+      type: String,
+      default: "horizontal",
+      validator(value) {
+        return value === "horizontal" || value === "vertical";
+      }
+    },
+    size: {
+      type: String,
+      default: "medium",
+      validator(value) {
+        return sizeClasses.hasOwnProperty(value);
+      }
+    },
+    type: {
+      type: String,
+      default: "primary",
+      validator(value) {
+        return typeClasses.hasOwnProperty(value);
+      }
+    },
+    outline: {
+      type: Boolean,
+      default: false
+    },
+    label: {
+      type: String,
+      default: "label"
+    },
+    trackBy: {
+      type: String,
+      default: "value"
     }
+  },
+  computed: {
+    groupClasses() {
+      return {
+        "btn-group": this.layout === "horizontal",
+        "btn-group-vertical": this.layout === "vertical",
+        [sizeClasses[this.size]]: true
+      };
+    }
+  },
+  methods: {
+    select(option) {
+      this.$emit("input", option[this.trackBy]);
+    },
+    isSelected(option) {
+      return eq(this.value, option[this.trackBy]);
+    },
+    buttonClasses(option) {
+      const outline = this.outline ? "-outline" : "";
+      return {
+        btn: true,
+        active: this.isSelected(option),
+        [typeClasses[this.type] + outline]: true
+      };
+    }
+  }
 };
 </script>

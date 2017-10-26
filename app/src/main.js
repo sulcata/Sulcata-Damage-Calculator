@@ -7,8 +7,8 @@ import i18n from "./i18n";
 
 // eslint-disable-next-line no-new
 new Vue({
-    el: "#app",
-    render: h => h(App),
-    store,
-    i18n
+  el: "#app",
+  render: h => h(App),
+  store,
+  i18n
 });
