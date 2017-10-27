@@ -2,7 +2,7 @@ import { Stats, Types } from "../utilities";
 
 const { trunc, max } = Math;
 
-export default function smEndOfTurn(attacker, defender, field) {
+export default (attacker, defender, field) => {
   const values = [];
   const messages = [];
   const hp = defender.stat(Stats.HP);
@@ -86,4 +86,4 @@ export default function smEndOfTurn(attacker, defender, field) {
     values,
     messages
   };
-}
+};

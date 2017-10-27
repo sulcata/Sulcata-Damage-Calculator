@@ -59,6 +59,7 @@ module.exports = {
 
     "accessor-pairs": "error",
     "array-callback-return": "error",
+    "arrow-body-style": ["error", "as-needed"],
     camelcase: "error",
     "class-methods-use-this": "error",
     "consistent-return": "error",

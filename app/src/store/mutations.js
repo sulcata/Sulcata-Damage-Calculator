@@ -1,18 +1,18 @@
 import Vue from "vue";
 import { Pokemon, Field, Gens, Weathers } from "sulcalc";
 
-export const addLocale = (state, { locale, messages }) => {
+export function addLocale(state, { locale, messages }) {
   Vue.set(state.i18n.messages, locale, messages);
-};
+}
 
-export const setLocale = (state, { locale }) => {
+export function setLocale(state, { locale }) {
   if (!state.i18n.messages.hasOwnProperty(locale)) {
     throw new Error("Locale not found.");
   }
   state.i18n.locale = locale;
-};
+}
 
-export const importPokemon = (state, { importText, gen }) => {
+export function importPokemon(state, { importText, gen }) {
   const importedPokemon = importText
     .trim()
     .replace("\r", "")
@@ -30,29 +30,29 @@ export const importPokemon = (state, { importText, gen }) => {
     }
     Vue.set(custom[pokemon.id], pokemon.nickname, pokemon.toSet());
   }
-};
+}
 
-export const toggleSmogonSets = state => {
+export function toggleSmogonSets(state) {
   state.enabledSets.smogon = !state.enabledSets.smogon;
-};
+}
 
-export const togglePokemonPerfectSets = state => {
+export function togglePokemonPerfectSets(state) {
   state.enabledSets.pokemonPerfect = !state.enabledSets.pokemonPerfect;
-};
+}
 
-export const toggleCustomSets = state => {
+export function toggleCustomSets(state) {
   state.enabledSets.custom = !state.enabledSets.custom;
-};
+}
 
-export const toggleLongRolls = state => {
+export function toggleLongRolls(state) {
   state.longRolls = !state.longRolls;
-};
+}
 
-export const toggleFractions = state => {
+export function toggleFractions(state) {
   state.fractions = !state.fractions;
-};
+}
 
-export const changeGen = (state, { gen }) => {
+export function changeGen(state, { gen }) {
   if (!Object.values(Gens).includes(gen)) {
     throw new TypeError("Invalid generation.");
   }
@@ -60,13 +60,13 @@ export const changeGen = (state, { gen }) => {
   state.attacker = new Pokemon({ gen });
   state.defender = new Pokemon({ gen });
   state.field = new Field({ gen });
-};
+}
 
-export const setReport = (state, { report }) => {
+export function setReport(state, { report }) {
   state.overrideReport = report;
-};
+}
 
-export const setAttacker = (state, { pokemon }) => {
+export function setAttacker(state, { pokemon }) {
   if (!(pokemon instanceof Pokemon)) {
     throw new TypeError("Attacker must be a Pokemon.");
   }
@@ -74,9 +74,9 @@ export const setAttacker = (state, { pokemon }) => {
     throw new Error("Expected gen of attacker to match current state.");
   }
   state.attacker = pokemon;
-};
+}
 
-export const setDefender = (state, { pokemon }) => {
+export function setDefender(state, { pokemon }) {
   if (!(pokemon instanceof Pokemon)) {
     throw new TypeError("Defender must be a Pokemon.");
   }
@@ -84,103 +84,103 @@ export const setDefender = (state, { pokemon }) => {
     throw new Error("Expected gen of defender to match current state.");
   }
   state.defender = pokemon;
-};
+}
 
-export const toggleMultiBattle = state => {
+export function toggleMultiBattle(state) {
   state.field.multiBattle = !state.field.multiBattle;
-};
+}
 
-export const toggleInvertedBattle = state => {
+export function toggleInvertedBattle(state) {
   state.field.invertedBattle = !state.field.invertedBattle;
-};
+}
 
-export const toggleWaterSport = state => {
+export function toggleWaterSport(state) {
   state.field.waterSport = !state.field.waterSport;
-};
+}
 
-export const toggleMudSport = state => {
+export function toggleMudSport(state) {
   state.field.mudSport = !state.field.mudSport;
-};
+}
 
-export const toggleGravity = state => {
+export function toggleGravity(state) {
   state.field.gravity = !state.field.gravity;
-};
+}
 
-export const toggleGrassyTerrain = state => {
+export function toggleGrassyTerrain(state) {
   state.field.grassyTerrain = !state.field.grassyTerrain;
-};
+}
 
-export const toggleElectricTerrain = state => {
+export function toggleElectricTerrain(state) {
   state.field.electricTerrain = !state.field.electricTerrain;
-};
+}
 
-export const toggleMistyTerrain = state => {
+export function toggleMistyTerrain(state) {
   state.field.mistyTerrain = !state.field.mistyTerrain;
-};
+}
 
-export const togglePsychicTerrain = state => {
+export function togglePsychicTerrain(state) {
   state.field.psychicTerrain = !state.field.psychicTerrain;
-};
+}
 
-export const toggleFairyAura = state => {
+export function toggleFairyAura(state) {
   state.field.fairyAura = !state.field.fairyAura;
-};
+}
 
-export const toggleDarkAura = state => {
+export function toggleDarkAura(state) {
   state.field.darkAura = !state.field.darkAura;
-};
+}
 
-export const toggleAuraBreak = state => {
+export function toggleAuraBreak(state) {
   state.field.auraBreak = !state.field.auraBreak;
-};
+}
 
-export const toggleIonDeluge = state => {
+export function toggleIonDeluge(state) {
   state.field.ionDeluge = !state.field.ionDeluge;
-};
+}
 
-export const setWeather = (state, { weather }) => {
+export function setWeather(state, { weather }) {
   if (!Object.values(Weathers).includes(weather)) {
     throw new TypeError("Invalid weather.");
   }
   state.field.weather = weather;
-};
+}
 
-export const toggleStealthRock = (state, { side }) => {
+export function toggleStealthRock(state, { side }) {
   validateSide(side);
   state[side].stealthRock = !state[side].stealthRock;
-};
+}
 
-export const toggleReflect = (state, { side }) => {
+export function toggleReflect(state, { side }) {
   validateSide(side);
   state[side].reflect = !state[side].reflect;
-};
+}
 
-export const toggleLightScreen = (state, { side }) => {
+export function toggleLightScreen(state, { side }) {
   validateSide(side);
   state[side].lightScreen = !state[side].lightScreen;
-};
+}
 
-export const toggleForesight = (state, { side }) => {
+export function toggleForesight(state, { side }) {
   validateSide(side);
   state[side].foresight = !state[side].foresight;
-};
+}
 
-export const toggleFriendGuard = (state, { side }) => {
+export function toggleFriendGuard(state, { side }) {
   validateSide(side);
   state[side].friendGuard = !state[side].friendGuard;
-};
+}
 
-export const toggleAuroraVeil = (state, { side }) => {
+export function toggleAuroraVeil(state, { side }) {
   validateSide(side);
   state[side].auroraVeil = !state[side].auroraVeil;
-};
+}
 
-export const toggleBattery = (state, { side }) => {
+export function toggleBattery(state, { side }) {
   validateSide(side);
   state[side].battery = !state[side].battery;
-};
+}
 
-export const setSpikes = (state, { side, spikes }) => {
+export function setSpikes(state, { side, spikes }) {
   validateSide(side);
   const parsedSpikes = Number(spikes);
   if (!Number.isInteger(parsedSpikes)) {
@@ -191,7 +191,7 @@ export const setSpikes = (state, { side, spikes }) => {
     throw new Error("Spikes out of valid range.");
   }
   state[side].spikes = parsedSpikes;
-};
+}
 
 function validateSide(side) {
   if (side !== "attacker" && side !== "defender") {

@@ -27,7 +27,7 @@ const { max, min, trunc } = Math;
  * Shields Down
  * Schooling
  */
-export default function smCalculate(attacker, defender, move, field) {
+export default (attacker, defender, move, field) => {
   const { moveType, movePower, fail } = moveInfo(
     attacker,
     defender,
@@ -407,4 +407,4 @@ export default function smCalculate(attacker, defender, move, field) {
   damages = applyMod(finalMod, damages);
 
   return damages;
-}
+};

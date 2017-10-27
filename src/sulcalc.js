@@ -382,55 +382,6 @@ export default function sulcalc(attacker, defender, move, field) {
   };
 }
 
-function berryDamageMap(v) {
-  for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
-    if (this.effects[e] === "toxic") {
-      // limit to at most enough to KO
-      v += trunc((this.toxicCounter + 1) * this.totalHp / 16);
-    } else {
-      // limit to at most enough to KO, at least enough to fully heal
-      v = max(0, v - this.effects[e]);
-    }
-  }
-  return min(this.totalHp, v);
-}
-
-function damageMap(v, w, skip) {
-  let berryUsed = false;
-  for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
-    if (this.effects[e] === "toxic") {
-      // limit to at most enough to KO
-      v += trunc((this.toxicCounter + 1) * this.totalHp / 16);
-    } else {
-      // limit to at most enough to KO, at least enough to fully heal
-      v = max(0, v - this.effects[e]);
-    }
-    if (
-      !berryUsed &&
-      this.berryHeal > 0 &&
-      v < this.totalHp &&
-      2 * v >= this.totalHp
-    ) {
-      /* berry can be whatever amount for sitrus, oran, etc.
-             * gen 3, 4, 5, & 6: apply at 1/2 or below
-             * I've personally confirmed that for gens 3, 4, & 5 it
-             * activates above 1/3, so I'm assuming it activates at <= 50%
-             * tested with Emerald, Heart Gold, and White
-             * tl;dr bulba lies, it was never 1/3
-             */
-      v = max(0, v - this.berryHeal);
-      berryUsed = true;
-    }
-  }
-  v = min(this.totalHp, v);
-  // berry might not be the last effect added, so do this at the end
-  if (berryUsed) {
-    this.berryDmg.add(v, w); // separate berry modified value into berryDmg
-    skip();
-  }
-  return v;
-}
-
 function chanceToKo(poke, damageRanges, params) {
   const chances = [];
   const totalHp = poke.stat(Stats.HP);
@@ -502,11 +453,62 @@ function chanceToKo(poke, damageRanges, params) {
 
   return {
     fractionalChances: chances,
-    roundedChances: chances.map(([num, den]) => {
-      if (num === "0") return 0;
-      return Number(divideStrs(num + "000000", den)[0]) / 1000000;
-    }),
+    roundedChances: chances.map(
+      ([numerator, denominator]) =>
+        numerator === "0"
+          ? 0
+          : Number(divideStrs(numerator + "000000", denominator)[0]) / 1000000
+    ),
     remainingHealth,
     remainingHealthBerry
   };
+}
+
+function berryDamageMap(v) {
+  for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
+    if (this.effects[e] === "toxic") {
+      // limit to at most enough to KO
+      v += trunc((this.toxicCounter + 1) * this.totalHp / 16);
+    } else {
+      // limit to at most enough to KO, at least enough to fully heal
+      v = max(0, v - this.effects[e]);
+    }
+  }
+  return min(this.totalHp, v);
+}
+
+function damageMap(v, w, skip) {
+  let berryUsed = false;
+  for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
+    if (this.effects[e] === "toxic") {
+      // limit to at most enough to KO
+      v += trunc((this.toxicCounter + 1) * this.totalHp / 16);
+    } else {
+      // limit to at most enough to KO, at least enough to fully heal
+      v = max(0, v - this.effects[e]);
+    }
+    if (
+      !berryUsed &&
+      this.berryHeal > 0 &&
+      v < this.totalHp &&
+      2 * v >= this.totalHp
+    ) {
+      /* berry can be whatever amount for sitrus, oran, etc.
+             * gen 3, 4, 5, & 6: apply at 1/2 or below
+             * I've personally confirmed that for gens 3, 4, & 5 it
+             * activates above 1/3, so I'm assuming it activates at <= 50%
+             * tested with Emerald, Heart Gold, and White
+             * tl;dr bulba lies, it was never 1/3
+             */
+      v = max(0, v - this.berryHeal);
+      berryUsed = true;
+    }
+  }
+  v = min(this.totalHp, v);
+  // berry might not be the last effect added, so do this at the end
+  if (berryUsed) {
+    this.berryDmg.add(v, w); // separate berry modified value into berryDmg
+    skip();
+  }
+  return v;
 }

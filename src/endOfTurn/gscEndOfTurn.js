@@ -2,7 +2,7 @@ import { Stats } from "../utilities";
 
 const { max, trunc } = Math;
 
-export default function gscEndOfTurn(attacker, defender, field) {
+export default (attacker, defender, field) => {
   const values = [];
   const messages = [];
   const hp = defender.stat(Stats.HP);
@@ -33,4 +33,4 @@ export default function gscEndOfTurn(attacker, defender, field) {
     values,
     messages
   };
-}
+};

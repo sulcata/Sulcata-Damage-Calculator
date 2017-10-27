@@ -11,7 +11,7 @@ import moveInfo from "./moveInfo";
 
 const { max, min, trunc } = Math;
 
-export default function orasCalculate(attacker, defender, move, field) {
+export default (attacker, defender, move, field) => {
   const { moveType, movePower, fail } = moveInfo(
     attacker,
     defender,
@@ -394,4 +394,4 @@ export default function orasCalculate(attacker, defender, move, field) {
   damages = applyMod(finalMod, damages);
 
   return damages;
-}
+};

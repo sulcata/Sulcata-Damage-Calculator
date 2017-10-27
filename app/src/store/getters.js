@@ -1,7 +1,7 @@
 import { zip } from "lodash";
 import sulcalc, { info } from "sulcalc";
 
-export const sets = state => {
+export function sets(state) {
   const setdexList = [];
   for (const [name, setdex] of Object.entries(state.sets)) {
     if (state.enabledSets[name]) {
@@ -30,9 +30,9 @@ export const sets = state => {
   }
 
   return groups;
-};
+}
 
-export const selectedReport = (state, getters) => {
+export function selectedReport(state, getters) {
   if (getters.reports.includes(state.overrideReport)) {
     return state.overrideReport;
   }
@@ -48,7 +48,7 @@ export const selectedReport = (state, getters) => {
     if (report2.damage.max() > report1.damage.max()) return report2;
     return report1;
   }, {});
-};
+}
 
 export const reports = (state, getters) => [
   ...getters.attackerReports,

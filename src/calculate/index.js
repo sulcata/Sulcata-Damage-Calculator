@@ -1,4 +1,4 @@
-import { clamp } from "lodash";
+import { clamp, flowRight } from "lodash";
 import Multiset from "../Multiset";
 import { Gens, Stats, multiplyStrs, divideStrs, cmpStrs } from "../utilities";
 import rbyCalculate from "./rbyCalculate";
@@ -11,63 +11,79 @@ import smCalculate from "./smCalculate";
 
 const { max, min, trunc } = Math;
 
-export default function calculate(attacker, defender, move, field) {
-  const dmg = [];
-  if (move.name === "(No Move)") {
-    dmg.push(new Multiset([0]));
-    dmg.push(0);
-  } else if (move.name === "Fury Cutter") {
-    const tempCutter = move.furyCutter;
-    while (move.furyCutter <= 5) {
-      dmg.push(turnCalculate(attacker, defender, move, field));
-      move.furyCutter++;
-    }
-    dmg.push(-1); // look at the last damage range
-    move.furyCutter = tempCutter; // restore
-  } else if (move.name === "Echoed Voice") {
-    const tempVoice = move.echoedVoice;
-    while (move.echoedVoice <= 4) {
-      dmg.push(turnCalculate(attacker, defender, move, field));
-      move.echoedVoice++;
-    }
-    dmg.push(-1); // look at the last damage range
-    move.echoedVoice = tempVoice;
-  } else if (move.name === "Trump Card") {
-    const tempPP = move.trumpPP;
-    dmg.push(turnCalculate(attacker, defender, move, field));
-    while (move.trumpPP > 0) {
-      if (defender.ability.name === "Pressure") {
-        move.trumpPP -= min(2, move.trumpPP);
-      } else {
-        move.trumpPP--;
-      }
-      dmg.push(turnCalculate(attacker, defender, move, field));
-    }
-    dmg.push(0); // no more PP, no more damage ranges
-    move.trumpPP = tempPP;
-  } else if (move.name === "Explosion" || move.name === "Self-Destruct") {
-    dmg.push(turnCalculate(attacker, defender, move, field));
-    dmg.push(0); // ur dead
-  } else if (move.name === "Rollout" || move.name === "Ice Ball") {
-    const tempRollout = move.rollout;
-    // repeat 5 times, The formulas wrap around automatically
-    for (let i = 0; i < 5; i++) {
-      dmg.push(turnCalculate(attacker, defender, move, field));
-      move.rollout++;
-    }
-    dmg.push(-dmg.length);
-    move.rollout = tempRollout;
-  } else {
-    dmg.push(turnCalculate(attacker, defender, move, field));
-    // an item like a type-resist berry or a gem might get used
-    dmg.push(turnCalculate(attacker, defender, move, field));
-    dmg.push(-1); // only repeat the last roll
-  }
-  defender.brokenMultiscale = false; // reset multiscale
-  return dmg;
-}
+const genCalculate = flowRight(
+  damage => new Multiset(damage),
+  (attacker, defender, move, field) => {
+    const gen = field.gen;
+    const maxHp = defender.stat(Stats.HP);
+    const level = attacker.level;
 
-function turnCalculate(attacker, defender, move, field) {
+    switch (move.name) {
+      case "Seismic Toss":
+      case "Night Shade":
+        return [attacker.level];
+      case "Dragon Rage":
+        return [40];
+      case "Sonic Boom":
+        return [20];
+      case "Psywave":
+        if (gen <= Gens.GSC) {
+          // intentionally 1-149
+          const range = [];
+          for (let i = 1; i < trunc(level * 3 / 2); i++) {
+            range.push(i);
+          }
+          return range;
+        }
+        {
+          const range = [];
+          for (let i = 50; i <= 150; i += gen <= Gens.HGSS ? 10 : 1) {
+            range.push(max(1, trunc(level * i / 100)));
+          }
+          return range;
+        }
+      case "Super Fang":
+      case "Nature's Madness":
+        return [max(1, trunc(defender.currentHp / 2))];
+      case "Endeavor":
+        return [max(0, defender.currentHp - attacker.currentHp)];
+      case "Final Gambit":
+        return [attacker.currentHp];
+      default:
+        if (
+          move.isOther() ||
+          (move.isSound() && defender.ability.name === "Soundproof") ||
+          (move.isBall() && defender.ability.name === "Bulletproof") ||
+          (move.isExplosion() && defender.ability.name === "Damp")
+        ) {
+          return [0];
+        }
+        if (move.isOhko()) {
+          return [maxHp];
+        }
+    }
+
+    const calculateFns = [
+      undefined, // i swear undefined is a function
+      rbyCalculate,
+      gscCalculate,
+      advCalculate,
+      hgssCalculate,
+      b2w2Calculate,
+      orasCalculate,
+      smCalculate
+    ];
+    let damages = calculateFns[field.gen](attacker, defender, move, field);
+
+    if (defender.ability.name === "Sturdy" && defender.currentHp === maxHp) {
+      damages = damages.map(d => min(maxHp - 1, d));
+    }
+
+    return damages;
+  }
+);
+
+const turnCalculate = (attacker, defender, move, field) => {
   let dmg;
   if (move.name === "Triple Kick") {
     dmg = new Multiset([0]);
@@ -154,85 +170,60 @@ function turnCalculate(attacker, defender, move, field) {
   }
 
   return cmpStrs(dmg.size, "39") <= 0 ? dmg : dmg.simplify();
-}
+};
 
-function genCalculate(attacker, defender, move, field) {
-  return new Multiset(_genCalculate(attacker, defender, move, field));
-}
-
-function _genCalculate(attacker, defender, move, field) {
-  const gen = field.gen;
-  const maxHp = defender.stat(Stats.HP);
-  const level = attacker.level;
-
-  switch (move.name) {
-    case "Seismic Toss":
-    case "Night Shade":
-      return [attacker.level];
-    case "Dragon Rage":
-      return [40];
-    case "Sonic Boom":
-      return [20];
-    case "Psywave":
-      if (gen <= Gens.GSC) {
-        // intentionally 1-149
-        const range = [];
-        const maxPsywave = trunc(level * 3 / 2);
-        for (let i = 1; i < maxPsywave; i++) {
-          range.push(i);
-        }
-        return range;
+export default (attacker, defender, move, field) => {
+  const dmg = [];
+  if (move.name === "(No Move)") {
+    dmg.push(new Multiset([0]));
+    dmg.push(0);
+  } else if (move.name === "Fury Cutter") {
+    const tempCutter = move.furyCutter;
+    while (move.furyCutter <= 5) {
+      dmg.push(turnCalculate(attacker, defender, move, field));
+      move.furyCutter++;
+    }
+    dmg.push(-1); // look at the last damage range
+    move.furyCutter = tempCutter; // restore
+  } else if (move.name === "Echoed Voice") {
+    const tempVoice = move.echoedVoice;
+    while (move.echoedVoice <= 4) {
+      dmg.push(turnCalculate(attacker, defender, move, field));
+      move.echoedVoice++;
+    }
+    dmg.push(-1); // look at the last damage range
+    move.echoedVoice = tempVoice;
+  } else if (move.name === "Trump Card") {
+    const tempPP = move.trumpPP;
+    dmg.push(turnCalculate(attacker, defender, move, field));
+    while (move.trumpPP > 0) {
+      if (defender.ability.name === "Pressure") {
+        move.trumpPP -= min(2, move.trumpPP);
+      } else {
+        move.trumpPP--;
       }
-      if (gen <= Gens.HGSS) {
-        const range = [];
-        for (let i = 50; i <= 150; i += 10) {
-          range.push(max(1, trunc(level * i / 100)));
-        }
-        return range;
-      }
-      {
-        const range = [];
-        for (let i = 50; i <= 150; i++) {
-          range.push(max(1, trunc(level * i / 100)));
-        }
-        return range;
-      }
-    case "Super Fang":
-    case "Nature's Madness":
-      return [max(1, trunc(defender.currentHp / 2))];
-    case "Endeavor":
-      return [max(0, defender.currentHp - attacker.currentHp)];
-    case "Final Gambit":
-      return [attacker.currentHp];
-    default:
-      if (
-        move.isOther() ||
-        (move.isSound() && defender.ability.name === "Soundproof") ||
-        (move.isBall() && defender.ability.name === "Bulletproof") ||
-        (move.isExplosion() && defender.ability.name === "Damp")
-      ) {
-        return [0];
-      }
-      if (move.isOhko()) {
-        return [maxHp];
-      }
+      dmg.push(turnCalculate(attacker, defender, move, field));
+    }
+    dmg.push(0); // no more PP, no more damage ranges
+    move.trumpPP = tempPP;
+  } else if (move.name === "Explosion" || move.name === "Self-Destruct") {
+    dmg.push(turnCalculate(attacker, defender, move, field));
+    dmg.push(0); // ur dead
+  } else if (move.name === "Rollout" || move.name === "Ice Ball") {
+    const tempRollout = move.rollout;
+    // repeat 5 times, The formulas wrap around automatically
+    for (let i = 0; i < 5; i++) {
+      dmg.push(turnCalculate(attacker, defender, move, field));
+      move.rollout++;
+    }
+    dmg.push(-dmg.length);
+    move.rollout = tempRollout;
+  } else {
+    dmg.push(turnCalculate(attacker, defender, move, field));
+    // an item like a type-resist berry or a gem might get used
+    dmg.push(turnCalculate(attacker, defender, move, field));
+    dmg.push(-1); // only repeat the last roll
   }
-
-  const calculateFns = [
-    undefined, // i swear undefined is a function
-    rbyCalculate,
-    gscCalculate,
-    advCalculate,
-    hgssCalculate,
-    b2w2Calculate,
-    orasCalculate,
-    smCalculate
-  ];
-  let damages = calculateFns[field.gen](attacker, defender, move, field);
-
-  if (defender.ability.name === "Sturdy" && defender.currentHp === maxHp) {
-    damages = damages.map(d => min(maxHp - 1, d));
-  }
-
-  return damages;
-}
+  defender.brokenMultiscale = false; // reset multiscale
+  return dmg;
+};

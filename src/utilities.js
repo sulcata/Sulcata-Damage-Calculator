@@ -194,20 +194,16 @@ export function gcdStrs(num1, num2) {
   return a;
 }
 
-export function roundHalfToZero(n) {
-  return trunc(n) + sign(n) * (abs(n - trunc(n)) > 0.5);
-}
+export const roundHalfToZero = n =>
+  trunc(n) + sign(n) * (abs(n - trunc(n)) > 0.5);
 
-export function chainMod(modifier1, modifier2) {
-  return (modifier1 * modifier2 + 0x800) >> 12;
-}
+export const chainMod = (modifier1, modifier2) =>
+  (modifier1 * modifier2 + 0x800) >> 12;
 
-export function applyMod(modifier, value) {
-  if (Array.isArray(value)) {
-    return value.map(v => roundHalfToZero(v * modifier / 0x1000));
-  }
-  return roundHalfToZero(value * modifier / 0x1000);
-}
+export const applyMod = (modifier, value) =>
+  Array.isArray(value)
+    ? value.map(v => roundHalfToZero(v * modifier / 0x1000))
+    : roundHalfToZero(value * modifier / 0x1000);
 
 export function damageVariation(baseDamage, min, max) {
   const damages = [];
@@ -217,10 +213,6 @@ export function damageVariation(baseDamage, min, max) {
   return damages;
 }
 
-export function needsScaling(...stats) {
-  return stats.some(stat => stat > 255);
-}
+export const needsScaling = (...stats) => stats.some(stat => stat > 255);
 
-export function scaleStat(stat, bits = 2) {
-  return (stat >> bits) & 0xff;
-}
+export const scaleStat = (stat, bits = 2) => (stat >> bits) & 0xff;

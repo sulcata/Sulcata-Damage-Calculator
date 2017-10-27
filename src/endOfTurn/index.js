@@ -6,8 +6,8 @@ import b2w2EndOfTurn from "./b2w2EndOfTurn";
 import orasEndOfTurn from "./orasEndOfTurn";
 import smEndOfTurn from "./smEndOfTurn";
 
-export default function endOfTurn(attacker, defender, field) {
-  return [
+export default (attacker, defender, field) =>
+  [
     undefined,
     rbyEndOfTurn,
     gscEndOfTurn,
@@ -17,4 +17,3 @@ export default function endOfTurn(attacker, defender, field) {
     orasEndOfTurn,
     smEndOfTurn
   ][field.gen](attacker, defender, field);
-}

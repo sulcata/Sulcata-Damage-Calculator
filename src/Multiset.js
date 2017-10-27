@@ -95,9 +95,9 @@ export default class Multiset {
 
   map(callbackFn) {
     let skipValue = false;
-    const skip = () => {
+    function skip() {
       skipValue = true;
-    };
+    }
     const mapped = new Multiset();
     for (const entry of this) {
       const value = callbackFn(...entry, skip);

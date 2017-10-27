@@ -81,6 +81,23 @@ const nonParentalBondMoves = new Set([
   "Endeavor"
 ]);
 
+const hiddenPowerStatOrder = [
+  Stats.SPD,
+  Stats.SATK,
+  Stats.HP,
+  Stats.DEF,
+  Stats.SDEF,
+  Stats.ATK
+];
+
+function ivsCmp(a, b) {
+  for (const stat of hiddenPowerStatOrder) {
+    if (a[stat] !== b[stat]) return b[stat] - a[stat];
+  }
+  /* istanbul ignore next */
+  return 0;
+}
+
 export default class Move {
   constructor(move = {}) {
     if (!isNil(move.id)) {
@@ -512,22 +529,4 @@ export default class Move {
   static eruption(hp, totalHp) {
     return max(1, trunc(150 * hp / totalHp));
   }
-}
-
-// Determines how good IVs are in comparison to each other
-// Sort for ideal perfect IVs: Speed > SpA > HP > Def > SpD > Atk
-function ivsCmp(a, b) {
-  const stats = [
-    Stats.SPD,
-    Stats.SATK,
-    Stats.HP,
-    Stats.DEF,
-    Stats.SDEF,
-    Stats.ATK
-  ];
-  for (const stat of stats) {
-    if (a[stat] !== b[stat]) return b[stat] - a[stat];
-  }
-  /* istanbul ignore next */
-  return 0;
 }

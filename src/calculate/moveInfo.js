@@ -18,7 +18,7 @@ import {
 
 const { max, min, trunc } = Math;
 
-export default function moveInfo(attacker, defender, move, field) {
+export default (attacker, defender, move, field) => {
   const gen = field.gen;
   let moveType = move.type();
   let movePower = move.power();
@@ -520,4 +520,4 @@ export default function moveInfo(attacker, defender, move, field) {
   }
 
   return { moveType, movePower };
-}
+};

@@ -9,7 +9,7 @@ import {
 
 const { max, min, trunc } = Math;
 
-export default function rbyCalculate(attacker, defender, move) {
+export default (attacker, defender, move) => {
   let level, atk, def, spcA, spcD;
   if (move.critical) {
     level = 2 * attacker.level;
@@ -71,4 +71,4 @@ export default function rbyCalculate(attacker, defender, move) {
   const damages = damageVariation(baseDamage, 217, 255);
 
   return damages;
-}
+};

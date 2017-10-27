@@ -2,7 +2,7 @@ import { Stats, Types } from "../utilities";
 
 const { max, trunc } = Math;
 
-export default function b2w2EndOfTurn(attacker, defender, field) {
+export default (attacker, defender, field) => {
   const values = [];
   const messages = [];
   const hp = defender.stat(Stats.HP);
@@ -86,4 +86,4 @@ export default function b2w2EndOfTurn(attacker, defender, field) {
     values,
     messages
   };
-}
+};

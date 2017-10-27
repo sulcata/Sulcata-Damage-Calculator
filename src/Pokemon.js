@@ -36,6 +36,96 @@ const { max, min, trunc } = Math;
 
 const statNames = ["HP", "Atk", "Def", "SpA", "SpD", "Spe"];
 const genderShorthands = ["", "(M)", "(F)", ""];
+const hiddenPowerRegex = /Hidden Power( \[?(\w*)]?)?/i;
+const statMatches = Object.assign(Object.create(null), {
+  HP: Stats.HP,
+  Atk: Stats.ATK,
+  Def: Stats.DEF,
+  SAtk: Stats.SATK,
+  SpAtk: Stats.SATK,
+  SpA: Stats.SATK,
+  SDef: Stats.SDEF,
+  SpDef: Stats.SDEF,
+  SpD: Stats.SDEF,
+  Spd: Stats.SPD,
+  Spe: Stats.SPD,
+  Spc: Stats.SPC
+});
+
+function parseMove(move, poke, nextMove) {
+  const match = hiddenPowerRegex.exec(move);
+  if (match) {
+    poke.moves[nextMove].name = "Hidden Power";
+    const type = typeId(match[2]);
+    if (type !== Move.hiddenPowerType(poke.ivs, poke.gen)) {
+      poke.ivs = Move.hiddenPowers(type, poke.gen)[0];
+    }
+  } else {
+    poke.moves[nextMove].name = move;
+  }
+}
+
+function parseStats(statsString, { min, max, multipleOf = 1, defaultValue }) {
+  const stats = Array(6).fill(defaultValue);
+  for (const statString of statsString.split("/").map(s => s.trim())) {
+    let value = parseInt(statString, 10);
+    if (Number.isNaN(value)) {
+      value = defaultValue;
+    } else {
+      value = trunc(clamp(value, min, max) / multipleOf) * multipleOf;
+    }
+    const stat = statMatches[statString.split(" ")[1]];
+    if (stat !== undefined) {
+      stats[stat] = value;
+    }
+  }
+  return stats;
+}
+
+const noMoveLast = (move1, move2) =>
+  (move1.name === "(No Move)") - (move2.name === "(No Move)");
+
+const calcHealthDv = ivs =>
+  ((ivs[Stats.ATK] & 1) << 3) |
+  ((ivs[Stats.DEF] & 1) << 2) |
+  ((ivs[Stats.SPD] & 1) << 1) |
+  (ivs[Stats.SPC] & 1);
+
+function printIv(stat, iv, ivs, gen) {
+  if (gen >= Gens.ADV) {
+    return iv < 31 ? `${iv} ${statNames[stat]}` : null;
+  }
+
+  if (stat === Stats.HP) {
+    iv = calcHealthDv(ivs);
+  } else if (stat === Stats.SDEF) {
+    if (gen < Gens.GSC) return null;
+    iv = ivs[Stats.SPC];
+  }
+
+  if (iv >= 15) return null;
+
+  return gen < Gens.GSC && stat === Stats.SPC
+    ? `${iv} Spc`
+    : `${iv} ${statNames[stat]}`;
+}
+
+function printEv(stat, ev, evs, gen) {
+  if (gen >= Gens.ADV) {
+    return ev > 0 ? `${ev} ${statNames[stat]}` : null;
+  }
+
+  if (stat === Stats.SDEF) {
+    if (gen < Gens.GSC) return null;
+    ev = evs[Stats.SPC];
+  }
+
+  if (ev >= 252) return null;
+
+  return gen < Gens.GSC && stat === Stats.SPC
+    ? `${ev} Spc`
+    : `${ev} ${statNames[stat]}`;
+}
 
 export default class Pokemon {
   constructor(pokemon = {}) {
@@ -751,100 +841,4 @@ export default class Pokemon {
   static calcHealthDv(ivs) {
     return calcHealthDv(ivs);
   }
-}
-
-const hiddenPowerRegex = /Hidden Power( \[?(\w*)]?)?/i;
-
-function parseMove(move, poke, nextMove) {
-  const match = hiddenPowerRegex.exec(move);
-  if (match) {
-    poke.moves[nextMove].name = "Hidden Power";
-    const type = typeId(match[2]);
-    if (type !== Move.hiddenPowerType(poke.ivs, poke.gen)) {
-      poke.ivs = Move.hiddenPowers(type, poke.gen)[0];
-    }
-  } else {
-    poke.moves[nextMove].name = move;
-  }
-}
-
-const statMatches = Object.assign(Object.create(null), {
-  HP: Stats.HP,
-  Atk: Stats.ATK,
-  Def: Stats.DEF,
-  SAtk: Stats.SATK,
-  SpAtk: Stats.SATK,
-  SpA: Stats.SATK,
-  SDef: Stats.SDEF,
-  SpDef: Stats.SDEF,
-  SpD: Stats.SDEF,
-  Spd: Stats.SPD,
-  Spe: Stats.SPD,
-  Spc: Stats.SPC
-});
-
-function parseStats(statsString, { min, max, multipleOf = 1, defaultValue }) {
-  const stats = Array(6).fill(defaultValue);
-  for (const statString of statsString.split("/").map(s => s.trim())) {
-    let value = parseInt(statString, 10);
-    if (Number.isNaN(value)) {
-      value = defaultValue;
-    } else {
-      value = trunc(clamp(value, min, max) / multipleOf) * multipleOf;
-    }
-    const stat = statMatches[statString.split(" ")[1]];
-    if (stat !== undefined) {
-      stats[stat] = value;
-    }
-  }
-  return stats;
-}
-
-function noMoveLast(move1, move2) {
-  return (move1.name === "(No Move)") - (move2.name === "(No Move)");
-}
-
-function calcHealthDv(ivs) {
-  return (
-    ((ivs[Stats.ATK] & 1) << 3) |
-    ((ivs[Stats.DEF] & 1) << 2) |
-    ((ivs[Stats.SPD] & 1) << 1) |
-    (ivs[Stats.SPC] & 1)
-  );
-}
-
-function printIv(stat, iv, ivs, gen) {
-  if (gen >= Gens.ADV) {
-    return iv < 31 ? `${iv} ${statNames[stat]}` : null;
-  }
-
-  if (stat === Stats.HP) {
-    iv = calcHealthDv(ivs);
-  } else if (stat === Stats.SDEF) {
-    if (gen < Gens.GSC) return null;
-    iv = ivs[Stats.SPC];
-  }
-
-  if (iv >= 15) return null;
-
-  return gen < Gens.GSC && stat === Stats.SPC
-    ? `${iv} Spc`
-    : `${iv} ${statNames[stat]}`;
-}
-
-function printEv(stat, ev, evs, gen) {
-  if (gen >= Gens.ADV) {
-    return ev > 0 ? `${ev} ${statNames[stat]}` : null;
-  }
-
-  if (stat === Stats.SDEF) {
-    if (gen < Gens.GSC) return null;
-    ev = evs[Stats.SPC];
-  }
-
-  if (ev >= 252) return null;
-
-  return gen < Gens.GSC && stat === Stats.SPC
-    ? `${ev} Spc`
-    : `${ev} ${statNames[stat]}`;
 }

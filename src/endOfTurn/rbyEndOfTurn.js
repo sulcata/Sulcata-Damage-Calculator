@@ -2,7 +2,7 @@ import { Stats } from "../utilities";
 
 const { max, trunc } = Math;
 
-export default function rbyEndOfTurn(attacker, defender) {
+export default (attacker, defender) => {
   const values = [];
   const messages = [];
   const hp = defender.stat(Stats.HP);
@@ -21,4 +21,4 @@ export default function rbyEndOfTurn(attacker, defender) {
     values,
     messages
   };
-}
+};

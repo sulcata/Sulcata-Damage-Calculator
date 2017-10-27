@@ -197,68 +197,54 @@ const natureStatsArr = [1, 2, 5, 3, 4];
 
 /* Nature Information */
 
-export function natureName(natureId) {
-  return db.natures.hasOwnProperty(natureId) ? db.natures[natureId] : undefined;
-}
+export const natureName = natureId =>
+  db.natures.hasOwnProperty(natureId) ? db.natures[natureId] : undefined;
 
-export function natureId(natureName) {
+export const natureId = natureName => {
   const name = nameToId(db.natures, natureName);
   return name ? Number(name) : undefined;
-}
+};
 
-export function natures() {
+export const natures = () => {
   const natures = [];
   for (let i = 0; i < 25; i++) {
     natures.push(i);
   }
   return natures;
-}
+};
 
-export function natureMultiplier(natureId, stat) {
-  return (
-    (trunc(natureId / 5) === natureMultArr[stat]) -
-    (natureId % 5 === natureMultArr[stat])
-  );
-}
+export const natureMultiplier = (natureId, stat) =>
+  (trunc(natureId / 5) === natureMultArr[stat]) -
+  (natureId % 5 === natureMultArr[stat]);
 
-export function natureStats(natureId) {
-  if (trunc(natureId / 5) !== natureId % 5) {
-    return [natureStatsArr[trunc(natureId / 5)], natureStatsArr[natureId % 5]];
-  }
-  return [-1, -1];
-}
+export const natureStats = natureId =>
+  trunc(natureId / 5) === natureId % 5
+    ? [-1, -1]
+    : [natureStatsArr[trunc(natureId / 5)], natureStatsArr[natureId % 5]];
 
 /* Pokemon Information */
 
-export function pokemonName(pokeId) {
-  return db.pokemon.hasOwnProperty(pokeId) ? db.pokemon[pokeId] : "Missingno";
-}
+export const pokemonName = pokeId =>
+  db.pokemon.hasOwnProperty(pokeId) ? db.pokemon[pokeId] : "Missingno";
 
-export function pokemonId(pokeName) {
-  return (
-    nameToId(db.pokemon, pokeName) || nameToId(altPokeNames, pokeName) || "0:0"
-  );
-}
+export const pokemonId = pokeName =>
+  nameToId(db.pokemon, pokeName) || nameToId(altPokeNames, pokeName) || "0:0";
 
-export function isPokeUseful(pokeId) {
-  return pokemonName(pokeId) !== "Missingno";
-}
+export const isPokeUseful = pokeId => pokemonName(pokeId) !== "Missingno";
 
-export function isPokeReleased(pokeId, gen) {
-  return Boolean(getInfo(db.releasedPokes, pokeId, gen));
-}
+export const isPokeReleased = (pokeId, gen) =>
+  Boolean(getInfo(db.releasedPokes, pokeId, gen));
 
-export function releasedPokes(gen) {
-  return Object.keys(db.pokemon)
+export const releasedPokes = gen =>
+  Object.keys(db.pokemon)
     .filter(id => id !== "0:0" && isPokeReleased(id, gen))
     .sort((a, b) => {
       const [aNum, aForm] = a.split(":").map(Number);
       const [bNum, bForm] = b.split(":").map(Number);
       return aNum - bNum || aForm - bForm;
     });
-}
 
-export function pokeType1(pokeId, gen) {
+export const pokeType1 = (pokeId, gen) => {
   let type = getInfo(db.pokeTypes1, pokeId, gen);
   if (type !== undefined) return type;
 
@@ -266,9 +252,9 @@ export function pokeType1(pokeId, gen) {
   if (type !== undefined) return type;
 
   return Types.CURSE;
-}
+};
 
-export function pokeType2(pokeId, gen) {
+export const pokeType2 = (pokeId, gen) => {
   let type = getInfo(db.pokeTypes2, pokeId, gen);
   if (type !== undefined) return type;
 
@@ -276,16 +262,13 @@ export function pokeType2(pokeId, gen) {
   if (type !== undefined) return type;
 
   return Types.CURSE;
-}
+};
 
-export function baseStats(pokeId, gen) {
-  return (
-    getInfo(db.baseStats, pokeId, gen) ||
-    getInfo(db.baseStats, pokeId.split(":", 1) + ":0", gen)
-  );
-}
+export const baseStats = (pokeId, gen) =>
+  getInfo(db.baseStats, pokeId, gen) ||
+  getInfo(db.baseStats, pokeId.split(":", 1) + ":0", gen);
 
-export function evolutions(pokeId, gen) {
+export const evolutions = (pokeId, gen) => {
   const species = pokeId.split(":")[0];
 
   if (
@@ -297,9 +280,9 @@ export function evolutions(pokeId, gen) {
 
   const evolutions = db.evolutions[species];
   return evolutions.filter(p => isPokeReleased(p + ":0", gen));
-}
+};
 
-export function preEvolution(pokeId, gen) {
+export const preEvolution = (pokeId, gen) => {
   const pokeNum = Number(pokeId.split(":")[0]);
   for (const [evoNum, evolutions] of Object.entries(db.evolutions)) {
     const evoId = evoNum + ":0";
@@ -308,141 +291,102 @@ export function preEvolution(pokeId, gen) {
     }
   }
   return undefined;
-}
+};
 
-export function weight(pokeId) {
+export const weight = pokeId => {
   if (db.weights.hasOwnProperty(pokeId)) return db.weights[pokeId];
 
   const baseForm = pokeId.split(":", 1) + ":0";
   if (db.weights.hasOwnProperty(baseForm)) return db.weights[baseForm];
 
   return undefined;
-}
-
-export function requiredItemForPoke(pokeId) {
-  if (!requiredItems.hasOwnProperty(pokeId)) return 0;
-  return itemId(requiredItems[pokeId]);
-}
+};
 
 /* Move Information */
 
-export function moveName(moveId) {
-  return db.moves.hasOwnProperty(moveId) ? db.moves[moveId] : "(No Move)";
-}
+export const moveName = moveId =>
+  db.moves.hasOwnProperty(moveId) ? db.moves[moveId] : "(No Move)";
 
-export function moveId(moveName) {
-  return Number(nameToId(db.moves, moveName, 0));
-}
+export const moveId = moveName => Number(nameToId(db.moves, moveName, 0));
 
-export function isMoveUseful(moveId, gen) {
-  return moveName(moveId) !== "(No Move)" && movePower(moveId, gen) > 0;
-}
+export const movePower = (moveId, gen) =>
+  getInfo(db.movePowers, moveId, gen, 0);
 
-export function isMoveReleased(moveId, gen) {
-  return Boolean(getInfo(db.releasedMoves, moveId, gen));
-}
+export const isMoveUseful = (moveId, gen) =>
+  moveName(moveId) !== "(No Move)" && movePower(moveId, gen) > 0;
 
-export function releasedMoves(gen) {
-  return Object.keys(db.moves)
+export const isMoveReleased = (moveId, gen) =>
+  Boolean(getInfo(db.releasedMoves, moveId, gen));
+
+export const releasedMoves = gen =>
+  Object.keys(db.moves)
     .map(Number)
     .filter(id => id !== 0 && isMoveReleased(id, gen))
     .sort((a, b) => a - b);
-}
 
-export function movePower(moveId, gen) {
-  return getInfo(db.movePowers, moveId, gen, 0);
-}
+export const moveType = (moveId, gen) => getInfo(db.moveTypes, moveId, gen, 0);
 
-export function moveType(moveId, gen) {
-  return getInfo(db.moveTypes, moveId, gen, 0);
-}
+export const moveDamageClass = (moveId, gen) =>
+  getInfo(db.moveDamageClasses, moveId, gen, 0);
 
-export function moveDamageClass(moveId, gen) {
-  return getInfo(db.moveDamageClasses, moveId, gen, 0);
-}
+export const minHits = (moveId, gen) =>
+  getInfo(db.minMaxHits, moveId, gen, 0x11) & 0xf;
 
-export function minHits(moveId, gen) {
-  return getInfo(db.minMaxHits, moveId, gen, 0x11) & 0xf;
-}
+export const maxHits = (moveId, gen) =>
+  (getInfo(db.minMaxHits, moveId, gen, 0x11) & 0xf0) >> 4;
 
-export function maxHits(moveId, gen) {
-  return (getInfo(db.minMaxHits, moveId, gen, 0x11) & 0xf0) >> 4;
-}
+export const moveRange = (moveId, gen) => getInfo(db.moveRanges, moveId, gen);
 
-export function moveRange(moveId, gen) {
-  return getInfo(db.moveRanges, moveId, gen);
-}
+export const recoil = (moveId, gen) => getInfo(db.recoils, moveId, gen, 0);
 
-export function recoil(moveId, gen) {
-  return getInfo(db.recoils, moveId, gen, 0);
-}
+export const moveHasFlags = (moveId, flags, gen) =>
+  Boolean(getInfo(db.moveFlags, moveId, gen) & flags);
 
-export function moveHasFlags(moveId, flags, gen) {
-  return Boolean(getInfo(db.moveFlags, moveId, gen) & flags);
-}
+export const flinchChance = (moveId, gen) =>
+  getInfo(db.flinchChances, moveId, gen, 0);
 
-export function flinchChance(moveId, gen) {
-  return getInfo(db.flinchChances, moveId, gen, 0);
-}
+export const moveCategory = (moveId, gen) =>
+  getInfo(db.moveCategories, moveId, gen);
 
-export function moveCategory(moveId, gen) {
-  return getInfo(db.moveCategories, moveId, gen);
-}
+export const statBoosts = (moveId, gen) =>
+  getInfo(db.statBoosts, moveId, gen, []);
 
-export function statBoosts(moveId, gen) {
-  return getInfo(db.statBoosts, moveId, gen, []);
-}
-
-export function naturalGiftType(itemId) {
-  return db.naturalGiftTypes.hasOwnProperty(itemId - 8000)
+export const naturalGiftType = itemId =>
+  db.naturalGiftTypes.hasOwnProperty(itemId - 8000)
     ? db.naturalGiftTypes[itemId - 8000]
     : -1;
-}
 
-export function naturalGiftPower(itemId, gen) {
-  return db.naturalGiftPowers.hasOwnProperty(itemId - 8000)
+export const naturalGiftPower = (itemId, gen) =>
+  db.naturalGiftPowers.hasOwnProperty(itemId - 8000)
     ? db.naturalGiftPowers[itemId - 8000] + 20 * (gen >= Gens.ORAS)
     : 0;
-}
 
-export function flingPower(itemId) {
-  return itemId && db.items.hasOwnProperty(itemId)
-    ? db.flingPowers[itemId] || 10
-    : 0;
-}
+export const flingPower = itemId =>
+  itemId && db.items.hasOwnProperty(itemId) ? db.flingPowers[itemId] || 10 : 0;
 
-export function zMovePower(moveId) {
-  return db.zMovePower.hasOwnProperty(moveId) ? db.zMovePower[moveId] : 0;
-}
+export const zMovePower = moveId =>
+  db.zMovePower.hasOwnProperty(moveId) ? db.zMovePower[moveId] : 0;
 
 /* Item Information */
 
-export function itemName(itemId) {
-  return db.items.hasOwnProperty(itemId) ? db.items[itemId] : "(No Item)";
-}
+export const itemName = itemId =>
+  db.items.hasOwnProperty(itemId) ? db.items[itemId] : "(No Item)";
 
-export function itemId(itemName) {
-  return Number(nameToId(db.items, itemName, 0));
-}
+export const itemId = itemName => Number(nameToId(db.items, itemName, 0));
 
-export function isItemUseful(itemId) {
-  return (
-    db.usefulItems.hasOwnProperty(itemId) &&
-    itemName(itemId) !== "(No Item)" &&
-    itemName(itemId) !== "(No Berry)"
-  );
-}
+export const isItemUseful = itemId =>
+  db.usefulItems.hasOwnProperty(itemId) &&
+  itemName(itemId) !== "(No Item)" &&
+  itemName(itemId) !== "(No Berry)";
 
-export function isItemReleased(itemId, gen) {
-  return Boolean(getInfo(db.releasedItems, itemId, gen));
-}
+export const isItemReleased = (itemId, gen) =>
+  Boolean(getInfo(db.releasedItems, itemId, gen));
 
-export function releasedItems(gen) {
-  return Object.keys(db.items)
+export const releasedItems = gen =>
+  Object.keys(db.items)
     .map(Number)
     .filter(id => id !== 0 && isItemReleased(id, gen))
     .sort((a, b) => a - b);
-}
 
 export const itemBoostedType = createFlagGetter(db.itemEffects, -1, {
   10: Number
@@ -465,40 +409,36 @@ export const memoryType = createFlagGetter(db.itemEffects, Types.NORMAL, {
   68: Number
 });
 
-export function zCrystalType(itemId) {
-  return db.zCrystalType.hasOwnProperty(itemId) ? db.zCrystalType[itemId] : -1;
-}
+export const zCrystalType = itemId =>
+  db.zCrystalType.hasOwnProperty(itemId) ? db.zCrystalType[itemId] : -1;
+
+export const requiredItemForPoke = pokeId =>
+  requiredItems.hasOwnProperty(pokeId) ? itemId(requiredItems[pokeId]) : 0;
 
 /* Ability Information */
 
-export function abilityName(abilityId) {
-  return db.abilities.hasOwnProperty(abilityId)
+export const abilityName = abilityId =>
+  db.abilities.hasOwnProperty(abilityId)
     ? db.abilities[abilityId]
     : "(No Ability)";
-}
 
-export function abilityId(abilityName) {
-  return Number(nameToId(db.abilities, abilityName, 0));
-}
+export const abilityId = abilityName =>
+  Number(nameToId(db.abilities, abilityName, 0));
 
-export function isAbilityUseful(abilityId) {
-  return abilityName(abilityId) !== "(No Ability)";
-}
+export const isAbilityUseful = abilityId =>
+  abilityName(abilityId) !== "(No Ability)";
 
-export function isAbilityReleased(abilityId, gen) {
-  return Number(abilityId) <= [NaN, NaN, NaN, 76, 123, 164, 191, 232][gen];
-}
+export const isAbilityReleased = (abilityId, gen) =>
+  Number(abilityId) <= [NaN, NaN, NaN, 76, 123, 164, 191, 232][gen];
 
-export function releasedAbilities(gen) {
-  return Object.keys(db.items)
+export const releasedAbilities = gen =>
+  Object.keys(db.items)
     .map(Number)
     .filter(id => id !== 0 && isAbilityReleased(id, gen))
     .sort((a, b) => a - b);
-}
 
-export function isIgnoredByMoldBreaker(abilityId) {
-  return db.moldBreaker.hasOwnProperty(abilityId);
-}
+export const isIgnoredByMoldBreaker = abilityId =>
+  db.moldBreaker.hasOwnProperty(abilityId);
 
 export const abilityImmunityType = (() => {
   const preB2W2Flags = {
@@ -533,87 +473,46 @@ export const abilityNormalToType = createFlagGetter(db.abilityEffects, -1, {
 
 /* Type Information */
 
-export function typeName(typeId) {
-  return db.types.hasOwnProperty(typeId) ? db.types[typeId] : undefined;
-}
+export const typeName = typeId =>
+  db.types.hasOwnProperty(typeId) ? db.types[typeId] : undefined;
 
-export function typeId(typeName) {
-  return Number(nameToId(db.types, typeName)) || undefined;
-}
+export const typeId = typeName =>
+  Number(nameToId(db.types, typeName)) || undefined;
 
-export function types(gen) {
-  return Object.values(Types)
+export const types = gen =>
+  Object.values(Types)
     .filter(typeId => gen < Gens.GSC && typeId !== Types.STEEL)
     .filter(typeId => gen < Gens.GSC && typeId !== Types.DARK)
     .filter(typeId => gen < Gens.ORAS && typeId !== Types.FAIRY)
     .sort((a, b) => a - b);
-}
 
-export function typeDamageClass(typeId) {
-  return typeId >= Types.FIRE && typeId <= Types.DARK
+export const typeDamageClass = typeId =>
+  typeId >= Types.FIRE && typeId <= Types.DARK
     ? DamageClasses.SPECIAL
     : DamageClasses.PHYSICAL;
-}
 
-export function isPhysicalType(typeId) {
-  return typeDamageClass(typeId) === DamageClasses.PHYSICAL;
-}
+export const isPhysicalType = typeId =>
+  typeDamageClass(typeId) === DamageClasses.PHYSICAL;
 
-export function isSpecialType(typeId) {
-  return typeDamageClass(typeId) === DamageClasses.SPECIAL;
-}
+export const isSpecialType = typeId =>
+  typeDamageClass(typeId) === DamageClasses.SPECIAL;
 
-export function isLustrousType(typeId) {
-  return typeId === Types.WATER || typeId === Types.DRAGON;
-}
+export const isLustrousType = typeId =>
+  typeId === Types.WATER || typeId === Types.DRAGON;
 
-export function isAdamantType(typeId) {
-  return typeId === Types.STEEL || typeId === Types.DRAGON;
-}
+export const isAdamantType = typeId =>
+  typeId === Types.STEEL || typeId === Types.DRAGON;
 
-export function isGriseousType(typeId) {
-  return typeId === Types.GHOST || typeId === Types.DRAGON;
-}
+export const isGriseousType = typeId =>
+  typeId === Types.GHOST || typeId === Types.DRAGON;
 
-export function isSoulDewType(typeId) {
-  return typeId === Types.PSYCHIC || typeId === Types.DRAGON;
-}
+export const isSoulDewType = typeId =>
+  typeId === Types.PSYCHIC || typeId === Types.DRAGON;
 
-export function isSandForceType(typeId) {
-  return (
-    typeId === Types.GROUND || typeId === Types.ROCK || typeId === Types.STEEL
-  );
-}
+export const isSandForceType = typeId =>
+  typeId === Types.GROUND || typeId === Types.ROCK || typeId === Types.STEEL;
 
-export function effectiveness(attackingTypes, defendingTypes, options = {}) {
-  attackingTypes = castArray(attackingTypes);
-  defendingTypes = castArray(defendingTypes);
-
-  if (options.gravity) {
-    attackingTypes = attackingTypes.filter(type => type !== Types.FLYING);
-  }
-
-  let effectiveness = 1;
-
-  for (const dType of defendingTypes) {
-    if (options.freezeDry && dType === Types.WATER) {
-      // 2x for each attacking type and one more 2x
-      // since freeze-dry is always 2x effective on water
-      effectiveness *= 2 * 2 ** attackingTypes.length;
-    } else {
-      for (const aType of attackingTypes) {
-        effectiveness *= typeEffectiveness(aType, dType, options);
-      }
-    }
-  }
-
-  return {
-    num: effectiveness,
-    den: 2 ** (attackingTypes.length * defendingTypes.length)
-  };
-}
-
-function typeEffectiveness(aType, dType, options = {}) {
+const singleTypeEffectiveness = (aType, dType, options = {}) => {
   const e = getInfo(db.typesTables, aType, options.gen)[dType];
 
   if (options.inverted) {
@@ -635,4 +534,32 @@ function typeEffectiveness(aType, dType, options = {}) {
   }
 
   return e;
-}
+};
+
+export const effectiveness = (attackingTypes, defendingTypes, options = {}) => {
+  attackingTypes = castArray(attackingTypes);
+  defendingTypes = castArray(defendingTypes);
+
+  if (options.gravity) {
+    attackingTypes = attackingTypes.filter(type => type !== Types.FLYING);
+  }
+
+  let effectiveness = 1;
+
+  for (const dType of defendingTypes) {
+    if (options.freezeDry && dType === Types.WATER) {
+      // 2x for each attacking type and one more 2x
+      // since freeze-dry is always 2x effective on water
+      effectiveness *= 2 * 2 ** attackingTypes.length;
+    } else {
+      for (const aType of attackingTypes) {
+        effectiveness *= singleTypeEffectiveness(aType, dType, options);
+      }
+    }
+  }
+
+  return {
+    num: effectiveness,
+    den: 2 ** (attackingTypes.length * defendingTypes.length)
+  };
+};

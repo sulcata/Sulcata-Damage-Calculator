@@ -4,7 +4,7 @@ import moveInfo from "./moveInfo";
 
 const { max, trunc } = Math;
 
-export default function advCalculate(attacker, defender, move, field) {
+export default (attacker, defender, move, field) => {
   const { moveType, movePower, fail } = moveInfo(
     attacker,
     defender,
@@ -258,4 +258,4 @@ export default function advCalculate(attacker, defender, move, field) {
   const damages = damageVariation(baseDamage, 85, 100);
 
   return damages;
-}
+};
