@@ -20,10 +20,8 @@
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "yarn lint && yarn test:unit",
     "test:unit": "jest --coverage",
-    "lint":
-      "prettier '**/*.json' --list-different --ignore-path .eslintignore && eslint '**/*.{js,vue}'",
-    "lint:fix":
-      "prettier '**/*.json' --ignore-path .eslintignore --write && eslint '**/*.{js,vue}' --fix",
+    "lint": "prettier '**/*.json' --list-different --ignore-path .eslintignore && eslint '**/*.{js,vue}'",
+    "lint:fix": "prettier '**/*.json' --ignore-path .eslintignore --write && eslint '**/*.{js,vue}' --fix",
     "setup": "yarn db && yarn setdex",
     "db": "babel-node scripts/db",
     "setdex": "babel-node scripts/setdex"
@@ -45,7 +43,7 @@
     "eslint": "^4.10.0",
     "eslint-import-resolver-webpack": "^0.8.3",
     "eslint-plugin-babel": "^4.1.2",
-    "eslint-plugin-html": "^3.2.2",
+    "eslint-plugin-html": "^4.0.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-prettier": "^2.3.1",
     "eslint-plugin-promise": "^3.6.0",
