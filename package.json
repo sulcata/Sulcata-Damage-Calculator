@@ -20,8 +20,8 @@
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "yarn lint && yarn test:unit",
     "test:unit": "jest --coverage",
-    "lint": "prettier '**/*.json' --list-different --ignore-path .eslintignore && eslint '**/*.{js,vue}'",
-    "lint:fix": "prettier '**/*.json' --ignore-path .eslintignore --write && eslint '**/*.{js,vue}' --fix",
+    "lint": "eslint '**/*.{js,vue}'",
+    "lint:fix": "eslint '**/*.{js,vue}' --fix",
     "setup": "yarn db && yarn setdex",
     "db": "babel-node scripts/db",
     "setdex": "babel-node scripts/setdex"
