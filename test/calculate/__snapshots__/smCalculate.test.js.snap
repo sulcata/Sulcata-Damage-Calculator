@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`smCalculate() Aurora Veil 1`] = `
+Array [
+  284,
+  288,
+  290,
+  294,
+  296,
+  300,
+  302,
+  308,
+  312,
+  314,
+  318,
+  320,
+  324,
+  326,
+  330,
+  336,
+]
+`;
+
+exports[`smCalculate() Aurora Veil 2`] = `
+Array [
+  283,
+  288,
+  291,
+  291,
+  296,
+  299,
+  304,
+  307,
+  312,
+  312,
+  315,
+  320,
+  323,
+  328,
+  331,
+  336,
+]
+`;
+
+exports[`smCalculate() Fairy Aura is a move power mod 1`] = `
+Array [
+  172,
+  173,
+  175,
+  178,
+  179,
+  182,
+  183,
+  186,
+  187,
+  190,
+  191,
+  194,
+  195,
+  198,
+  199,
+  203,
+]
+`;

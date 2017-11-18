@@ -3,7 +3,7 @@
       track-by='value'
       label='label'
       :show-labels='false'
-      :placeholder='$t("nature")'
+      placeholder='Nature'
       :value='valueObj'
       :options='natures'
       @input='updateValue'
@@ -12,8 +12,7 @@
 
 <script>
 import { Multiselect } from "vue-multiselect";
-import translationMixin from "../mixins/translation";
-import { info } from "sulcalc";
+import { Natures, info } from "sulcalc";
 
 export default {
   model: {
@@ -23,39 +22,31 @@ export default {
   components: {
     Multiselect
   },
-  mixins: [translationMixin],
   props: {
     nature: {
       required: true,
       type: Number,
       validator(value) {
-        return value >= 0 && value <= 24;
+        return Object.values(Natures).includes(value);
       }
     }
   },
   computed: {
     natures() {
-      return info
-        .natures()
-        .map(id => ({
-          value: id,
-          label: this.$tNature({ id })
-        }))
+      return Object.values(Natures)
+        .map(id => ({ value: id, label: info.natureName(id) }))
         .sort((a, b) => a.label.localeCompare(b.label));
     },
     valueObj() {
-      if (info.natureName(this.nature) === "Hardy") {
+      if (this.nature === Natures.HARDY) {
         return {};
       }
-      return {
-        value: this.nature,
-        label: this.$tNature({ id: this.nature })
-      };
+      return { value: this.nature, label: info.natureName(this.nature) };
     }
   },
   methods: {
     updateValue(event) {
-      this.$emit("input", event ? event.value : 0);
+      this.$emit("input", event ? event.value : Natures.HARDY);
     }
   }
 };

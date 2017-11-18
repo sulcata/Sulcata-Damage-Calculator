@@ -4,7 +4,7 @@
     <br>
     <small>{{ damageRoll }}</small>
     <button type='button' class='btn btn-sm btn-light' @click='setHp'>
-      {{ $t("setHp") }}
+      set hp
     </button>
     <br>
     <small v-if='fractions'>{{ fractionalChances }}</small>
@@ -13,11 +13,9 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import translationMixin from "../mixins/translation";
 import { cmpStrs } from "sulcalc";
 
 export default {
-  mixins: [translationMixin],
   computed: {
     ...mapState(["attacker", "defender", "fractions", "longRolls"]),
     ...mapGetters(["selectedReport", "attackerReports", "defenderReports"]),

@@ -3,7 +3,7 @@
     track-by='value'
     label='label'
     :show-labels='false'
-    :placeholder='$t("item")'
+    placeholder='Item'
     :value='valueObj'
     :options='items'
     @input='updateValue'
@@ -13,7 +13,6 @@
 <script>
 import { mapState } from "vuex";
 import { Multiselect } from "vue-multiselect";
-import translationMixin from "../mixins/translation";
 import { Item, info } from "sulcalc";
 
 export default {
@@ -24,7 +23,6 @@ export default {
   components: {
     Multiselect
   },
-  mixins: [translationMixin],
   props: {
     item: {
       required: true,
@@ -36,21 +34,13 @@ export default {
     items() {
       return info
         .releasedItems(this.gen)
-        .filter(id => info.isItemUseful(id))
-        .map(id => ({
-          value: id,
-          label: this.$tItem({ id })
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label));
+        .map(id => ({ value: id, label: info.itemName(id) }));
     },
     valueObj() {
       if (this.item.name === "(No Item)") {
         return {};
       }
-      return {
-        value: this.item.id,
-        label: this.$tItem(this.item)
-      };
+      return { value: this.item.id, label: this.item.name };
     }
   },
   methods: {
@@ -58,7 +48,7 @@ export default {
       this.$emit(
         "input",
         new Item({
-          id: event ? event.value : 0,
+          id: event ? event.value : "noitem",
           gen: this.gen
         })
       );

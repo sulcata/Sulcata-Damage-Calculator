@@ -9,8 +9,6 @@ import {
 } from "../utilities";
 import moveInfo from "./moveInfo";
 
-const { max, min, trunc } = Math;
-
 export default (attacker, defender, move, field) => {
   const { moveType, movePower, fail } = moveInfo(
     attacker,
@@ -33,7 +31,7 @@ export default (attacker, defender, move, field) => {
   } else {
     atk = attacker.boostedStat(Stats.ATK);
     def = defender.boostedStat(Stats.DEF);
-    if (attacker.isBurned()) atk = trunc(atk / 2);
+    if (attacker.isBurned()) atk = Math.trunc(atk / 2);
     if (defender.reflect) def *= 2;
   }
 
@@ -63,20 +61,20 @@ export default (attacker, defender, move, field) => {
 
   if (needsScaling(a, d)) {
     a = scaleStat(a);
-    d = max(1, scaleStat(d));
+    d = Math.max(1, scaleStat(d));
   }
   // in-game Crystal would repeatedly shift by 2 until it fits in a byte
 
   if (attacker.name === "Ditto" && attacker.item.name === "Metal Powder") {
-    d = trunc(d * 3 / 2);
+    d = Math.trunc(d * 3 / 2);
     if (needsScaling(d)) {
       a = scaleStat(a, 1);
-      d = max(1, scaleStat(d, 1));
+      d = Math.max(1, scaleStat(d, 1));
     }
   }
 
   if (move.isExplosion()) {
-    d = max(1, trunc(d / 2));
+    d = Math.max(1, Math.trunc(d / 2));
   }
 
   if (move.name === "Beat Up") {
@@ -85,9 +83,9 @@ export default (attacker, defender, move, field) => {
     level = attacker.beatUpLevels[move.beatUpHit];
   }
 
-  d = max(1, d);
-  let baseDamage = trunc(
-    trunc(trunc(2 * level / 5 + 2) * movePower * a / d) / 50
+  d = Math.max(1, d);
+  let baseDamage = Math.trunc(
+    Math.trunc(Math.trunc(2 * level / 5 + 2) * movePower * a / d) / 50
   );
 
   if (move.critical) {
@@ -95,35 +93,35 @@ export default (attacker, defender, move, field) => {
   }
 
   if (attacker.item.boostedType() === moveType) {
-    baseDamage = trunc(baseDamage * 110 / 100);
+    baseDamage = Math.trunc(baseDamage * 110 / 100);
   }
 
-  baseDamage = min(997, baseDamage) + 2;
+  baseDamage = Math.min(997, baseDamage) + 2;
 
   if (field.sun()) {
     if (moveType === Types.FIRE) {
-      baseDamage = trunc(baseDamage * 3 / 2);
+      baseDamage = Math.trunc(baseDamage * 3 / 2);
     } else if (moveType === Types.WATER) {
-      baseDamage = trunc(baseDamage / 2);
+      baseDamage = Math.trunc(baseDamage / 2);
     }
   } else if (field.rain()) {
     if (moveType === Types.WATER) {
-      baseDamage = trunc(baseDamage * 3 / 2);
+      baseDamage = Math.trunc(baseDamage * 3 / 2);
     } else if (moveType === Types.FIRE || move.name === "Solar Beam") {
-      baseDamage = trunc(baseDamage / 2);
+      baseDamage = Math.trunc(baseDamage / 2);
     }
   }
 
   if (attacker.stab(moveType)) {
-    baseDamage = trunc(baseDamage * 3 / 2);
+    baseDamage = Math.trunc(baseDamage * 3 / 2);
   }
 
   const eff = effectiveness(moveType, defender.types(), {
     gen: Gens.GSC,
     foresight: defender.foresight
   });
-  if (eff.num === 0) return [0];
-  baseDamage = trunc(baseDamage * eff.num / eff.den);
+  if (eff[0] === 0) return [0];
+  baseDamage = Math.trunc(baseDamage * eff[0] / eff[1]);
 
   // these don't have damage variance
   if (move.name === "Reversal" || move.name === "Flail") {

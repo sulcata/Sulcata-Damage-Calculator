@@ -1,42 +1,40 @@
 import Pokemon from "../src/Pokemon";
 import {
-  Gens,
   Genders,
+  Gens,
+  Natures,
   Stats,
   Statuses,
   Types,
   Weathers
 } from "../src/utilities";
-import matchers from "./matchers";
-
-expect.extend(matchers);
 
 describe("Pokemon", () => {
-  let missingno;
+  let nopokemon;
   let mudkip;
   let marshtomp;
   let swampert;
   let megaSwampert;
 
   beforeEach(() => {
-    missingno = new Pokemon();
+    nopokemon = new Pokemon();
     mudkip = new Pokemon({ name: "Mudkip" });
     marshtomp = new Pokemon({ name: "Marshtomp" });
     swampert = new Pokemon({ name: "Swampert" });
-    megaSwampert = new Pokemon({ name: "Mega Swampert" });
+    megaSwampert = new Pokemon({ name: "Swampert-Mega" });
   });
 
   test("#constructor()", () => {
     const snorlax = new Pokemon({ name: "Snorlax" });
     expect(snorlax).toMatchObject({
-      id: "143:0",
+      id: "snorlax",
       evs: [0, 0, 0, 0, 0, 0],
       ivs: [31, 31, 31, 31, 31, 31]
     });
 
-    const gscSnorlax = new Pokemon({ id: "143:0", gen: Gens.GSC });
+    const gscSnorlax = new Pokemon({ id: "snorlax", gen: Gens.GSC });
     expect(gscSnorlax).toMatchObject({
-      id: "143:0",
+      id: "snorlax",
       evs: [252, 252, 252, 252, 252, 252],
       ivs: [15, 15, 15, 15, 15, 15]
     });
@@ -47,13 +45,19 @@ describe("Pokemon", () => {
       item: { name: "Leftovers" }
     });
     expect(smeargle).toMatchObject({
-      moves: [{ id: 58 }, { id: 0 }, { id: 0 }, { id: 0 }],
-      item: { id: 15 }
+      moves: [
+        { id: "icebeam" },
+        { id: "nomove" },
+        { id: "nomove" },
+        { id: "nomove" }
+      ],
+      item: { id: "leftovers" }
     });
   });
 
   describe(".fromImportable()", () => {
     test("handles simple importables", () => {
+      const gen = Gens.ORAS;
       const arceusGround = Pokemon.fromImportable(
         `Arceus-Ground (M) @ Earth Plate
         Ability: Multitype
@@ -64,24 +68,24 @@ describe("Pokemon", () => {
         - Ice Beam
         - Refresh
         - Recover`,
-        Gens.ORAS
+        gen
       );
       expect(arceusGround).toMatchObject({
-        gen: 6,
-        id: "493:4",
+        id: "arceusground",
         gender: Genders.MALE,
-        item: { id: 187, gen: 6 },
-        ability: { id: 121, gen: 6 },
+        item: { id: "earthplate", gen },
+        ability: { id: "multitype", gen },
         level: 100,
         evs: [0, 0, 0, 252, 4, 252],
         ivs: [31, 0, 31, 31, 31, 31],
-        nature: 10,
+        nature: Natures.TIMID,
         moves: [
-          { id: 449, gen: 6 },
-          { id: 58, gen: 6 },
-          { id: 287, gen: 6 },
-          { id: 105, gen: 6 }
-        ]
+          { id: "judgment", gen },
+          { id: "icebeam", gen },
+          { id: "refresh", gen },
+          { id: "recover", gen }
+        ],
+        gen
       });
     });
 
@@ -99,35 +103,36 @@ describe("Pokemon", () => {
         Gens.ORAS
       );
       expect(chinchou).toMatchObject({
-        id: "170:0",
+        id: "chinchou",
         gender: Genders.FEMALE,
         level: 5
       });
     });
 
     test("handles GSC importables", () => {
+      const gen = Gens.GSC;
       const snorlax = Pokemon.fromImportable(
         `zorofat (Snorlax) @ Leftovers
         - Toxic
         - Double-Edge
         - Flamethrower
         - Rest`,
-        Gens.GSC
+        gen
       );
       expect(snorlax).toMatchObject({
-        gen: Gens.GSC,
-        id: "143:0",
+        id: "snorlax",
         gender: Genders.NO_GENDER,
-        item: { id: 15, gen: Gens.GSC },
+        item: { id: "leftovers", gen: Gens.GSC },
         level: 100,
         evs: [252, 252, 252, 252, 252, 252],
         ivs: [15, 15, 15, 15, 15, 15],
         moves: [
-          { id: 92, gen: Gens.GSC },
-          { id: 38, gen: Gens.GSC },
-          { id: 53, gen: Gens.GSC },
-          { id: 156, gen: Gens.GSC }
-        ]
+          { id: "toxic", gen: Gens.GSC },
+          { id: "doubleedge", gen: Gens.GSC },
+          { id: "flamethrower", gen: Gens.GSC },
+          { id: "rest", gen: Gens.GSC }
+        ],
+        gen
       });
     });
 
@@ -167,10 +172,10 @@ describe("Pokemon", () => {
         Gens.ORAS
       );
       expect(landorusTherian.moves).toMatchObject([
-        { id: 237 },
-        { id: 156 },
-        { id: 0 },
-        { id: 0 }
+        { id: "hiddenpower" },
+        { id: "rest" },
+        { id: "nomove" },
+        { id: "nomove" }
       ]);
     });
 
@@ -307,7 +312,7 @@ describe("Pokemon", () => {
       expect(
         Pokemon.fromImportable(`  zorofat   (Snorlax)`, Gens.SM)
       ).toMatchObject({
-        id: "143:0",
+        id: "snorlax",
         nickname: "zorofat",
         gender: Genders.NO_GENDER
       });
@@ -315,13 +320,13 @@ describe("Pokemon", () => {
       expect(
         Pokemon.fromImportable(`  zorofat   (Snorlax) (M)`, Gens.SM)
       ).toMatchObject({
-        id: "143:0",
+        id: "snorlax",
         nickname: "zorofat",
         gender: Genders.MALE
       });
 
       expect(Pokemon.fromImportable(`Snorlax (M)`, Gens.SM)).toMatchObject({
-        id: "143:0",
+        id: "snorlax",
         nickname: "",
         gender: Genders.MALE
       });
@@ -336,19 +341,10 @@ describe("Pokemon", () => {
         item: "Leftovers",
         ability: "Immunity",
         evs: [252, 212, 0, 0, 40, 0],
-        natureName: "Careful",
+        nature: Natures.CAREFUL,
         moves: ["Body Slam", "Curse", "Rest", "Earthquake"]
       });
-      expect(snorlax.toImportable()).toEqualImportable(
-        `Snorlax (M) @ Leftovers
-        Ability: Immunity
-        EVs: 252 HP / 212 Atk / 40 SpD
-        Careful Nature
-        - Body Slam
-        - Curse
-        - Rest
-        - Earthquake`
-      );
+      expect(snorlax.toImportable()).toMatchSnapshot();
 
       const bronzong = new Pokemon({
         name: "Bronzong",
@@ -356,20 +352,10 @@ describe("Pokemon", () => {
         ability: "Levitate",
         evs: [252, 0, 4, 0, 252, 0],
         ivs: [31, 31, 31, 31, 31, 0],
-        natureName: "Sassy",
+        nature: Natures.SASSY,
         moves: ["Stealth Rock", "Gyro Ball", "Psywave", "Toxic"]
       });
-      expect(bronzong.toImportable()).toEqualImportable(
-        `Bronzong @ Leftovers
-        Ability: Levitate
-        EVs: 252 HP / 4 Def / 252 SpD
-        IVs: 0 Spe
-        Sassy Nature
-        - Stealth Rock
-        - Gyro Ball
-        - Psywave
-        - Toxic`
-      );
+      expect(bronzong.toImportable()).toMatchSnapshot();
     });
 
     test("handles sets with less than 4 moves", () => {
@@ -379,37 +365,21 @@ describe("Pokemon", () => {
         item: "Choice Band",
         ability: "Infiltrator",
         evs: [0, 252, 0, 0, 4, 252],
-        natureName: "Jolly",
+        nature: Natures.JOLLY,
         moves: ["Brave Bird", "(No Move)", "U-turn", "Sleep Talk"]
       });
-      expect(crobat.toImportable()).toEqualImportable(
-        `Crobat (F) @ Choice Band
-        Ability: Infiltrator
-        EVs: 252 Atk / 4 SpD / 252 Spe
-        Jolly Nature
-        - Brave Bird
-        - U-turn
-        - Sleep Talk`
-      );
+      expect(crobat.toImportable()).toMatchSnapshot();
     });
 
     test("optionally adds nature info", () => {
       const munchlax = new Pokemon({
         name: "Munchlax",
         gender: Genders.MALE,
-        natureName: "Relaxed"
+        nature: Natures.RELAXED
       });
-      expect(munchlax.toImportable({ natureInfo: true })).toEqualImportable(
-        `Munchlax (M) @ (No Item)
-        Ability: (No Ability)
-        Relaxed Nature (+Def, -Spe)`
-      );
-      munchlax.natureName = "Serious";
-      expect(munchlax.toImportable({ natureInfo: true })).toEqualImportable(
-        `Munchlax (M) @ (No Item)
-        Ability: (No Ability)
-        Serious Nature`
-      );
+      expect(munchlax.toImportable({ natureInfo: true })).toMatchSnapshot();
+      munchlax.nature = Natures.SERIOUS;
+      expect(munchlax.toImportable({ natureInfo: true })).toMatchSnapshot();
     });
 
     test("handles LC sets", () => {
@@ -418,19 +388,10 @@ describe("Pokemon", () => {
         item: "Eviolite",
         ability: "Trace",
         evs: [236, 0, 116, 0, 156, 0],
-        natureName: "Calm",
+        nature: Natures.CALM,
         moves: ["Ice Beam", "Thunderbolt", "Recover", "Tri Attack"]
       });
-      expect(porygon.toImportable()).toEqualImportable(
-        `Porygon @ Eviolite
-        Ability: Trace
-        EVs: 236 HP / 116 Def / 156 SpD
-        Calm Nature
-        - Ice Beam
-        - Thunderbolt
-        - Recover
-        - Tri Attack`
-      );
+      expect(porygon.toImportable()).toMatchSnapshot();
     });
 
     test("handles GSC sets", () => {
@@ -441,25 +402,11 @@ describe("Pokemon", () => {
         moves: ["Thunder", "Hidden Power", "Rest", "Sleep Talk"],
         gen: Gens.GSC
       });
-      expect(zapdos.toImportable()).toEqualImportable(
-        `Zapdos @ Leftovers
-        - Thunder
-        - Hidden Power [Ice]
-        - Rest
-        - Sleep Talk`
-      );
+      expect(zapdos.toImportable()).toMatchSnapshot();
 
       zapdos.evs = [252, 252, 252, 40, NaN, 252];
       zapdos.ivs = [NaN, 15, 15, 11, NaN, 15];
-      expect(zapdos.toImportable()).toEqualImportable(
-        `Zapdos @ Leftovers
-        EVs: 40 SpA / 40 SpD
-        IVs: 11 SpA / 11 SpD
-        - Thunder
-        - Hidden Power [Dark]
-        - Rest
-        - Sleep Talk`
-      );
+      expect(zapdos.toImportable()).toMatchSnapshot();
     });
 
     test("handles RBY sets", () => {
@@ -468,72 +415,69 @@ describe("Pokemon", () => {
         moves: ["Body Slam", "Hyper Beam", "Earthquake", "Blizzard"],
         gen: Gens.RBY
       });
-      expect(tauros.toImportable()).toEqualImportable(
-        `Tauros
-        - Body Slam
-        - Hyper Beam
-        - Earthquake
-        - Blizzard`
-      );
+      expect(tauros.toImportable()).toMatchSnapshot();
 
       tauros.evs = [252, 252, 200, 40, NaN, 252];
       tauros.ivs = [NaN, 15, 10, 11, NaN, 15];
-      expect(tauros.toImportable()).toEqualImportable(
-        `Tauros
-        EVs: 200 Def / 40 Spc
-        IVs: 11 HP / 10 Def / 11 Spc
-        - Body Slam
-        - Hyper Beam
-        - Earthquake
-        - Blizzard`
-      );
+      expect(tauros.toImportable()).toMatchSnapshot();
     });
   });
 
   test(".fromSet()", () => {
+    const gen = Gens.ORAS;
     expect(
       Pokemon.fromSet({
         name: "Arceus",
-        gen: Gens.ORAS,
         set: {
           l: 42,
-          n: 2,
-          a: 66,
-          i: 15,
-          m: [449, 216, 287, 105],
+          n: Natures.BRAVE,
+          a: "blaze",
+          i: "leftovers",
+          m: ["judgment", "return", "refresh", "recover"],
           e: [63, 0, 63, 0, 1, 0],
           d: [0, 31, 31, 31, 31, 31]
-        }
+        },
+        gen
       })
     ).toMatchObject({
-      id: "493:0",
-      gen: Gens.ORAS,
+      id: "arceus",
       level: 42,
-      nature: 2,
-      ability: { id: 66 },
-      item: { id: 15 },
-      moves: [{ id: 449 }, { id: 216 }, { id: 287 }, { id: 105 }],
+      nature: Natures.BRAVE,
+      ability: { id: "blaze", gen },
+      item: { id: "leftovers", gen },
+      moves: [
+        { id: "judgment", gen },
+        { id: "return", gen },
+        { id: "refresh", gen },
+        { id: "recover", gen }
+      ],
       evs: [252, 0, 252, 0, 4, 0],
       ivs: [0, 31, 31, 31, 31, 31],
-      happiness: 255
+      happiness: 255,
+      gen
     });
 
     expect(
       Pokemon.fromSet({
-        id: "493:0",
-        gen: Gens.ORAS,
-        set: {}
+        id: "arceus",
+        set: {},
+        gen
       })
     ).toMatchObject({
-      id: "493:0",
-      gen: Gens.ORAS,
+      id: "arceus",
       level: 100,
-      nature: 0,
-      ability: { id: 0 },
-      item: { id: 0 },
-      moves: [{ id: 0 }, { id: 0 }, { id: 0 }, { id: 0 }],
+      nature: Natures.HARDY,
+      ability: { id: "noability", gen },
+      item: { id: "noitem", gen },
+      moves: [
+        { id: "nomove", gen },
+        { id: "nomove", gen },
+        { id: "nomove", gen },
+        { id: "nomove", gen }
+      ],
       evs: [0, 0, 0, 0, 0, 0],
-      ivs: [31, 31, 31, 31, 31, 31]
+      ivs: [31, 31, 31, 31, 31, 31],
+      gen
     });
   });
 
@@ -541,68 +485,56 @@ describe("Pokemon", () => {
     const arceus = new Pokemon({
       name: "Arceus",
       level: 80,
-      natureName: "Timid",
+      nature: Natures.TIMID,
       ability: "Multitype",
       item: "Earth Plate",
       moves: ["Judgment", "Ice Beam", "Recover", "Calm Mind"],
       evs: [4, 0, 0, 252, 0, 252],
-      ivs: [31, 31, 31, 31, 31, 31],
+      ivs: [31, 0, 31, 31, 31, 31],
       gen: Gens.SM
     });
-    expect(arceus.toSet()).toMatchObject({
+    expect(arceus.toSet()).toEqual({
       l: 80,
       n: 10,
-      a: 121,
-      i: 187,
-      m: [449, 58, 105, 347],
+      a: "multitype",
+      i: "earthplate",
+      m: ["judgment", "icebeam", "recover", "calmmind"],
       e: [1, 0, 0, 63, 0, 63],
-      d: [31, 31, 31, 31, 31, 31]
+      d: [31, 0, 31, 31, 31, 31]
+    });
+
+    const noPokemon = new Pokemon({
+      moves: ["Judgment", "Ice Beam", "Recover", "Calm Mind"],
+      gen: Gens.SM
+    });
+    expect(noPokemon.toSet()).toEqual({
+      m: ["judgment", "icebeam", "recover", "calmmind"]
+    });
+
+    const noPokemonGsc = new Pokemon({
+      moves: ["Body Slam", "Earthquake", "Rest", "Curse"],
+      gen: Gens.GSC
+    });
+    expect(noPokemonGsc.toSet()).toEqual({
+      m: ["bodyslam", "earthquake", "rest", "curse"]
     });
   });
 
   test("#name", () => {
     expect(mudkip.name).toEqual("Mudkip");
-    expect(missingno.name).toEqual("Missingno");
+    expect(nopokemon.name).toEqual("(No Pokemon)");
 
     const poke1 = new Pokemon();
     poke1.name = "   latias ";
-    expect(poke1.id).toEqual("380:0");
+    expect(poke1.id).toEqual("latias");
 
     const poke2 = new Pokemon();
-    poke2.name = " MEGA       laTIos ";
-    expect(poke2.id).toEqual("381:1");
+    poke2.name = " laTIos    MEGA      ";
+    expect(poke2.id).toEqual("latiosmega");
 
     const poke3 = new Pokemon();
     poke3.name = "SNOR LAX";
-    expect(poke3.id).toEqual("0:0");
-  });
-
-  test("#natureName", () => {
-    expect(mudkip.natureName).toEqual("Hardy");
-
-    mudkip.nature = 5;
-    expect(mudkip.natureName).toEqual("Bold");
-
-    mudkip.natureName = " SAsSY   ";
-    expect(mudkip.nature).toEqual(22);
-
-    mudkip.natureName = "Bold";
-    expect(mudkip.nature).toEqual(5);
-
-    mudkip.natureName = "A damant";
-    expect(mudkip.nature).toBeUndefined();
-  });
-
-  test("#num()", () => {
-    expect(missingno.num()).toEqual(0);
-    expect(mudkip.num()).toEqual(258);
-    expect(megaSwampert.num()).toEqual(260);
-  });
-
-  test("#form()", () => {
-    expect(missingno.form()).toEqual(0);
-    expect(mudkip.form()).toEqual(0);
-    expect(megaSwampert.form()).toEqual(1);
+    expect(poke3.id).toEqual("snorlax");
   });
 
   test("#stat()", () => {
@@ -610,7 +542,7 @@ describe("Pokemon", () => {
       name: "Nidoking",
       evs: [0, 0, 4, 252, 0, 252],
       ivs: [31, 0, 31, 31, 31, 31],
-      natureName: "Modest"
+      nature: Natures.MODEST
     });
     expect(nidoking.stat(Stats.HP)).toEqual(303);
     expect(nidoking.stat(Stats.ATK)).toEqual(188);
@@ -619,7 +551,7 @@ describe("Pokemon", () => {
     expect(nidoking.stat(Stats.SDEF)).toEqual(186);
     expect(nidoking.stat(Stats.SPD)).toEqual(269);
 
-    nidoking.gen = 5;
+    nidoking.gen = Gens.B2W2;
     expect(nidoking.stat(Stats.HP)).toEqual(303);
     expect(nidoking.stat(Stats.ATK)).toEqual(170);
     expect(nidoking.stat(Stats.DEF)).toEqual(191);
@@ -833,7 +765,7 @@ describe("Pokemon", () => {
     const sceptile = new Pokemon({ name: "Sceptile" });
     expect(sceptile.type1()).toEqual(Types.GRASS);
 
-    const megaSceptile = new Pokemon({ name: "Mega Sceptile" });
+    const megaSceptile = new Pokemon({ name: "Sceptile-Mega" });
     expect(megaSceptile.type1()).toEqual(Types.GRASS);
   });
 
@@ -844,7 +776,7 @@ describe("Pokemon", () => {
     const sceptile = new Pokemon({ name: "Sceptile" });
     expect(sceptile.type2()).toEqual(Types.CURSE);
 
-    const megaSceptile = new Pokemon({ name: "Mega Sceptile" });
+    const megaSceptile = new Pokemon({ name: "Sceptile-Mega" });
     expect(megaSceptile.type2()).toEqual(Types.DRAGON);
   });
 
@@ -871,12 +803,12 @@ describe("Pokemon", () => {
   });
 
   test("#stab()", () => {
-    expect(mudkip.stab(Types.WATER)).toBeTruthy();
-    expect(mudkip.stab(Types.CURSE)).toBeFalsy();
+    expect(mudkip.stab(Types.WATER)).toBe(true);
+    expect(mudkip.stab(Types.CURSE)).toBe(false);
     swampert.addedType = Types.FIRE;
-    expect(swampert.stab(Types.WATER)).toBeTruthy();
-    expect(swampert.stab(Types.GROUND)).toBeTruthy();
-    expect(swampert.stab(Types.FIRE)).toBeTruthy();
+    expect(swampert.stab(Types.WATER)).toBe(true);
+    expect(swampert.stab(Types.GROUND)).toBe(true);
+    expect(swampert.stab(Types.FIRE)).toBe(true);
   });
 
   test("#weight()", () => {
@@ -906,407 +838,407 @@ describe("Pokemon", () => {
   });
 
   test("#hasEvolution()", () => {
-    expect(mudkip.hasEvolution()).toBeTruthy();
-    expect(marshtomp.hasEvolution()).toBeTruthy();
-    expect(swampert.hasEvolution()).toBeFalsy();
-    expect(megaSwampert.hasEvolution()).toBeFalsy();
+    expect(mudkip.hasEvolution()).toBe(true);
+    expect(marshtomp.hasEvolution()).toBe(true);
+    expect(swampert.hasEvolution()).toBe(false);
+    expect(megaSwampert.hasEvolution()).toBe(false);
 
     const togetic = new Pokemon({ name: "Togetic" });
-    expect(togetic.hasEvolution()).toBeTruthy();
+    expect(togetic.hasEvolution()).toBe(true);
     togetic.gen = Gens.ADV;
-    expect(togetic.hasEvolution()).toBeFalsy();
+    expect(togetic.hasEvolution()).toBe(false);
 
     const floette = new Pokemon({ name: "Floette" });
-    expect(floette.hasEvolution()).toBeTruthy();
+    expect(floette.hasEvolution()).toBe(true);
     const floetteEternal = new Pokemon({ name: "Floette-Eternal" });
-    expect(floetteEternal.hasEvolution()).toBeFalsy();
+    expect(floetteEternal.hasEvolution()).toBe(false);
   });
 
   test("#hasPreEvolution()", () => {
-    expect(mudkip.hasPreEvolution()).toBeFalsy();
-    expect(marshtomp.hasPreEvolution()).toBeTruthy();
-    expect(swampert.hasPreEvolution()).toBeTruthy();
-    expect(megaSwampert.hasPreEvolution()).toBeTruthy();
+    expect(mudkip.hasPreEvolution()).toBe(false);
+    expect(marshtomp.hasPreEvolution()).toBe(true);
+    expect(swampert.hasPreEvolution()).toBe(true);
+    expect(megaSwampert.hasPreEvolution()).toBe(true);
 
     const snorlax = new Pokemon({ name: "Snorlax" });
-    expect(snorlax.hasPreEvolution()).toBeTruthy();
+    expect(snorlax.hasPreEvolution()).toBe(true);
     snorlax.gen = Gens.ADV;
-    expect(snorlax.hasPreEvolution()).toBeFalsy();
+    expect(snorlax.hasPreEvolution()).toBe(false);
   });
 
   test("#isMega()", () => {
     const meganium = new Pokemon({ name: "Meganium" });
-    expect(meganium.isMega()).toBeFalsy();
-    expect(megaSwampert.isMega()).toBeTruthy();
+    expect(meganium.isMega()).toBe(false);
+    expect(megaSwampert.isMega()).toBe(true);
   });
 
-  test("#hasRequiredItem()", () => {
-    const primalKyogre = new Pokemon({ name: "Primal Kyogre" });
-    expect(primalKyogre.hasRequiredItem()).toBeFalsy();
+  test("#isItemRequired()", () => {
+    const primalKyogre = new Pokemon({ name: "Kyogre-Primal" });
+    expect(primalKyogre.isItemRequired()).toBe(false);
     primalKyogre.item.name = "Blue Orb";
-    expect(primalKyogre.hasRequiredItem()).toBeTruthy();
+    expect(primalKyogre.isItemRequired()).toBe(true);
   });
 
   test("#hurtBySandstorm()", () => {
-    expect(mudkip.hurtBySandstorm()).toBeTruthy();
+    expect(mudkip.hurtBySandstorm()).toBe(true);
 
     mudkip.item.name = "Safety Goggles";
-    expect(mudkip.hurtBySandstorm()).toBeFalsy();
+    expect(mudkip.hurtBySandstorm()).toBe(false);
 
     mudkip.item.name = "(No Item)";
     mudkip.ability.name = "Sand Rush";
-    expect(mudkip.hurtBySandstorm()).toBeFalsy();
+    expect(mudkip.hurtBySandstorm()).toBe(false);
 
-    expect(marshtomp.hurtBySandstorm()).toBeFalsy();
+    expect(marshtomp.hurtBySandstorm()).toBe(false);
 
     const tyranitar = new Pokemon({ name: "Tyranitar" });
-    expect(tyranitar.hurtBySandstorm()).toBeFalsy();
+    expect(tyranitar.hurtBySandstorm()).toBe(false);
 
     const scizor = new Pokemon({ name: "Scizor" });
-    expect(scizor.hurtBySandstorm()).toBeFalsy();
+    expect(scizor.hurtBySandstorm()).toBe(false);
   });
 
   test("#hurtByHail()", () => {
-    expect(mudkip.hurtByHail()).toBeTruthy();
+    expect(mudkip.hurtByHail()).toBe(true);
 
     mudkip.item.name = "Safety Goggles";
-    expect(mudkip.hurtByHail()).toBeFalsy();
+    expect(mudkip.hurtByHail()).toBe(false);
 
     mudkip.item.name = "(No Item)";
     mudkip.ability.name = "Ice Body";
-    expect(mudkip.hurtByHail()).toBeFalsy();
+    expect(mudkip.hurtByHail()).toBe(false);
 
     const froslass = new Pokemon({ name: "Froslass" });
-    expect(froslass.hurtByHail()).toBeFalsy();
+    expect(froslass.hurtByHail()).toBe(false);
   });
 
   test("#isPoisoned()", () => {
-    expect(mudkip.isPoisoned()).toBeFalsy();
+    expect(mudkip.isPoisoned()).toBe(false);
 
     mudkip.status = Statuses.POISONED;
-    expect(mudkip.isPoisoned()).toBeTruthy();
+    expect(mudkip.isPoisoned()).toBe(true);
 
     mudkip.status = Statuses.BADLY_POISONED;
-    expect(mudkip.isPoisoned()).toBeFalsy();
+    expect(mudkip.isPoisoned()).toBe(false);
   });
 
   test("#isBadlyPoisoned()", () => {
-    expect(mudkip.isBadlyPoisoned()).toBeFalsy();
+    expect(mudkip.isBadlyPoisoned()).toBe(false);
 
     mudkip.status = Statuses.POISONED;
-    expect(mudkip.isBadlyPoisoned()).toBeFalsy();
+    expect(mudkip.isBadlyPoisoned()).toBe(false);
 
     mudkip.status = Statuses.BADLY_POISONED;
-    expect(mudkip.isBadlyPoisoned()).toBeTruthy();
+    expect(mudkip.isBadlyPoisoned()).toBe(true);
   });
 
   test("#isBurned()", () => {
-    expect(mudkip.isBurned()).toBeFalsy();
+    expect(mudkip.isBurned()).toBe(false);
 
     mudkip.status = Statuses.POISONED;
-    expect(mudkip.isBurned()).toBeFalsy();
+    expect(mudkip.isBurned()).toBe(false);
 
     mudkip.status = Statuses.BURNED;
-    expect(mudkip.isBurned()).toBeTruthy();
+    expect(mudkip.isBurned()).toBe(true);
   });
 
   test("#isParalyzed()", () => {
-    expect(mudkip.isParalyzed()).toBeFalsy();
+    expect(mudkip.isParalyzed()).toBe(false);
 
     mudkip.status = Statuses.POISONED;
-    expect(mudkip.isParalyzed()).toBeFalsy();
+    expect(mudkip.isParalyzed()).toBe(false);
 
     mudkip.status = Statuses.PARALYZED;
-    expect(mudkip.isParalyzed()).toBeTruthy();
+    expect(mudkip.isParalyzed()).toBe(true);
   });
 
   test("#isAsleep()", () => {
-    expect(mudkip.isAsleep()).toBeFalsy();
+    expect(mudkip.isAsleep()).toBe(false);
 
     mudkip.status = Statuses.POISONED;
-    expect(mudkip.isAsleep()).toBeFalsy();
+    expect(mudkip.isAsleep()).toBe(false);
 
     mudkip.status = Statuses.ASLEEP;
-    expect(mudkip.isAsleep()).toBeTruthy();
+    expect(mudkip.isAsleep()).toBe(true);
 
     mudkip.status = Statuses.BURNED;
-    expect(mudkip.isAsleep()).toBeFalsy();
+    expect(mudkip.isAsleep()).toBe(false);
     mudkip.ability.name = "Comatose";
-    expect(mudkip.isAsleep()).toBeTruthy();
+    expect(mudkip.isAsleep()).toBe(true);
   });
 
   test("#isFrozen()", () => {
-    expect(mudkip.isFrozen()).toBeFalsy();
+    expect(mudkip.isFrozen()).toBe(false);
 
     mudkip.status = Statuses.POISONED;
-    expect(mudkip.isFrozen()).toBeFalsy();
+    expect(mudkip.isFrozen()).toBe(false);
 
     mudkip.status = Statuses.FROZEN;
-    expect(mudkip.isFrozen()).toBeTruthy();
+    expect(mudkip.isFrozen()).toBe(true);
   });
 
   test("#isMale()", () => {
-    expect(mudkip.isMale()).toBeFalsy();
+    expect(mudkip.isMale()).toBe(false);
 
     mudkip.gender = Genders.MALE;
-    expect(mudkip.isMale()).toBeTruthy();
+    expect(mudkip.isMale()).toBe(true);
 
     mudkip.gender = Genders.FEMALE;
-    expect(mudkip.isMale()).toBeFalsy();
+    expect(mudkip.isMale()).toBe(false);
 
     mudkip.gender = Genders.NO_GENDER;
-    expect(mudkip.isMale()).toBeFalsy();
+    expect(mudkip.isMale()).toBe(false);
   });
 
   test("#isFemale()", () => {
-    expect(mudkip.isFemale()).toBeFalsy();
+    expect(mudkip.isFemale()).toBe(false);
 
     mudkip.gender = Genders.FEMALE;
-    expect(mudkip.isFemale()).toBeTruthy();
+    expect(mudkip.isFemale()).toBe(true);
 
     mudkip.gender = Genders.MALE;
-    expect(mudkip.isFemale()).toBeFalsy();
+    expect(mudkip.isFemale()).toBe(false);
 
     mudkip.gender = Genders.NO_GENDER;
-    expect(mudkip.isFemale()).toBeFalsy();
+    expect(mudkip.isFemale()).toBe(false);
   });
 
   test("#hasPlate()", () => {
-    expect(swampert.hasPlate()).toBeFalsy();
+    expect(swampert.hasPlate()).toBe(false);
 
     swampert.item.name = "Earth Plate";
-    expect(swampert.hasPlate()).toBeTruthy();
+    expect(swampert.hasPlate()).toBe(true);
   });
 
   test("#hasDrive()", () => {
-    expect(swampert.hasDrive()).toBeFalsy();
+    expect(swampert.hasDrive()).toBe(false);
 
     swampert.item.name = "Chill Drive";
-    expect(swampert.hasDrive()).toBeTruthy();
+    expect(swampert.hasDrive()).toBe(true);
   });
 
   test("#knockOff()", () => {
-    expect(mudkip.knockOff()).toBeFalsy();
+    expect(mudkip.knockOff()).toBe(false);
 
     mudkip.item.name = "Leftovers";
-    expect(mudkip.knockOff()).toBeTruthy();
+    expect(mudkip.knockOff()).toBe(true);
 
     mudkip.ability.name = "Sticky Hold";
-    expect(mudkip.knockOff()).toBeFalsy();
+    expect(mudkip.knockOff()).toBe(false);
 
     mudkip.ability.name = "(No Ability)";
     mudkip.item.disabled = true;
-    expect(mudkip.knockOff()).toBeTruthy();
+    expect(mudkip.knockOff()).toBe(true);
 
     mudkip.item.disabled = false;
     mudkip.item.used = true;
-    expect(mudkip.knockOff()).toBeFalsy();
+    expect(mudkip.knockOff()).toBe(false);
 
     mudkip.item.used = false;
     mudkip.item.name = "Swampertite";
-    expect(mudkip.knockOff()).toBeTruthy();
+    expect(mudkip.knockOff()).toBe(true);
 
     megaSwampert.item.name = "Swampertite";
-    expect(megaSwampert.knockOff()).toBeFalsy();
+    expect(megaSwampert.knockOff()).toBe(false);
 
     mudkip.item.name = "Griseous Orb";
-    expect(mudkip.knockOff()).toBeTruthy();
+    expect(mudkip.knockOff()).toBe(true);
 
     const giratina = new Pokemon({
       name: "Giratina",
       item: "Griseous Orb"
     });
-    expect(giratina.knockOff()).toBeFalsy();
+    expect(giratina.knockOff()).toBe(false);
 
     const giratinaOrigin = new Pokemon({
       name: "Giratina-Origin",
       item: "Griseous Orb"
     });
-    expect(giratinaOrigin.knockOff()).toBeFalsy();
+    expect(giratinaOrigin.knockOff()).toBe(false);
 
     const genesectChill = new Pokemon({
       name: "Genesect-Chill",
       item: "Chill Drive"
     });
-    expect(genesectChill.knockOff()).toBeFalsy();
+    expect(genesectChill.knockOff()).toBe(false);
 
     mudkip.ability.name = "Multitype";
     mudkip.item.name = "Earth Plate";
-    expect(mudkip.knockOff()).toBeFalsy();
+    expect(mudkip.knockOff()).toBe(false);
     mudkip.item.name = "Leftovers";
-    expect(mudkip.knockOff()).toBeTruthy();
+    expect(mudkip.knockOff()).toBe(true);
 
     const groudon = new Pokemon({
       name: "Groudon",
       item: "Red Orb"
     });
-    expect(groudon.knockOff()).toBeFalsy();
+    expect(groudon.knockOff()).toBe(false);
     groudon.item.name = "Blue Orb";
-    expect(groudon.knockOff()).toBeTruthy();
+    expect(groudon.knockOff()).toBe(true);
 
     const primalGroudon = new Pokemon({
-      name: "Primal Groudon",
+      name: "Groudon-Primal",
       item: "Red Orb"
     });
-    expect(primalGroudon.knockOff()).toBeFalsy();
+    expect(primalGroudon.knockOff()).toBe(false);
     primalGroudon.item.name = "Blue Orb";
-    expect(primalGroudon.knockOff()).toBeTruthy();
+    expect(primalGroudon.knockOff()).toBe(true);
 
     const kyogre = new Pokemon({
       name: "Kyogre",
       item: "Blue Orb"
     });
-    expect(kyogre.knockOff()).toBeFalsy();
+    expect(kyogre.knockOff()).toBe(false);
     kyogre.item.name = "Red Orb";
-    expect(kyogre.knockOff()).toBeTruthy();
+    expect(kyogre.knockOff()).toBe(true);
 
     const primalKyogre = new Pokemon({
-      name: "Primal Kyogre",
+      name: "Kyogre-Primal",
       item: "Blue Orb"
     });
-    expect(primalKyogre.knockOff()).toBeFalsy();
+    expect(primalKyogre.knockOff()).toBe(false);
     primalKyogre.item.name = "Red Orb";
-    expect(primalKyogre.knockOff()).toBeTruthy();
+    expect(primalKyogre.knockOff()).toBe(true);
 
     const silvally = new Pokemon({ name: "Silvally", item: "Fire Memory" });
-    expect(silvally.knockOff()).toBeFalsy();
+    expect(silvally.knockOff()).toBe(false);
     const silvallyFire = new Pokemon({
       name: "Silvally-Fire",
       item: "Fire Memory"
     });
-    expect(silvallyFire.knockOff()).toBeFalsy();
+    expect(silvallyFire.knockOff()).toBe(false);
 
     /* HGSS */
     const hgssMudkip = new Pokemon({ name: "Mudkip", gen: Gens.HGSS });
 
-    expect(hgssMudkip.knockOff()).toBeFalsy();
+    expect(hgssMudkip.knockOff()).toBe(false);
 
     hgssMudkip.item.name = "Leftovers";
-    expect(hgssMudkip.knockOff()).toBeTruthy();
+    expect(hgssMudkip.knockOff()).toBe(true);
 
     hgssMudkip.ability.name = "Sticky Hold";
-    expect(hgssMudkip.knockOff()).toBeFalsy();
+    expect(hgssMudkip.knockOff()).toBe(false);
 
     hgssMudkip.ability.name = "(No Ability)";
     hgssMudkip.item.disabled = true;
-    expect(hgssMudkip.knockOff()).toBeTruthy();
+    expect(hgssMudkip.knockOff()).toBe(true);
 
     hgssMudkip.item.disabled = false;
     hgssMudkip.item.used = true;
-    expect(hgssMudkip.knockOff()).toBeFalsy();
+    expect(hgssMudkip.knockOff()).toBe(false);
 
     hgssMudkip.item.used = false;
     hgssMudkip.item.name = "Griseous Orb";
-    expect(hgssMudkip.knockOff()).toBeTruthy();
+    expect(hgssMudkip.knockOff()).toBe(true);
 
     const hgssGiratina = new Pokemon({
       name: "Giratina",
       item: "Griseous Orb",
       gen: Gens.HGSS
     });
-    expect(hgssGiratina.knockOff()).toBeFalsy();
+    expect(hgssGiratina.knockOff()).toBe(false);
     hgssGiratina.item.name = "Leftovers";
-    expect(hgssGiratina.knockOff()).toBeTruthy();
+    expect(hgssGiratina.knockOff()).toBe(true);
 
     const hgssGiratinaOrigin = new Pokemon({
       name: "Giratina-Origin",
       item: "Griseous Orb",
       gen: Gens.HGSS
     });
-    expect(hgssGiratinaOrigin.knockOff()).toBeFalsy();
+    expect(hgssGiratinaOrigin.knockOff()).toBe(false);
     hgssGiratinaOrigin.item.name = "Leftovers";
-    expect(hgssGiratinaOrigin.knockOff()).toBeTruthy();
+    expect(hgssGiratinaOrigin.knockOff()).toBe(true);
 
     hgssMudkip.ability.name = "Multitype";
     hgssMudkip.item.name = "Earth Plate";
-    expect(hgssMudkip.knockOff()).toBeFalsy();
+    expect(hgssMudkip.knockOff()).toBe(false);
 
     hgssMudkip.item.name = "Leftovers";
-    expect(hgssMudkip.knockOff()).toBeFalsy();
+    expect(hgssMudkip.knockOff()).toBe(false);
   });
 
   test("#knockOffBoost()", () => {
-    expect(mudkip.knockOffBoost()).toBeFalsy();
+    expect(mudkip.knockOffBoost()).toBe(false);
 
     mudkip.item.name = "Leftovers";
-    expect(mudkip.knockOffBoost()).toBeTruthy();
+    expect(mudkip.knockOffBoost()).toBe(true);
 
     mudkip.ability.name = "Sticky Hold";
-    expect(mudkip.knockOffBoost()).toBeTruthy();
+    expect(mudkip.knockOffBoost()).toBe(true);
 
     mudkip.ability.name = "(No Ability)";
     mudkip.item.disabled = true;
-    expect(mudkip.knockOffBoost()).toBeTruthy();
+    expect(mudkip.knockOffBoost()).toBe(true);
 
     mudkip.item.disabled = false;
     mudkip.item.used = true;
-    expect(mudkip.knockOffBoost()).toBeFalsy();
+    expect(mudkip.knockOffBoost()).toBe(false);
 
     mudkip.item.used = false;
     mudkip.item.name = "Swampertite";
-    expect(mudkip.knockOffBoost()).toBeTruthy();
+    expect(mudkip.knockOffBoost()).toBe(true);
 
     megaSwampert.item.name = "Swampertite";
-    expect(megaSwampert.knockOffBoost()).toBeFalsy();
+    expect(megaSwampert.knockOffBoost()).toBe(false);
 
     mudkip.item.name = "Griseous Orb";
-    expect(mudkip.knockOffBoost()).toBeTruthy();
+    expect(mudkip.knockOffBoost()).toBe(true);
 
     const giratina = new Pokemon({
       name: "Giratina",
       item: "Griseous Orb"
     });
-    expect(giratina.knockOffBoost()).toBeFalsy();
+    expect(giratina.knockOffBoost()).toBe(false);
 
     const giratinaOrigin = new Pokemon({
       name: "Giratina-Origin",
       item: "Griseous Orb"
     });
-    expect(giratinaOrigin.knockOffBoost()).toBeFalsy();
+    expect(giratinaOrigin.knockOffBoost()).toBe(false);
 
     const genesectChill = new Pokemon({
       name: "Genesect-Chill",
       item: "Chill Drive"
     });
-    expect(genesectChill.knockOffBoost()).toBeFalsy();
+    expect(genesectChill.knockOffBoost()).toBe(false);
 
     mudkip.ability.name = "Multitype";
     mudkip.item.name = "Earth Plate";
-    expect(mudkip.knockOffBoost()).toBeFalsy();
+    expect(mudkip.knockOffBoost()).toBe(false);
     mudkip.item.name = "Leftovers";
-    expect(mudkip.knockOffBoost()).toBeTruthy();
+    expect(mudkip.knockOffBoost()).toBe(true);
 
     const groudon = new Pokemon({
       name: "Groudon",
       item: "Red Orb"
     });
-    expect(groudon.knockOffBoost()).toBeFalsy();
+    expect(groudon.knockOffBoost()).toBe(false);
     groudon.item.name = "Blue Orb";
-    expect(groudon.knockOffBoost()).toBeTruthy();
+    expect(groudon.knockOffBoost()).toBe(true);
 
     const primalGroudon = new Pokemon({
-      name: "Primal Groudon",
+      name: "Groudon-Primal",
       item: "Red Orb"
     });
-    expect(primalGroudon.knockOffBoost()).toBeFalsy();
+    expect(primalGroudon.knockOffBoost()).toBe(false);
     primalGroudon.item.name = "Blue Orb";
-    expect(primalGroudon.knockOffBoost()).toBeTruthy();
+    expect(primalGroudon.knockOffBoost()).toBe(true);
 
     const kyogre = new Pokemon({
       name: "Kyogre",
       item: "Blue Orb"
     });
-    expect(kyogre.knockOffBoost()).toBeFalsy();
+    expect(kyogre.knockOffBoost()).toBe(false);
     kyogre.item.name = "Red Orb";
-    expect(kyogre.knockOffBoost()).toBeTruthy();
+    expect(kyogre.knockOffBoost()).toBe(true);
 
     const primalKyogre = new Pokemon({
-      name: "Primal Kyogre",
+      name: "Kyogre-Primal",
       item: "Blue Orb"
     });
-    expect(primalKyogre.knockOffBoost()).toBeFalsy();
+    expect(primalKyogre.knockOffBoost()).toBe(false);
     primalKyogre.item.name = "Red Orb";
-    expect(primalKyogre.knockOffBoost()).toBeTruthy();
+    expect(primalKyogre.knockOffBoost()).toBe(true);
   });
 
   test("#pinchAbilityActivated()", () => {
@@ -1316,35 +1248,36 @@ describe("Pokemon", () => {
       evs: [4, 0, 0, 0, 0, 0]
     });
     swampert.currentHp = 115;
-    expect(swampert.pinchAbilityActivated(Types.WATER)).toBeFalsy();
+    expect(swampert.pinchAbilityActivated(Types.WATER)).toBe(false);
     swampert.currentHp = 114;
-    expect(swampert.pinchAbilityActivated(Types.WATER)).toBeTruthy();
-    expect(swampert.pinchAbilityActivated(Types.FIRE)).toBeFalsy();
+    expect(swampert.pinchAbilityActivated(Types.WATER)).toBe(true);
+    expect(swampert.pinchAbilityActivated(Types.FIRE)).toBe(false);
   });
 
   test("#thickClubBoosted()", () => {
     const marowak = new Pokemon({ name: "marowak" });
-    expect(marowak.thickClubBoosted()).toBeFalsy();
+    expect(marowak.thickClubBoosted()).toBe(false);
     marowak.item.name = "Thick Club";
-    expect(marowak.thickClubBoosted()).toBeTruthy();
+    expect(marowak.thickClubBoosted()).toBe(true);
     const cubone = new Pokemon({ name: "Cubone", item: "Thick Club" });
-    expect(cubone.thickClubBoosted()).toBeTruthy();
+    expect(cubone.thickClubBoosted()).toBe(true);
     const ditto = new Pokemon({ name: "Ditto" });
-    expect(ditto.thickClubBoosted()).toBeFalsy();
+    expect(ditto.thickClubBoosted()).toBe(false);
   });
 
   test("#lightBallBoosted()", () => {
     const pikachu = new Pokemon({ name: "Pikachu" });
-    expect(pikachu.lightBallBoosted()).toBeFalsy();
-    pikachu.item.name = "Light Ball";
-    expect(pikachu.lightBallBoosted()).toBeTruthy();
-    const pichu = new Pokemon({ name: "Pichu", item: "Light Ball" });
-    expect(pichu.lightBallBoosted()).toBeFalsy();
-  });
-
-  test("#isUseful()", () => {
-    expect(missingno.isUseful()).toBeFalsy();
-    expect(mudkip.isUseful()).toBeTruthy();
+    expect(pikachu.lightBallBoosted()).toBe(false);
+    const pikachuWithLightBall = new Pokemon({
+      name: "Pikachu",
+      item: "Light Ball"
+    });
+    expect(pikachuWithLightBall.lightBallBoosted()).toBe(true);
+    const pichuWithLightBall = new Pokemon({
+      name: "Pichu",
+      item: "Light Ball"
+    });
+    expect(pichuWithLightBall.lightBallBoosted()).toBe(false);
   });
 
   test(".calcHealthDv()", () => {

@@ -19,7 +19,7 @@
         size='small'
         type='secondary'
         >
-        {{ $t("invertedBattle") }}
+        Inverted Battle
       </button-checkbox>
     </div>
 
@@ -53,14 +53,14 @@
           @input='toggleWaterSport()'
           type='secondary'
           >
-          {{ $tMove("Water Sport") }}
+          Water Sport
         </button-checkbox>
         <button-checkbox
           :value='field.mudSport'
           @input='toggleMudSport()'
           type='secondary'
           >
-          {{ $tMove("Mud Sport") }}
+          Mud Sport
         </button-checkbox>
       </div>
     </div>
@@ -73,7 +73,7 @@
           @input='toggleGravity()'
           type='secondary'
           >
-          {{ $tMove("Gravity") }}
+          Gravity
         </button-checkbox>
         <template v-if='gen >= Gens.B2W2'>
           <button-checkbox
@@ -81,14 +81,14 @@
             @input='toggleMagicRoom()'
             type='secondary'
             >
-            {{ $tMove("Magic Room") }}
+            Magic Room
           </button-checkbox>
           <button-checkbox
             :value='field.wonderRoom'
             @input='toggleWonderRoom()'
             type='secondary'
             >
-            {{ $tMove("Wonder Room") }}
+            Wonder Room
           </button-checkbox>
         </template>
       </div>
@@ -102,21 +102,21 @@
           @input='toggleGrassyTerrain()'
           type='secondary'
           >
-          {{ $tMove("Grassy Terrain") }}
+          Grassy Terrain
         </button-checkbox>
         <button-checkbox
           :value='field.electricTerrain'
           @input='toggleElectricTerrain()'
           type='secondary'
           >
-          {{ $tMove("Electric Terrain") }}
+          Electric Terrain
         </button-checkbox>
         <button-checkbox
           :value='field.mistyTerrain'
           @input='toggleMistyTerrain()'
           type='secondary'
           >
-          {{ $tMove("Misty Terrain") }}
+          Misty Terrain
         </button-checkbox>
         <button-checkbox
           v-if='gen >= Gens.SM'
@@ -124,7 +124,7 @@
           @input='togglePsychicTerrain()'
           type='secondary'
           >
-          {{ $tMove("Psychic Terrain") }}
+          Psychic Terrain
         </button-checkbox>
       </div>
     </div>
@@ -137,21 +137,21 @@
           @input='toggleFairyAura()'
           type='secondary'
           >
-          {{ $tAbility("Fairy Aura") }}
+          Fairy Aura
         </button-checkbox>
         <button-checkbox
           :value='field.darkAura'
           @input='toggleDarkAura()'
           type='secondary'
           >
-          {{ $tAbility("Dark Aura") }}
+          Dark Aura
         </button-checkbox>
         <button-checkbox
           :value='field.auraBreak'
           @input='toggleAuraBreak()'
           type='secondary'
           >
-          {{ $tAbility("Aura Break") }}
+          Aura Break
         </button-checkbox>
       </div>
     </div>
@@ -165,7 +165,7 @@
           size='small'
           type='secondary'
           >
-          {{ $tMove("Ion Deluge") }}
+          Ion Deluge
         </button-checkbox>
       </div>
     </div>
@@ -188,7 +188,7 @@
           class='mt-1'
           :style='pokeAlign(side)'
           >
-          {{ $tMove("Stealth Rock") }}
+          Stealth Rock
         </button-checkbox>
 
         <!-- Spikes -->
@@ -211,7 +211,7 @@
           class='mt-1'
           :style='pokeAlign(side)'
           >
-          {{ $tMove("Spikes") }}
+          Spikes
         </button-checkbox>
 
         <!-- Reflect / Light Screen -->
@@ -221,14 +221,14 @@
             @input='toggleReflect({side})'
             type='secondary'
             >
-            {{ $tMove("Reflect") }}
+            Reflect
           </button-checkbox>
           <button-checkbox
             :value='pokemon.lightScreen'
             @input='toggleLightScreen({side})'
             type='secondary'
             >
-            {{ $tMove("Light Screen") }}
+            Light Screen
           </button-checkbox>
         </div>
 
@@ -242,7 +242,7 @@
           class='mt-1'
           :style='pokeAlign(side)'
           >
-          {{ $tMove("Foresight") }}
+          Foresight
         </button-checkbox>
 
         <!-- Friend Guard -->
@@ -255,7 +255,7 @@
           class='mt-1'
           :style='pokeAlign(side)'
           >
-          {{ $tAbility("Friend Guard") }}
+          Friend Guard
         </button-checkbox>
 
         <!-- Aurora Veil -->
@@ -268,7 +268,7 @@
           class='mt-1'
           :style='pokeAlign(side)'
           >
-          {{ $tMove("Aurora Veil") }}
+          Aurora Veil
         </button-checkbox>
 
         <!-- Battery -->
@@ -281,7 +281,7 @@
           class='mt-1'
           :style='pokeAlign(side)'
           >
-          {{ $tAbility("Battery") }}
+          Battery
         </button-checkbox>
 
       </div>
@@ -292,7 +292,6 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import { Multiselect } from "vue-multiselect";
-import translationMixin from "../mixins/translation";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import { Weathers, Gens } from "sulcalc";
@@ -303,56 +302,40 @@ export default {
     ButtonCheckbox,
     ButtonRadioGroup
   },
-  mixins: [translationMixin],
   data() {
     return {
       Gens,
+      battleModes: [
+        { value: false, label: "Singles" },
+        { value: true, label: "Doubles" }
+      ],
+      harshWeathers: [
+        { value: Weathers.HARSH_SUN, label: "Harsh Sun" },
+        { value: Weathers.HEAVY_RAIN, label: "Heavy Rain" },
+        { value: Weathers.STRONG_WINDS, label: "Strong Winds" }
+      ],
+      spikes: [
+        { value: 0, label: "0" },
+        { value: 1, label: "1" },
+        { value: 2, label: "2" },
+        { value: 3, label: "3 Spikes" }
+      ],
       centeredRowClasses: ["row", "justify-content-center", "no-gutters"]
     };
   },
   computed: {
     ...mapState(["gen", "field", "attacker", "defender"]),
-    battleModes() {
-      return ["singles", "doubles"].map((mode, idx) => ({
-        value: Boolean(idx),
-        label: this.$t(mode)
-      }));
-    },
     weathers() {
       const weathers = [
-        Weathers.CLEAR,
-        Weathers.SUN,
-        Weathers.RAIN,
-        Weathers.SAND
+        { value: Weathers.CLEAR, label: "Clear" },
+        { value: Weathers.SUN, label: "Sun" },
+        { value: Weathers.RAIN, label: "Rain" },
+        { value: Weathers.SAND, label: "Sand" }
       ];
       if (this.gen >= Gens.ADV) {
-        weathers.push(Weathers.HAIL);
+        weathers.push({ value: Weathers.HAIL, label: "Hail" });
       }
-      return weathers.map(value => ({
-        value,
-        label: this.$tWeather(value)
-      }));
-    },
-    harshWeathers() {
-      return [
-        Weathers.HARSH_SUN,
-        Weathers.HEAVY_RAIN,
-        Weathers.STRONG_WINDS
-      ].map(value => ({
-        value,
-        label: this.$tWeather(value)
-      }));
-    },
-    spikes() {
-      const options = [];
-      for (let i = 0; i <= 3; i++) {
-        options.push({
-          value: i,
-          label: String(i)
-        });
-      }
-      options[3].label += " " + this.$tMove("Spikes");
-      return options;
+      return weathers;
     }
   },
   methods: {

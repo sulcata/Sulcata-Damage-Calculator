@@ -1,5 +1,3 @@
-const { abs, max, sign, trunc } = Math;
-
 export const Gens = {
   RBY: 1,
   GSC: 2,
@@ -10,7 +8,7 @@ export const Gens = {
   SM: 7
 };
 
-export const maxGen = max(...Object.values(Gens));
+export const maxGen = Math.max(...Object.values(Gens));
 
 export const Stats = {
   HP: 0,
@@ -79,6 +77,34 @@ export const Weathers = {
   STRONG_WINDS: 7
 };
 
+export const Natures = {
+  HARDY: 0,
+  LONELY: 1,
+  BRAVE: 2,
+  ADAMANT: 3,
+  NAUGHTY: 4,
+  BOLD: 5,
+  DOCILE: 6,
+  RELAXED: 7,
+  IMPISH: 8,
+  LAX: 9,
+  TIMID: 10,
+  HASTY: 11,
+  SERIOUS: 12,
+  JOLLY: 13,
+  NAIVE: 14,
+  MODEST: 15,
+  MILD: 16,
+  QUIET: 17,
+  BASHFUL: 18,
+  RASH: 19,
+  CALM: 20,
+  GENTLE: 21,
+  SASSY: 22,
+  CAREFUL: 23,
+  QUIRKY: 24
+};
+
 export function cmpStrs(num1, num2) {
   if (num1.length !== num2.length) {
     // simple case
@@ -141,7 +167,7 @@ export function multiplyStrs(num1, num2) {
   for (let i = num1.length - 1; i >= 0; i--) {
     for (let j = num2.length - 1; j >= 0; j--) {
       const p = (num1.charCodeAt(i) - 48) * (num2.charCodeAt(j) - 48) + carry;
-      carry = trunc(p / 10);
+      carry = Math.trunc(p / 10);
       digits = p % 10 + digits; // append digit to the left
     }
     product = addStrs((carry || "") + digits + zeros, product);
@@ -195,7 +221,7 @@ export function gcdStrs(num1, num2) {
 }
 
 export const roundHalfToZero = n =>
-  trunc(n) + sign(n) * (abs(n - trunc(n)) > 0.5);
+  Math.trunc(n) + Math.sign(n) * (Math.abs(n - Math.trunc(n)) > 0.5);
 
 export const chainMod = (modifier1, modifier2) =>
   (modifier1 * modifier2 + 0x800) >> 12;
@@ -208,7 +234,7 @@ export const applyMod = (modifier, value) =>
 export function damageVariation(baseDamage, min, max) {
   const damages = [];
   for (let i = min; i <= max; i++) {
-    damages.push(trunc(baseDamage * i / max));
+    damages.push(Math.trunc(baseDamage * i / max));
   }
   return damages;
 }

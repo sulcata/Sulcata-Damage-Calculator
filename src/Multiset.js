@@ -6,8 +6,6 @@ import {
   gcdStrs
 } from "./utilities";
 
-const { round } = Math;
-
 export default class Multiset {
   constructor(iterable = []) {
     if (iterable instanceof Multiset) {
@@ -265,6 +263,6 @@ export default class Multiset {
 
     const exp = 10 ** (digits + 1);
     const [quotient] = divideStrs(multiplyStrs(weightedSum, String(exp)), size);
-    return round(Number(quotient) / 10) * 10 / exp;
+    return Math.round(Number(quotient) / 10) * 10 / exp;
   }
 }

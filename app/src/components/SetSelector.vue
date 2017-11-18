@@ -5,8 +5,8 @@
     group-values='sets'
     group-label='pokemonName'
     :show-labels='false'
-    :placeholder='$t("pokemon")'
-    :options='translatedSets'
+    placeholder='Pokemon'
+    :options='sets'
     :value='pokemon.event'
     @input='updatePokemon'
     >
@@ -20,14 +20,12 @@
 <script>
 import { mapState, mapGetters } from "vuex";
 import { Multiselect } from "vue-multiselect";
-import translationMixin from "../mixins/translation";
 import { Pokemon } from "sulcalc";
 
 export default {
   components: {
     Multiselect
   },
-  mixins: [translationMixin],
   props: {
     pokemon: {
       required: true,
@@ -36,19 +34,7 @@ export default {
   },
   computed: {
     ...mapState(["gen"]),
-    ...mapGetters(["sets"]),
-    translatedSets() {
-      return this.sets
-        .map(setGroup => {
-          const pokemonName = this.$tPokemon({ id: setGroup.pokemonId });
-          return {
-            ...setGroup,
-            pokemonName,
-            sets: setGroup.sets.map(set => ({ ...set, pokemonName }))
-          };
-        })
-        .sort((a, b) => a.pokemonName.localeCompare(b.pokemonName));
-    }
+    ...mapGetters(["sets"])
   },
   methods: {
     updatePokemon(event) {

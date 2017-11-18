@@ -48,22 +48,22 @@ describe("Ability", () => {
 
   test("#constructor()", () => {
     const ability1 = new Ability({ name: "Effect Spore" });
-    expect(ability1.id).toEqual(27);
+    expect(ability1.id).toEqual("effectspore");
 
     const ability2 = new Ability({
       name: "Effect Spore",
       disabled: true
     });
-    expect(ability2.id).toEqual(27);
-    expect(ability2.disabled).toBeTruthy();
+    expect(ability2.id).toEqual("effectspore");
+    expect(ability2.disabled).toBe(true);
     expect(ability2.gen).toEqual(maxGen);
 
     const ability3 = new Ability({
       id: 27,
       gen: 3
     });
-    expect(ability3.id).toEqual(27);
-    expect(ability3.disabled).toBeFalsy();
+    expect(ability3.id).toEqual("noability");
+    expect(ability3.disabled).toBe(false);
     expect(ability3.gen).toEqual(3);
   });
 
@@ -77,13 +77,13 @@ describe("Ability", () => {
     const ability = new Ability();
 
     ability.name = "  drought";
-    expect(ability.id).toEqual(70);
+    expect(ability.id).toEqual("drought");
 
     ability.name = "Swift Swim";
-    expect(ability.id).toEqual(33);
+    expect(ability.id).toEqual("swiftswim");
 
     ability.name = "d  rought";
-    expect(ability.id).toEqual(0);
+    expect(ability.id).toEqual("drought");
   });
 
   test("#pinchType()", () => {
@@ -130,56 +130,60 @@ describe("Ability", () => {
     const moldBreaker = new Ability({ name: "Mold Breaker" });
     const turboblaze = new Ability({ name: "Turboblaze" });
     const teravolt = new Ability({ name: "Teravolt" });
-    expect(noAbility.ignoresAbilities()).toBeFalsy();
-    expect(moldBreaker.ignoresAbilities()).toBeTruthy();
-    expect(turboblaze.ignoresAbilities()).toBeTruthy();
-    expect(teravolt.ignoresAbilities()).toBeTruthy();
+    expect(noAbility.ignoresAbilities()).toBe(false);
+    expect(moldBreaker.ignoresAbilities()).toBe(true);
+    expect(turboblaze.ignoresAbilities()).toBe(true);
+    expect(teravolt.ignoresAbilities()).toBe(true);
     moldBreaker.disabled = true;
-    expect(moldBreaker.ignoresAbilities()).toBeFalsy();
+    expect(moldBreaker.ignoresAbilities()).toBe(false);
   });
 
   test("#isIgnorable()", () => {
     const multiscale = new Ability({ name: "Multiscale" });
-    expect(multiscale.isIgnorable()).toBeTruthy();
-    expect(swiftSwim.isIgnorable()).toBeFalsy();
+    expect(multiscale.isIgnorable()).toBe(true);
+    expect(swiftSwim.isIgnorable()).toBe(false);
   });
 
   test("#isSandImmunity()", () => {
-    expect(noAbility.isSandImmunity()).toBeFalsy();
-    expect(magicGuard.isSandImmunity()).toBeTruthy();
-    expect(overcoat.isSandImmunity()).toBeTruthy();
-    expect(sandVeil.isSandImmunity()).toBeTruthy();
-    expect(sandRush.isSandImmunity()).toBeTruthy();
-    expect(sandForce.isSandImmunity()).toBeTruthy();
+    expect(noAbility.isSandImmunity()).toBe(false);
+    expect(magicGuard.isSandImmunity()).toBe(true);
+    expect(overcoat.isSandImmunity()).toBe(true);
+    expect(sandVeil.isSandImmunity()).toBe(true);
+    expect(sandRush.isSandImmunity()).toBe(true);
+    expect(sandForce.isSandImmunity()).toBe(true);
 
     magicGuard.disabled = true;
-    expect(magicGuard.isSandImmunity()).toBeFalsy();
+    expect(magicGuard.isSandImmunity()).toBe(false);
   });
 
   test("#isHailImmunity()", () => {
-    expect(noAbility.isHailImmunity()).toBeFalsy();
-    expect(magicGuard.isHailImmunity()).toBeTruthy();
-    expect(overcoat.isHailImmunity()).toBeTruthy();
-    expect(iceBody.isHailImmunity()).toBeTruthy();
-    expect(snowCloak.isHailImmunity()).toBeTruthy();
+    expect(noAbility.isHailImmunity()).toBe(false);
+    expect(magicGuard.isHailImmunity()).toBe(true);
+    expect(overcoat.isHailImmunity()).toBe(true);
+    expect(iceBody.isHailImmunity()).toBe(true);
+    expect(snowCloak.isHailImmunity()).toBe(true);
 
     magicGuard.disabled = true;
-    expect(magicGuard.isHailImmunity()).toBeFalsy();
+    expect(magicGuard.isHailImmunity()).toBe(false);
   });
 
   test("#reducesSuperEffective()", () => {
     const filter = new Ability({ name: "Filter" });
     const solidRock = new Ability({ name: "Solid Rock" });
     const prismArmor = new Ability({ name: "Prism Armor" });
-    expect(filter.reducesSuperEffective()).toBeTruthy();
-    expect(solidRock.reducesSuperEffective()).toBeTruthy();
-    expect(prismArmor.reducesSuperEffective()).toBeTruthy();
-    expect(noAbility.reducesSuperEffective()).toBeFalsy();
-    expect(magicGuard.reducesSuperEffective()).toBeFalsy();
+    expect(filter.reducesSuperEffective()).toBe(true);
+    expect(solidRock.reducesSuperEffective()).toBe(true);
+    expect(prismArmor.reducesSuperEffective()).toBe(true);
+    expect(noAbility.reducesSuperEffective()).toBe(false);
+    expect(magicGuard.reducesSuperEffective()).toBe(false);
   });
 
-  test("#isUseful()", () => {
-    expect(noAbility.isUseful()).toBeFalsy();
-    expect(magicGuard.isUseful()).toBeTruthy();
+  test("#hasCritArmor()", () => {
+    const battleArmor = new Ability({ name: "Battle Armor" });
+    const shellArmor = new Ability({ name: "Shell Armor" });
+    expect(battleArmor.hasCritArmor()).toBe(true);
+    expect(shellArmor.hasCritArmor()).toBe(true);
+    expect(noAbility.hasCritArmor()).toBe(false);
+    expect(magicGuard.hasCritArmor()).toBe(false);
   });
 });

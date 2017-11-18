@@ -1,468 +1,381 @@
 import path from "path";
-import { mkdirs, writeFile, readFile } from "fs-extra";
+import fs from "fs-extra";
 import _ from "lodash/fp";
-import {
-  dataToObject,
-  simplifyPokeIds,
-  removeAestheticPokes,
-  combineItemsAndBerries
-} from "./utilities";
-import { reduceByDiffs } from "./diffs";
+import { maxGen, Gens, Types } from "../src/utilities";
+import { ignorableAbilities, nonCritMoves, requiredItems } from "./db-extras";
 
-const inDir = path.join(__dirname, "data/db");
-const outDir = path.join(__dirname, "../dist/db");
+const inDir = path.join(__dirname, "data/ps-data");
+const outDir = path.join(__dirname, "../dist");
 
-const createIndex = _.flow(
-  _.reject(_.property("exclude")),
-  _.map(({ name }) => `export {default as ${name}} from "./${name}"`),
-  _.join("\n"),
-  exports => writeFile(path.join(outDir, "index.js"), exports)
+const nameToId = _.flow(_.replace(/[^A-Za-z0-9]/, ""), _.toLower);
+
+function processType(typeString) {
+  const normalized = typeString.toUpperCase();
+  if (["???", "CURSE"].includes(normalized)) return 18;
+  return _.defaultTo(18, Types[normalized]);
+}
+
+const processAbilityInfo = _.curry((gen, abilityInfo) => {
+  const result = {};
+  if (abilityInfo.num || abilityInfo.gen) {
+    const { num } = abilityInfo;
+    let gen;
+    if (abilityInfo.gen) {
+      gen = abilityInfo.gen;
+    } else if (num >= 192) {
+      gen = Gens.SM;
+    } else if (num >= 165) {
+      gen = Gens.ORAS;
+    } else if (num >= 124) {
+      gen = Gens.B2W2;
+    } else if (num >= 77) {
+      gen = Gens.HGSS;
+    } else if (num >= 1) {
+      gen = Gens.ADV;
+    }
+    result.a = gen;
+  }
+  if (abilityInfo.name !== undefined) result.b = abilityInfo.name;
+  if (gen >= maxGen && ignorableAbilities.has(abilityInfo.name)) result.c = 1;
+  const immunityTypeCheck = /immune to (\S+?)-type/i.exec(abilityInfo.desc);
+  if (immunityTypeCheck !== null) {
+    result.d = processType(immunityTypeCheck[1]);
+  } else if (/immune to Ground/i.test(abilityInfo.desc)) {
+    result.d = Types.GROUND;
+  } else if (/redirects that move/i.test(abilityInfo.desc)) {
+    result.d = -1;
+  }
+  const pinchTypeCheck = /has 1\/3 or less.*?HP.*?1\.5.*? (\S+?)-type attack/i.exec(
+    abilityInfo.desc
+  );
+  if (pinchTypeCheck !== null) result.e = processType(pinchTypeCheck[1]);
+  if (/cannot.*?critical hit/i.test(abilityInfo.shortDesc)) result.f = 1;
+  const normalToTypeCheck = /Normal-type moves become (\S+?)-type/i.exec(
+    abilityInfo.desc
+  );
+  if (normalToTypeCheck !== null) result.g = processType(normalToTypeCheck[1]);
+  if (/ignore the Abilities/i.test(abilityInfo.shortDesc)) result.h = 1;
+  if (_.isEmpty(result)) return undefined;
+  return result;
+});
+
+const processItemInfo = _.curry((gen, itemInfo) => {
+  // skipped f, h
+  const result = {};
+  if (itemInfo.num || itemInfo.gen) {
+    let gen;
+    const { num } = itemInfo;
+    if (itemInfo.gen) {
+      gen = itemInfo.gen;
+    } else if (num >= 689) {
+      gen = Gens.SM;
+    } else if (num >= 577) {
+      gen = Gens.ORAS;
+    } else if (num >= 537) {
+      gen = Gens.B2W2;
+    } else if (num >= 377) {
+      gen = Gens.HGSS;
+    } else {
+      gen = Gens.ADV;
+    }
+    result.a = gen;
+  }
+  if (itemInfo.name !== undefined) result.b = itemInfo.name;
+  if (itemInfo.naturalGift !== undefined) {
+    result.c = [
+      itemInfo.naturalGift.basePower,
+      processType(itemInfo.naturalGift.type)
+    ];
+  }
+  if (itemInfo.fling !== undefined) result.d = itemInfo.fling.basePower;
+  if (itemInfo.megaStone !== undefined) result.e = nameToId(itemInfo.megaStone);
+  if (itemInfo.onPlate !== undefined) {
+    result.g = 1;
+    result.d = 90;
+  }
+  if (itemInfo.onDrive !== undefined) result.d = 70;
+  if (itemInfo.onMemory !== undefined) {
+    result.i = processType(itemInfo.onMemory);
+    result.d = 50;
+  }
+  if (/Speed(.*?)halved/.test(itemInfo.desc)) result.j = 1;
+  const typeBoostCheck = /holder's (\S+?)-type/i.exec(itemInfo.desc);
+  if (typeBoostCheck !== null) result.k = processType(typeBoostCheck[1]);
+  const typeResistCheck = /halves damage .+? (.\S+?)-type attack/i.exec(
+    itemInfo.desc
+  );
+  if (typeResistCheck !== null) result.l = processType(typeResistCheck[1]);
+  if (itemInfo.isGem) result.m = processType(itemInfo.name.split(" ")[0]);
+  if (itemInfo.isBerry) result.n = 1;
+  if (_.isEmpty(result)) return undefined;
+  return result;
+});
+
+const processMoveInfo = _.curry((gen, moveInfo) => {
+  const result = {};
+  if (moveInfo.num || moveInfo.gen) {
+    let gen;
+    const { num } = moveInfo;
+    if (moveInfo.gen) {
+      gen = moveInfo.gen;
+    } else if (num >= 622) {
+      gen = Gens.SM;
+    } else if (num >= 560) {
+      gen = Gens.ORAS;
+    } else if (num >= 468) {
+      gen = Gens.B2W2;
+    } else if (num >= 355) {
+      gen = Gens.HGSS;
+    } else if (num >= 252) {
+      gen = Gens.ADV;
+    } else if (num >= 166) {
+      gen = Gens.GSC;
+    } else if (num >= 1) {
+      gen = Gens.RBY;
+    }
+    result.a = gen;
+  }
+  if (moveInfo.name !== undefined) result.b = moveInfo.name;
+  if (moveInfo.basePower !== undefined) result.c = moveInfo.basePower;
+  if (moveInfo.type !== undefined) result.d = processType(moveInfo.type);
+  if (moveInfo.name === "Struggle") result.d = 18;
+  if (moveInfo.category !== undefined) {
+    result.e = processCategory(moveInfo.category);
+  }
+  if (moveInfo.priority > 0) result.g = moveInfo.priority;
+  if (moveInfo.accuracy !== undefined && moveInfo.accuracy !== true) {
+    result.h = moveInfo.accuracy;
+  }
+  if (typeof moveInfo.multihit === "number") {
+    result.i = [moveInfo.multihit, moveInfo.multihit];
+  } else if (moveInfo.multihit !== undefined) {
+    result.i = moveInfo.multihit;
+  }
+  if (["allAdjacent", "allAdjacentFoes"].includes(moveInfo.target)) {
+    result.j = 1;
+  }
+  if (moveInfo.zMovePower !== undefined) result.k = moveInfo.zMovePower;
+  if (moveInfo.secondary) result.l = processSecondaryInfo(moveInfo.secondary);
+  if (moveInfo.recoil !== undefined) result.m = moveInfo.recoil;
+  if (moveInfo.ohko !== undefined) result.n = 1;
+  if (nonCritMoves.has(moveInfo.name)) result.o = 1;
+  if (moveInfo.flags !== undefined) {
+    const flags = moveInfo.flags;
+    /*
+     * authentic, dance, defrost, distance, gravity, heal, mirror,
+     * mystery, nonsky, protect, reflectable, snatch
+     */
+    if (flags.bite) result.A = 1;
+    if (flags.bullet) result.B = 1;
+    if (flags.charge) result.C = 1;
+    if (flags.contact) result.D = 1;
+    if (flags.powder) result.E = 1;
+    if (flags.pulse) result.F = 1;
+    if (flags.punch) result.G = 1;
+    if (flags.recharge) result.H = 1;
+    if (flags.sound) result.I = 1;
+  }
+  if (_.isEmpty(result)) return undefined;
+  return result;
+});
+
+function processSecondaryInfo(secondaryInfo) {
+  const result = {};
+  if (secondaryInfo.chance !== undefined) result.a = secondaryInfo.chance;
+  if (secondaryInfo.status !== undefined) {
+    result.b = processStatus(secondaryInfo.status);
+  }
+  if (secondaryInfo.volatileStatus === "flinch") result.c = 1;
+  if (secondaryInfo.volatileStatus === "confusion") result.d = 1;
+  if (secondaryInfo.boosts !== undefined) {
+    result.e = processStats(secondaryInfo.boosts);
+  }
+  if (secondaryInfo.self && secondaryInfo.self.boosts) {
+    result.f = processStats(secondaryInfo.self.boosts);
+  }
+  if (_.isEmpty(result)) return undefined;
+  return result;
+}
+
+function processStatus(statusString) {
+  switch (statusString) {
+    case "brn":
+      return 3;
+    case "frz":
+      return 6;
+    case "par":
+      return 4;
+    case "psn":
+      return 1;
+    case "tox":
+      return 2;
+    case "slp":
+      return 5;
+    default:
+      return 0;
+  }
+}
+
+const processPokeInfo = _.curry((gen, pokeInfo) => {
+  const result = {};
+  if (pokeInfo.num || pokeInfo.gen) {
+    let gen;
+    const { num, forme } = pokeInfo;
+    if (pokeInfo.gen) {
+      gen = pokeInfo.gen;
+    } else if (num >= 722 || forme === "Alola") {
+      gen = Gens.SM;
+    } else if (
+      num >= 650 ||
+      ["Mega", "Mega-X", "Mega-Y", "Primal"].includes(forme)
+    ) {
+      gen = Gens.ORAS;
+    } else if (num >= 494) {
+      gen = Gens.B2W2;
+    } else if (num >= 387) {
+      gen = Gens.HGSS;
+    } else if (num >= 252) {
+      gen = Gens.ADV;
+    } else if (num >= 152) {
+      gen = Gens.GSC;
+    } else if (num >= 1) {
+      gen = Gens.RBY;
+    }
+    result.a = gen;
+  }
+  if (pokeInfo.species !== undefined) result.b = pokeInfo.species;
+  if (pokeInfo.baseStats !== undefined) {
+    result.c = processStats(pokeInfo.baseStats);
+  }
+  if (pokeInfo.weightkg !== undefined) {
+    result.d = Math.round(pokeInfo.weightkg * 10);
+  }
+  if (pokeInfo.types !== undefined) {
+    result.e = _.map(processType, pokeInfo.types);
+  }
+  if (pokeInfo.evos !== undefined) result.f = _.map(nameToId, pokeInfo.evos);
+  if (pokeInfo.prevo !== undefined) result.g = nameToId(pokeInfo.prevo);
+  if (pokeInfo.forme !== undefined) result.h = pokeInfo.forme;
+  if (pokeInfo.baseSpecies !== undefined) {
+    result.i = nameToId(pokeInfo.baseSpecies);
+  }
+  if (requiredItems.has(pokeInfo.species)) {
+    result.j = nameToId(requiredItems.get(pokeInfo.species));
+  }
+  if (_.isEmpty(result)) return undefined;
+  return result;
+});
+
+const processTypechart = _.flow(
+  _.mapKeys(processType),
+  _.mapValues(
+    _.flow(
+      _.get("damageTaken"),
+      _.mapKeys(processType),
+      _.toPairs,
+      _.reject(_.flow(_.get(0), _.eq(String(Types.CURSE)))),
+      _.fromPairs,
+      _.mapValues(n => [2, 4, 1, 0][n])
+    )
+  )
 );
 
-const processData = async ({ name, files, transform = _.identity }) => {
-  const fileToObject = async file => {
-    if (typeof file !== "string") return file;
-    return dataToObject(await readFile(path.join(inDir, file)));
+function processCategory(categoryString) {
+  const Categories = {
+    STATUS: 0,
+    PHYSICAL: 1,
+    SPECIAL: 2
   };
+  return Categories[categoryString.toUpperCase()];
+}
 
-  const pendingResult = Array.isArray(files)
-    ? Promise.all(_.map(fileToObject, files))
-    : fileToObject(files);
-  const result = transform(await pendingResult);
+function processStats(stats) {
+  return [
+    stats.hp || 0,
+    stats.atk || 0,
+    stats.def || 0,
+    stats.spa || 0,
+    stats.spd || 0,
+    stats.spe || 0
+  ];
+}
 
-  await writeFile(
-    path.join(outDir, `${name}.js`),
-    `export default ${JSON.stringify(result)}`
-  );
-
-  return result;
-};
-
-const createPreprocessor = _.flow(_.mapValues, _.map);
-const omitCurseType = _.omitBy(_.eq(18));
-const mapValuesToNumbers = _.mapValues(_.toNumber);
-const mapAllValuesToNumbers = _.map(mapValuesToNumbers);
-const mapValuesToOne = _.mapValues(_.constant(1));
-const mapAllValuesToOne = _.map(mapValuesToOne);
-const parseNumberList = _.flow(_.split(" "), _.map(_.toNumber));
-
-const dataList = [
-  {
-    name: "abilities",
-    files: "abilities/abilities.txt"
-  },
-  {
-    name: "abilityEffects",
-    files: [
-      {},
-      {},
-      {},
-      "abilities/ability_effects_3G.txt",
-      "abilities/ability_effects_4G.txt",
-      "abilities/ability_effects_5G.txt",
-      "abilities/ability_effects_6G.txt",
-      "abilities/ability_effects_7G.txt"
-    ],
-    transform: reduceByDiffs
-  },
-  {
-    name: "naturalGiftPowers",
-    files: "items/berry_pow.txt",
-    transform: mapValuesToNumbers
-  },
-  {
-    name: "naturalGiftTypes",
-    files: "items/berry_type.txt",
-    transform: mapValuesToNumbers
-  },
-  {
-    name: "moveCategories",
-    files: [
-      {},
-      "moves/1G/category.txt",
-      "moves/2G/category.txt",
-      "moves/3G/category.txt",
-      "moves/4G/category.txt",
-      "moves/5G/category.txt",
-      "moves/6G/category.txt",
-      "moves/7G/category.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "moveDamageClasses",
-    files: [
-      {},
-      {},
-      {},
-      {},
-      "moves/4G/damage_class.txt",
-      "moves/5G/damage_class.txt",
-      "moves/6G/damage_class.txt",
-      "moves/7G/damage_class.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "evolutions",
-    files: "pokes/evos.txt",
-    transform: _.mapValues(parseNumberList)
-  },
-  {
-    name: "moveFlags",
-    files: [
-      {},
-      "moves/1G/flags.txt",
-      "moves/2G/flags.txt",
-      "moves/3G/flags.txt",
-      "moves/4G/flags.txt",
-      "moves/5G/flags.txt",
-      "moves/6G/flags.txt",
-      "moves/7G/flags.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "flinchChances",
-    files: [
-      {},
-      "moves/1G/flinch_chance.txt",
-      "moves/2G/flinch_chance.txt",
-      "moves/3G/flinch_chance.txt",
-      "moves/4G/flinch_chance.txt",
-      "moves/5G/flinch_chance.txt",
-      "moves/6G/flinch_chance.txt",
-      "moves/7G/flinch_chance.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "itemEffects",
-    files: [
-      "items/berry_effects.txt",
-      {},
-      {},
-      "items/2G/item_effects.txt",
-      "items/3G/item_effects.txt",
-      "items/4G/item_effects.txt",
-      "items/5G/item_effects.txt",
-      "items/6G/item_effects.txt",
-      "items/7G/item_effects.txt"
-    ],
-    transform(objs) {
-      const [berryEffects, ...itemEffectsList] = objs;
-      return _.flow([
-        _.map(combineItemsAndBerries(_, berryEffects)),
-        reduceByDiffs
-      ])(itemEffectsList);
-    }
-  },
-  {
-    name: "flingPowers",
-    files: "items/items_pow.txt",
-    transform: mapValuesToNumbers
-  },
-  {
-    name: "usefulItems",
-    files: ["items/item_useful.txt", "items/berry_useful.txt"],
-    transform: _.flow(mapAllValuesToOne, _.spread(combineItemsAndBerries))
-  },
-  {
-    name: "items",
-    files: ["items/items.txt", "items/berries.txt"],
-    transform: _.spread(combineItemsAndBerries)
-  },
-  {
-    name: "moves",
-    files: "moves/moves.txt"
-  },
-  {
-    name: "natures",
-    files: "natures/nature.txt"
-  },
-  {
-    name: "pokemon",
-    files: "pokes/pokemons.txt",
-    transform: simplifyPokeIds
-  },
-  {
-    name: "recoils",
-    files: [
-      {},
-      "moves/1G/recoil.txt",
-      "moves/2G/recoil.txt",
-      "moves/3G/recoil.txt",
-      "moves/4G/recoil.txt",
-      "moves/5G/recoil.txt",
-      "moves/6G/recoil.txt",
-      "moves/7G/recoil.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "statBoosts",
-    files: [
-      {},
-      "moves/1G/statboost.txt",
-      "moves/2G/statboost.txt",
-      "moves/3G/statboost.txt",
-      "moves/4G/statboost.txt",
-      "moves/5G/statboost.txt",
-      "moves/6G/statboost.txt",
-      "moves/7G/statboost.txt"
-    ],
-    transform: _.flow(
-      createPreprocessor(
-        _.flow(
-          _.toNumber,
-          _.castArray,
-          s => new Uint32Array(s),
-          s => new Int8Array(s.buffer, 0, 3),
-          Array.from,
-          _.compact,
-          _.reverse
-        )
-      ),
-      reduceByDiffs
-    )
-  },
-  {
-    name: "types",
-    files: "types/types.txt"
-  },
-  {
-    name: "weights",
-    files: "pokes/weight.txt",
-    transform: _.flow(
-      _.mapValues(_.flow(_.replace(".", ""), _.toNumber)),
-      simplifyPokeIds
-    )
-  },
-  {
-    name: "moldBreaker",
-    files: "abilities/mold_breaker.txt",
-    transform: mapValuesToOne
-  },
-  {
-    name: "minMaxHits",
-    files: [
-      {},
-      "moves/1G/min_max_hits.txt",
-      "moves/2G/min_max_hits.txt",
-      "moves/3G/min_max_hits.txt",
-      "moves/4G/min_max_hits.txt",
-      "moves/5G/min_max_hits.txt",
-      "moves/6G/min_max_hits.txt",
-      "moves/7G/min_max_hits.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "moveTypes",
-    files: [
-      {},
-      "moves/1G/type.txt",
-      "moves/2G/type.txt",
-      "moves/3G/type.txt",
-      "moves/4G/type.txt",
-      "moves/5G/type.txt",
-      "moves/6G/type.txt",
-      "moves/7G/type.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "pokeTypes1",
-    files: [
-      {},
-      "pokes/1G/type1.txt",
-      "pokes/2G/type1.txt",
-      "pokes/3G/type1.txt",
-      "pokes/4G/type1.txt",
-      "pokes/5G/type1.txt",
-      "pokes/6G/type1.txt",
-      "pokes/7G/type1.txt"
-    ],
-    transform: _.flow(
-      mapAllValuesToNumbers,
-      _.map(omitCurseType),
-      _.map(simplifyPokeIds),
-      reduceByDiffs
-    )
-  },
-  {
-    name: "pokeTypes2",
-    files: [
-      {},
-      "pokes/1G/type2.txt",
-      "pokes/2G/type2.txt",
-      "pokes/3G/type2.txt",
-      "pokes/4G/type2.txt",
-      "pokes/5G/type2.txt",
-      "pokes/6G/type2.txt",
-      "pokes/7G/type2.txt"
-    ],
-    transform: _.flow(
-      mapAllValuesToNumbers,
-      _.map(omitCurseType),
-      _.map(simplifyPokeIds),
-      reduceByDiffs
-    )
-  },
-  {
-    name: "movePowers",
-    files: [
-      {},
-      "moves/1G/power.txt",
-      "moves/2G/power.txt",
-      "moves/3G/power.txt",
-      "moves/4G/power.txt",
-      "moves/5G/power.txt",
-      "moves/6G/power.txt",
-      "moves/7G/power.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "moveRanges",
-    files: [
-      {},
-      {},
-      {},
-      "moves/3G/range.txt",
-      "moves/4G/range.txt",
-      "moves/5G/range.txt",
-      "moves/6G/range.txt",
-      "moves/7G/range.txt"
-    ],
-    transform: _.flow(mapAllValuesToNumbers, reduceByDiffs)
-  },
-  {
-    name: "baseStats",
-    files: [
-      {},
-      "pokes/1G/stats.txt",
-      "pokes/2G/stats.txt",
-      "pokes/3G/stats.txt",
-      "pokes/4G/stats.txt",
-      "pokes/5G/stats.txt",
-      "pokes/6G/stats.txt",
-      "pokes/7G/stats.txt"
-    ],
-    transform: _.flow(
-      createPreprocessor(parseNumberList),
-      _.map(simplifyPokeIds),
-      reduceByDiffs
-    )
-  },
-  {
-    name: "typesTables",
-    files: [
-      {},
-      "types/1G/typestable.txt",
-      "types/2G/typestable.txt",
-      "types/3G/typestable.txt",
-      "types/4G/typestable.txt",
-      "types/5G/typestable.txt",
-      "types/6G/typestable.txt",
-      "types/7G/typestable.txt"
-    ],
-    transform: _.flow(createPreprocessor(parseNumberList), reduceByDiffs)
-  },
-  {
-    exclude: true,
-    name: "abilities1",
-    files: [
-      {},
-      {},
-      {},
-      "pokes/3G/ability1.txt",
-      "pokes/4G/ability1.txt",
-      "pokes/5G/ability1.txt",
-      "pokes/6G/ability1.txt",
-      "pokes/7G/ability1.txt"
-    ],
-    transform: mapAllValuesToNumbers
-  },
-  {
-    name: "releasedItems",
-    files: [
-      {},
-      {},
-      "items/2G/released_items.txt",
-      "items/3G/released_items.txt",
-      "items/4G/released_items.txt",
-      "items/5G/released_items.txt",
-      "items/6G/released_items.txt",
-      "items/7G/released_items.txt",
-      {},
-      {},
-      "items/2G/released_berries.txt",
-      "items/3G/released_berries.txt",
-      "items/4G/released_berries.txt",
-      "items/5G/released_berries.txt",
-      "items/6G/released_berries.txt",
-      "items/7G/released_berries.txt"
-    ],
-    transform: _.flow(
-      mapAllValuesToOne,
-      _.over([_.flow(_.property("length"), _.divide(_, 2)), _.identity]),
-      _.spread(_.chunk),
-      _.unzip,
-      _.map(_.spread(combineItemsAndBerries)),
-      reduceByDiffs
-    )
-  },
-  {
-    name: "releasedMoves",
-    files: [
-      {},
-      "moves/1G/moves.txt",
-      "moves/2G/moves.txt",
-      "moves/3G/moves.txt",
-      "moves/4G/moves.txt",
-      "moves/5G/moves.txt",
-      "moves/6G/moves.txt",
-      "moves/7G/moves.txt"
-    ],
-    transform: _.flow(mapAllValuesToOne, reduceByDiffs)
-  },
-  {
-    name: "releasedPokes",
-    files: [
-      {},
-      "pokes/1G/released.txt",
-      "pokes/2G/released.txt",
-      "pokes/3G/released.txt",
-      "pokes/4G/released.txt",
-      "pokes/5G/released.txt",
-      "pokes/6G/released.txt",
-      "pokes/7G/released.txt"
-    ],
-    transform: _.flow(
-      mapAllValuesToOne,
-      _.map(removeAestheticPokes),
-      _.map(simplifyPokeIds),
-      reduceByDiffs
-    )
-  },
-  {
-    name: "zCrystalType",
-    files: "items/zcrystal_type.txt",
-    transform: mapValuesToOne
-  },
-  {
-    name: "zMovePower",
-    files: "moves/7G/zpower.txt",
-    transform: mapValuesToNumbers
+async function tryImport(importPath) {
+  try {
+    return await import(importPath);
+  } catch (error) {
+    return {};
   }
-];
+}
 
-const db = async () => {
-  await mkdirs(outDir);
-  await Promise.all([..._.map(processData, dataList), createIndex(dataList)]);
-};
+async function getGenInfo(gen) {
+  const types = ["abilities", "items", "moves", "pokedex", "typechart"];
+  const data = await _.flow(
+    _.map(type => path.join(inDir, `gen${gen}/${type}.js`)),
+    _.map(tryImport),
+    dataList => Promise.all(dataList)
+  )(types);
+  return processGenInfo(gen, _.zipObject(types, data));
+}
+
+function processGenInfo(gen, genInfo) {
+  const omitBadEntries = _.omitBy(
+    entry => entry.num < 0 || entry.isNonstandard === true
+  );
+  const abilities = _.flow(
+    omitBadEntries,
+    _.mapValues(processAbilityInfo(gen)),
+    _.omitBy(_.isNil)
+  )(genInfo.abilities.BattleAbilities);
+
+  const items = _.flow(
+    omitBadEntries,
+    _.mapValues(processItemInfo(gen)),
+    _.omitBy(_.isNil)
+  )(genInfo.items.BattleItems);
+
+  const moves = _.flow(
+    omitBadEntries,
+    _.mapValues(processMoveInfo(gen)),
+    _.omitBy(_.isNil)
+  )(genInfo.moves.BattleMovedex);
+
+  const pokedex = _.flow(
+    omitBadEntries,
+    _.mapValues(processPokeInfo(gen)),
+    _.omitBy(_.isNil)
+  )(genInfo.pokedex.BattlePokedex);
+
+  const typechart = processTypechart(genInfo.typechart.BattleTypeChart);
+
+  if (gen === maxGen) {
+    abilities.noability = { name: "(No Ability)" };
+    items.noitem = { name: "(No Item)", d: 0 };
+    moves.nomove = { name: "(No Move)", i: [0, 0] };
+    pokedex.nopokemon = { name: "(No Pokemon)", c: [50, 50, 50, 50, 50, 50] };
+  }
+
+  return {
+    name: ["", "RBY", "GSC", "ADV", "HGSS", "B2W2", "ORAS", "SM"][gen],
+    abilities,
+    items,
+    moves,
+    pokedex,
+    typechart
+  };
+}
+
+async function db() {
+  const genList = _.range(1, maxGen + 1);
+  const infoList = await Promise.all(_.map(getGenInfo, genList));
+  const genObject = _.zipObject(genList, infoList);
+  await fs.mkdirs(outDir);
+  await fs.writeFile(
+    path.join(outDir, "db.js"),
+    `export default ${JSON.stringify(genObject)}`
+  );
+}
 
 db().catch(error => {
-  console.log(error);
+  console.error(error);
 });

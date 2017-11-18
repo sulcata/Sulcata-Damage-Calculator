@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`orasCalculate() Fairy Aura is a move power mod 1`] = `
+Array [
+  172,
+  173,
+  175,
+  178,
+  179,
+  182,
+  183,
+  186,
+  187,
+  190,
+  191,
+  194,
+  195,
+  198,
+  199,
+  203,
+]
+`;

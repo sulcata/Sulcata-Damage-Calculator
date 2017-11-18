@@ -9,14 +9,12 @@
 
 <script>
 import { mapGetters, mapMutations } from "vuex";
-import translationMixin from "../mixins/translation";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 
 export default {
   components: {
     ButtonRadioGroup
   },
-  mixins: [translationMixin],
   props: {
     reports: {
       required: true,
@@ -26,10 +24,7 @@ export default {
   computed: {
     ...mapGetters(["selectedReport"]),
     reportOptions() {
-      return this.reports.map(value => ({
-        value,
-        label: this.$tMove({ name: value.move.name })
-      }));
+      return this.reports.map(value => ({ value, label: value.move.name }));
     }
   },
   methods: {

@@ -2,9 +2,8 @@ import advCalculate from "../../src/calculate/advCalculate";
 import Pokemon from "../../src/Pokemon";
 import Move from "../../src/Move";
 import Field from "../../src/Field";
-import { Gens } from "../../src/utilities";
+import { Gens, Natures } from "../../src/utilities";
 
-const { max } = Math;
 const gen = Gens.ADV;
 
 describe("advCalculate()", () => {
@@ -17,19 +16,19 @@ describe("advCalculate()", () => {
     const aerodactyl = new Pokemon({
       name: "Aerodactyl",
       evs: [4, 252, 0, 0, 0, 252],
-      natureName: "Jolly",
+      nature: Natures.JOLLY,
       item: "Choice Band",
       gen
     });
     const skarmory = new Pokemon({
       name: "Skarmory",
       evs: [252, 0, 4, 0, 252, 0],
-      natureName: "Impish",
+      nature: Natures.IMPISH,
       gen
     });
     const rockSlide = new Move({ name: "Rock Slide", gen });
     const damage = advCalculate(aerodactyl, skarmory, rockSlide, field);
-    expect(max(...damage)).toEqual(127);
+    expect(Math.max(...damage)).toEqual(127);
   });
 
   test("ensure proper stats are used", () => {
@@ -45,7 +44,7 @@ describe("advCalculate()", () => {
     });
     const psychic = new Move({ name: "Psychic", gen });
     const damage = advCalculate(celebi, dugtrio, psychic, field);
-    expect(max(...damage)).toEqual(213);
+    expect(Math.max(...damage)).toEqual(213);
   });
 
   test("minimize boost", () => {
@@ -57,14 +56,14 @@ describe("advCalculate()", () => {
       gen
     });
     const damage = advCalculate(snorlax, blissey, stomp, field);
-    expect(max(...damage)).toEqual(753);
+    expect(Math.max(...damage)).toEqual(753);
   });
 
   test("Pure Power and Huge Power boost attack", () => {
     const medicham = new Pokemon({
       name: "Medicham",
       item: "Choice Band",
-      natureName: "Adamant",
+      nature: Natures.ADAMANT,
       evs: [4, 252, 0, 0, 0, 252],
       gen
     });
@@ -77,7 +76,7 @@ describe("advCalculate()", () => {
     for (const ability of ["Huge Power", "Pure Power"]) {
       medicham.ability.name = ability;
       const damage = advCalculate(medicham, snorlax, brickBreak, field);
-      expect(max(...damage)).toEqual(686);
+      expect(Math.max(...damage)).toEqual(686);
     }
   });
 
@@ -85,21 +84,21 @@ describe("advCalculate()", () => {
     const latias = new Pokemon({
       name: "Latias",
       item: "Soul Dew",
-      natureName: "Modest",
+      nature: Natures.MODEST,
       evs: [4, 0, 0, 252, 0, 252],
       gen
     });
     const latios = new Pokemon({
       name: "Latios",
       item: "Soul Dew",
-      natureName: "Modest",
+      nature: Natures.MODEST,
       evs: [4, 0, 0, 252, 0, 252],
       gen
     });
     const dragonClaw = new Move({ name: "Dragon Claw", gen });
     const latiasDamage = advCalculate(latias, latios, dragonClaw, field);
     const latiosDamage = advCalculate(latios, latias, dragonClaw, field);
-    expect(max(...latiasDamage)).toEqual(278);
-    expect(max(...latiosDamage)).toEqual(272);
+    expect(Math.max(...latiasDamage)).toEqual(278);
+    expect(Math.max(...latiosDamage)).toEqual(272);
   });
 });

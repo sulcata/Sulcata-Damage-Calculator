@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label>{{ $t("hp") }}</label>
+    <label>HP</label>
     <input
       :value='actualHealth'
       @change='updateHealth'
@@ -23,8 +23,6 @@
 import { clamp } from "lodash";
 import Integer from "./ui/Integer.vue";
 import { Multiset } from "sulcalc";
-
-const { ceil, floor, max } = Math;
 
 const damageListRegex = /^(\d+(:\d+)?,)*\d+(:\d+)?$/;
 
@@ -52,7 +50,7 @@ export default {
   },
   computed: {
     percentHealth() {
-      return max(1, floor(100 * this.currentHp / this.totalHp));
+      return Math.max(1, Math.floor(100 * this.currentHp / this.totalHp));
     },
     actualHealth() {
       return this.currentHpRange.toString(prettyPrintItems);
@@ -99,8 +97,12 @@ function parseHealthList(list, min, max) {
 }
 
 function minMaxHp(totalHp, percent) {
-  const minHp = ceil(percent / 100 * totalHp);
-  const maxHp = clamp(ceil((percent + 1) / 100 * totalHp) - 1, minHp, totalHp);
+  const minHp = Math.ceil(percent / 100 * totalHp);
+  const maxHp = clamp(
+    Math.ceil((percent + 1) / 100 * totalHp) - 1,
+    minHp,
+    totalHp
+  );
   return percent === 1 ? [1, maxHp] : [minHp, maxHp];
 }
 

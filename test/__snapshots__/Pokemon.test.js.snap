@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Pokemon #toImportable() handles GSC sets 1`] = `
+"Zapdos @ Leftovers
+- Thunder
+- Hidden Power [Ice]
+- Rest
+- Sleep Talk"
+`;
+
+exports[`Pokemon #toImportable() handles GSC sets 2`] = `
+"Zapdos @ Leftovers
+EVs: 40 SpA / 40 SpD
+IVs: 11 SpA / 11 SpD
+- Thunder
+- Hidden Power [Dark]
+- Rest
+- Sleep Talk"
+`;
+
+exports[`Pokemon #toImportable() handles LC sets 1`] = `
+"Porygon @ Eviolite
+Ability: Trace
+EVs: 236 HP / 116 Def / 156 SpD
+Calm Nature
+- Ice Beam
+- Thunderbolt
+- Recover
+- Tri Attack"
+`;
+
+exports[`Pokemon #toImportable() handles RBY sets 1`] = `
+"Tauros
+- Body Slam
+- Hyper Beam
+- Earthquake
+- Blizzard"
+`;
+
+exports[`Pokemon #toImportable() handles RBY sets 2`] = `
+"Tauros
+EVs: 200 Def / 40 Spc
+IVs: 11 HP / 10 Def / 11 Spc
+- Body Slam
+- Hyper Beam
+- Earthquake
+- Blizzard"
+`;
+
+exports[`Pokemon #toImportable() handles sets with less than 4 moves 1`] = `
+"Crobat (F) @ Choice Band
+Ability: Infiltrator
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+- Brave Bird
+- U-turn
+- Sleep Talk"
+`;
+
+exports[`Pokemon #toImportable() handles simple sets 1`] = `
+"Snorlax (M) @ Leftovers
+Ability: Immunity
+EVs: 252 HP / 212 Atk / 40 SpD
+Careful Nature
+- Body Slam
+- Curse
+- Rest
+- Earthquake"
+`;
+
+exports[`Pokemon #toImportable() handles simple sets 2`] = `
+"Bronzong @ Leftovers
+Ability: Levitate
+EVs: 252 HP / 4 Def / 252 SpD
+IVs: 0 Spe
+Sassy Nature
+- Stealth Rock
+- Gyro Ball
+- Psywave
+- Toxic"
+`;
+
+exports[`Pokemon #toImportable() optionally adds nature info 1`] = `
+"Munchlax (M) @ (No Item)
+Ability: (No Ability)
+Relaxed Nature (+Def, -Spe)"
+`;
+
+exports[`Pokemon #toImportable() optionally adds nature info 2`] = `
+"Munchlax (M) @ (No Item)
+Ability: (No Ability)
+Serious Nature"
+`;

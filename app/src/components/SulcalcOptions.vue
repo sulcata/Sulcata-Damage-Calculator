@@ -7,7 +7,7 @@
         size='small'
         type='secondary'
         >
-        {{ $t("smogonSets") }}
+        Smogon Sets
       </button-checkbox>
       <button-checkbox
         :value='enabledSets.pokemonPerfect'
@@ -15,7 +15,7 @@
         size='small'
         type='secondary'
         >
-        {{ $t("pokemonPerfectSets") }}
+        Pokemon Perfect Sets
       </button-checkbox>
       <button-checkbox
         :value='enabledSets.custom'
@@ -23,7 +23,7 @@
         size='small'
         type='secondary'
         >
-        {{ $t("customSets") }}
+        Custom Sets
       </button-checkbox>
     </div>
     <hr>
@@ -34,7 +34,7 @@
         size='small'
         type='secondary'
         >
-        {{ $t("showFractions") }}
+        Show Fractions
       </button-checkbox>
       <button-checkbox
         :value='longRolls'
@@ -42,7 +42,7 @@
         size='small'
         type='secondary'
         >
-        {{ $t("showLongDamageRolls") }}
+        Show Long Damage Rolls
       </button-checkbox>
     </div>
   </div>

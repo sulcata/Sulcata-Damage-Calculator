@@ -1,4 +1,4 @@
-import { clamp, defaultTo, isNil } from "lodash";
+import { clamp, defaultTo } from "lodash";
 import {
   Gens,
   DamageClasses,
@@ -13,19 +13,22 @@ import {
   movePower,
   moveDamageClass,
   moveType,
-  moveCategory,
   recoil,
-  flinchChance,
-  moveHasFlags,
-  statBoosts,
+  hasPunchFlag,
+  hasContactFlag,
+  hasSoundFlag,
+  hasPowderFlag,
+  hasBiteFlag,
+  hasPulseFlag,
+  hasBulletFlag,
+  hasSecondaryEffect,
   minHits,
   maxHits,
-  moveRange,
-  isMoveUseful,
-  zMovePower
+  hitsMultipleTargets,
+  zMovePower,
+  isOhkoMove,
+  canCrit
 } from "./info";
-
-const { max, min, trunc } = Math;
 
 const zMoves = {
   [Types.NORMAL]: "Breakneck Blitz",
@@ -48,13 +51,6 @@ const zMoves = {
   [Types.FAIRY]: "Twinkle Tackle"
 };
 
-const ohkoMoves = new Set([
-  "Guillotine",
-  "Horn Drill",
-  "Fissure",
-  "Sheer Cold"
-]);
-
 const rechargeMoves = new Set([
   "Hyper Beam",
   "Giga Impact",
@@ -63,14 +59,6 @@ const rechargeMoves = new Set([
   "Blast Burn",
   "Frenzy Plant",
   "Hydro Cannon"
-]);
-
-const nonCritMoves = new Set([
-  "Reversal",
-  "Flail",
-  "Future Sight",
-  "Doom Desire",
-  "Spit Up"
 ]);
 
 const nonParentalBondMoves = new Set([
@@ -100,13 +88,9 @@ function ivsCmp(a, b) {
 
 export default class Move {
   constructor(move = {}) {
-    if (!isNil(move.id)) {
-      this.id = Number(move.id);
-    } else if (move.name) {
-      this.name = move.name;
-    }
-    this.id = defaultTo(this.id, 0);
     this.gen = defaultTo(Number(move.gen), maxGen);
+    this.id = moveId(move.id);
+    if (typeof move.name === "string") this.name = move.name;
     this.critical = Boolean(move.critical);
     this.zMove = Boolean(move.zMove);
     this.numberOfHits = defaultTo(Number(move.numberOfHits), 0);
@@ -128,11 +112,13 @@ export default class Move {
   }
 
   set name(moveName) {
-    this.id = moveId(moveName);
+    this.id = moveId(String(moveName));
   }
 
   power() {
-    return this.zMove ? zMovePower(this.id) : movePower(this.id, this.gen);
+    return this.zMove
+      ? zMovePower(this.id, this.gen)
+      : movePower(this.id, this.gen);
   }
 
   type() {
@@ -167,61 +153,39 @@ export default class Move {
   }
 
   hasRecoil() {
-    // negative is recoil, positive is recovery
-    return (
-      !(this.gen >= Gens.HGSS && this.name === "Struggle") &&
-      recoil(this.id, this.gen) < 0
-    );
-  }
-
-  flinchChance() {
-    return flinchChance(this.id, this.gen);
+    return Boolean(recoil(this.id, this.gen));
   }
 
   affectedBySheerForce() {
-    // OffensiveStatusInducingMove = 4
-    // OffensiveStatChangingMove = 6
-    // OffensiveSelfStatChangingMove = 7
-    // Only stat boosts are included, not drops
-    // Flinches are included
-    const category = moveCategory(this.id, this.gen);
-    return (
-      category === 4 ||
-      category === 6 ||
-      this.flinchChance() > 0 ||
-      (category === 7 && statBoosts(this.id, this.gen)[0] > 0)
-    );
+    return hasSecondaryEffect(this.id, this.gen);
   }
 
   isPunch() {
-    return moveHasFlags(this.id, 0x80, this.gen);
+    return hasPunchFlag(this.id, this.gen);
   }
 
   isContact() {
-    return (
-      moveHasFlags(this.id, 0x1, this.gen) ||
-      (this.gen === Gens.ADV && this.name === "Ancient Power")
-    );
+    return hasContactFlag(this.id, this.gen);
   }
 
   isSound() {
-    return moveHasFlags(this.id, 0x100, this.gen);
+    return hasSoundFlag(this.id, this.gen);
   }
 
   isPowder() {
-    return moveHasFlags(this.id, 0x8000, this.gen);
+    return hasPowderFlag(this.id, this.gen);
   }
 
   isBite() {
-    return moveHasFlags(this.id, 0x4000, this.gen);
+    return hasBiteFlag(this.id, this.gen);
   }
 
   isPulse() {
-    return moveHasFlags(this.id, 0x800, this.gen);
+    return hasPulseFlag(this.id, this.gen);
   }
 
   isBall() {
-    return moveHasFlags(this.id, 0x10000, this.gen);
+    return hasBulletFlag(this.id, this.gen);
   }
 
   minHits() {
@@ -237,12 +201,11 @@ export default class Move {
   }
 
   hasMultipleTargets() {
-    const range = moveRange(this.id, this.gen);
-    return range === 4 || range === 5;
+    return hitsMultipleTargets(this.id, this.gen);
   }
 
   isOhko() {
-    return ohkoMoves.has(this.name);
+    return isOhkoMove(this.id, this.gen);
   }
 
   isExplosion() {
@@ -262,19 +225,11 @@ export default class Move {
   }
 
   canCrit() {
-    return (
-      this.gen < Gens.GSC ||
-      this.gen >= Gens.HGSS ||
-      !nonCritMoves.has(this.name)
-    );
+    return canCrit(this.id, this.gen);
   }
 
   affectedByParentalBond() {
     return !nonParentalBondMoves.has(this.name);
-  }
-
-  isUseful() {
-    return isMoveUseful(this.id, this.gen);
   }
 
   optimalHappiness() {
@@ -386,7 +341,7 @@ export default class Move {
         ((ivs[Stats.SPD] >> 2) & 2) |
         ((ivs[Stats.DEF] >> 1) & 4) |
         (ivs[Stats.ATK] & 8);
-      return 31 + trunc((5 * bits + (ivs[Stats.SPC] & 3)) / 2);
+      return 31 + Math.trunc((5 * bits + (ivs[Stats.SPC] & 3)) / 2);
     }
 
     // just a weird formula involving the second bit of the pokemon's IVs
@@ -398,7 +353,7 @@ export default class Move {
         ((ivs[Stats.SPD] & 2) << 2) |
         ((ivs[Stats.SATK] & 2) << 3) |
         ((ivs[Stats.SDEF] & 2) << 4);
-      return 30 + trunc(bits * 40 / 63);
+      return 30 + Math.trunc(bits * 40 / 63);
     }
 
     // constant in oras
@@ -419,12 +374,12 @@ export default class Move {
       ((ivs[Stats.SPD] & 1) << 3) |
       ((ivs[Stats.SATK] & 1) << 4) |
       ((ivs[Stats.SDEF] & 1) << 5);
-    return 1 + trunc(bits * 15 / 63);
+    return 1 + Math.trunc(bits * 15 / 63);
   }
 
   static flail(currentHealth, totalHealth, gen) {
     if (gen === Gens.HGSS) {
-      const p = trunc(64 * currentHealth / totalHealth);
+      const p = Math.trunc(64 * currentHealth / totalHealth);
       if (p < 2) return 200;
       if (p < 6) return 150;
       if (p < 13) return 100;
@@ -433,7 +388,7 @@ export default class Move {
       return 20;
     }
 
-    const p = trunc(48 * currentHealth / totalHealth);
+    const p = Math.trunc(48 * currentHealth / totalHealth);
     if (p <= 1) return 200;
     if (p <= 4) return 150;
     if (p <= 9) return 100;
@@ -467,7 +422,7 @@ export default class Move {
   }
 
   static electroBall(attackerSpeed, defenderSpeed) {
-    const s = attackerSpeed / max(1, defenderSpeed);
+    const s = attackerSpeed / Math.max(1, defenderSpeed);
     if (s >= 4) return 150;
     if (s >= 3) return 120;
     if (s >= 2) return 80;
@@ -476,7 +431,10 @@ export default class Move {
   }
 
   static gyroBall(attackerSpeed, defenderSpeed) {
-    return min(150, trunc(25 * defenderSpeed / max(attackerSpeed, 1)));
+    return Math.min(
+      150,
+      Math.trunc(25 * defenderSpeed / Math.max(attackerSpeed, 1))
+    );
   }
 
   static grassKnot(weight) {
@@ -490,7 +448,7 @@ export default class Move {
   }
 
   static heavySlam(attackerWeight, defenderWeight) {
-    const w = trunc(attackerWeight / defenderWeight);
+    const w = Math.trunc(attackerWeight / defenderWeight);
     if (w >= 5) return 120;
     if (w === 4) return 100;
     if (w === 3) return 80;
@@ -505,7 +463,7 @@ export default class Move {
         statBoostTotal += boost;
       }
     }
-    return min(120, 60 + 20 * statBoostTotal);
+    return Math.min(120, 60 + 20 * statBoostTotal);
   }
 
   static storedPower(boosts) {
@@ -519,14 +477,14 @@ export default class Move {
   }
 
   static frustration(happiness) {
-    return max(1, trunc((255 - happiness) * 10 / 25));
+    return Math.max(1, Math.trunc((255 - happiness) * 10 / 25));
   }
 
   static return(happiness) {
-    return max(1, trunc(happiness * 10 / 25));
+    return Math.max(1, Math.trunc(happiness * 10 / 25));
   }
 
   static eruption(hp, totalHp) {
-    return max(1, trunc(150 * hp / totalHp));
+    return Math.max(1, Math.trunc(150 * hp / totalHp));
   }
 }

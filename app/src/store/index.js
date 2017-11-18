@@ -3,8 +3,7 @@ import Vuex, { Store } from "vuex";
 import state from "./state";
 import * as mutations from "./mutations";
 import * as getters from "./getters";
-import * as actions from "./actions";
-import { persistencePlugin, i18nPlugin } from "./plugins";
+import { persistencePlugin } from "./plugins";
 
 Vue.use(Vuex);
 
@@ -13,12 +12,10 @@ export default new Store({
   state,
   mutations,
   getters,
-  actions,
   plugins: [
     persistencePlugin({
       prefix: "sulcalc",
       saveOn: {
-        setLocale: "i18n.locale",
         importPokemon: "sets.custom",
         toggleSmogonSets: "enabledSets.smogon",
         togglePokemonPerfectSets: "enabledSets.pokemonPerfect",
@@ -26,7 +23,6 @@ export default new Store({
         toggleLongRolls: "longRolls",
         toggleFractions: "fractions"
       }
-    }),
-    i18nPlugin()
+    })
   ]
 });

@@ -18,11 +18,9 @@ import {
   typeName,
   effectiveness
 } from "./info";
-import { MissingnoError, NoMoveError } from "./errors";
+import { NoPokemonError, NoMoveError } from "./errors";
 import calculate from "./calculate";
 import endOfTurn from "./endOfTurn";
-
-const { max, min, round, trunc } = Math;
 
 export Multiset from "./Multiset";
 export Pokemon from "./Pokemon";
@@ -63,8 +61,8 @@ export default function sulcalc(attacker, defender, move, field) {
   const reportDamage = [];
   const reportResult = [];
 
-  if (attacker.name === "Missingno" || defender.name === "Missingno") {
-    throw new MissingnoError();
+  if (attacker.name === "(No Pokemon)" || defender.name === "(No Pokemon)") {
+    throw new NoPokemonError();
   }
 
   if (move.name === "(No Move)") {
@@ -144,11 +142,12 @@ export default function sulcalc(attacker, defender, move, field) {
 
   const maxHp = defender.stat(Stats.HP);
 
-  const minPercent = round(dmg[0].min() / maxHp * 1000) / 10;
-  const maxPercent = round(dmg[0].max() / maxHp * 1000) / 10;
+  const minPercent = Math.round(dmg[0].min() / maxHp * 1000) / 10;
+  const maxPercent = Math.round(dmg[0].max() / maxHp * 1000) / 10;
 
-  let initDmg = defender.currentHpRange.map(v => max(0, maxHp - v));
-  let initDmgBerry = defender.currentHpRangeBerry.map(v => max(0, maxHp - v));
+  const convertToDamage = v => Math.max(0, maxHp - v);
+  let initDmg = defender.currentHpRange.map(convertToDamage);
+  let initDmgBerry = defender.currentHpRangeBerry.map(convertToDamage);
 
   let moveType, movePower;
   if (move.name === "Hidden Power") {
@@ -196,11 +195,7 @@ export default function sulcalc(attacker, defender, move, field) {
     reportPokes.push(a === Stats.ATK ? "Atk" : "SpA");
   }
 
-  if (
-    field.gen >= Gens.GSC &&
-    attacker.item.name !== "(No Item)" &&
-    !attacker.hasRequiredItem()
-  ) {
+  if (field.gen >= Gens.GSC && !attacker.isItemRequired()) {
     reportPokes.push(attacker.item.name);
   }
 
@@ -228,12 +223,9 @@ export default function sulcalc(attacker, defender, move, field) {
     reportPokes.push(`(${typeName(moveType)})`);
   } else if (move.name === "Hidden Power") {
     reportPokes.push(`(${typeName(moveType)} ${movePower} BP)`);
-  } else if (
-    move.hitsMultipleTimes() &&
-    move.numberOfHits >= 1 &&
-    move.name !== "Beat Up"
-  ) {
-    reportPokes.push(`[${move.numberOfHits} hits]`);
+  } else if (move.hitsMultipleTimes() && move.numberOfHits >= 1) {
+    const n = move.numberOfHits;
+    reportPokes.push(n > 1 ? `[${n} hits]` : `[${n} hit]`);
   } else if (move.zMove) {
     reportPokes.push(`(${movePower} BP)`);
   }
@@ -260,11 +252,7 @@ export default function sulcalc(attacker, defender, move, field) {
     reportPokes.push(d === Stats.DEF ? "Def" : "SpD");
   }
 
-  if (
-    field.gen >= Gens.GSC &&
-    defender.item.name !== "(No Item)" &&
-    !defender.hasRequiredItem()
-  ) {
+  if (field.gen >= Gens.GSC && !defender.isItemRequired()) {
     reportPokes.push(defender.item.name);
   }
 
@@ -305,16 +293,20 @@ export default function sulcalc(attacker, defender, move, field) {
   if (defender.ability.name !== "Magic Guard") {
     let hazardsDmg = 0;
     if (defender.stealthRock) {
-      const { num, den } = effectiveness(Types.ROCK, defender.types(), {
-        gen: field.gen
-      });
-      hazardsDmg += trunc(maxHp * num / (den * 8));
+      const [numerator, denominator] = effectiveness(
+        Types.ROCK,
+        defender.types(),
+        {
+          gen: field.gen
+        }
+      );
+      hazardsDmg += Math.trunc(maxHp * numerator / (denominator * 8));
     }
     if (defender.spikes > 0) {
-      hazardsDmg += trunc(maxHp / (10 - 2 * defender.spikes));
+      hazardsDmg += Math.trunc(maxHp / (10 - 2 * defender.spikes));
     }
-    initDmg = initDmg.map(v => min(maxHp, v + hazardsDmg));
-    initDmgBerry = initDmgBerry.map(v => min(maxHp, v + hazardsDmg));
+    initDmg = initDmg.map(v => Math.min(maxHp, v + hazardsDmg));
+    initDmgBerry = initDmgBerry.map(v => Math.min(maxHp, v + hazardsDmg));
   }
 
   const chances = chanceToKo(defender, dmg, {
@@ -338,7 +330,7 @@ export default function sulcalc(attacker, defender, move, field) {
       }
       break;
     } else if (fractionalChance[0] !== "0") {
-      const c = round(chances.roundedChances[i] * 1000) / 10;
+      const c = Math.round(chances.roundedChances[i] * 1000) / 10;
       if (c === 100) {
         displayChances.push(`almost guaranteed ${nhko}`);
       } else if (c === 0) {
@@ -468,13 +460,13 @@ function berryDamageMap(v) {
   for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
     if (this.effects[e] === "toxic") {
       // limit to at most enough to KO
-      v += trunc((this.toxicCounter + 1) * this.totalHp / 16);
+      v += Math.trunc((this.toxicCounter + 1) * this.totalHp / 16);
     } else {
       // limit to at most enough to KO, at least enough to fully heal
-      v = max(0, v - this.effects[e]);
+      v = Math.max(0, v - this.effects[e]);
     }
   }
-  return min(this.totalHp, v);
+  return Math.min(this.totalHp, v);
 }
 
 function damageMap(v, w, skip) {
@@ -482,10 +474,10 @@ function damageMap(v, w, skip) {
   for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
     if (this.effects[e] === "toxic") {
       // limit to at most enough to KO
-      v += trunc((this.toxicCounter + 1) * this.totalHp / 16);
+      v += Math.trunc((this.toxicCounter + 1) * this.totalHp / 16);
     } else {
       // limit to at most enough to KO, at least enough to fully heal
-      v = max(0, v - this.effects[e]);
+      v = Math.max(0, v - this.effects[e]);
     }
     if (
       !berryUsed &&
@@ -500,11 +492,11 @@ function damageMap(v, w, skip) {
              * tested with Emerald, Heart Gold, and White
              * tl;dr bulba lies, it was never 1/3
              */
-      v = max(0, v - this.berryHeal);
+      v = Math.max(0, v - this.berryHeal);
       berryUsed = true;
     }
   }
-  v = min(this.totalHp, v);
+  v = Math.min(this.totalHp, v);
   // berry might not be the last effect added, so do this at the end
   if (berryUsed) {
     this.berryDmg.add(v, w); // separate berry modified value into berryDmg

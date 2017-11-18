@@ -2,9 +2,8 @@ import orasCalculate from "../../src/calculate/orasCalculate";
 import Pokemon from "../../src/Pokemon";
 import Move from "../../src/Move";
 import Field from "../../src/Field";
-import { Gens } from "../../src/utilities";
+import { Gens, Natures } from "../../src/utilities";
 
-const { max } = Math;
 const gen = Gens.ORAS;
 
 describe("orasCalculate()", () => {
@@ -17,13 +16,13 @@ describe("orasCalculate()", () => {
     const attacker = new Pokemon({
       name: "Heatran",
       evs: [252, 0, 0, 0, 4, 252],
-      natureName: "Timid",
+      nature: Natures.TIMID,
       gen
     });
     const defender = new Pokemon({
       name: "Landorus-Therian",
       evs: [252, 0, 216, 0, 24, 16],
-      natureName: "Impish",
+      nature: Natures.IMPISH,
       gen
     });
     const move = new Move({
@@ -31,48 +30,26 @@ describe("orasCalculate()", () => {
       gen
     });
     const damage = orasCalculate(attacker, defender, move, field);
-    expect(max(...damage)).toEqual(150);
+    expect(Math.max(...damage)).toEqual(150);
   });
 
   test("Fairy Aura is a move power mod", () => {
     const xerneas = new Pokemon({
       name: "Xerneas",
       item: "Life Orb",
-      natureName: "Modest",
+      nature: Natures.MODEST,
       evs: [0, 0, 0, 252, 0, 0],
       gen
     });
     const genesect = new Pokemon({
       name: "Genesect",
-      natureName: "Naive",
+      nature: Natures.NAIVE,
       gen
     });
-    const moonblast = new Move({
-      name: "Moonblast",
-      gen
-    });
-    const auraField = new Field({
-      fairyAura: true,
-      gen
-    });
-    const damage = orasCalculate(xerneas, genesect, moonblast, auraField);
-    expect(damage).toEqual([
-      172,
-      173,
-      175,
-      178,
-      179,
-      182,
-      183,
-      186,
-      187,
-      190,
-      191,
-      194,
-      195,
-      198,
-      199,
-      203
-    ]);
+    const moonblast = new Move({ name: "Moonblast", gen });
+    const auraField = new Field({ fairyAura: true, gen });
+    expect(
+      orasCalculate(xerneas, genesect, moonblast, auraField)
+    ).toMatchSnapshot();
   });
 });

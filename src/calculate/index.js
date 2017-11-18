@@ -9,8 +9,6 @@ import b2w2Calculate from "./b2w2Calculate";
 import orasCalculate from "./orasCalculate";
 import smCalculate from "./smCalculate";
 
-const { max, min, trunc } = Math;
-
 const genCalculate = flowRight(
   damage => new Multiset(damage),
   (attacker, defender, move, field) => {
@@ -30,7 +28,7 @@ const genCalculate = flowRight(
         if (gen <= Gens.GSC) {
           // intentionally 1-149
           const range = [];
-          for (let i = 1; i < trunc(level * 3 / 2); i++) {
+          for (let i = 1; i < Math.trunc(level * 3 / 2); i++) {
             range.push(i);
           }
           return range;
@@ -38,15 +36,15 @@ const genCalculate = flowRight(
         {
           const range = [];
           for (let i = 50; i <= 150; i += gen <= Gens.HGSS ? 10 : 1) {
-            range.push(max(1, trunc(level * i / 100)));
+            range.push(Math.max(1, Math.trunc(level * i / 100)));
           }
           return range;
         }
       case "Super Fang":
       case "Nature's Madness":
-        return [max(1, trunc(defender.currentHp / 2))];
+        return [Math.max(1, Math.trunc(defender.currentHp / 2))];
       case "Endeavor":
-        return [max(0, defender.currentHp - attacker.currentHp)];
+        return [Math.max(0, defender.currentHp - attacker.currentHp)];
       case "Final Gambit":
         return [attacker.currentHp];
       default:
@@ -76,7 +74,7 @@ const genCalculate = flowRight(
     let damages = calculateFns[field.gen](attacker, defender, move, field);
 
     if (defender.ability.name === "Sturdy" && defender.currentHp === maxHp) {
-      damages = damages.map(d => min(maxHp - 1, d));
+      damages = damages.map(d => Math.min(maxHp - 1, d));
     }
 
     return damages;
@@ -198,7 +196,7 @@ export default (attacker, defender, move, field) => {
     dmg.push(turnCalculate(attacker, defender, move, field));
     while (move.trumpPP > 0) {
       if (defender.ability.name === "Pressure") {
-        move.trumpPP -= min(2, move.trumpPP);
+        move.trumpPP -= Math.min(2, move.trumpPP);
       } else {
         move.trumpPP--;
       }

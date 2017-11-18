@@ -1,17 +1,6 @@
 import Vue from "vue";
 import { Pokemon, Field, Gens, Weathers } from "sulcalc";
 
-export function addLocale(state, { locale, messages }) {
-  Vue.set(state.i18n.messages, locale, messages);
-}
-
-export function setLocale(state, { locale }) {
-  if (!state.i18n.messages.hasOwnProperty(locale)) {
-    throw new Error("Locale not found.");
-  }
-  state.i18n.locale = locale;
-}
-
 export function importPokemon(state, { importText, gen }) {
   const importedPokemon = importText
     .trim()

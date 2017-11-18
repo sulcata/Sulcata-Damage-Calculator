@@ -34,44 +34,44 @@ describe("Field", () => {
   });
 
   test("#isClearWeather()", () => {
-    expect(clearField.isClearWeather()).toBeTruthy();
-    expect(rainField.isClearWeather()).toBeFalsy();
+    expect(clearField.isClearWeather()).toBe(true);
+    expect(rainField.isClearWeather()).toBe(false);
   });
 
   test("#rain()", () => {
-    expect(rainField.rain()).toBeTruthy();
-    expect(heavyRainField.rain()).toBeTruthy();
-    expect(sunField.rain()).toBeFalsy();
+    expect(rainField.rain()).toBe(true);
+    expect(heavyRainField.rain()).toBe(true);
+    expect(sunField.rain()).toBe(false);
   });
 
   test("#sun()", () => {
-    expect(sunField.sun()).toBeTruthy();
-    expect(harshSunField.sun()).toBeTruthy();
-    expect(rainField.sun()).toBeFalsy();
+    expect(sunField.sun()).toBe(true);
+    expect(harshSunField.sun()).toBe(true);
+    expect(rainField.sun()).toBe(false);
   });
 
   test("#sand()", () => {
-    expect(sandField.sand()).toBeTruthy();
-    expect(hailField.sand()).toBeFalsy();
+    expect(sandField.sand()).toBe(true);
+    expect(hailField.sand()).toBe(false);
   });
 
   test("#hail()", () => {
-    expect(hailField.hail()).toBeTruthy();
-    expect(sandField.hail()).toBeFalsy();
+    expect(hailField.hail()).toBe(true);
+    expect(sandField.hail()).toBe(false);
   });
 
   test("#heavyRain()", () => {
-    expect(heavyRainField.heavyRain()).toBeTruthy();
-    expect(rainField.heavyRain()).toBeFalsy();
+    expect(heavyRainField.heavyRain()).toBe(true);
+    expect(rainField.heavyRain()).toBe(false);
   });
 
   test("#harshSun()", () => {
-    expect(harshSunField.harshSun()).toBeTruthy();
-    expect(sunField.harshSun()).toBeFalsy();
+    expect(harshSunField.harshSun()).toBe(true);
+    expect(sunField.harshSun()).toBe(false);
   });
 
   test("#strongWinds()", () => {
-    expect(strongWindsField.strongWinds()).toBeTruthy();
-    expect(clearField.strongWinds()).toBeFalsy();
+    expect(strongWindsField.strongWinds()).toBe(true);
+    expect(clearField.strongWinds()).toBe(false);
   });
 });

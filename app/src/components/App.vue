@@ -14,9 +14,6 @@
           <a :href='href' class='nav-link'>{{ label }}</a>
         </li>
       </ul>
-      <form>
-        <language/>
-      </form>
     </nav>
     <sulcalc/>
   </div>
@@ -24,23 +21,21 @@
 
 <script>
 import Sulcalc from "./Sulcalc.vue";
-import Language from "./Language.vue";
 
 export default {
   components: {
-    Sulcalc,
-    Language
+    Sulcalc
   },
   computed: {
     links() {
       return [
         {
           href: "https://github.com/sulcata/sulcalc/issues",
-          label: this.$t("bugReports")
+          label: "Report a bug"
         },
         {
           href: "https://github.com/sulcata/sulcalc/",
-          label: this.$t("github")
+          label: "GitHub"
         }
       ];
     }

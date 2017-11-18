@@ -3,7 +3,7 @@
     track-by='value'
     label='label'
     :show-labels='false'
-    :placeholder='$t("status")'
+    placeholder='Status'
     :value='valueObj'
     :options='statuses'
     @input='updateStatus'
@@ -14,13 +14,22 @@
 import { Multiselect } from "vue-multiselect";
 import { Statuses } from "sulcalc";
 
-const statusTypes = [
-  "poisoned",
-  "badlyPoisoned",
-  "burned",
-  "paralyzed",
-  "asleep",
-  "frozen"
+const statusNames = {
+  [Statuses.POISONED]: "Poisoned",
+  [Statuses.BADLY_POISONED]: "Badly Poisoned",
+  [Statuses.BURNED]: "Burned",
+  [Statuses.PARALYZED]: "Paralyzed",
+  [Statuses.ASLEEP]: "Asleep",
+  [Statuses.FROZEN]: "Frozen"
+};
+
+const statusList = [
+  Statuses.POISONED,
+  Statuses.BADLY_POISONED,
+  Statuses.BURNED,
+  Statuses.PARALYZED,
+  Statuses.ASLEEP,
+  Statuses.FROZEN
 ];
 
 export default {
@@ -36,25 +45,22 @@ export default {
       required: true,
       type: Number,
       validator(value) {
-        return value >= 0 && value <= 5;
+        return Object.values(Statuses).includes(value);
       }
     }
   },
   computed: {
     statuses() {
-      return statusTypes.map((status, idx) => ({
-        value: idx + 1,
-        label: this.$t(status)
+      return statusList.map(status => ({
+        value: status,
+        label: statusNames[status]
       }));
     },
     valueObj() {
       if (this.status === Statuses.NO_STATUS) {
         return {};
       }
-      return {
-        value: this.status,
-        label: this.$t(statusTypes[this.status - 1])
-      };
+      return { value: this.status, label: statusNames[this.status] };
     }
   },
   methods: {

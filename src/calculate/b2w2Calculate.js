@@ -9,8 +9,6 @@ import {
 } from "../utilities";
 import moveInfo from "./moveInfo";
 
-const { max, min, trunc } = Math;
-
 export default (attacker, defender, move, field) => {
   const { moveType, movePower, fail } = moveInfo(
     attacker,
@@ -31,9 +29,9 @@ export default (attacker, defender, move, field) => {
       sdef = defender.stat(sdefStat);
       atk = defender.stat(Stats.ATK);
     } else if (move.critical) {
-      def = min(defender.stat(defStat), defender.boostedStat(defStat));
-      sdef = min(defender.stat(sdefStat), defender.boostedStat(sdefStat));
-      atk = max(defender.stat(Stats.ATK), defender.boostedStat(Stats.ATK));
+      def = Math.min(defender.stat(defStat), defender.boostedStat(defStat));
+      sdef = Math.min(defender.stat(sdefStat), defender.boostedStat(sdefStat));
+      atk = Math.max(defender.stat(Stats.ATK), defender.boostedStat(Stats.ATK));
     } else {
       def = defender.boostedStat(defStat);
       sdef = defender.boostedStat(sdefStat);
@@ -43,7 +41,10 @@ export default (attacker, defender, move, field) => {
     if (unawareD) {
       satk = attacker.stat(Stats.SATK);
     } else if (move.critical) {
-      satk = max(attacker.stat(Stats.SATK), attacker.boostedStat(Stats.SATK));
+      satk = Math.max(
+        attacker.stat(Stats.SATK),
+        attacker.boostedStat(Stats.SATK)
+      );
     } else {
       satk = attacker.boostedStat(Stats.SATK);
     }
@@ -55,8 +56,11 @@ export default (attacker, defender, move, field) => {
       atk = attacker.stat(Stats.ATK);
       satk = attacker.stat(Stats.SATK);
     } else if (move.critical) {
-      atk = max(attacker.stat(Stats.ATK), attacker.boostedStat(Stats.ATK));
-      satk = max(attacker.stat(Stats.SATK), attacker.boostedStat(Stats.SATK));
+      atk = Math.max(attacker.stat(Stats.ATK), attacker.boostedStat(Stats.ATK));
+      satk = Math.max(
+        attacker.stat(Stats.SATK),
+        attacker.boostedStat(Stats.SATK)
+      );
     } else {
       atk = attacker.boostedStat(Stats.ATK);
       satk = attacker.boostedStat(Stats.SATK);
@@ -66,8 +70,8 @@ export default (attacker, defender, move, field) => {
       def = defender.stat(defStat);
       sdef = defender.stat(sdefStat);
     } else if (move.critical) {
-      def = min(defender.stat(defStat), defender.boostedStat(defStat));
-      sdef = min(defender.stat(sdefStat), defender.boostedStat(sdefStat));
+      def = Math.min(defender.stat(defStat), defender.boostedStat(defStat));
+      sdef = Math.min(defender.stat(sdefStat), defender.boostedStat(sdefStat));
     } else {
       def = defender.boostedStat(defStat);
       sdef = defender.boostedStat(sdefStat);
@@ -77,8 +81,11 @@ export default (attacker, defender, move, field) => {
       atk = attacker.stat(Stats.ATK);
       satk = attacker.stat(Stats.SATK);
     } else if (move.critical) {
-      atk = max(attacker.stat(Stats.ATK), attacker.boostedStat(Stats.ATK));
-      satk = max(attacker.stat(Stats.SATK), attacker.boostedStat(Stats.SATK));
+      atk = Math.max(attacker.stat(Stats.ATK), attacker.boostedStat(Stats.ATK));
+      satk = Math.max(
+        attacker.stat(Stats.SATK),
+        attacker.boostedStat(Stats.SATK)
+      );
     } else {
       atk = attacker.boostedStat(Stats.ATK);
       satk = attacker.boostedStat(Stats.SATK);
@@ -230,9 +237,10 @@ export default (attacker, defender, move, field) => {
     return [0];
   }
 
-  let baseDamage =
-    trunc(trunc(trunc(2 * attacker.level / 5 + 2) * movePower * a / d) / 50) +
-    2;
+  let baseDamage = Math.trunc(
+    Math.trunc(Math.trunc(2 * attacker.level / 5 + 2) * movePower * a / d) / 50
+  );
+  baseDamage += 2;
 
   if (field.multiBattle && move.hasMultipleTargets()) {
     baseDamage = applyMod(0xc00, baseDamage);
@@ -275,20 +283,20 @@ export default (attacker, defender, move, field) => {
     gravity: field.gravity
   });
   if (moveType === defender.ability.immunityType()) {
-    eff = { num: 0, den: 2 };
+    eff = [0, 2];
   }
-  if (eff.num === 0) return [0];
-  damages = damages.map(d => trunc(d * eff.num / eff.den));
+  if (eff[0] === 0) return [0];
+  damages = damages.map(d => Math.trunc(d * eff[0] / eff[1]));
 
   if (
     attacker.isBurned() &&
     move.isPhysical() &&
     attacker.ability.name !== "Guts"
   ) {
-    damages = damages.map(d => trunc(d / 2));
+    damages = damages.map(d => Math.trunc(d / 2));
   }
 
-  damages = damages.map(d => max(1, d));
+  damages = damages.map(d => Math.max(1, d));
 
   let finalMod = 0x1000;
 
@@ -305,7 +313,7 @@ export default (attacker, defender, move, field) => {
     finalMod = chainMod(0x800, finalMod);
   }
 
-  if (attacker.ability.name === "Tinted Lens" && eff.num < eff.den) {
+  if (attacker.ability.name === "Tinted Lens" && eff[0] < eff[1]) {
     finalMod = chainMod(0x2000, finalMod);
   }
 
@@ -317,7 +325,7 @@ export default (attacker, defender, move, field) => {
     finalMod = chainMod(0x1800, finalMod);
   }
 
-  if (eff.num > eff.den && defender.ability.reducesSuperEffective()) {
+  if (eff[0] > eff[1] && defender.ability.reducesSuperEffective()) {
     finalMod = chainMod(0xc00, finalMod);
   }
 
@@ -331,7 +339,7 @@ export default (attacker, defender, move, field) => {
       }
       break;
     case "Expert Belt":
-      if (eff.num > eff.den) {
+      if (eff[0] > eff[1]) {
         finalMod = chainMod(0x1333, finalMod);
       }
       break;
@@ -343,7 +351,7 @@ export default (attacker, defender, move, field) => {
 
   if (
     moveType === defender.item.berryTypeResist() &&
-    (eff.num > eff.den || moveType === Types.NORMAL)
+    (eff[0] > eff[1] || moveType === Types.NORMAL)
   ) {
     finalMod = chainMod(0x800, finalMod);
     defender.item.used = true;

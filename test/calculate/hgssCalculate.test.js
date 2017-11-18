@@ -2,9 +2,8 @@ import hgssCalculate from "../../src/calculate/hgssCalculate";
 import Pokemon from "../../src/Pokemon";
 import Move from "../../src/Move";
 import Field from "../../src/Field";
-import { Gens } from "../../src/utilities";
+import { Gens, Natures } from "../../src/utilities";
 
-const { max } = Math;
 const gen = Gens.HGSS;
 
 describe("hgssCalculate()", () => {
@@ -17,21 +16,18 @@ describe("hgssCalculate()", () => {
     const attacker = new Pokemon({
       name: "Azelf",
       evs: [4, 0, 0, 252, 0, 252],
-      natureName: "Naive",
+      nature: Natures.NAIVE,
       item: "Choice Band",
       gen
     });
     const defender = new Pokemon({
       name: "Skarmory",
       evs: [252, 0, 0, 0, 164, 92],
-      natureName: "Careful",
+      nature: Natures.CAREFUL,
       gen
     });
-    const move = new Move({
-      name: "Fire Blast",
-      gen
-    });
+    const move = new Move({ name: "Fire Blast", gen });
     const damage = hgssCalculate(attacker, defender, move, field);
-    expect(max(...damage)).toEqual(298);
+    expect(Math.max(...damage)).toEqual(298);
   });
 });

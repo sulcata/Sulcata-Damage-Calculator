@@ -1,6 +1,6 @@
 import sulcalc from "../src/sulcalc";
-import { Gens, Statuses, maxGen } from "../src/utilities";
-import { MissingnoError, NoMoveError } from "../src/errors";
+import { Gens, Statuses, Natures, maxGen } from "../src/utilities";
+import { NoPokemonError, NoMoveError } from "../src/errors";
 
 describe("sulcalc()", () => {
   test("sanity check", () => {
@@ -78,13 +78,13 @@ describe("sulcalc()", () => {
       {
         name: "Heatran",
         item: "Choice Specs",
-        natureName: "Modest",
+        nature: Natures.MODEST,
         evs: [4, 0, 0, 252, 0, 252],
         gen
       },
       {
         name: "Klefki",
-        natureName: "Calm",
+        nature: Natures.CALM,
         evs: [252, 0, 100, 0, 156, 0],
         lightScreen: true,
         gen
@@ -100,13 +100,13 @@ describe("sulcalc()", () => {
     const { summary } = sulcalc(
       {
         name: "Ferrothorn",
-        natureName: "Relaxed",
+        nature: Natures.RELAXED,
         evs: [252, 40, 100, 0, 0, 0],
         gen
       },
       {
         name: "Starmie",
-        natureName: "Timid",
+        nature: Natures.TIMID,
         evs: [4, 0, 0, 252, 0, 252],
         reflect: true,
         gen
@@ -123,14 +123,14 @@ describe("sulcalc()", () => {
       {
         name: "Latios",
         item: "Life Orb",
-        natureName: "Timid",
+        nature: Natures.TIMID,
         evs: [4, 0, 0, 252, 0, 252],
         gen
       },
       {
         name: "Chansey",
         item: "Eviolite",
-        natureName: "Bold",
+        nature: Natures.BOLD,
         evs: [252, 0, 252, 0, 4, 0],
         gen
       },
@@ -146,7 +146,7 @@ describe("sulcalc()", () => {
       {
         name: "Heracross",
         ability: "Guts",
-        natureName: "Adamant",
+        nature: Natures.ADAMANT,
         evs: [0, 252, 4, 0, 0, 252],
         boosts: [0, 2, 0, 0, 0, 0, 0, 0],
         status: Statuses.BURNED
@@ -154,7 +154,7 @@ describe("sulcalc()", () => {
       {
         name: "Skarmory",
         ability: "Sturdy",
-        natureName: "Impish",
+        nature: Natures.IMPISH,
         evs: [248, 0, 252, 0, 8, 0]
       },
       {
@@ -185,14 +185,14 @@ describe("sulcalc()", () => {
     expect(summary).toMatchSnapshot();
   });
 
-  test("throws MissingnoError when either Pokemon is invalid", () => {
+  test("throws NoPokemonError when either Pokemon is invalid", () => {
     expect(() => {
       sulcalc({ id: "0:0" }, { id: "0:0" }, { id: 1 }, {});
-    }).toThrow(MissingnoError);
+    }).toThrow(NoPokemonError);
 
     expect(() => {
       sulcalc({ id: "233" }, { id: "233" }, { id: 1 }, {});
-    }).toThrow(MissingnoError);
+    }).toThrow(NoPokemonError);
   });
 
   test("throws NoMoveError when either Move is invalid", () => {

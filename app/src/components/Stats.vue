@@ -1,8 +1,8 @@
 <template>
   <div class='container-fluid'>
     <div class='row no-gutters'>
-      <strong class='col-3 offset-2 text-center'>{{ $t("ivs") }}</strong>
-      <strong class='col-3 text-center'>{{ $t("evs") }}</strong>
+      <strong class='col-3 offset-2 text-center'>IVs</strong>
+      <strong class='col-3 text-center'>EVs</strong>
       <strong class='col-2'></strong>
       <strong class='col-2'></strong>
     </div>
@@ -15,7 +15,7 @@
       >
 
       <div class='col-2'>
-        {{ $t(statName) }}
+        {{ statName }}
       </div>
 
       <div class='col-3'>
@@ -83,8 +83,8 @@ export default {
   computed: {
     stats() {
       return this.pokemon.gen >= Gens.GSC
-        ? ["hp", "atk", "def", "spAtk", "spDef", "spe"]
-        : ["hp", "atk", "def", "spc", null, "spe"];
+        ? ["HP", "Atk", "Def", "SpAtk", "SpDef", "Spe"]
+        : ["HP", "Atk", "Def", "Spc", null, "Spe"];
     },
     maxIv() {
       return this.pokemon.gen >= Gens.ADV ? 31 : 15;

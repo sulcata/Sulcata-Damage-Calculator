@@ -1,17 +1,8 @@
 import smogon from "../../../dist/setdex/smogon";
 import pokemonPerfect from "../../../dist/setdex/pokemonPerfect";
-import languages from "../../translations/languages";
-import en from "../../translations/en";
 import { Pokemon, Field, maxGen } from "sulcalc";
 
 export default {
-  i18n: {
-    locale: "en",
-    languages,
-    messages: {
-      en
-    }
-  },
   sets: {
     smogon,
     pokemonPerfect,

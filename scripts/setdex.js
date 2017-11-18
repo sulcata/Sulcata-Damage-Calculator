@@ -1,8 +1,7 @@
 import path from "path";
-import { mkdirs, writeFile } from "fs-extra";
+import fs from "fs-extra";
 import _ from "lodash/fp";
-import { info, Move, Gens, Stats } from "../src/sulcalc";
-import abilities1 from "../dist/db/abilities1";
+import { info, Move, Stats, Pokemon } from "../src/sulcalc";
 
 const mapUncapped = _.map.convert({ cap: false });
 const mapValuesUncapped = _.mapValues.convert({ cap: false });
@@ -12,9 +11,9 @@ const importMove = _.curry((move, gen) => {
   if (hiddenPowerMatch) {
     const type = info.typeId(hiddenPowerMatch[2]);
     const ivs = Move.hiddenPowers(type, gen)[0];
-    return { id: info.moveId("Hidden Power"), ivs };
+    return { move: new Move({ name: "Hidden Power", gen }), ivs };
   }
-  return { id: info.moveId(move) };
+  return { move: new Move({ name: move, gen }) };
 });
 
 const minifySet = _.curry((set, pokemonId, gen) => {
@@ -26,52 +25,35 @@ const minifySet = _.curry((set, pokemonId, gen) => {
     sd: Stats.SDEF,
     sp: Stats.SPD
   };
-  const defaultLevel = 100;
-  const defaultEv = gen >= Gens.ADV ? 0 : 63;
-  const defaultIv = gen >= Gens.ADV ? 31 : 15;
 
-  const minifiedSet = {};
+  const pokemon = new Pokemon({
+    gen,
+    level: set.level,
+    ability: set.ability,
+    item: set.item
+  });
 
-  if (set.level && set.level !== defaultLevel) {
-    minifiedSet.l = set.level;
-  }
+  pokemon.nature = info.natureId(set.nature || "");
 
-  if (set.nature) {
-    minifiedSet.n = info.natureId(set.nature);
-  }
-
-  if (set.ability) {
-    minifiedSet.a = info.abilityId(set.ability);
-    if (info.pokemonName(pokemonId).startsWith("Mega ")) {
-      minifiedSet.a = abilities1[gen][pokemonId];
-    }
-  }
-
-  if (set.item) {
-    minifiedSet.i = info.itemId(set.item);
-  }
-
-  const moves = _.map(importMove(_, gen), set.moves);
-  for (const move of moves) {
-    if (move.ivs) minifiedSet.d = move.ivs;
-  }
-  minifiedSet.m = _.map(_.property("id"), moves);
+  const moveInfo = _.map(importMove(_, gen), set.moves);
+  pokemon.moves = _.map(_.property("move"), moveInfo);
 
   if (set.evs) {
-    minifiedSet.e = Array(6).fill(defaultEv);
     for (const [stat, value] of Object.entries(set.evs)) {
-      minifiedSet.e[statMatches[stat]] = Math.trunc(value / 4);
+      pokemon.evs[statMatches[stat]] = value;
     }
   }
 
-  if (!minifiedSet.d && set.ivs) {
-    minifiedSet.d = Array(6).fill(defaultIv);
+  const { ivs } = Object(_.find(_.property("ivs"), moveInfo));
+  if (ivs) {
+    pokemon.ivs = ivs;
+  } else if (set.ivs) {
     for (const [stat, value] of Object.entries(set.ivs)) {
-      minifiedSet.d[statMatches[stat]] = value;
+      pokemon.ivs[statMatches[stat]] = value;
     }
   }
 
-  return minifiedSet;
+  return pokemon.toSet();
 });
 
 const minifySets = _.curry((sets, pokemonId, gen) => {
@@ -80,8 +62,8 @@ const minifySets = _.curry((sets, pokemonId, gen) => {
 });
 
 const minifySetdex = (setdex, gen) => {
-  const translated = _.mapKeys(info.pokemonId, setdex);
-  const omitted = _.omitBy((sets, id) => id === "0:0", translated);
+  const translated = _.mapKeys(name => info.pokemonId(name), setdex);
+  const omitted = _.omitBy((sets, id) => id === "nopokemon", translated);
   return mapValuesUncapped(minifySets(_, _, gen), omitted);
 };
 
@@ -99,7 +81,7 @@ const setdex = async () => {
       [_.stubTrue, _.identity]
     ])
   );
-  await mkdirs(outDir);
+  await fs.mkdirs(outDir);
   const data = [
     {
       file: "smogon.js",
@@ -126,7 +108,7 @@ const setdex = async () => {
   await Promise.all(
     _.map(
       entry =>
-        writeFile(
+        fs.writeFile(
           path.join(outDir, entry.file),
           `export default ${JSON.stringify(minifySetdexData(entry.data))}`
         ),
@@ -136,5 +118,5 @@ const setdex = async () => {
 };
 
 setdex().catch(error => {
-  console.log(error);
+  console.error(error);
 });

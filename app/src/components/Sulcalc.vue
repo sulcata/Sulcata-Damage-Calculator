@@ -29,14 +29,14 @@
           />
       </div>
       <div class='col-4'>
-        <tab-content :tabs='tabs'>
-          <div :slot='$t("tabs.general")' class='mt-3'>
+        <tab-content :tabs='["General", "Import Team", "More Options"]'>
+          <div slot='General' class='mt-3'>
             <field/>
           </div>
-          <div :slot='$t("tabs.importTeam")' class='mt-3'>
+          <div slot='Import Team' class='mt-3'>
             <set-importer/>
           </div>
-          <div :slot='$t("tabs.moreOptions")' class='mt-3'>
+          <div slot='More Options' class='mt-3'>
             <sulcalc-options/>
           </div>
         </tab-content>
@@ -75,14 +75,7 @@ export default {
   },
   computed: {
     ...mapState(["attacker", "defender", "field"]),
-    ...mapGetters(["attackerReports", "defenderReports", "isReportSelected"]),
-    tabs() {
-      return [
-        this.$t("tabs.general"),
-        this.$t("tabs.importTeam"),
-        this.$t("tabs.moreOptions")
-      ];
-    }
+    ...mapGetters(["attackerReports", "defenderReports", "isReportSelected"])
   },
   methods: {
     ...mapMutations(["setAttacker", "setDefender"])

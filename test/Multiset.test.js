@@ -49,18 +49,18 @@ describe("Multiset", () => {
   });
 
   test("#delete()", () => {
-    expect(set1.has(1)).toBeTruthy();
-    expect(set1.delete(1)).toBeTruthy();
-    expect(set1.has(1)).toBeFalsy();
-    expect(set1.delete(1)).toBeFalsy();
-    expect(set1.delete(1.5)).toBeFalsy();
+    expect(set1.has(1)).toBe(true);
+    expect(set1.delete(1)).toBe(true);
+    expect(set1.has(1)).toBe(false);
+    expect(set1.delete(1)).toBe(false);
+    expect(set1.delete(1.5)).toBe(false);
   });
 
   test("#has()", () => {
-    expect(emptySet.has(1)).toBeFalsy();
-    expect(set1.has(1)).toBeTruthy();
-    expect(set1.has(-2)).toBeFalsy();
-    expect(set2.has(-2)).toBeTruthy();
+    expect(emptySet.has(1)).toBe(false);
+    expect(set1.has(1)).toBe(true);
+    expect(set1.has(-2)).toBe(false);
+    expect(set2.has(-2)).toBe(true);
   });
 
   test("#get()", () => {
@@ -77,8 +77,8 @@ describe("Multiset", () => {
   });
 
   test("#isEmpty()", () => {
-    expect(emptySet.isEmpty()).toBeTruthy();
-    expect(set1.isEmpty()).toBeFalsy();
+    expect(emptySet.isEmpty()).toBe(true);
+    expect(set1.isEmpty()).toBe(false);
   });
 
   test("#max()", () => {
@@ -94,9 +94,9 @@ describe("Multiset", () => {
   });
 
   test("#every()", () => {
-    expect(emptySet.every()).toBeTruthy();
-    expect(set1.every(a => a > 0)).toBeTruthy();
-    expect(set2.every(a => a > 0)).toBeFalsy();
+    expect(emptySet.every()).toBe(true);
+    expect(set1.every(a => a > 0)).toBe(true);
+    expect(set2.every(a => a > 0)).toBe(false);
     set1.every((value, multiplicity) => {
       expect(typeof value).toEqual("number");
       expect(multiplicity).toMatch(/^[0-9]+$/);
@@ -105,9 +105,9 @@ describe("Multiset", () => {
   });
 
   test("#some()", () => {
-    expect(emptySet.some()).toBeFalsy();
-    expect(set1.some(a => a < 0)).toBeFalsy();
-    expect(set2.some(a => a < 0)).toBeTruthy();
+    expect(emptySet.some()).toBe(false);
+    expect(set1.some(a => a < 0)).toBe(false);
+    expect(set2.some(a => a < 0)).toBe(true);
     set1.some((value, multiplicity) => {
       expect(typeof value).toEqual("number");
       expect(multiplicity).toMatch(/^[0-9]+$/);
@@ -128,7 +128,7 @@ describe("Multiset", () => {
   test("#clear()", () => {
     set1.clear();
     expect(set1.size).toEqual("0");
-    expect(set1.has(1)).toBeFalsy();
+    expect(set1.has(1)).toBe(false);
   });
 
   test("#toString()", () => {
@@ -216,7 +216,7 @@ describe("Multiset", () => {
   });
 
   test("#[Symbol.iterator]()", () => {
-    expect(emptySet[Symbol.iterator]().next().done).toBeTruthy();
+    expect(emptySet[Symbol.iterator]().next().done).toBe(true);
 
     for (const entry of set1) {
       expect(entry).toBeInstanceOf(Array);
@@ -227,7 +227,7 @@ describe("Multiset", () => {
   });
 
   test("#entries()", () => {
-    expect(emptySet.entries().next().done).toBeTruthy();
+    expect(emptySet.entries().next().done).toBe(true);
 
     for (const entry of set1.entries()) {
       expect(entry).toBeInstanceOf(Array);
@@ -238,7 +238,7 @@ describe("Multiset", () => {
   });
 
   test("#keys()", () => {
-    expect(emptySet.keys().next().done).toBeTruthy();
+    expect(emptySet.keys().next().done).toBe(true);
 
     for (const value of set1.keys()) {
       expect(typeof value).toEqual("number");
@@ -248,7 +248,7 @@ describe("Multiset", () => {
   });
 
   test("#values()", () => {
-    expect(emptySet.values().next().done).toBeTruthy();
+    expect(emptySet.values().next().done).toBe(true);
 
     for (const value of set1.values()) {
       expect(typeof value).toEqual("number");
@@ -256,7 +256,7 @@ describe("Multiset", () => {
   });
 
   test("#multiplicities()", () => {
-    expect(emptySet.multiplicities().next().done).toBeTruthy();
+    expect(emptySet.multiplicities().next().done).toBe(true);
 
     for (const multiplicity of set1.multiplicities()) {
       expect(multiplicity).toMatch(/^[0-9]+$/);

@@ -12,7 +12,7 @@
         type='button'
         class='btn btn-primary'
         >
-        {{ $t("import") }}
+        Import
       </button>
     </div>
   </div>

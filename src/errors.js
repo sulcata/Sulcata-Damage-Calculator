@@ -1,7 +1,7 @@
-export class MissingnoError extends Error {
+export class NoPokemonError extends Error {
   constructor() {
-    super("Pokemon cannot be Missingno");
-    this.name = "MissingnoError";
+    super("Pokemon cannot be (No Pokemon)");
+    this.name = "NoPokemonError";
   }
 }
 

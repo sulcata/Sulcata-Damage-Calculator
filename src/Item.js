@@ -1,4 +1,4 @@
-import { defaultTo, isNil } from "lodash";
+import { defaultTo } from "lodash";
 import { Gens, maxGen } from "./utilities";
 import {
   itemId,
@@ -6,36 +6,21 @@ import {
   naturalGiftPower,
   naturalGiftType,
   flingPower,
-  isItemUseful,
   itemBoostedType,
   berryTypeResist,
   gemType,
-  itemMega,
-  memoryType
+  memoryType,
+  isBerry,
+  isHeavy,
+  isPlate,
+  megaStone
 } from "./info";
-
-const { trunc } = Math;
-
-const heavyItems = new Set([
-  "Iron Ball",
-  "Macho Brace",
-  "Power Bracer",
-  "Power Belt",
-  "Power Lens",
-  "Power Band",
-  "Power Anklet",
-  "Power Weight"
-]);
 
 export default class Item {
   constructor(item = {}) {
-    if (!isNil(item.id)) {
-      this.id = Number(item.id);
-    } else if (item.name) {
-      this.name = item.name;
-    }
-    this.id = defaultTo(this.id, 0);
     this.gen = defaultTo(Number(item.gen), maxGen);
+    this.id = itemId(item.id);
+    if (typeof item.name === "string") this.name = item.name;
     this.used = Boolean(item.used);
     this.disabled = Boolean(item.disabled);
   }
@@ -45,11 +30,11 @@ export default class Item {
   }
 
   set name(itemName) {
-    this.id = itemId(itemName);
+    this.id = itemId(String(itemName));
   }
 
   nonDisabledName() {
-    return itemName(this.used ? 0 : this.id);
+    return itemName(this.used ? "noitem" : this.id);
   }
 
   boostedType() {
@@ -57,11 +42,11 @@ export default class Item {
   }
 
   isBerry() {
-    return !this.used && this.id >= 8000;
+    return isBerry(this.used ? "noitem" : this.id, this.gen);
   }
 
   isPlate() {
-    return this.nonDisabledName().endsWith(" Plate");
+    return isPlate(this.used ? "noitem" : this.id, this.gen);
   }
 
   berryTypeResist() {
@@ -73,41 +58,23 @@ export default class Item {
   }
 
   naturalGiftType() {
-    return naturalGiftType(this._effectiveId());
+    return naturalGiftType(this._effectiveId(), this.gen);
   }
 
   flingPower() {
-    return flingPower(this._effectiveId());
+    return flingPower(this._effectiveId(), this.gen);
   }
 
   gemType() {
     return gemType(this._effectiveId(), this.gen);
   }
 
-  megaPokeNum() {
-    const v = this.megaPoke();
-    return v === null ? null : Number(v.split(":")[0]);
-  }
-
-  megaPokeForm() {
-    const v = this.megaPoke();
-    return v === null ? null : Number(v.split(":")[1]);
-  }
-
-  megaPoke() {
-    return itemMega(this.id, this.gen);
-  }
-
-  plateType() {
-    return this.isPlate() ? this.boostedType() : -1;
-  }
-
   isHeavy() {
-    return heavyItems.has(this.nonDisabledName());
+    return isHeavy(this.used ? "noitem" : this.id, this.gen);
   }
 
-  isUseful() {
-    return isItemUseful(this.id);
+  mega() {
+    return megaStone(this.id, this.gen);
   }
 
   memoryType() {
@@ -117,7 +84,7 @@ export default class Item {
   berryHeal(hp) {
     switch (this.name) {
       case "Sitrus Berry":
-        return this.gen >= Gens.HGSS ? trunc(hp / 4) : 30;
+        return this.gen >= Gens.HGSS ? Math.trunc(hp / 4) : 30;
       case "Oran Berry":
       case "Berry":
         return 10;
@@ -126,7 +93,7 @@ export default class Item {
       case "Mago Berry":
       case "Aguav Berry":
       case "Iapapa Berry":
-        return trunc(hp / 8);
+        return Math.trunc(hp / 8);
       case "Gold Berry":
         return 30;
       default:
@@ -135,6 +102,6 @@ export default class Item {
   }
 
   _effectiveId() {
-    return this.used || this.disabled ? 0 : this.id;
+    return this.used || this.disabled ? "noitem" : this.id;
   }
 }

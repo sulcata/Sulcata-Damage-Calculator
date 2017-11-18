@@ -2,17 +2,13 @@ import Item from "../src/Item";
 import { Types, maxGen } from "../src/utilities";
 
 describe("Item", () => {
-  let invalidItem;
   let noItem;
   let chopleBerry;
   let chilanBerry;
   let mysticWater;
   let zapPlate;
   let normalGem;
-  let charizarditeX;
-  let altarianite;
   let ironBall;
-  let luxuryBall;
   let sitrusBerry;
   let berry;
   let oranBerry;
@@ -20,17 +16,13 @@ describe("Item", () => {
   let goldBerry;
 
   beforeEach(() => {
-    invalidItem = new Item({ id: -314 });
     noItem = new Item();
     chopleBerry = new Item({ name: "Chople Berry" });
     chilanBerry = new Item({ name: "Chilan Berry" });
     mysticWater = new Item({ name: "Mystic Water" });
     zapPlate = new Item({ name: "Zap Plate" });
     normalGem = new Item({ name: "Normal Gem" });
-    charizarditeX = new Item({ name: "Charizardite X" });
-    altarianite = new Item({ name: "Altarianite" });
     ironBall = new Item({ name: "Iron Ball" });
-    luxuryBall = new Item({ name: "Luxury Ball" });
     sitrusBerry = new Item({ name: "Sitrus Berry" });
     berry = new Item({ name: "Berry" });
     oranBerry = new Item({ name: "Oran Berry" });
@@ -40,28 +32,28 @@ describe("Item", () => {
 
   test("#constructor()", () => {
     const item1 = new Item({ name: "Leftovers" });
-    expect(item1.id).toEqual(15);
-    expect(item1.used).toBeFalsy();
-    expect(item1.disabled).toBeFalsy();
+    expect(item1.id).toEqual("leftovers");
+    expect(item1.used).toBe(false);
+    expect(item1.disabled).toBe(false);
     expect(item1.gen).toEqual(maxGen);
 
     const item2 = new Item({
       name: "Leftovers",
       disabled: true
     });
-    expect(item2.id).toEqual(15);
-    expect(item2.used).toBeFalsy();
-    expect(item2.disabled).toBeTruthy();
+    expect(item2.id).toEqual("leftovers");
+    expect(item2.used).toBe(false);
+    expect(item2.disabled).toBe(true);
     expect(item2.gen).toEqual(maxGen);
 
     const item3 = new Item({
-      id: 15,
+      id: "leftovers",
       used: true,
       gen: 2
     });
-    expect(item3.id).toEqual(15);
-    expect(item3.used).toBeTruthy();
-    expect(item3.disabled).toBeFalsy();
+    expect(item3.id).toEqual("leftovers");
+    expect(item3.used).toBe(true);
+    expect(item3.disabled).toBe(false);
     expect(item3.gen).toEqual(2);
   });
 
@@ -77,16 +69,16 @@ describe("Item", () => {
     expect(chopleBerry.name).toEqual("(No Item)");
 
     const item = new Item();
-    expect(item.id).toEqual(0);
+    expect(item.id).toEqual("noitem");
 
     item.name = "Leftovers";
-    expect(item.id).toEqual(15);
+    expect(item.id).toEqual("leftovers");
 
     item.name = "  chople  berry";
-    expect(item.id).toEqual(8041);
+    expect(item.id).toEqual("chopleberry");
 
     item.name = "l eftovers";
-    expect(item.id).toEqual(0);
+    expect(item.id).toEqual("leftovers");
   });
 
   test("#nonDisabledName()", () => {
@@ -112,14 +104,14 @@ describe("Item", () => {
   });
 
   test("#isBerry()", () => {
-    expect(mysticWater.isBerry()).toBeFalsy();
-    expect(chopleBerry.isBerry()).toBeTruthy();
+    expect(mysticWater.isBerry()).toBe(false);
+    expect(chopleBerry.isBerry()).toBe(true);
 
     chopleBerry.disabled = true;
-    expect(chopleBerry.isBerry()).toBeTruthy();
+    expect(chopleBerry.isBerry()).toBe(true);
 
     chopleBerry.used = true;
-    expect(chopleBerry.isBerry()).toBeFalsy();
+    expect(chopleBerry.isBerry()).toBe(false);
   });
 
   test("#berryTypeResist()", () => {
@@ -183,65 +175,26 @@ describe("Item", () => {
     expect(normalGem.gemType()).toEqual(-1);
   });
 
-  test("#megaPokeNum()", () => {
-    expect(noItem.megaPokeNum()).toBeNull();
-    expect(charizarditeX.megaPokeNum()).toEqual(6);
-    expect(altarianite.megaPokeNum()).toEqual(334);
-
-    charizarditeX.disabled = true;
-    charizarditeX.used = true;
-    expect(charizarditeX.megaPokeNum()).toEqual(6);
-  });
-
-  test("#megaPokeForm()", () => {
-    expect(noItem.megaPokeForm()).toBeNull();
-    expect(charizarditeX.megaPokeForm()).toEqual(1);
-    expect(altarianite.megaPokeForm()).toEqual(1);
-
-    charizarditeX.disabled = true;
-    charizarditeX.used = true;
-    expect(charizarditeX.megaPokeForm()).toEqual(1);
-  });
-
-  test("#megaPoke()", () => {
-    expect(invalidItem.megaPoke()).toBeNull();
-    expect(noItem.megaPoke()).toBeNull();
-    expect(charizarditeX.megaPoke()).toEqual("6:1");
-    expect(altarianite.megaPoke()).toEqual("334:1");
-
-    charizarditeX.disabled = true;
-    charizarditeX.used = true;
-    expect(charizarditeX.megaPoke()).toEqual("6:1");
-  });
-
-  test("#plateType()", () => {
-    expect(zapPlate.plateType()).toEqual(Types.ELECTRIC);
-    expect(mysticWater.plateType()).toEqual(-1);
-
+  test("#isPlate()", () => {
+    expect(zapPlate.isPlate()).toBe(true);
+    expect(mysticWater.isPlate()).toBe(false);
     zapPlate.disabled = true;
-    expect(zapPlate.plateType()).toEqual(-1);
-
+    expect(zapPlate.isPlate()).toBe(true);
     zapPlate.disabled = false;
     zapPlate.used = true;
-    expect(zapPlate.plateType()).toEqual(-1);
+    expect(zapPlate.isPlate()).toBe(false);
   });
 
   test("#isHeavy()", () => {
-    expect(noItem.isHeavy()).toBeFalsy();
-    expect(ironBall.isHeavy()).toBeTruthy();
+    expect(noItem.isHeavy()).toBe(false);
+    expect(ironBall.isHeavy()).toBe(true);
 
     ironBall.disabled = true;
-    expect(ironBall.isHeavy()).toBeTruthy();
+    expect(ironBall.isHeavy()).toBe(true);
 
     ironBall.disabled = false;
     ironBall.used = true;
-    expect(ironBall.isHeavy()).toBeFalsy();
-  });
-
-  test("#isUseful()", () => {
-    expect(noItem.isUseful()).toBeFalsy();
-    expect(ironBall.isUseful()).toBeTruthy();
-    expect(luxuryBall.isUseful()).toBeFalsy();
+    expect(ironBall.isHeavy()).toBe(false);
   });
 
   test("#berryHeal()", () => {

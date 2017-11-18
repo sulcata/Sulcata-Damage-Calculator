@@ -1,4 +1,4 @@
-import { clamp, defaultTo, isNil } from "lodash";
+import { clamp, defaultTo } from "lodash";
 import Multiset from "./Multiset";
 import Ability from "./Ability";
 import Item from "./Item";
@@ -7,6 +7,7 @@ import Field from "./Field";
 import {
   Gens,
   Genders,
+  Natures,
   Stats,
   Statuses,
   Types,
@@ -26,13 +27,11 @@ import {
   pokeType1,
   pokeType2,
   weight,
-  evolutions,
-  preEvolution,
-  isPokeUseful,
-  requiredItemForPoke
+  hasEvolution,
+  hasPreEvolution,
+  requiredItemForPoke,
+  isMega
 } from "./info";
-
-const { max, min, trunc } = Math;
 
 const statNames = ["HP", "Atk", "Def", "SpA", "SpD", "Spe"];
 const genderShorthands = ["", "(M)", "(F)", ""];
@@ -72,7 +71,7 @@ function parseStats(statsString, { min, max, multipleOf = 1, defaultValue }) {
     if (Number.isNaN(value)) {
       value = defaultValue;
     } else {
-      value = trunc(clamp(value, min, max) / multipleOf) * multipleOf;
+      value = Math.trunc(clamp(value, min, max) / multipleOf) * multipleOf;
     }
     const stat = statMatches[statString.split(" ")[1]];
     if (stat !== undefined) {
@@ -129,15 +128,11 @@ function printEv(stat, ev, evs, gen) {
 
 export default class Pokemon {
   constructor(pokemon = {}) {
-    if (!isNil(pokemon.id)) {
-      this.id = pokemon.id;
-    } else if (pokemon.name) {
-      this.name = pokemon.name;
-    }
-    this.id = defaultTo(this.id, "0:0");
-
     const gen = defaultTo(Number(pokemon.gen), maxGen);
     this.gen = gen;
+
+    this.id = pokemonId(pokemon.id);
+    if (typeof pokemon.name === "string") this.name = pokemon.name;
 
     this.nickname = String(defaultTo(pokemon.nickname, ""));
 
@@ -155,11 +150,7 @@ export default class Pokemon {
 
     this.boosts = pokemon.boosts || Array(6).fill(0);
     this.level = defaultTo(Number(pokemon.level), 100);
-    if (pokemon.natureName) {
-      this.natureName = pokemon.natureName;
-    } else {
-      this.nature = defaultTo(Number(pokemon.nature), 0);
-    }
+    this.nature = defaultTo(Number(pokemon.nature), Natures.HARDY);
 
     this._status = defaultTo(
       Number(defaultTo(pokemon.status, pokemon._status)),
@@ -283,7 +274,7 @@ export default class Pokemon {
       poke.name = identifier.replace("*", "");
     }
 
-    if (poke.gen >= Gens.GSC && item) {
+    if (gen >= Gens.GSC && item) {
       poke.item.name = item;
     }
 
@@ -294,7 +285,7 @@ export default class Pokemon {
           parseMove(line.slice(1), poke, nextMove);
           nextMove++;
         } else if (line.split(" ")[1].toLowerCase() === "nature") {
-          poke.natureName = line.split(" ")[0];
+          poke.nature = natureId(line.split(" ")[0]);
         }
       } else {
         const key = line
@@ -332,7 +323,9 @@ export default class Pokemon {
 
     poke.moves.sort(noMoveLast);
 
-    poke.happiness = max(...poke.moves.map(move => move.optimalHappiness()));
+    poke.happiness = Math.max(
+      ...poke.moves.map(move => move.optimalHappiness())
+    );
 
     return poke;
   }
@@ -383,7 +376,7 @@ export default class Pokemon {
     }
 
     if (this.gen >= Gens.ADV) {
-      let nature = `${this.natureName} Nature`;
+      let nature = `${natureName(this.nature)} Nature`;
       const n = natureStats(this.nature);
       if (n[0] > -1 && options.natureInfo) {
         const boosted = statNames[n[0]];
@@ -421,7 +414,7 @@ export default class Pokemon {
       ivs: set.d ? set.d.slice() : undefined
     });
 
-    pokemon.happiness = max(
+    pokemon.happiness = Math.max(
       ...pokemon.moves.map(move => move.optimalHappiness())
     );
 
@@ -429,15 +422,21 @@ export default class Pokemon {
   }
 
   toSet() {
-    return {
-      l: this.level,
-      n: this.nature,
-      a: this.ability.id,
-      i: this.item.id,
-      m: this.moves.map(move => move.id),
-      e: this.evs.map(ev => trunc(ev / 4)),
-      d: this.ivs.slice()
-    };
+    const set = {};
+    const defaultEv = this.gen >= Gens.ADV ? 0 : 252;
+    const defaultIv = this.gen >= Gens.ADV ? 31 : 15;
+    if (this.level !== 100) set.l = this.level;
+    if (this.nature !== Natures.HARDY) set.n = this.nature;
+    if (this.ability.name !== "(No Ability)") set.a = this.ability.id;
+    if (this.item.name !== "(No Item)") set.i = this.item.id;
+    set.m = this.moves.map(move => move.id);
+    if (this.evs.some(ev => ev !== defaultEv)) {
+      set.e = this.evs.map(ev => Math.trunc(ev / 4));
+    }
+    if (this.ivs.some(iv => iv !== defaultIv)) {
+      set.d = this.ivs.slice();
+    }
+    return set;
   }
 
   get name() {
@@ -445,24 +444,7 @@ export default class Pokemon {
   }
 
   set name(pokeName) {
-    this.id = pokemonId(pokeName);
-  }
-
-  get natureName() {
-    return natureName(this.nature);
-  }
-
-  set natureName(natureName) {
-    this.nature = natureId(natureName);
-  }
-
-  num() {
-    return Number(this.id.split(":")[0]);
-  }
-
-  form() {
-    // maybe we could call this genus?
-    return Number(this.id.split(":")[1]);
+    this.id = pokemonId(String(pokeName));
   }
 
   stat(s) {
@@ -487,18 +469,21 @@ export default class Pokemon {
       iv = this.ivs[s];
       ev = this.evs[s];
     }
-    ev = trunc(ev / 4);
+    ev = Math.trunc(ev / 4);
 
     if (this.gen < Gens.ADV) {
       if (s === Stats.HP) {
         // (2*(iv+base) + ev/4) * level/100 + level + 10
-        return min(
+        return Math.min(
           999,
-          trunc(((iv + base) * 2 + ev) * level / 100) + level + 10
+          Math.trunc(((iv + base) * 2 + ev) * level / 100) + level + 10
         );
       }
       // (2*(iv+base) + ev/4) * level/100 + 5
-      return min(999, trunc(((iv + base) * 2 + ev) * level / 100) + 5);
+      return Math.min(
+        999,
+        Math.trunc(((iv + base) * 2 + ev) * level / 100) + 5
+      );
     }
 
     if (s === Stats.HP) {
@@ -507,13 +492,13 @@ export default class Pokemon {
         return 1;
       }
       // (iv + 2*base + ev/4 + 100) * level/100 + 10
-      return trunc((iv + 2 * base + ev + 100) * level / 100) + 10;
+      return Math.trunc((iv + 2 * base + ev + 100) * level / 100) + 10;
     }
 
     // ((iv + 2*base + ev/4) * level/100 + 5)*nature
     const n = natureMultiplier(this.nature, s);
-    const stat = trunc((iv + 2 * base + ev) * level / 100) + 5;
-    return trunc(stat * (10 + n) / 10);
+    const stat = Math.trunc((iv + 2 * base + ev) * level / 100) + 5;
+    return Math.trunc(stat * (10 + n) / 10);
   }
 
   boost(s) {
@@ -532,11 +517,13 @@ export default class Pokemon {
     }
 
     if (this.gen < Gens.ADV) {
-      const numerator = trunc(max(2, 2 + boost) / max(2, 2 - boost) * 100);
-      return clamp(trunc(stat * numerator / 100), 1, 999);
+      const numerator = Math.trunc(
+        Math.max(2, 2 + boost) / Math.max(2, 2 - boost) * 100
+      );
+      return clamp(Math.trunc(stat * numerator / 100), 1, 999);
     }
 
-    return trunc(stat * max(2, 2 + boost) / max(2, 2 - boost));
+    return Math.trunc(stat * Math.max(2, 2 + boost) / Math.max(2, 2 - boost));
   }
 
   speed(field = {}) {
@@ -555,23 +542,23 @@ export default class Pokemon {
 
     switch (this.item.name) {
       case "Choice Scarf":
-        speed = trunc(speed * 3 / 2);
+        speed = Math.trunc(speed * 3 / 2);
         break;
       case "Quick Powder":
         if (this.name === "Ditto") speed *= 2;
         break;
       default:
-        if (this.item.isHeavy()) speed = trunc(speed / 2);
+        if (this.item.isHeavy()) speed = Math.trunc(speed / 2);
     }
 
     if (this.status && this.ability.name === "Quick Feet") {
-      speed = trunc(speed * 3 / 2);
+      speed = Math.trunc(speed * 3 / 2);
     } else if (this.isParalyzed()) {
-      speed = trunc(speed / 4);
+      speed = Math.trunc(speed / 4);
     }
 
     if (this.ability.name === "Slow Start" && this.slowStart) {
-      speed = trunc(speed / 2);
+      speed = Math.trunc(speed / 2);
     }
 
     if (
@@ -589,8 +576,8 @@ export default class Pokemon {
     return speed;
   }
 
-  baseStat(s) {
-    return baseStats(this.id, this.gen)[s];
+  baseStat(stat) {
+    return baseStats(this.id, this.gen)[stat];
   }
 
   get currentHp() {
@@ -649,39 +636,36 @@ export default class Pokemon {
 
   weight() {
     // given in 10 kg
-    let w = weight(this.id);
+    let w = weight(this.id, this.gen);
     if (this.autotomize) {
-      w = max(1, w - 1000);
+      w = Math.max(1, w - 1000);
     }
     if (this.ability.name === "Light Metal") {
-      w = max(1, w / 2);
+      w = Math.max(1, w / 2);
     } else if (this.ability.name === "Heavy Metal") {
       w *= 2;
     }
     if (this.item.name === "Float Stone") {
-      w = max(1, w / 2);
+      w = Math.max(1, w / 2);
     }
     return roundHalfToZero(w);
   }
 
   hasEvolution() {
-    return Boolean(evolutions(this.id, this.gen).length);
+    return hasEvolution(this.id, this.gen);
   }
 
   hasPreEvolution() {
-    return Boolean(preEvolution(this.id, this.gen));
+    return hasPreEvolution(this.id, this.gen);
   }
 
   isMega() {
-    return this.name.startsWith("Mega ");
+    return isMega(this.id, this.gen);
   }
 
-  hasRequiredItem() {
-    const item = new Item({
-      id: requiredItemForPoke(this.id),
-      gen: this.gen
-    });
-    return item.name === this.item.name;
+  isItemRequired() {
+    const itemId = requiredItemForPoke(this.id, this.gen);
+    return itemId === this.item.id;
   }
 
   hurtBySandstorm() {
@@ -802,7 +786,7 @@ export default class Pokemon {
       );
     }
     return (
-      this.item.megaPokeNum() === this.num() ||
+      this.item.mega() === this.id ||
       (this.hasPlate() && this.ability.name === "Multitype") ||
       (this.hasBlueOrb() && this.name.includes("Kyogre")) ||
       (this.hasRedOrb() && this.name.includes("Groudon")) ||
@@ -821,10 +805,6 @@ export default class Pokemon {
 
   lightBallBoosted() {
     return this.item.name === "Light Ball" && this.name.includes("Pikachu");
-  }
-
-  isUseful() {
-    return isPokeUseful(this.id);
   }
 
   hasCritArmor() {

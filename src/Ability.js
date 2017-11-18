@@ -1,41 +1,21 @@
-import { defaultTo, isNil } from "lodash";
+import { defaultTo } from "lodash";
 import { maxGen } from "./utilities";
 import {
-  abilityName,
   abilityId,
+  abilityIgnoresAbilities,
+  abilityName,
+  critArmor,
+  immunityType,
   isIgnoredByMoldBreaker,
-  isAbilityUseful,
-  abilityImmunityType,
-  ignoresAbilities,
-  abilityPinchType,
-  abilityNormalToType
+  normalToType,
+  pinchType
 } from "./info";
-
-const sandImmunityAbilities = new Set([
-  "Magic Guard",
-  "Overcoat",
-  "Sand Veil",
-  "Sand Rush",
-  "Sand Force"
-]);
-
-const hailImmunityAbilities = new Set([
-  "Magic Guard",
-  "Overcoat",
-  "Ice Body",
-  "Snow Cloak",
-  "Slush Rush"
-]);
 
 export default class Ability {
   constructor(ability = {}) {
-    if (!isNil(ability.id)) {
-      this.id = Number(ability.id);
-    } else if (ability.name) {
-      this.name = ability.name;
-    }
-    this.id = defaultTo(this.id, 0);
     this.gen = defaultTo(Number(ability.gen), maxGen);
+    this.id = abilityId(ability.id);
+    if (typeof ability.name === "string") this.name = ability.name;
     this.disabled = Boolean(ability.disabled);
   }
 
@@ -44,7 +24,7 @@ export default class Ability {
   }
 
   set name(abilityName) {
-    this.id = abilityId(abilityName);
+    this.id = abilityId(String(abilityName));
   }
 
   nonDisabledName() {
@@ -52,50 +32,54 @@ export default class Ability {
   }
 
   pinchType() {
-    return abilityPinchType(this._effectiveId(), this.gen);
+    return pinchType(this._effectiveId(), this.gen);
   }
 
   normalToType() {
-    return abilityNormalToType(this._effectiveId(), this.gen);
+    return normalToType(this._effectiveId(), this.gen);
   }
 
   immunityType() {
-    return abilityImmunityType(this._effectiveId(), this.gen);
+    return immunityType(this._effectiveId(), this.gen);
   }
 
   ignoresAbilities() {
-    return ignoresAbilities(this._effectiveId(), this.gen);
+    return abilityIgnoresAbilities(this._effectiveId(), this.gen);
   }
 
   isIgnorable() {
-    return isIgnoredByMoldBreaker(this.id);
+    return isIgnoredByMoldBreaker(this.id, this.gen);
   }
 
   isSandImmunity() {
-    return sandImmunityAbilities.has(this.name);
+    return [
+      "Magic Guard",
+      "Overcoat",
+      "Sand Veil",
+      "Sand Rush",
+      "Sand Force"
+    ].includes(this.name);
   }
 
   isHailImmunity() {
-    return hailImmunityAbilities.has(this.name);
+    return [
+      "Magic Guard",
+      "Overcoat",
+      "Ice Body",
+      "Snow Cloak",
+      "Slush Rush"
+    ].includes(this.name);
   }
 
   reducesSuperEffective() {
-    return (
-      this.name === "Filter" ||
-      this.name === "Solid Rock" ||
-      this.name === "Prism Armor"
-    );
+    return ["Filter", "Solid Rock", "Prism Armor"].includes(this.name);
   }
 
   hasCritArmor() {
-    return this.name === "Shell Armor" || this.name === "Battle Armor";
-  }
-
-  isUseful() {
-    return isAbilityUseful(this.id);
+    return critArmor(this.id, this.gen);
   }
 
   _effectiveId() {
-    return this.disabled ? 0 : this.id;
+    return this.disabled ? "noability" : this.id;
   }
 }

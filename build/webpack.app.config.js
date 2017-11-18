@@ -11,7 +11,7 @@ const config = {
     db: path.join(__dirname, "../dist/db"),
     smogon: path.join(__dirname, "../dist/setdex/smogon"),
     pokemonPerfect: path.join(__dirname, "../dist/setdex/pokemonPerfect"),
-    vendor: ["vue", "vuex", "vue-i18n", "vue-multiselect"]
+    vendor: ["vue", "vuex", "vue-multiselect"]
   },
   output: {
     filename: "[name].[chunkhash].js",
@@ -21,8 +21,7 @@ const config = {
   resolve: {
     alias: {
       db: path.join(__dirname, "../dist/db"),
-      sulcalc: path.join(__dirname, "../src/sulcalc"),
-      translations: path.join(__dirname, "../dist/translations")
+      sulcalc: path.join(__dirname, "../src/sulcalc")
     }
   },
   module: {

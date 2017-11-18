@@ -15,8 +15,6 @@
 <script>
 import { clamp } from "lodash";
 
-const { trunc } = Math;
-
 const sizeClasses = {
   small: "form-control-sm",
   medium: "",
@@ -87,7 +85,7 @@ export default {
         integer = this.value;
       }
       integer = clamp(integer, this.min, this.max);
-      integer = trunc(integer / this.step) * this.step;
+      integer = Math.trunc(integer / this.step) * this.step;
       this.$emit("input", integer);
     }
   }

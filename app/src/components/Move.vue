@@ -8,7 +8,7 @@
           track-by='value'
           label='label'
           :show-labels='false'
-          :placeholder='$t("move")'
+          placeholder='Move'
           :value='valueObj'
           :options='moves'
           @input='updateMove'
@@ -23,7 +23,7 @@
           size='small'
           type='secondary'
           >
-          {{ $t("crit") }}
+          Crit
         </button-checkbox>
 
         <!-- Z-Move -->
@@ -34,7 +34,7 @@
           size='small'
           type='secondary'
           >
-          {{ $t("zMove") }}
+          Z-Move
         </button-checkbox>
       </div>
 
@@ -105,7 +105,7 @@
           size='small'
           type='secondary'
           >
-          {{ $tMove("Round") }}
+          Round
         </button-checkbox>
 
         <!-- Trump Card -->
@@ -130,7 +130,7 @@
           size='small'
           type='secondary'
           >
-          {{ $tMove("Minimize") }}
+          Minimize
         </button-checkbox>
 
         <!-- Dig -->
@@ -141,7 +141,7 @@
           size='small'
           type='secondary'
           >
-          {{ $tMove("Dig") }}
+          Dig
         </button-checkbox>
 
         <!-- Dive -->
@@ -152,7 +152,7 @@
           size='small'
           type='secondary'
           >
-          {{ $tMove("Dive") }}
+          Dive
         </button-checkbox>
 
         <!-- Fly / Bounce -->
@@ -163,7 +163,7 @@
           size='small'
           type='secondary'
           >
-          {{ $tMove("Fly") }} / {{ $tMove("Bounce") }}
+          Fly / Bounce
         </button-checkbox>
       </div>
     </div>
@@ -173,7 +173,6 @@
 <script>
 import { mapState } from "vuex";
 import { Multiselect } from "vue-multiselect";
-import translationMixin from "../mixins/translation";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import Integer from "./ui/Integer.vue";
 import { Move, Gens, info } from "sulcalc";
@@ -188,7 +187,6 @@ export default {
     ButtonCheckbox,
     Integer
   },
-  mixins: [translationMixin],
   props: {
     move: {
       required: true,
@@ -210,21 +208,13 @@ export default {
     moves() {
       return info
         .releasedMoves(this.gen)
-        .filter(id => info.isMoveUseful(id, this.gen))
-        .map(id => ({
-          value: id,
-          label: this.$tMove({ id })
-        }))
-        .sort((a, b) => a.label.localeCompare(b.label));
+        .map(id => ({ value: id, label: info.moveName(id) }));
     },
     valueObj() {
       if (this.move.name === "(No Move)") {
         return {};
       }
-      return {
-        value: this.move.id,
-        label: this.$tMove(this.move)
-      };
+      return { value: this.move.id, label: this.move.name };
     },
     multiHitOptions() {
       const options = [
@@ -250,13 +240,13 @@ export default {
       return ordinalHitOptions(5);
     },
     numberOfHitsInput() {
-      return this.move.hitsMultipleTimes() && this.move.name !== "Beat Up";
+      return this.move.hitsMultipleTimes();
     }
   },
   methods: {
     updateMove(event) {
       const move = new Move({
-        id: event ? event.value : 0,
+        id: event ? event.value : "nomove",
         gen: this.gen
       });
       this.$emit("input", move);

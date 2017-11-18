@@ -16,8 +16,6 @@ import {
   isSoulDewType
 } from "../info";
 
-const { max, min, trunc } = Math;
-
 export default (attacker, defender, move, field) => {
   const gen = field.gen;
   let moveType = move.type();
@@ -38,7 +36,7 @@ export default (attacker, defender, move, field) => {
         moveType = Types.CURSE;
       } else {
         const stat = attacker.beatUpStats[move.beatUpHit];
-        movePower = trunc(stat / 10) + 5;
+        movePower = Math.trunc(stat / 10) + 5;
       }
       break;
     case "Brine":
@@ -47,7 +45,7 @@ export default (attacker, defender, move, field) => {
       }
       break;
     case "Echoed Voice":
-      movePower = min(200, 40 + 40 * move.echoedVoice);
+      movePower = Math.min(200, 40 + 40 * move.echoedVoice);
       break;
     case "Electro Ball":
       movePower = Move.electroBall(attacker.speed(), defender.speed());
@@ -71,7 +69,7 @@ export default (attacker, defender, move, field) => {
       movePower = Move.frustration(attacker.happiness);
       break;
     case "Fury Cutter":
-      movePower = min(160, movePower * 2 ** move.furyCutter);
+      movePower = Math.min(160, movePower * 2 ** move.furyCutter);
       break;
     case "Future Sight":
     case "Doom Desire":
@@ -164,9 +162,9 @@ export default (attacker, defender, move, field) => {
     case "Crush Grip": {
       const r = 120 * defender.currentHp / defender.stat(Stats.HP);
       if (gen <= Gens.HGSS) {
-        movePower = 1 + trunc(r);
+        movePower = 1 + Math.trunc(r);
       } else {
-        movePower = max(1, roundHalfToZero(r));
+        movePower = Math.max(1, roundHalfToZero(r));
       }
       break;
     }
@@ -191,13 +189,13 @@ export default (attacker, defender, move, field) => {
       movePower *= 2;
     }
     if (field.mudSport && moveType === Types.ELECTRIC) {
-      movePower = trunc(movePower / 2);
+      movePower = Math.trunc(movePower / 2);
     }
     if (field.waterSport && moveType === Types.FIRE) {
-      movePower = trunc(movePower / 2);
+      movePower = Math.trunc(movePower / 2);
     }
     if (attacker.pinchAbilityActivated(moveType)) {
-      movePower = trunc(movePower * 3 / 2);
+      movePower = Math.trunc(movePower * 3 / 2);
     }
   } else if (gen === Gens.HGSS) {
     if (
@@ -209,33 +207,33 @@ export default (attacker, defender, move, field) => {
       movePower *= 2;
     }
     if (attacker.helpingHand) {
-      movePower = trunc(movePower * 3 / 2);
+      movePower = Math.trunc(movePower * 3 / 2);
     }
     switch (attacker.item.name) {
       case "Muscle Band":
-        if (move.isPhysical()) movePower = trunc(movePower * 11 / 10);
+        if (move.isPhysical()) movePower = Math.trunc(movePower * 11 / 10);
         break;
       case "Wise Glasses":
-        if (move.isSpecial()) movePower = trunc(movePower * 11 / 10);
+        if (move.isSpecial()) movePower = Math.trunc(movePower * 11 / 10);
         break;
       case "Adamant Orb":
         if (attacker.name === "Dialga" && isAdamantType(moveType)) {
-          movePower = trunc(movePower * 12 / 10);
+          movePower = Math.trunc(movePower * 12 / 10);
         }
         break;
       case "Lustrous Orb":
         if (attacker.name === "Palkia" && isLustrousType(moveType)) {
-          movePower = trunc(movePower * 12 / 10);
+          movePower = Math.trunc(movePower * 12 / 10);
         }
         break;
       case "Griseous Orb":
         if (attacker.name.startsWith("Giratina") && isGriseousType(moveType)) {
-          movePower = trunc(movePower * 12 / 10);
+          movePower = Math.trunc(movePower * 12 / 10);
         }
         break;
       default:
         if (moveType === attacker.item.boostedType()) {
-          movePower = trunc(movePower * 12 / 10);
+          movePower = Math.trunc(movePower * 12 / 10);
         }
     }
     if (attacker.charge && moveType === Types.ELECTRIC) {
@@ -245,34 +243,34 @@ export default (attacker, defender, move, field) => {
       case "Rivalry":
         if (attacker.gender && defender.gender) {
           movePower *= attacker.gender === defender.gender ? 3 : 5;
-          movePower = trunc(movePower / 4);
+          movePower = Math.trunc(movePower / 4);
         }
         break;
       case "Reckless":
         if (move.isRecklessBoosted()) {
-          movePower = trunc(movePower * 12 / 10);
+          movePower = Math.trunc(movePower * 12 / 10);
         }
         break;
       case "Iron Fist":
-        if (move.isPunch()) movePower = trunc(movePower * 12 / 10);
+        if (move.isPunch()) movePower = Math.trunc(movePower * 12 / 10);
         break;
       case "Technician":
-        if (movePower <= 60) movePower = trunc(movePower * 3 / 2);
+        if (movePower <= 60) movePower = Math.trunc(movePower * 3 / 2);
         break;
       /* no default */
     }
     switch (defender.ability.name) {
       case "Heatproof":
-        if (moveType === Types.FIRE) movePower = trunc(movePower / 2);
+        if (moveType === Types.FIRE) movePower = Math.trunc(movePower / 2);
         break;
       case "Thick Fat":
         if (moveType === Types.FIRE || moveType === Types.ICE) {
-          movePower = trunc(movePower / 2);
+          movePower = Math.trunc(movePower / 2);
         }
         break;
       case "Dry Skin":
         if (moveType === Types.FIRE) {
-          movePower = trunc(movePower * 5 / 4);
+          movePower = Math.trunc(movePower * 5 / 4);
         }
         break;
       /* no default */
@@ -281,7 +279,7 @@ export default (attacker, defender, move, field) => {
       (field.mudSport && moveType === Types.ELECTRIC) ||
       (field.waterSport && moveType === Types.FIRE)
     ) {
-      movePower = trunc(movePower / 2);
+      movePower = Math.trunc(movePower / 2);
     }
   } else if (gen >= Gens.B2W2) {
     const gemBoost = moveType === attacker.item.gemType();
@@ -516,7 +514,7 @@ export default (attacker, defender, move, field) => {
       const mod = field.auraBreak ? 0xc00 : 0x1547;
       movePowerMod = chainMod(mod, movePowerMod);
     }
-    movePower = max(1, applyMod(movePowerMod, movePower));
+    movePower = Math.max(1, applyMod(movePowerMod, movePower));
   }
 
   return { moveType, movePower };

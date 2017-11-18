@@ -1,5 +1,4 @@
 import { at, castArray, merge, set, zip } from "lodash";
-import i18n from "../i18n";
 
 export function persistencePlugin(
   { saveOn = {}, prefix = "", storage = window.localStorage } = {}
@@ -37,22 +36,5 @@ export function persistencePlugin(
         }
       }
     });
-  };
-}
-
-export function i18nPlugin() {
-  return store => {
-    store.subscribe(({ type, payload }) => {
-      switch (type) {
-        case "addLocale":
-          i18n.setLocaleMessage(payload.locale, payload.messages);
-          break;
-        case "setLocale":
-          i18n.locale = payload.locale;
-          break;
-        /* no default */
-      }
-    });
-    store.dispatch("setLocale", { locale: store.state.i18n.locale });
   };
 }
