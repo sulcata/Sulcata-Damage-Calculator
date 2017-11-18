@@ -1,15 +1,15 @@
-import { Gens, Stats, Types, damageVariation } from "../utilities";
-import { isPhysicalType, isSpecialType, effectiveness } from "../info";
+import { Stats, Types, damageVariation } from "../utilities";
+import { isPhysicalType, isSpecialType } from "../info";
 import moveInfo from "./moveInfo";
 
 export default (attacker, defender, move, field) => {
-  const { moveType, movePower, fail } = moveInfo(
+  const { moveType, movePower, effectiveness, fail } = moveInfo(
     attacker,
     defender,
     move,
     field
   );
-  if (fail) return [0];
+  if (fail || effectiveness[0] === 0) return [0];
 
   let atk = attacker.stat(Stats.ATK);
   let satk = attacker.stat(Stats.SATK);
@@ -241,15 +241,7 @@ export default (attacker, defender, move, field) => {
     baseDamage = Math.trunc(baseDamage * 3 / 2);
   }
 
-  let eff = effectiveness(moveType, defender.types(), {
-    gen: Gens.ADV,
-    foresight: defender.foresight
-  });
-  if (moveType === defender.ability.immunityType()) {
-    eff = [0, 2];
-  }
-  if (eff[0] === 0) return [0];
-  baseDamage = Math.trunc(baseDamage * eff[0] / eff[1]);
+  baseDamage = Math.trunc(baseDamage * effectiveness[0] / effectiveness[1]);
 
   if (move.name === "Spit Up") return [baseDamage];
 

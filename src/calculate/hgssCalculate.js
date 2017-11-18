@@ -1,15 +1,16 @@
-import { effectiveness } from "../info";
-import { Gens, Stats, Types, damageVariation } from "../utilities";
+import { Stats, Types, damageVariation } from "../utilities";
 import moveInfo from "./moveInfo";
 
 export default (attacker, defender, move, field) => {
-  const { moveType, movePower, fail } = moveInfo(
-    attacker,
-    defender,
-    move,
-    field
-  );
-  if (fail) return [0];
+  const {
+    moveType,
+    movePower,
+    effectiveness,
+    superEffective,
+    notVeryEffective,
+    fail
+  } = moveInfo(attacker, defender, move, field);
+  if (fail || effectiveness[0] === 0) return [0];
 
   let atk, def, sdef, satk;
   const unawareA = attacker.ability.name === "Unaware";
@@ -239,19 +240,11 @@ export default (attacker, defender, move, field) => {
     damages = damages.map(d => Math.trunc(d * 3 / 2));
   }
 
-  let eff = effectiveness(moveType, defender.types(), {
-    gen: Gens.HGSS,
-    foresight: defender.foresight,
-    scrappy: attacker.ability.name === "Scrappy",
-    gravity: field.gravity
-  });
-  if (moveType === defender.ability.immunityType()) {
-    eff = [0, 2];
-  }
-  if (eff[0] === 0) return [0];
-  damages = damages.map(d => Math.trunc(d * eff[0] / eff[1]));
+  damages = damages.map(d =>
+    Math.trunc(d * effectiveness[0] / effectiveness[1])
+  );
 
-  if (eff[0] > eff[1]) {
+  if (superEffective) {
     if (defender.ability.reducesSuperEffective()) {
       damages = damages.map(d => Math.trunc(d * 3 / 4));
     }
@@ -263,7 +256,7 @@ export default (attacker, defender, move, field) => {
     if (moveType === defender.item.berryTypeResist()) {
       damages = damages.map(d => Math.trunc(d / 2));
     }
-  } else if (eff[0] < eff[1] && attacker.ability.name === "Tinted Lens") {
+  } else if (notVeryEffective && attacker.ability.name === "Tinted Lens") {
     damages = damages.map(d => 2 * d);
   }
 

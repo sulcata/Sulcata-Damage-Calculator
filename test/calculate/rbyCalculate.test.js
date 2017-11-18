@@ -21,22 +21,17 @@ describe("rbyCalculate()", () => {
   });
 
   test("special", () => {
-    const zapdos = new Pokemon({ name: "Zapdos", gen });
-    const snorlax = new Pokemon({ name: "Snorlax", gen });
-    const thunder = new Move({ name: "Thunder", gen });
-    const damage = rbyCalculate(zapdos, snorlax, thunder, field);
+    const chansey = new Pokemon({ name: "Chansey", gen });
+    const iceBeam = new Move({ name: "Ice Beam", gen });
+    const damage = rbyCalculate(chansey, chansey, iceBeam, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(232);
+    expect(Math.max(...damage)).toEqual(81);
   });
 
   test("critical", () => {
     const zapdos = new Pokemon({ name: "Zapdos", gen });
     const snorlax = new Pokemon({ name: "Snorlax", gen });
-    const thunderCrit = new Move({
-      name: "Thunder",
-      critical: true,
-      gen
-    });
+    const thunderCrit = new Move({ name: "Thunder", critical: true, gen });
     const damage = rbyCalculate(zapdos, snorlax, thunderCrit, field);
     expect(damage).toHaveLength(39);
     expect(Math.max(...damage)).toEqual(453);

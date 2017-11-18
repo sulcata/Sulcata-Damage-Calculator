@@ -115,20 +115,22 @@ export const moveType = (moveId, gen) =>
   getInfo(gen, ["moves", moveId, "d"], Types.CURSE);
 export const moveDamageClass = (moveId, gen) =>
   getInfo(gen, ["moves", moveId, "e"], DamageClasses.OTHER);
+export const moveIgnoresAbilities = (moveId, gen) =>
+  Boolean(getInfo(gen, ["moves", moveId, "f"]));
+export const priority = (moveId, gen) =>
+  getInfo(gen, ["moves", moveId, "g"], 0);
 export const minHits = (moveId, gen) =>
   getInfo(gen, ["moves", moveId, "i", "0"], 1);
 export const maxHits = (moveId, gen) =>
   getInfo(gen, ["moves", moveId, "i", "1"], 1);
 export const hitsMultipleTargets = (moveId, gen) =>
   Boolean(getInfo(gen, ["moves", moveId, "j"]));
-export const recoil = (moveId, gen) => getInfo(gen, ["moves", moveId, "m"], 0);
+export const zMovePower = (moveId, gen) => getInfo(gen, ["moves", moveId, "k"]);
 export const hasSecondaryEffect = (moveId, gen) =>
   Boolean(getInfo(gen, ["moves", moveId, "l"]));
-export const zMovePower = (moveId, gen) => getInfo(gen, ["moves", moveId, "k"]);
+export const recoil = (moveId, gen) => getInfo(gen, ["moves", moveId, "m"], 0);
 export const isOhkoMove = (moveId, gen) =>
   Boolean(getInfo(gen, ["moves", moveId, "n"]));
-export const canCrit = (moveId, gen) =>
-  gen >= Gens.HGSS || !getInfo(gen, ["moves", moveId, "o"]);
 export const hasBiteFlag = (moveId, gen) =>
   Boolean(getInfo(gen, ["moves", moveId, "A"]));
 export const hasBulletFlag = (moveId, gen) =>
@@ -141,6 +143,8 @@ export const hasPulseFlag = (moveId, gen) =>
   Boolean(getInfo(gen, ["moves", moveId, "F"]));
 export const hasPunchFlag = (moveId, gen) =>
   Boolean(getInfo(gen, ["moves", moveId, "G"]));
+export const requiresRecharge = (moveId, gen) =>
+  Boolean(getInfo(gen, ["moves", moveId, "H"]));
 export const hasSoundFlag = (moveId, gen) =>
   Boolean(getInfo(gen, ["moves", moveId, "I"]));
 

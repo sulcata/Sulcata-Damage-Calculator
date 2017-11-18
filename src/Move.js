@@ -13,6 +13,9 @@ import {
   movePower,
   moveDamageClass,
   moveType,
+  priority,
+  requiresRecharge,
+  moveIgnoresAbilities,
   recoil,
   hasPunchFlag,
   hasContactFlag,
@@ -26,8 +29,7 @@ import {
   maxHits,
   hitsMultipleTargets,
   zMovePower,
-  isOhkoMove,
-  canCrit
+  isOhkoMove
 } from "./info";
 
 const zMoves = {
@@ -50,24 +52,6 @@ const zMoves = {
   [Types.DARK]: "Black Hole Eclipse",
   [Types.FAIRY]: "Twinkle Tackle"
 };
-
-const rechargeMoves = new Set([
-  "Hyper Beam",
-  "Giga Impact",
-  "Rock Wrecker",
-  "Roar of Time",
-  "Blast Burn",
-  "Frenzy Plant",
-  "Hydro Cannon"
-]);
-
-const nonParentalBondMoves = new Set([
-  "Fling",
-  "Self-Destruct",
-  "Explosion",
-  "Final Gambit",
-  "Endeavor"
-]);
 
 const hiddenPowerStatOrder = [
   Stats.SPD,
@@ -144,12 +128,12 @@ export default class Move {
     );
   }
 
+  priority() {
+    return priority(this.id, this.gen);
+  }
+
   isPsyshockLike() {
-    return (
-      this.name === "Psyshock" ||
-      this.name === "Psystrike" ||
-      this.name === "Secret Sword"
-    );
+    return ["Psyshock", "Psystrike", "Secret Sword"].includes(this.name);
   }
 
   hasRecoil() {
@@ -209,11 +193,11 @@ export default class Move {
   }
 
   isExplosion() {
-    return this.name === "Self-Destruct" || this.name === "Explosion";
+    return ["Explosion", "Mind Blown", "Self-Destruct"].includes(this.name);
   }
 
   requiresRecharge() {
-    return rechargeMoves.has(this.name);
+    return requiresRecharge(this.id, this.gen);
   }
 
   isRecklessBoosted() {
@@ -225,11 +209,24 @@ export default class Move {
   }
 
   canCrit() {
-    return canCrit(this.id, this.gen);
+    if (this.gen >= Gens.HGSS) return true;
+    return ![
+      "Reversal",
+      "Flail",
+      "Future Sight",
+      "Doom Desire",
+      "Spit Up"
+    ].includes(this.name);
   }
 
   affectedByParentalBond() {
-    return !nonParentalBondMoves.has(this.name);
+    return ![
+      "Endeavor",
+      "Explosion",
+      "Final Gambit",
+      "Fling",
+      "Self-Destruct"
+    ].includes(this.name);
   }
 
   optimalHappiness() {
@@ -241,15 +238,11 @@ export default class Move {
   }
 
   ignoresAbilities() {
-    return this.name === "Moongeist Beam" || this.name === "Sunsteel Strike";
+    return moveIgnoresAbilities(this.id, this.gen);
   }
 
   ignoresDefenseBoosts() {
-    return (
-      this.name === "Chip Away" ||
-      this.name === "Sacred Sword" ||
-      this.name === "Darkest Lariat"
-    );
+    return ["Chip Away", "Sacred Sword", "Darkest Lariat"].includes(this.name);
   }
 
   boostedByDig() {
@@ -288,11 +281,7 @@ export default class Move {
   }
 
   weakenedByGrassyTerrain() {
-    return (
-      this.name === "Earthquake" ||
-      this.name === "Magnitude" ||
-      this.name === "Bulldoze"
-    );
+    return ["Bulldoze", "Earthquake", "Magnitude"].includes(this.name);
   }
 
   static hiddenPowers(typeId, gen) {

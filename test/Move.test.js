@@ -30,7 +30,6 @@ describe("Move", () => {
   let highJumpKick;
   let reversal;
   let doomDesire;
-  let explosion;
 
   beforeEach(() => {
     noMove = new Move();
@@ -61,7 +60,6 @@ describe("Move", () => {
     highJumpKick = new Move({ name: "High Jump Kick" });
     reversal = new Move({ name: "Reversal" });
     doomDesire = new Move({ name: "Doom Desire" });
-    explosion = new Move({ name: "Explosion" });
   });
 
   test("#constructor()", () => {
@@ -307,6 +305,7 @@ describe("Move", () => {
   });
 
   test("#affectedByParentalBond()", () => {
+    const explosion = new Move({ name: "Explosion" });
     expect(surf.affectedByParentalBond()).toBe(true);
     expect(bulletSeed.affectedByParentalBond()).toBe(true);
     expect(explosion.affectedByParentalBond()).toBe(false);
@@ -460,6 +459,16 @@ describe("Move", () => {
     const frustration = new Move({ name: "Frustration" });
     expect(returnMove.optimalHappiness()).toEqual(255);
     expect(frustration.optimalHappiness()).toEqual(0);
+  });
+
+  test("#isExplosion()", () => {
+    const selfDestruct = new Move({ name: "Self-Destruct" });
+    const explosion = new Move({ name: "Explosion" });
+    const mindBlown = new Move({ name: "Mind Blown" });
+    expect(selfDestruct.isExplosion()).toBe(true);
+    expect(explosion.isExplosion()).toBe(true);
+    expect(mindBlown.isExplosion()).toBe(true);
+    expect(tackle.isExplosion()).toBe(false);
   });
 
   test(".hiddenPowers()", () => {

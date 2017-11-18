@@ -64,14 +64,6 @@ export const ignorableAbilities = new Set([
   "Wonder Skin"
 ]);
 
-export const nonCritMoves = new Set([
-  "Reversal",
-  "Flail",
-  "Future Sight",
-  "Doom Desire",
-  "Spit Up"
-]);
-
 export const requiredItems = new Map(
   Object.entries({
     // Don't exclude plates & orbs as those affect damage

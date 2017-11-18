@@ -1,13 +1,16 @@
-import { isPhysicalType, effectiveness } from "../info";
-import {
-  Gens,
-  Stats,
-  damageVariation,
-  scaleStat,
-  needsScaling
-} from "../utilities";
+import { isPhysicalType } from "../info";
+import { Stats, damageVariation, scaleStat, needsScaling } from "../utilities";
+import moveInfo from "./moveInfo";
 
-export default (attacker, defender, move) => {
+export default (attacker, defender, move, field) => {
+  const { moveType, movePower, effectiveness, fail } = moveInfo(
+    attacker,
+    defender,
+    move,
+    field
+  );
+  if (fail || effectiveness[0] === 0) return [0];
+
   let level, atk, def, spcA, spcD;
   if (move.critical) {
     level = 2 * attacker.level;
@@ -41,7 +44,7 @@ export default (attacker, defender, move) => {
   }
 
   let a, d;
-  if (isPhysicalType(move.type())) {
+  if (isPhysicalType(moveType)) {
     a = atk;
     d = def;
   } else {
@@ -54,17 +57,15 @@ export default (attacker, defender, move) => {
   d = Math.max(1, d);
 
   let baseDamage = Math.trunc(
-    Math.trunc(Math.trunc(2 * level / 5 + 2) * move.power() * a / d) / 50
+    Math.trunc(Math.trunc(2 * level / 5 + 2) * movePower * a / d) / 50
   );
   baseDamage = Math.min(997, baseDamage) + 2;
 
-  if (attacker.stab(move.type())) {
+  if (attacker.stab(moveType)) {
     baseDamage = Math.trunc(baseDamage * 3 / 2);
   }
 
-  const eff = effectiveness(move.type(), defender.types(), { gen: Gens.RBY });
-  if (eff[0] === 0) return [0];
-  baseDamage = Math.trunc(baseDamage * eff[0] / eff[1]);
+  baseDamage = Math.trunc(baseDamage * effectiveness[0] / effectiveness[1]);
 
   const damages = damageVariation(baseDamage, 217, 255);
 

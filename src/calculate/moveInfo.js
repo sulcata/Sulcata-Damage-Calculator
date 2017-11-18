@@ -9,6 +9,7 @@ import {
   Types
 } from "../utilities";
 import {
+  effectiveness,
   isSandForceType,
   isLustrousType,
   isAdamantType,
@@ -17,168 +18,47 @@ import {
 } from "../info";
 
 export default (attacker, defender, move, field) => {
-  const gen = field.gen;
-  let moveType = move.type();
-  let movePower = move.power();
+  const { gen } = field;
+  const { type: baseMoveType, power: baseMovePower, fail } = baseMoveInfo(
+    attacker,
+    defender,
+    move,
+    field
+  );
+  if (fail) return { fail };
 
-  switch (move.name) {
-    case "Assurance":
-      if (attacker.damagedPreviously) movePower *= 2;
-      break;
-    case "Avalanche":
-    case "Revenge":
-      if (attacker.damagedPreviously && !attacker.damagedByPainSplit) {
-        movePower *= 2;
-      }
-      break;
-    case "Beat Up":
-      if (gen <= Gens.HGSS) {
-        moveType = Types.CURSE;
-      } else {
-        const stat = attacker.beatUpStats[move.beatUpHit];
-        movePower = Math.trunc(stat / 10) + 5;
-      }
-      break;
-    case "Brine":
-      if (defender.currentHp * 2 <= defender.stat(Stats.HP)) {
-        movePower *= 2;
-      }
-      break;
-    case "Echoed Voice":
-      movePower = Math.min(200, 40 + 40 * move.echoedVoice);
-      break;
-    case "Electro Ball":
-      movePower = Move.electroBall(attacker.speed(), defender.speed());
-      break;
-    case "Facade":
-      if (attacker.status !== Statuses.NO_STATUS) movePower *= 2;
-      break;
-    case "Fire Pledge":
-    case "Water Pledge":
-    case "Grass Pledge":
-      if (move.pledgeBoost) movePower *= 2;
-      break;
-    case "Flail":
-    case "Reversal":
-      movePower = Move.flail(attacker.currentHp, attacker.stat(Stats.HP), gen);
-      break;
-    case "Fling":
-      movePower = attacker.item.flingPower();
-      break;
-    case "Frustration":
-      movePower = Move.frustration(attacker.happiness);
-      break;
-    case "Fury Cutter":
-      movePower = Math.min(160, movePower * 2 ** move.furyCutter);
-      break;
-    case "Future Sight":
-    case "Doom Desire":
-      if (gen <= Gens.HGSS) moveType = Types.CURSE;
-      break;
-    case "Gyro Ball":
-      movePower = Move.gyroBall(attacker.speed(), defender.speed());
-      break;
-    case "Hex":
-      if (defender.status) movePower *= 2;
-      break;
-    case "Hidden Power":
-      moveType = Move.hiddenPowerType(attacker.ivs, gen);
-      movePower = Move.hiddenPowerBp(attacker.ivs, gen);
-      break;
-    case "Heavy Slam":
-    case "Heat Crash":
-      movePower = Move.heavySlam(attacker.weight(), defender.weight());
-      break;
-    case "Judgment":
-      if (attacker.item.isPlate()) moveType = attacker.item.plateType();
-      break;
-    case "Low Kick":
-    case "Grass Knot":
-      movePower = Move.grassKnot(defender.weight());
-      break;
-    case "Magnitude":
-      movePower = Move.magnitude(move.magnitude);
-      break;
-    case "Natural Gift":
-      if (attacker.item.disabled || !attacker.item.isBerry()) {
-        return { fail: true };
-      }
-      moveType = attacker.item.naturalGiftType();
-      movePower = attacker.item.naturalGiftPower();
-      break;
-    case "Present":
-      movePower = move.present;
-      break;
-    case "Payback":
-      if (defender.movedFirst) movePower *= 2;
-      break;
-    case "Punishment":
-      movePower = Move.punishment(defender.boosts);
-      break;
-    case "Pursuit":
-      if (gen >= Gens.ADV && defender.switchedOut) movePower *= 2;
-      break;
-    case "Return":
-      movePower = Move.return(attacker.happiness);
-      break;
-    case "Rollout":
-    case "Ice Ball":
-      movePower *= 2 ** ((move.rollout - 1) % 5 + move.defenseCurl);
-      break;
-    case "Round":
-      if (move.roundBoost) movePower *= 2;
-      break;
-    case "Smelling Salts":
-      if (defender.isParalyzed()) movePower *= 2;
-      break;
-    case "Spit Up":
-      if (attacker.stockpile === 0) return { fail: true };
-      movePower *= attacker.stockpile;
-      break;
-    case "Stored Power":
-    case "Power Trip":
-      movePower = Move.storedPower(attacker.boosts);
-      break;
-    case "Triple Kick":
-      movePower *= move.tripleKickCount;
-      break;
-    case "Trump Card":
-      movePower = Move.trumpCard(move.trumpPP);
-      break;
-    case "Wake-Up Slap":
-      if (defender.isAsleep()) movePower *= 2;
-      break;
-    case "Water Spout":
-    case "Eruption":
-      movePower = Move.eruption(attacker.currentHp, attacker.stat(Stats.HP));
-      break;
-    case "Weather Ball":
-      moveType = Move.weatherBall(field.effectiveWeather());
-      if (gen >= Gens.HGSS && moveType !== Types.NORMAL) {
-        movePower *= 2;
-      }
-      break;
-    case "Wring Out":
-    case "Crush Grip": {
-      const r = 120 * defender.currentHp / defender.stat(Stats.HP);
-      if (gen <= Gens.HGSS) {
-        movePower = 1 + Math.trunc(r);
-      } else {
-        movePower = Math.max(1, roundHalfToZero(r));
-      }
-      break;
-    }
-    default:
-      if (gen >= Gens.B2W2) {
-        if (move.fly && move.boostedByFly()) {
-          movePower *= 2;
-        } else if (attacker.ability.name === "Liquid Voice" && move.isSound()) {
-          moveType = Types.WATER;
-        } else if (move.name === "Multi-Attack") {
-          moveType = attacker.item.memoryType();
-        }
-      }
+  let moveType = baseMoveType;
+  let movePower = baseMovePower;
+  if ((field.ionDeluge && moveType === Types.NORMAL) || attacker.electrify) {
+    moveType = Types.ELECTRIC;
   }
+  if (moveType === Types.NORMAL && attacker.ability.normalToType() > -1) {
+    moveType = attacker.ability.normalToType();
+  }
+
+  let eff;
+  const moveTypes = [moveType];
+  if (move.name === "Flying Press") {
+    moveTypes.push(Types.FLYING);
+  }
+  if (moveTypes.includes(defender.ability.immunityType())) {
+    eff = [0, 1];
+  } else {
+    eff = effectiveness(moveTypes, defender.types(), {
+      gen,
+      foresight: defender.foresight,
+      scrappy: attacker.ability.name === "Scrappy",
+      gravity: field.gravity,
+      freezeDry: move.name === "Freeze-Dry",
+      inverted: field.invertedBattle,
+      strongWinds: field.strongWinds()
+    });
+    if (eff[0] === 0 && move.name === "Thousand Arrows") {
+      eff = [1, 1];
+    }
+  }
+  const superEffective = eff[0] > eff[1];
+  const notVeryEffective = eff[0] < eff[1];
 
   if (Gens.GSC <= gen && gen <= Gens.ADV) {
     if (
@@ -324,20 +204,16 @@ export default (attacker, defender, move, field) => {
         break;
       case "Rivalry":
         if (attacker.gender && defender.gender) {
-          if (attacker.gender === defender.gender) {
-            movePowerMod = chainMod(0xc00, movePowerMod);
-          } else {
-            movePowerMod = chainMod(0x1400, movePowerMod);
-          }
+          movePowerMod = chainMod(
+            attacker.gender === defender.gender ? 0xc00 : 0x1400,
+            movePowerMod
+          );
         }
         break;
       case "Sand Force":
         if (field.sand() && isSandForceType(moveType)) {
           movePowerMod = chainMod(0x14cd, movePowerMod);
         }
-        break;
-      case "Normalize":
-        moveType = Types.NORMAL;
         break;
       case "Tough Claws":
         if (move.isContact()) {
@@ -370,11 +246,17 @@ export default (attacker, defender, move, field) => {
           movePowerMod = chainMod(0x1800, movePowerMod);
         }
         break;
+      case "Neuroforce":
+        if (superEffective) {
+          movePowerMod = chainMod(0x1333, movePowerMod);
+        }
+        break;
       default:
-        if (moveType === Types.NORMAL && attacker.ability.normalToType() > -1) {
-          // refrigerate, etc.
+        if (
+          baseMoveType === Types.NORMAL &&
+          attacker.ability.normalToType() > -1
+        ) {
           movePowerMod = chainMod(0x14cd, movePowerMod);
-          moveType = attacker.ability.normalToType();
         }
     }
     if (moveType === Types.FIRE) {
@@ -504,9 +386,6 @@ export default (attacker, defender, move, field) => {
     if (field.mistyTerrain && defender.grounded && moveType === Types.DRAGON) {
       movePowerMod = chainMod(0x800, movePowerMod);
     }
-    if ((field.ionDeluge && moveType === Types.NORMAL) || attacker.electrify) {
-      moveType = Types.ELECTRIC;
-    }
     if (
       (field.fairyAura && moveType === Types.FAIRY) ||
       (field.darkAura && moveType === Types.DARK)
@@ -517,5 +396,188 @@ export default (attacker, defender, move, field) => {
     movePower = Math.max(1, applyMod(movePowerMod, movePower));
   }
 
-  return { moveType, movePower };
+  return {
+    moveType,
+    movePower,
+    effectiveness: eff,
+    superEffective,
+    notVeryEffective
+  };
 };
+
+function baseMoveInfo(attacker, defender, move, field) {
+  const { gen } = field;
+
+  if (field.psychicTerrain && move.priority() > 0) {
+    return { fail: true };
+  }
+
+  const info = { type: move.type(), power: move.power() };
+
+  switch (move.name) {
+    case "Assurance":
+      if (attacker.damagedPreviously) {
+        info.power *= 2;
+      }
+      break;
+    case "Avalanche":
+    case "Revenge":
+      if (attacker.damagedPreviously && !attacker.damagedByPainSplit) {
+        info.power *= 2;
+      }
+      break;
+    case "Beat Up":
+      if (gen <= Gens.HGSS) {
+        info.type = Types.CURSE;
+      } else {
+        const stat = attacker.beatUpStats[move.beatUpHit];
+        info.power = Math.trunc(stat / 10) + 5;
+      }
+      break;
+    case "Brine":
+      if (defender.currentHp * 2 <= defender.stat(Stats.HP)) {
+        info.power *= 2;
+      }
+      break;
+    case "Echoed Voice":
+      info.power = Math.min(200, 40 + 40 * move.echoedVoice);
+      break;
+    case "Electro Ball":
+      info.power = Move.electroBall(attacker.speed(), defender.speed());
+      break;
+    case "Facade":
+      if (attacker.status !== Statuses.NO_STATUS) info.power *= 2;
+      break;
+    case "Fire Pledge":
+    case "Water Pledge":
+    case "Grass Pledge":
+      if (move.pledgeBoost) info.power *= 2;
+      break;
+    case "Flail":
+    case "Reversal":
+      info.power = Move.flail(attacker.currentHp, attacker.stat(Stats.HP), gen);
+      break;
+    case "Fling":
+      info.power = attacker.item.flingPower();
+      break;
+    case "Frustration":
+      info.power = Move.frustration(attacker.happiness);
+      break;
+    case "Fury Cutter":
+      info.power = Math.min(160, info.power * 2 ** move.furyCutter);
+      break;
+    case "Future Sight":
+    case "Doom Desire":
+      if (gen <= Gens.HGSS) info.type = Types.CURSE;
+      break;
+    case "Gyro Ball":
+      info.power = Move.gyroBall(attacker.speed(), defender.speed());
+      break;
+    case "Hex":
+      if (defender.status) info.power *= 2;
+      break;
+    case "Hidden Power":
+      info.type = Move.hiddenPowerType(attacker.ivs, gen);
+      info.power = Move.hiddenPowerBp(attacker.ivs, gen);
+      break;
+    case "Heavy Slam":
+    case "Heat Crash":
+      info.power = Move.heavySlam(attacker.weight(), defender.weight());
+      break;
+    case "Judgment":
+      if (attacker.item.isPlate()) info.type = attacker.item.plateType();
+      break;
+    case "Low Kick":
+    case "Grass Knot":
+      info.power = Move.grassKnot(defender.weight());
+      break;
+    case "Magnitude":
+      info.power = Move.magnitude(move.magnitude);
+      break;
+    case "Natural Gift":
+      if (attacker.item.disabled || !attacker.item.isBerry()) {
+        return { fail: true };
+      }
+      info.type = attacker.item.naturalGiftType();
+      info.power = attacker.item.naturalGiftPower();
+      break;
+    case "Present":
+      info.power = move.present;
+      break;
+    case "Payback":
+      if (defender.movedFirst) info.power *= 2;
+      break;
+    case "Punishment":
+      info.power = Move.punishment(defender.boosts);
+      break;
+    case "Pursuit":
+      if (gen >= Gens.ADV && defender.switchedOut) info.power *= 2;
+      break;
+    case "Return":
+      info.power = Move.return(attacker.happiness);
+      break;
+    case "Rollout":
+    case "Ice Ball":
+      info.power *= 2 ** ((move.rollout - 1) % 5 + move.defenseCurl);
+      break;
+    case "Round":
+      if (move.roundBoost) info.power *= 2;
+      break;
+    case "Smelling Salts":
+      if (defender.isParalyzed()) info.power *= 2;
+      break;
+    case "Spit Up":
+      if (attacker.stockpile === 0) return { fail: true };
+      info.power *= attacker.stockpile;
+      break;
+    case "Stored Power":
+    case "Power Trip":
+      info.power = Move.storedPower(attacker.boosts);
+      break;
+    case "Triple Kick":
+      info.power *= move.tripleKickCount;
+      break;
+    case "Trump Card":
+      info.power = Move.trumpCard(move.trumpPP);
+      break;
+    case "Wake-Up Slap":
+      if (defender.isAsleep()) info.power *= 2;
+      break;
+    case "Water Spout":
+    case "Eruption":
+      info.power = Move.eruption(attacker.currentHp, attacker.stat(Stats.HP));
+      break;
+    case "Weather Ball":
+      info.type = Move.weatherBall(field.effectiveWeather());
+      if (gen >= Gens.HGSS && info.type !== Types.NORMAL) {
+        info.power *= 2;
+      }
+      break;
+    case "Wring Out":
+    case "Crush Grip": {
+      const r = 120 * defender.currentHp / defender.stat(Stats.HP);
+      if (gen <= Gens.HGSS) {
+        info.power = 1 + Math.trunc(r);
+      } else {
+        info.power = Math.max(1, roundHalfToZero(r));
+      }
+      break;
+    }
+    default:
+      if (gen >= Gens.B2W2) {
+        if (move.fly && move.boostedByFly()) {
+          info.power *= 2;
+        } else if (attacker.ability.name === "Liquid Voice" && move.isSound()) {
+          info.type = Types.WATER;
+        } else if (move.name === "Multi-Attack") {
+          info.type = attacker.item.memoryType();
+        }
+      }
+  }
+
+  if (attacker.ability.name === "Normalize") {
+    info.type = Types.NORMAL;
+  }
+
+  return info;
+}

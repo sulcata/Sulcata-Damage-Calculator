@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs-extra";
 import _ from "lodash/fp";
 import { maxGen, Gens, Types } from "../src/utilities";
-import { ignorableAbilities, nonCritMoves, requiredItems } from "./db-extras";
+import { ignorableAbilities, requiredItems } from "./db-extras";
 
 const inDir = path.join(__dirname, "data/ps-data");
 const outDir = path.join(__dirname, "../dist");
@@ -142,7 +142,8 @@ const processMoveInfo = _.curry((gen, moveInfo) => {
   if (moveInfo.category !== undefined) {
     result.e = processCategory(moveInfo.category);
   }
-  if (moveInfo.priority > 0) result.g = moveInfo.priority;
+  if (moveInfo.ignoreAbility) result.f = 1;
+  if (moveInfo.priority !== 0) result.g = moveInfo.priority;
   if (moveInfo.accuracy !== undefined && moveInfo.accuracy !== true) {
     result.h = moveInfo.accuracy;
   }
@@ -158,7 +159,6 @@ const processMoveInfo = _.curry((gen, moveInfo) => {
   if (moveInfo.secondary) result.l = processSecondaryInfo(moveInfo.secondary);
   if (moveInfo.recoil !== undefined) result.m = moveInfo.recoil;
   if (moveInfo.ohko !== undefined) result.n = 1;
-  if (nonCritMoves.has(moveInfo.name)) result.o = 1;
   if (moveInfo.flags !== undefined) {
     const flags = moveInfo.flags;
     /*

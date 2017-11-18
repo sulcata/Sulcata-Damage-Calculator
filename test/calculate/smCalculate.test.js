@@ -66,4 +66,20 @@ describe("smCalculate()", () => {
       smCalculate(xerneas, genesect, moonblast, auraField)
     ).toMatchSnapshot();
   });
+
+  test("Neuroforce boosts super effective attacks", () => {
+    const necrozma = new Pokemon({ name: "Necrozma-Dawn-Wings", gen });
+    const surf = new Move({ name: "Surf", gen });
+    const damage = smCalculate(necrozma, heatran, surf, field);
+    necrozma.ability.name = "Neuroforce";
+    const boostedDamage = smCalculate(necrozma, heatran, surf, field);
+    expect(Math.max(...boostedDamage)).toBeGreaterThan(Math.max(...damage));
+  });
+
+  test("Psychic Terrain blocks priority", () => {
+    const quickAttack = new Move({ name: "Quick Attack", gen });
+    const psychicTerrain = new Field({ psychicTerrain: true, gen });
+    const damage = smCalculate(heatran, landorusT, quickAttack, psychicTerrain);
+    expect(damage).toEqual([0]);
+  });
 });

@@ -1,6 +1,4 @@
-import { effectiveness } from "../info";
 import {
-  Gens,
   Stats,
   Types,
   damageVariation,
@@ -10,13 +8,15 @@ import {
 import moveInfo from "./moveInfo";
 
 export default (attacker, defender, move, field) => {
-  const { moveType, movePower, fail } = moveInfo(
-    attacker,
-    defender,
-    move,
-    field
-  );
-  if (fail) return [0];
+  const {
+    moveType,
+    movePower,
+    effectiveness,
+    superEffective,
+    notVeryEffective,
+    fail
+  } = moveInfo(attacker, defender, move, field);
+  if (fail || effectiveness[0] === 0) return [0];
 
   const defStat = field.wonderRoom ? Stats.SDEF : Stats.DEF;
   const sdefStat = field.wonderRoom ? Stats.DEF : Stats.SDEF;
@@ -222,8 +222,7 @@ export default (attacker, defender, move, field) => {
   def = applyMod(defMod, def);
   sdef = applyMod(sdefMod, sdef);
 
-  let a = 0,
-    d = 0;
+  let a, d;
   if (move.isPsyshockLike()) {
     a = satk;
     d = def;
@@ -276,17 +275,9 @@ export default (attacker, defender, move, field) => {
     }
   }
 
-  let eff = effectiveness(moveType, defender.types(), {
-    gen: Gens.B2W2,
-    foresight: defender.foresight,
-    scrappy: attacker.ability.name === "Scrappy",
-    gravity: field.gravity
-  });
-  if (moveType === defender.ability.immunityType()) {
-    eff = [0, 2];
-  }
-  if (eff[0] === 0) return [0];
-  damages = damages.map(d => Math.trunc(d * eff[0] / eff[1]));
+  damages = damages.map(d =>
+    Math.trunc(d * effectiveness[0] / effectiveness[1])
+  );
 
   if (
     attacker.isBurned() &&
@@ -313,7 +304,7 @@ export default (attacker, defender, move, field) => {
     finalMod = chainMod(0x800, finalMod);
   }
 
-  if (attacker.ability.name === "Tinted Lens" && eff[0] < eff[1]) {
+  if (notVeryEffective && attacker.ability.name === "Tinted Lens") {
     finalMod = chainMod(0x2000, finalMod);
   }
 
@@ -325,7 +316,7 @@ export default (attacker, defender, move, field) => {
     finalMod = chainMod(0x1800, finalMod);
   }
 
-  if (eff[0] > eff[1] && defender.ability.reducesSuperEffective()) {
+  if (superEffective && defender.ability.reducesSuperEffective()) {
     finalMod = chainMod(0xc00, finalMod);
   }
 
@@ -339,7 +330,7 @@ export default (attacker, defender, move, field) => {
       }
       break;
     case "Expert Belt":
-      if (eff[0] > eff[1]) {
+      if (superEffective) {
         finalMod = chainMod(0x1333, finalMod);
       }
       break;
@@ -351,7 +342,7 @@ export default (attacker, defender, move, field) => {
 
   if (
     moveType === defender.item.berryTypeResist() &&
-    (eff[0] > eff[1] || moveType === Types.NORMAL)
+    (superEffective || moveType === Types.NORMAL)
   ) {
     finalMod = chainMod(0x800, finalMod);
     defender.item.used = true;
