@@ -6,7 +6,7 @@ const baseConfig = require("./webpack.app.config");
 
 const config = cloneDeep(baseConfig);
 
-config.devtool = "source-map";
+config.devtool = "cheap-module-source-map";
 
 config.plugins = config.plugins || [];
 config.plugins.unshift(

@@ -11,7 +11,7 @@ const config = {
     library: "sulcalc",
     libraryTarget: "umd"
   },
-  devtool: "source-map",
+  devtool: "cheap-module-source-map",
   stats: "minimal",
   module: {
     strictExportPresence: true,
