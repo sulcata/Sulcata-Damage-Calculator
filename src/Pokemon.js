@@ -158,27 +158,29 @@ export default class Pokemon {
     );
     this.gender = defaultTo(Number(pokemon.gender), Genders.NO_GENDER);
 
-    if (typeof pokemon.ability === "string") {
-      this.ability = new Ability({ name: pokemon.ability, gen });
-    } else if (pokemon.item) {
-      this.ability = new Ability(pokemon.ability);
-    } else {
-      this.ability = new Ability({ gen });
-    }
+    this.ability = new Ability({
+      name: pokemon.ability,
+      ...(typeof pokemon.ability === "string" ? {} : pokemon.ability),
+      gen
+    });
 
-    if (typeof pokemon.item === "string") {
-      this.item = new Item({ name: pokemon.item, gen });
-    } else if (pokemon.item) {
-      this.item = new Item(pokemon.item);
-    } else {
-      this.item = new Item({ gen });
-    }
+    this.item = new Item({
+      name: pokemon.item,
+      ...(typeof pokemon.item === "string" ? {} : pokemon.item),
+      gen
+    });
 
     this.moves = (pokemon.moves || []).map(
-      move => new Move(typeof move === "string" ? { name: move, gen } : move)
+      move =>
+        new Move({
+          name: move,
+          ...(typeof move === "string" ? {} : move),
+          user: this,
+          gen
+        })
     );
     while (this.moves.length < 4) {
-      this.moves.push(new Move({ gen }));
+      this.moves.push(new Move({ gen, user: this }));
     }
     this.moves.length = 4;
 

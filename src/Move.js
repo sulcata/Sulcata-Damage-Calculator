@@ -75,6 +75,10 @@ export default class Move {
     this.gen = defaultTo(Number(move.gen), maxGen);
     this.id = moveId(move.id);
     if (typeof move.name === "string") this.name = move.name;
+
+    this.user = move.user;
+    this.target = move.target;
+
     this.critical = Boolean(move.critical);
     this.zMove = Boolean(move.zMove);
     this.numberOfHits = defaultTo(Number(move.numberOfHits), 0);
@@ -92,7 +96,13 @@ export default class Move {
   }
 
   get name() {
-    return this.zMove ? zMoves[this.type()] : moveName(this.id);
+    if (this.zMove) {
+      if (this.user && this.id === this.user.item.zMoveTransformsFrom()) {
+        return moveName(this.user.item.zMoveTransformsTo());
+      }
+      return zMoves[this.type()];
+    }
+    return moveName(this.id);
   }
 
   set name(moveName) {
@@ -100,9 +110,13 @@ export default class Move {
   }
 
   power() {
-    return this.zMove
-      ? zMovePower(this.id, this.gen)
-      : movePower(this.id, this.gen);
+    if (this.zMove) {
+      if (this.user && this.id === this.user.item.zMoveTransformsFrom()) {
+        return movePower(this.user.item.zMoveTransformsTo(), this.gen);
+      }
+      return zMovePower(this.id, this.gen);
+    }
+    return movePower(this.id, this.gen);
   }
 
   type() {
@@ -282,6 +296,10 @@ export default class Move {
 
   weakenedByGrassyTerrain() {
     return ["Bulldoze", "Earthquake", "Magnitude"].includes(this.name);
+  }
+
+  usesMaxAttackingStat() {
+    return ["Photon Geyser", "Light That Burns the Sky"].includes(this.name);
   }
 
   static hiddenPowers(typeId, gen) {

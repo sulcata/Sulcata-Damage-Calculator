@@ -1,4 +1,5 @@
 import Move from "../src/Move";
+import Pokemon from "../src/Pokemon";
 import { DamageClasses, Gens, Types, Weathers, maxGen } from "../src/utilities";
 
 describe("Move", () => {
@@ -93,6 +94,22 @@ describe("Move", () => {
 
     doubleEdge.zMove = true;
     expect(doubleEdge.name).toEqual("Breakneck Blitz");
+
+    const clangingScales = new Move({ name: "Clanging Scales", zMove: true });
+    expect(clangingScales.name).toEqual("Devastating Drake");
+    clangingScales.user = new Pokemon({
+      name: "Kommo-o",
+      item: "Kommonium Z"
+    });
+    expect(clangingScales.name).toEqual("Clangorous Soulblaze");
+
+    const photonGeyser = new Move({ name: "Photon Geyser", zMove: true });
+    expect(photonGeyser.name).toEqual("Shattered Psyche");
+    photonGeyser.user = new Pokemon({
+      name: "Necrozma-Ultra",
+      item: "Ultranecrozium Z"
+    });
+    expect(photonGeyser.name).toEqual("Light That Burns the Sky");
   });
 
   describe("#power()", () => {
@@ -114,6 +131,26 @@ describe("Move", () => {
     test("Z-Moves", () => {
       doubleEdge.zMove = true;
       expect(doubleEdge.power()).toEqual(190);
+
+      const clangingScales = new Move({ name: "Clanging Scales" });
+      expect(clangingScales.power()).toEqual(110);
+      clangingScales.zMove = true;
+      expect(clangingScales.power()).toEqual(185);
+      clangingScales.user = new Pokemon({
+        name: "Kommo-o",
+        item: "Kommonium Z"
+      });
+      expect(clangingScales.power()).toEqual(185);
+
+      const photonGeyser = new Move({ name: "Photon Geyser" });
+      expect(photonGeyser.power()).toEqual(100);
+      photonGeyser.zMove = true;
+      expect(photonGeyser.power()).toEqual(180);
+      photonGeyser.user = new Pokemon({
+        name: "Necrozma-Ultra",
+        item: "Ultranecrozium Z"
+      });
+      expect(photonGeyser.power()).toEqual(200);
     });
   });
 

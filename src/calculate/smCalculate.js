@@ -238,7 +238,7 @@ export default (attacker, defender, move, field) => {
   sdef = applyMod(sdefMod, sdef);
 
   let a, d;
-  if (move.name === "Photon Geyser") {
+  if (move.usesMaxAttackingStat()) {
     a = Math.max(atk, satk);
     d = sdef;
   } else if (move.isPsyshockLike()) {

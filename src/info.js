@@ -180,6 +180,10 @@ export const releasedItems = gen =>
   Object.keys(getInfo(maxGen, ["items"], {}))
     .filter(itemId => isItemReleased(itemId, gen))
     .sort();
+export const zMoveTransformsTo = (itemId, gen) =>
+  getInfo(gen, ["items", itemId, "o", "0"]);
+export const zMoveTransformsFrom = (itemId, gen) =>
+  getInfo(gen, ["items", itemId, "o", "1"]);
 
 /* Ability Information */
 export const abilityName = abilityId =>

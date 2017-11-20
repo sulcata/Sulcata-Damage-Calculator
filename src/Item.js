@@ -13,6 +13,8 @@ import {
   isBerry,
   isHeavy,
   isPlate,
+  zMoveTransformsTo,
+  zMoveTransformsFrom,
   megaStone
 } from "./info";
 
@@ -99,6 +101,14 @@ export default class Item {
       default:
         return 0;
     }
+  }
+
+  zMoveTransformsTo() {
+    return zMoveTransformsTo(this.id, this.gen);
+  }
+
+  zMoveTransformsFrom() {
+    return zMoveTransformsFrom(this.id, this.gen);
   }
 
   _effectiveId() {

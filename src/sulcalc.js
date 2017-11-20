@@ -54,7 +54,7 @@ const statusMessages = {
 export default function sulcalc(attacker, defender, move, field) {
   attacker = new Pokemon(attacker);
   defender = new Pokemon(defender);
-  move = new Move(move);
+  move = new Move({ ...move, user: attacker, target: defender });
   field = new Field(field);
 
   const reportPokes = [];

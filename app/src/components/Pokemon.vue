@@ -115,6 +115,7 @@ export default {
     },
     updateMove(i, move) {
       const moves = [...this.pokemon.moves];
+      move.user = this.pokemon;
       moves[i] = move;
       if (move.usesHappiness()) {
         this.$emit(

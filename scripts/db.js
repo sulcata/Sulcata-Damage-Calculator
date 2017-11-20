@@ -7,7 +7,7 @@ import { ignorableAbilities, requiredItems } from "./db-extras";
 const inDir = path.join(__dirname, "data/ps-data");
 const outDir = path.join(__dirname, "../dist");
 
-const nameToId = _.flow(_.replace(/[^A-Za-z0-9]/, ""), _.toLower);
+const nameToId = name => name.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 
 function processType(typeString) {
   const normalized = typeString.toUpperCase();
@@ -107,6 +107,11 @@ const processItemInfo = _.curry((gen, itemInfo) => {
   if (typeResistCheck !== null) result.l = processType(typeResistCheck[1]);
   if (itemInfo.isGem) result.m = processType(itemInfo.name.split(" ")[0]);
   if (itemInfo.isBerry) result.n = 1;
+  if (itemInfo.zMove === true) {
+    result.o = 1;
+  } else if (itemInfo.zMove !== undefined) {
+    result.o = [nameToId(itemInfo.zMove), nameToId(itemInfo.zMoveFrom)];
+  }
   if (_.isEmpty(result)) return undefined;
   return result;
 });
