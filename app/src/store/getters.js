@@ -1,5 +1,5 @@
 import { zip } from "lodash";
-import sulcalc, { info } from "sulcalc";
+import { sulcalc, info } from "sulcalc";
 
 export function sets(state) {
   const setdexList = [];

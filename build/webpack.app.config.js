@@ -21,7 +21,7 @@ const config = {
   resolve: {
     alias: {
       db: path.join(__dirname, "../dist/db"),
-      sulcalc: path.join(__dirname, "../src/sulcalc")
+      sulcalc: path.join(__dirname, "../src/index")
     }
   },
   module: {

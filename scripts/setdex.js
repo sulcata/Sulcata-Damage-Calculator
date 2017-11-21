@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import _ from "lodash/fp";
-import { info, Move, Stats, Pokemon } from "../src/sulcalc";
+import { info, Move, Stats, Pokemon } from "../src";
 
 const mapUncapped = _.map.convert({ cap: false });
 const mapValuesUncapped = _.mapValues.convert({ cap: false });

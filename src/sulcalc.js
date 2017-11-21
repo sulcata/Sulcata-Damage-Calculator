@@ -22,16 +22,6 @@ import { NoPokemonError, NoMoveError } from "./errors";
 import calculate from "./calculate";
 import endOfTurn from "./endOfTurn";
 
-export Multiset from "./Multiset";
-export Pokemon from "./Pokemon";
-export Ability from "./Ability";
-export Item from "./Item";
-export Move from "./Move";
-export Field from "./Field";
-export * as info from "./info";
-export * from "./errors";
-export * from "./utilities";
-
 const weatherMessages = {
   [Weathers.HAIL]: "in Hail",
   [Weathers.RAIN]: "in Rain",

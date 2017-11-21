@@ -4,7 +4,7 @@ const webpack = require("webpack");
 const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
 
 const config = {
-  entry: path.join(__dirname, "../src/sulcalc"),
+  entry: path.join(__dirname, "../src/index"),
   output: {
     filename: "sulcalc.js",
     path: path.join(__dirname, "../dist/lib"),
