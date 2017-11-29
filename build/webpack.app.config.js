@@ -20,7 +20,6 @@ const config = {
   stats: "minimal",
   resolve: {
     alias: {
-      db: path.join(__dirname, "../dist/db"),
       sulcalc: path.join(__dirname, "../src/index")
     }
   },
