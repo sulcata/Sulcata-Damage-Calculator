@@ -82,4 +82,15 @@ describe("smCalculate()", () => {
     const damage = smCalculate(heatran, landorusT, quickAttack, psychicTerrain);
     expect(damage).toEqual([0]);
   });
+
+  test("Knock Off should multiply base power by 1.5x if it gets rid of an item", () => {
+    const knockOff = new Move({ name: "Knock Off", gen });
+    const bisharp = new Pokemon({ name: "Bisharp", gen });
+    const rotomW = new Pokemon({ name: "Rotom-Wash", gen });
+    const damage = smCalculate(bisharp, rotomW, knockOff, field);
+    expect(Math.max(...damage)).toEqual(96);
+    rotomW.item.name = "Rocky Helmet";
+    const boostedDamage = smCalculate(bisharp, rotomW, knockOff, field);
+    expect(Math.max(...boostedDamage)).toEqual(142);
+  });
 });
