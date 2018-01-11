@@ -17,7 +17,7 @@ module.exports = {
     es6: true,
     node: true
   },
-  plugins: ["babel", "html", "import", "prettier", "promise"],
+  plugins: ["babel", "html", "import", "promise"],
   settings: {
     "html/indent": "0",
     "html/report-bad-indent": "error",
@@ -54,8 +54,6 @@ module.exports = {
     "promise/param-names": "error",
     "promise/prefer-await-to-callbacks": "error",
     "promise/prefer-await-to-then": "error",
-
-    "prettier/prettier": "error",
 
     "accessor-pairs": "error",
     "array-callback-return": "error",

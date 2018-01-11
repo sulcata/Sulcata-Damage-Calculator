@@ -1,8 +1,10 @@
 import { at, castArray, merge, set, zip } from "lodash";
 
-export function persistencePlugin(
-  { saveOn = {}, prefix = "", storage = window.localStorage } = {}
-) {
+export function persistencePlugin({
+  saveOn = {},
+  prefix = "",
+  storage = window.localStorage
+} = {}) {
   function prefixKey(key) {
     if (prefix !== "") {
       return `(${prefix}).${key}`;
