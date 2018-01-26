@@ -10,6 +10,8 @@ exports[`sulcalc() Psyshock 1`] = `"252 SpA Life Orb Latios Psyshock vs. 252 HP 
 
 exports[`sulcalc() Reflect 1`] = `"0 SpA Ferrothorn Fire Blast vs. 4 HP / 0 SpD Starmie: 28 - 33 (10.7 - 12.6%) -- negligible chance to 8HKO, 98.7% chance to 9HKO"`;
 
+exports[`sulcalc() Variable BP fix 1`] = `"Polkadot Bow Gyarados Flail vs. Articuno: 218 (56.9%) -- guaranteed 2HKO"`;
+
 exports[`sulcalc() almost guaranteed KO 1`] = `"200 Atk Snorlax Double-Edge vs. Snorlax: 173 - 204 (33.1 - 39%) -- almost guaranteed 3HKO"`;
 
 exports[`sulcalc() bail out on insufficient damage 1`] = `"0 Atk Munchlax Pound vs. 0 HP / 0 Def Aggron: 6 - 7 (2.1 - 2.5%) -- this might take a while..."`;

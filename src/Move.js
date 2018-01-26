@@ -136,10 +136,7 @@ export default class Move {
   }
 
   isOther() {
-    return (
-      (this.gen > Gens.ADV && this.damageClass() === DamageClasses.OTHER) ||
-      (this.gen <= Gens.ADV && this.power() <= 0)
-    );
+    return this.damageClass() === DamageClasses.OTHER;
   }
 
   priority() {

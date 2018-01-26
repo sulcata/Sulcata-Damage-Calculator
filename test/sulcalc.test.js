@@ -204,4 +204,20 @@ describe("sulcalc()", () => {
       sulcalc({ name: "Snorlax" }, { name: "Snorlax" }, { id: -1 }, {});
     }).toThrow(NoMoveError);
   });
+
+  test("Variable BP fix", () => {
+    const gen = Gens.GSC;
+    const { summary } = sulcalc(
+      {
+        name: "Gyarados",
+        item: "Polkadot Bow",
+        currentHp: 15,
+        gen
+      },
+      { name: "Articuno", gen },
+      { name: "Flail", gen },
+      { gen }
+    );
+    expect(summary).toMatchSnapshot();
+  });
 });
