@@ -2,11 +2,11 @@ language: node_js
 node_js:
   - node
 before_script:
-  - yarn setup
+  - npm run setup
 script:
-  - yarn test
-  - yarn build
-  - yarn build:lib
+  - npm run test
+  - npm run build
+  - npm run build:lib
 deploy:
   - provider: pages
     skip_cleanup: true

@@ -1,4 +1,5 @@
 dist
 coverage
 scripts/data
+package-lock.json
 !.eslintrc.js
