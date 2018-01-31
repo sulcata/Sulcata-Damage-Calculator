@@ -8,6 +8,7 @@ A list of sources used for the calculator.
 
 ## Gen 2
 
+* [Peter O.'s Timing Notes](http://upcarchive.playker.info/0/upokecenter/content/pokemon-gold-version-silver-version-and-crystal-version-timing-notes.html)
 * **A combination of UPokeCenter and Crystal\_**
   * The following data was obtained through UPC with various inaccuracies
     corrected by Crystal\_ and some mechanics testing done by myself.
@@ -45,6 +46,8 @@ A list of sources used for the calculator.
   * Multiply damage by 2 for switching out of Pursuit.
 
 ## Gen 3
+
+* [Peter O.'s Timing Notes](http://upcarchive.playker.info/0/upokecenter/content/pokemon-ruby-version-sapphire-version-and-emerald-version-timing-notes.html)
 
 ## Gen 4
 
