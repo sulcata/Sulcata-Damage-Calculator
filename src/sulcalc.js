@@ -372,14 +372,16 @@ function chanceToKo(poke, damageRanges, params) {
   const rechargeTurns = defaultTo(params.rechargeTurns, 0);
   const effects = defaultTo(params.effects, [0]);
 
-  let dmg = defaultTo(new Multiset(params.initDmgRange, [0]));
-  let berryDmg = new Multiset(params.initDmgRangeBerry);
+  let dmg = new Multiset(defaultTo(params.initDmgRange, [0]));
+  let berryDmg = new Multiset(defaultTo(params.initDmgRangeBerry, []));
   let toxicCounter = defaultTo(params.toxicCounter, 0);
 
   let remainingHealth, remainingHealthBerry;
 
-  const hasFainted = value => value >= totalHp;
-  const damageToHealth = value => totalHp - value;
+  const hasFainted = damage => damage >= totalHp;
+  const damageToHealth = damage => totalHp - damage;
+  const applyDamage = (damage, newDamage) =>
+    damage >= totalHp ? damage : damage + newDamage;
 
   for (let turn = 0, i = 0; turn < maxTurns; turn++, i++) {
     if (typeof damageRanges[i] === "number") {
@@ -387,15 +389,16 @@ function chanceToKo(poke, damageRanges, params) {
       i += damageRanges[i];
     }
 
-    dmg = dmg.permute(damageRanges[i]).simplify();
-    berryDmg = berryDmg.permute(damageRanges[i]).simplify();
+    dmg = dmg.permute(damageRanges[i], applyDamage).simplify();
+    berryDmg = berryDmg.permute(damageRanges[i], applyDamage).simplify();
 
     for (let j = 0; j <= rechargeTurns; j++) {
-      /* because effects always has a 0 value passed in the first index,
-             * berry check runs right after damage is applied, as well as after
-             * every added effect. Separating damages with berries applied
-             * prevents extra applications.
-             */
+      /*
+       * because effects always has a 0 value passed in the first index,
+       * berry check runs right after damage is applied, as well as after
+       * every added effect. Separating damages with berries applied
+       * prevents extra applications.
+       */
       // berries go first to prevent double effect application
       berryDmg = berryDmg.map(
         berryDamageMap.bind({
@@ -423,7 +426,7 @@ function chanceToKo(poke, damageRanges, params) {
       addStrs(dmg.size, berryDmg.size)
     ]);
 
-    if (!turn) {
+    if (turn === 0) {
       remainingHealth = dmg.map(damageToHealth);
       remainingHealthBerry = berryDmg.map(damageToHealth);
     }
@@ -475,13 +478,14 @@ function damageMap(v, w, skip) {
       v < this.totalHp &&
       2 * v >= this.totalHp
     ) {
-      /* berry can be whatever amount for sitrus, oran, etc.
-             * gen 3, 4, 5, & 6: apply at 1/2 or below
-             * I've personally confirmed that for gens 3, 4, & 5 it
-             * activates above 1/3, so I'm assuming it activates at <= 50%
-             * tested with Emerald, Heart Gold, and White
-             * tl;dr bulba lies, it was never 1/3
-             */
+      /*
+       * berry can be whatever amount for sitrus, oran, etc.
+       * gen 3, 4, 5, & 6: apply at 1/2 or below
+       * I've personally confirmed that for gens 3, 4, & 5 it
+       * activates above 1/3, so I'm assuming it activates at <= 50%
+       * tested with Emerald, Heart Gold, and White
+       * tl;dr bulba lies, it was never 1/3
+       */
       v = Math.max(0, v - this.berryHeal);
       berryUsed = true;
     }

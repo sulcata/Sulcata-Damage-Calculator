@@ -502,7 +502,7 @@ function baseMoveInfo(attacker, defender, move, field) {
       info.power = attacker.item.naturalGiftPower();
       break;
     case "Present":
-      info.power = move.present;
+      info.power = 40 * move.present;
       break;
     case "Payback":
       if (defender.movedFirst) info.power *= 2;

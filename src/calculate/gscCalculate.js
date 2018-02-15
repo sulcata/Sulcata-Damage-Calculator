@@ -8,6 +8,26 @@ import {
 } from "../utilities";
 import moveInfo from "./moveInfo";
 
+const typeToPresent = {
+  [Types.NORMAL]: 0,
+  [Types.FIGHTING]: 1,
+  [Types.FLYING]: 2,
+  [Types.POISON]: 3,
+  [Types.GROUND]: 4,
+  [Types.ROCK]: 5,
+  [Types.BUG]: 7,
+  [Types.GHOST]: 8,
+  [Types.STEEL]: 9,
+  [Types.FIRE]: 20,
+  [Types.WATER]: 21,
+  [Types.GRASS]: 22,
+  [Types.ELECTRIC]: 23,
+  [Types.PSYCHIC]: 24,
+  [Types.ICE]: 25,
+  [Types.DRAGON]: 26,
+  [Types.DARK]: 27
+};
+
 export default (attacker, defender, move, field) => {
   const { moveType, movePower, effectiveness, fail } = moveInfo(
     attacker,
@@ -80,6 +100,11 @@ export default (attacker, defender, move, field) => {
     a = attacker.beatUpStats[move.beatUpHit];
     d = defender.baseStat(Stats.DEF);
     level = attacker.beatUpLevels[move.beatUpHit];
+  } else if (move.name === "Present") {
+    a = Math.floor(10 * effectiveness[0] / effectiveness[1]);
+    // Intentionally switches the attacker and defender's secondary types
+    d = typeToPresent[attacker.secondaryType()] || 0;
+    level = typeToPresent[defender.secondaryType()] || 0;
   }
 
   d = Math.max(1, d);

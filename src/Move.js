@@ -93,6 +93,7 @@ export default class Move {
     this.dig = Boolean(move.dig);
     this.dive = Boolean(move.dive);
     this.fly = Boolean(move.fly);
+    this.present = defaultTo(Number(move.present), -1);
   }
 
   get name() {

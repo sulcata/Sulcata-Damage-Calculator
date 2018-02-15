@@ -1,4 +1,4 @@
-import { clamp, flowRight } from "lodash";
+import { clamp, defaultTo, flowRight } from "lodash";
 import Multiset from "../Multiset";
 import { Gens, Stats, multiplyStrs, divideStrs, cmpStrs } from "../utilities";
 import rbyCalculate from "./rbyCalculate";
@@ -81,7 +81,7 @@ const genCalculate = flowRight(
   }
 );
 
-const turnCalculate = (attacker, defender, move, field) => {
+function turnCalculate(attacker, defender, move, field) {
   let dmg;
   if (move.name === "Triple Kick") {
     dmg = new Multiset([0]);
@@ -99,6 +99,26 @@ const turnCalculate = (attacker, defender, move, field) => {
       defender.brokenMultiscale = true;
     }
     move.beatUpHit = 0;
+  } else if (move.name === "Present") {
+    const heal = new Multiset([
+      -Math.max(1, Math.floor(defender.stat(Stats.HP) / 4))
+    ]);
+    if (move.present === -1) {
+      const dmgs = [heal];
+      for (let i = 1; i <= 3; i++) {
+        move.present = i;
+        dmgs.push(genCalculate(attacker, defender, move, field));
+      }
+      move.present = -1;
+      dmg = combineMultisetsWithWeights(
+        dmgs,
+        field.gen >= Gens.ADV ? [2, 4, 3, 1] : [52, 102, 76, 26]
+      );
+    } else if (move.present === 0) {
+      dmg = heal;
+    } else {
+      dmg = genCalculate(attacker, defender, move, field);
+    }
   } else if (
     attacker.ability.name === "Parental Bond" &&
     move.maxHits() === 1 &&
@@ -134,28 +154,22 @@ const turnCalculate = (attacker, defender, move, field) => {
     }
 
     if (move.numberOfHits >= 1) {
-      const min = move.minHits();
-      const max = move.maxHits();
-      dmg = dmgs[clamp(move.numberOfHits, min, max)];
+      dmg = dmgs[clamp(move.numberOfHits, move.minHits(), move.maxHits())];
     } else if (move.maxHits() === 2) {
       dmg = dmgs[2];
     } else {
-      /* before b2w2:
-             * 2 hits (3/8), 3 hits (3/8), 4 hits (1/8), 5 hits (1/8)
-             * after b2w2:
-             * 2 hits (1/3), 3 hits (1/3), 4 hits (1/6), 5 hits (1/6)
-             */
-      const p =
+      /*
+       *  before b2w2:
+       * 2 hits (3/8), 3 hits (3/8), 4 hits (1/8), 5 hits (1/8)
+       * after b2w2:
+       * 2 hits (1/3), 3 hits (1/3), 4 hits (1/6), 5 hits (1/6)
+       */
+      const weights =
         field.gen >= Gens.B2W2 ? [0, 0, 2, 2, 1, 1] : [0, 0, 3, 3, 1, 1];
-      const product = dmgs.map(dmg => dmg.size).reduce(multiplyStrs);
-      const scaledDmgs = dmgs.map(dmg => {
-        const multiplier = divideStrs(product, dmg.size)[0];
-        return dmg.scale(multiplier);
-      });
-      dmg = new Multiset();
-      for (let i = move.minHits(); i <= move.maxHits(); i++) {
-        dmg = dmg.union(scaledDmgs[i].scale(p[i]));
-      }
+      dmg = combineMultisetsWithWeights(
+        dmgs.slice(move.minHits(), move.maxHits()),
+        weights.slice(move.minHits(), move.maxHits())
+      );
     }
   } else {
     // Simple move; default case.
@@ -168,7 +182,22 @@ const turnCalculate = (attacker, defender, move, field) => {
   }
 
   return cmpStrs(dmg.size, "39") <= 0 ? dmg : dmg.simplify();
-};
+}
+
+function combineMultisetsWithWeights(sets, weights) {
+  const product = sets.map(set => set.size).reduce(multiplyStrs);
+  const scaledSets = sets.map(set => {
+    const multiplier = divideStrs(product, set.size)[0];
+    return set.scale(multiplier);
+  });
+  let result = new Multiset();
+  for (let i = 0; i < scaledSets.length; i++) {
+    const scaledSet = scaledSets[i];
+    const weight = defaultTo(weights[i], 1);
+    result = result.union(scaledSet.scale(weight));
+  }
+  return result;
+}
 
 export default (attacker, defender, move, field) => {
   const dmg = [];

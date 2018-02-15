@@ -65,7 +65,7 @@
           size='small'
           />
 
-        <!-- Echoed Voice -->
+        <!-- Fury Cutter -->
         <select
           v-else-if='move.name === "Fury Cutter"'
           :value='move.furyCutter'
@@ -79,6 +79,20 @@
             >
             {{ label }}
           </option>
+        </select>
+
+        <!-- Fury Cutter -->
+        <select
+          v-else-if='move.name === "Present"'
+          :value='move.present'
+          @input='updatePresent'
+          class='form-control form-control-sm'
+          >
+          <option :value='-1'>--</option>
+          <option :value='0'>Heal</option>
+          <option :value='1'>40 BP</option>
+          <option :value='2'>80 BP</option>
+          <option :value='3'>120 BP</option>
         </select>
 
         <!-- Echoed Voice -->
@@ -275,6 +289,15 @@ export default {
         new Move({
           ...this.move,
           furyCutter: Number(event.target.value)
+        })
+      );
+    },
+    updatePresent(event) {
+      this.$emit(
+        "input",
+        new Move({
+          ...this.move,
+          present: Number(event.target.value)
         })
       );
     },

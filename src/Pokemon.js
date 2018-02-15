@@ -626,6 +626,10 @@ export default class Pokemon {
     return pokeType2(this.id, this.gen);
   }
 
+  secondaryType() {
+    return this.type2() === Types.CURSE ? this.type1() : this.type2();
+  }
+
   types() {
     return [this.type1(), this.type2(), this.addedType].filter(
       type => type !== Types.CURSE

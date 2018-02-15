@@ -220,4 +220,20 @@ describe("sulcalc()", () => {
     );
     expect(summary).toMatchSnapshot();
   });
+
+  test("Present GSC", () => {
+    const gen = Gens.GSC;
+    for (const defenderName of ["Raikou", "Vaporeon", "Zapdos"]) {
+      for (let present = -1; present <= 3; present++) {
+        expect(
+          sulcalc(
+            { name: "Blissey", gen },
+            { name: defenderName, gen },
+            { name: "Present", present, gen },
+            { gen }
+          ).summary
+        ).toMatchSnapshot();
+      }
+    }
+  });
 });
