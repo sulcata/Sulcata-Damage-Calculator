@@ -28,6 +28,7 @@
     "setdex": "babel-node scripts/setdex"
   },
   "dependencies": {
+    "big-integer": "^1.6.26",
     "bootstrap": "^4.0.0",
     "lodash": "^4.17.5",
     "vue": "^2.5.13",

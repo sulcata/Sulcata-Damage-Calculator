@@ -1,6 +1,6 @@
-import { clamp, defaultTo, flowRight } from "lodash";
+import { clamp, flowRight } from "lodash";
 import Multiset from "../Multiset";
-import { Gens, Stats, multiplyStrs, divideStrs, cmpStrs } from "../utilities";
+import { Gens, Stats } from "../utilities";
 import rbyCalculate from "./rbyCalculate";
 import gscCalculate from "./gscCalculate";
 import advCalculate from "./advCalculate";
@@ -110,7 +110,7 @@ function turnCalculate(attacker, defender, move, field) {
         dmgs.push(genCalculate(attacker, defender, move, field));
       }
       move.present = -1;
-      dmg = combineMultisetsWithWeights(
+      dmg = Multiset.weightedUnion(
         dmgs,
         field.gen >= Gens.ADV ? [2, 4, 3, 1] : [52, 102, 76, 26]
       );
@@ -166,7 +166,7 @@ function turnCalculate(attacker, defender, move, field) {
        */
       const weights =
         field.gen >= Gens.B2W2 ? [0, 0, 2, 2, 1, 1] : [0, 0, 3, 3, 1, 1];
-      dmg = combineMultisetsWithWeights(
+      dmg = Multiset.weightedUnion(
         dmgs.slice(move.minHits(), move.maxHits()),
         weights.slice(move.minHits(), move.maxHits())
       );
@@ -181,22 +181,7 @@ function turnCalculate(attacker, defender, move, field) {
     defender.item.used = true;
   }
 
-  return cmpStrs(dmg.size, "39") <= 0 ? dmg : dmg.simplify();
-}
-
-function combineMultisetsWithWeights(sets, weights) {
-  const product = sets.map(set => set.size).reduce(multiplyStrs);
-  const scaledSets = sets.map(set => {
-    const multiplier = divideStrs(product, set.size)[0];
-    return set.scale(multiplier);
-  });
-  let result = new Multiset();
-  for (let i = 0; i < scaledSets.length; i++) {
-    const scaledSet = scaledSets[i];
-    const weight = defaultTo(weights[i], 1);
-    result = result.union(scaledSet.scale(weight));
-  }
-  return result;
+  return dmg.size.leq(39) ? dmg : dmg.simplify();
 }
 
 export default (attacker, defender, move, field) => {

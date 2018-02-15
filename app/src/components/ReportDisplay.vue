@@ -13,7 +13,6 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { cmpStrs } from "sulcalc";
 
 export default {
   computed: {
@@ -25,7 +24,7 @@ export default {
     damageRoll() {
       const damage = this.selectedReport.damage;
       if (!damage) return "";
-      if (cmpStrs(damage.size, "39") > 0) {
+      if (damage.size.gt(39)) {
         return this.longRolls ? String(damage) : "";
       }
       return `(${damage.toArray().join(", ")})`;

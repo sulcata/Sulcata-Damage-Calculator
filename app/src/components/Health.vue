@@ -87,7 +87,7 @@ export default {
 };
 
 function parseItem(item, min, max) {
-  const [health, multiplicity = "1"] = item.split(":");
+  const [health, multiplicity = 1] = item.split(":");
   return [clamp(Number(health), min, max), multiplicity];
 }
 
@@ -107,6 +107,6 @@ function minMaxHp(totalHp, percent) {
 }
 
 function prettyPrintItems([value, multiplicity]) {
-  return multiplicity === "1" ? value : `${value}:${multiplicity}`;
+  return multiplicity.eq(1) ? value : `${value}:${multiplicity}`;
 }
 </script>

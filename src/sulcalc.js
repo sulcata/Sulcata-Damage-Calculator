@@ -3,15 +3,7 @@ import Pokemon from "./Pokemon";
 import Move from "./Move";
 import Field from "./Field";
 import Multiset from "./Multiset";
-import {
-  Gens,
-  Stats,
-  Statuses,
-  Types,
-  Weathers,
-  addStrs,
-  divideStrs
-} from "./utilities";
+import { Gens, Stats, Statuses, Types, Weathers } from "./utilities";
 import {
   isPhysicalType,
   natureMultiplier,
@@ -314,12 +306,12 @@ export default function sulcalc(attacker, defender, move, field) {
   for (let i = 0; i < chances.roundedChances.length; i++) {
     const nhko = `${i ? i + 1 : "O"}HKO`;
     const fractionalChance = chances.fractionalChances[i];
-    if (fractionalChance[0] === fractionalChance[1]) {
+    if (fractionalChance[0].eq(fractionalChance[1])) {
       if (displayChances.length === 0) {
         displayChances.push(`guaranteed ${nhko}`);
       }
       break;
-    } else if (fractionalChance[0] !== "0") {
+    } else if (!fractionalChance[0].isZero()) {
       const c = Math.round(chances.roundedChances[i] * 1000) / 10;
       if (c === 100) {
         displayChances.push(`almost guaranteed ${nhko}`);
@@ -422,8 +414,8 @@ function chanceToKo(poke, damageRanges, params) {
     }
 
     chances.push([
-      addStrs(dmg.count(hasFainted), berryDmg.count(hasFainted)),
-      addStrs(dmg.size, berryDmg.size)
+      dmg.count(hasFainted).add(berryDmg.count(hasFainted)),
+      dmg.size.add(berryDmg.size)
     ]);
 
     if (turn === 0) {
@@ -440,9 +432,7 @@ function chanceToKo(poke, damageRanges, params) {
     fractionalChances: chances,
     roundedChances: chances.map(
       ([numerator, denominator]) =>
-        numerator === "0"
-          ? 0
-          : Number(divideStrs(numerator + "000000", denominator)[0]) / 1000000
+        numerator.multiply(1000000).divide(denominator) / 1000000
     ),
     remainingHealth,
     remainingHealthBerry

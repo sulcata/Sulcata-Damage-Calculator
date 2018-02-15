@@ -1,3 +1,4 @@
+import bigInt from "big-integer";
 import Multiset from "../src/Multiset";
 
 describe("Multiset", () => {
@@ -16,19 +17,19 @@ describe("Multiset", () => {
 
   test("#constructor()", () => {
     function checker(set) {
-      expect(set.get(-2)).toEqual("1");
-      expect(set.get(1)).toEqual("1");
-      expect(set.get(2)).toEqual("1");
-      expect(set.get(3)).toEqual("2");
+      expect(set.get(-2).eq(1)).toBe(true);
+      expect(set.get(1).eq(1)).toBe(true);
+      expect(set.get(2).eq(1)).toBe(true);
+      expect(set.get(3).eq(2)).toBe(true);
     }
 
     checker(new Multiset([1, 2, 3, 3, -2]));
 
     const map = new Map();
-    map.set(-2, "1");
-    map.set(1, "1");
-    map.set(2, "1");
-    map.set(3, "2");
+    map.set(-2, 1);
+    map.set(1, 1);
+    map.set(2, 1);
+    map.set(3, 2);
     checker(new Multiset(map));
 
     checker(new Multiset(new Multiset(map)));
@@ -38,14 +39,14 @@ describe("Multiset", () => {
     const set = new Multiset();
     set.add(1);
     set.add(2);
-    set.add(2, "1");
-    set.add(3, "1337");
-    expect(set.add(4, 3).add(5, 0)).toEqual(set);
-    expect(set.get(1)).toEqual("1");
-    expect(set.get(2)).toEqual("2");
-    expect(set.get(3)).toEqual("1337");
-    expect(set.get(4)).toEqual("3");
-    expect(set.get(5)).toEqual("0");
+    set.add(2, 1);
+    set.add(3, 1337);
+    expect(set.add(4, 3).add(5, 0)).toBe(set);
+    expect(set.get(1).eq(1)).toBe(true);
+    expect(set.get(2).eq(2)).toBe(true);
+    expect(set.get(3).eq(1337)).toBe(true);
+    expect(set.get(4).eq(3)).toBe(true);
+    expect(set.get(5).eq(0)).toBe(true);
   });
 
   test("#delete()", () => {
@@ -65,15 +66,15 @@ describe("Multiset", () => {
 
   test("#get()", () => {
     expect(set1.get(Math.PI)).toBeUndefined();
-    expect(set1.get(1)).toEqual("2");
-    expect(set1.get(2)).toEqual("2");
-    expect(set1.get(3)).toEqual("2");
-    expect(set1.get(4)).toEqual("1");
+    expect(set1.get(1).eq(2)).toBe(true);
+    expect(set1.get(2).eq(2)).toBe(true);
+    expect(set1.get(3).eq(2)).toBe(true);
+    expect(set1.get(4).eq(1)).toBe(true);
   });
 
   test("#size", () => {
-    expect(emptySet.size).toEqual("0");
-    expect(set1.size).toEqual(String(arr1.length));
+    expect(emptySet.size.eq(0)).toBe(true);
+    expect(set1.size.eq(arr1.length)).toBe(true);
   });
 
   test("#isEmpty()", () => {
@@ -99,7 +100,7 @@ describe("Multiset", () => {
     expect(set2.every(a => a > 0)).toBe(false);
     set1.every((value, multiplicity) => {
       expect(typeof value).toEqual("number");
-      expect(multiplicity).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(multiplicity)).toBe(true);
       return true;
     });
   });
@@ -110,24 +111,24 @@ describe("Multiset", () => {
     expect(set2.some(a => a < 0)).toBe(true);
     set1.some((value, multiplicity) => {
       expect(typeof value).toEqual("number");
-      expect(multiplicity).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(multiplicity)).toBe(true);
       return true;
     });
   });
 
   test("#count()", () => {
-    expect(emptySet.count()).toEqual("0");
+    expect(emptySet.count().eq(0)).toBe(true);
     expect(set1.count()).toEqual(set1.size);
-    expect(set1.count(a => a % 2)).toEqual("4");
+    expect(set1.count(a => a % 2).eq(4)).toBe(true);
     set1.count((value, multiplicity) => {
       expect(typeof value).toEqual("number");
-      expect(multiplicity).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(multiplicity)).toBe(true);
     });
   });
 
   test("#clear()", () => {
     set1.clear();
-    expect(set1.size).toEqual("0");
+    expect(set1.size.eq(0)).toBe(true);
     expect(set1.has(1)).toBe(false);
   });
 
@@ -176,7 +177,7 @@ describe("Multiset", () => {
     expect(set1.map(v => v + 1).toString()).toEqual("2:2, 3:2, 4:2, 5:1");
     set1.map((value, multiplicity, skip) => {
       expect(typeof value).toEqual("number");
-      expect(multiplicity).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(multiplicity)).toBe(true);
       expect(typeof skip).toEqual("function");
       return Math.E;
     });
@@ -208,9 +209,9 @@ describe("Multiset", () => {
       expect(total).toBeInstanceOf(Array);
       expect(total).toHaveLength(2);
       expect(typeof total[0]).toEqual("number");
-      expect(total[1]).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(multiplicity)).toBe(true);
       expect(typeof value).toEqual("number");
-      expect(multiplicity).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(multiplicity)).toBe(true);
       return total;
     });
   });
@@ -222,7 +223,7 @@ describe("Multiset", () => {
       expect(entry).toBeInstanceOf(Array);
       expect(entry).toHaveLength(2);
       expect(typeof entry[0]).toEqual("number");
-      expect(entry[1]).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(entry[1])).toBe(true);
     }
   });
 
@@ -233,7 +234,7 @@ describe("Multiset", () => {
       expect(entry).toBeInstanceOf(Array);
       expect(entry).toHaveLength(2);
       expect(typeof entry[0]).toEqual("number");
-      expect(entry[1]).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(entry[1])).toBe(true);
     }
   });
 
@@ -259,7 +260,7 @@ describe("Multiset", () => {
     expect(emptySet.multiplicities().next().done).toBe(true);
 
     for (const multiplicity of set1.multiplicities()) {
-      expect(multiplicity).toMatch(/^[0-9]+$/);
+      expect(bigInt.isInstance(multiplicity)).toBe(true);
     }
   });
 

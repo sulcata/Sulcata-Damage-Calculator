@@ -1,17 +1,15 @@
-import {
-  addStrs,
-  cmpStrs,
-  multiplyStrs,
-  divideStrs,
-  gcdStrs
-} from "./utilities";
+import { defaultTo } from "lodash";
+import bigInt from "big-integer";
 
 export default class Multiset {
   constructor(iterable = []) {
     if (iterable instanceof Multiset) {
       this._data = new Map(iterable._data);
     } else if (iterable instanceof Map) {
-      this._data = new Map(iterable);
+      this._data = new Map();
+      for (const [value, weight] of iterable) {
+        this._data.set(value, bigInt(weight));
+      }
     } else {
       this._data = new Map();
       for (const value of iterable) {
@@ -20,11 +18,8 @@ export default class Multiset {
     }
   }
 
-  add(value, multiplicity = "1") {
-    this._data.set(
-      value,
-      addStrs(this._data.get(value) || "0", String(multiplicity))
-    );
+  add(value, multiplicity = bigInt.one) {
+    this._data.set(value, bigInt(this._data.get(value)).add(multiplicity));
     return this;
   }
 
@@ -33,10 +28,10 @@ export default class Multiset {
   }
 
   count(callbackFn = () => true) {
-    let sum = "0";
+    let sum = bigInt.zero;
     for (const [value, multiplicity] of this) {
       if (callbackFn(value, multiplicity)) {
-        sum = addStrs(sum, multiplicity);
+        sum = sum.add(multiplicity);
       }
     }
     return sum;
@@ -73,7 +68,7 @@ export default class Multiset {
     const intersection = new Multiset();
     for (const [value, multiplicity] of this) {
       if (multiset.has(value)) {
-        if (cmpStrs(multiplicity, multiset.get(value)) <= 0) {
+        if (multiplicity.leq(multiset.get(value))) {
           intersection.add(value, multiplicity);
         } else {
           intersection.add(value, multiset.get(value));
@@ -146,7 +141,7 @@ export default class Multiset {
       for (const [value2, multiplicity2] of multiset) {
         permutation.add(
           callbackFn(value1, value2),
-          multiplyStrs(multiplicity1, multiplicity2)
+          multiplicity1.multiply(multiplicity2)
         );
       }
     }
@@ -154,9 +149,9 @@ export default class Multiset {
   }
 
   get size() {
-    let size = "0";
+    let size = bigInt.zero;
     for (const multiplicity of this.multiplicities()) {
-      size = addStrs(size, multiplicity);
+      size = size.add(multiplicity);
     }
     return size;
   }
@@ -175,13 +170,12 @@ export default class Multiset {
     return total;
   }
 
-  scale(factor = "1") {
-    factor = String(factor);
-    const scaled = new Multiset();
+  scale(factor = bigInt.one) {
+    const scaledSet = new Multiset();
     for (const [value, multiplicity] of this) {
-      scaled.add(value, multiplyStrs(multiplicity, factor));
+      scaledSet.add(value, multiplicity.multiply(factor));
     }
-    return scaled;
+    return scaledSet;
   }
 
   simplify() {
@@ -191,10 +185,10 @@ export default class Multiset {
     if (first.done) return simplified;
     let gcd = first.value;
     for (const multiplicity of itr) {
-      gcd = gcdStrs(gcd, multiplicity);
+      gcd = bigInt.gcd(gcd, multiplicity);
     }
     for (const [value, multiplicity] of this) {
-      simplified.add(value, divideStrs(multiplicity, gcd)[0]);
+      simplified.add(value, multiplicity.divide(gcd));
     }
     return simplified;
   }
@@ -253,16 +247,33 @@ export default class Multiset {
 
   static average(multiSet, digits = 4) {
     const size = multiSet.size;
-    if (size === "0") return NaN;
+    if (size.isZero()) return NaN;
 
     const weightedSum = multiSet.reduce(
-      (sum, v, w) => addStrs(sum, multiplyStrs(String(v), w)),
-      "0"
+      (sum, v, w) => sum.add(w.multiply(v)),
+      bigInt.zero
     );
-    if (weightedSum === "0") return 0;
 
     const exp = 10 ** (digits + 1);
-    const [quotient] = divideStrs(multiplyStrs(weightedSum, String(exp)), size);
-    return Math.round(Number(quotient) / 10) * 10 / exp;
+    const quotient = weightedSum.multiply(exp).divide(size);
+    return Math.round(quotient / 10) * 10 / exp;
+  }
+
+  static weightedUnion(sets, weights) {
+    const product = sets.reduce(
+      (result, set) => result.multiply(set.size),
+      bigInt.one
+    );
+    const scaledSets = sets.map(set => {
+      const multiplier = product.divide(set.size);
+      return set.scale(multiplier);
+    });
+    let result = new Multiset();
+    for (let i = 0; i < scaledSets.length; i++) {
+      const scaledSet = scaledSets[i];
+      const weight = defaultTo(weights[i], 1);
+      result = result.union(scaledSet.scale(weight));
+    }
+    return result;
   }
 }
