@@ -28,6 +28,7 @@
     <div v-if='gen >= Gens.GSC' class='mt-1' :class='centeredRowClasses'>
       <button-radio-group
         :value='field.weather'
+        :defaultValue='Weathers.CLEAR'
         :options='weathers'
         @input='weather => setWeather({weather})'
         size='small'
@@ -37,6 +38,7 @@
     <div v-if='gen >= Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
       <button-radio-group
         :value='field.weather'
+        :defaultValue='Weathers.CLEAR'
         :options='harshWeathers'
         @input='weather => setWeather({weather})'
         size='small'
@@ -94,39 +96,16 @@
       </div>
     </div>
 
-    <!-- Grassy / Electric / Misty / Psychic Terrain -->
+    <!-- Terrain -->
     <div v-if='gen >= Gens.ORAS' class='mt-1' :class='centeredRowClasses'>
-      <div class='col-auto btn-group btn-group-sm'>
-        <button-checkbox
-          :value='field.grassyTerrain'
-          @input='toggleGrassyTerrain()'
-          type='secondary'
-          >
-          Grassy Terrain
-        </button-checkbox>
-        <button-checkbox
-          :value='field.electricTerrain'
-          @input='toggleElectricTerrain()'
-          type='secondary'
-          >
-          Electric Terrain
-        </button-checkbox>
-        <button-checkbox
-          :value='field.mistyTerrain'
-          @input='toggleMistyTerrain()'
-          type='secondary'
-          >
-          Misty Terrain
-        </button-checkbox>
-        <button-checkbox
-          v-if='gen >= Gens.SM'
-          :value='field.psychicTerrain'
-          @input='togglePsychicTerrain()'
-          type='secondary'
-          >
-          Psychic Terrain
-        </button-checkbox>
-      </div>
+      <button-radio-group
+        :value='field.terrain'
+        :defaultValue='Terrains.NO_TERRAIN'
+        :options='terrains'
+        @input='terrain => setTerrain({terrain})'
+        size='small'
+        type='secondary'
+        />
     </div>
 
     <!-- Fairy Aura / Dark Aura / Aura Break -->
@@ -294,7 +273,7 @@ import { mapState, mapMutations } from "vuex";
 import { Multiselect } from "vue-multiselect";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
-import { Weathers, Gens } from "sulcalc";
+import { Terrains, Weathers, Gens } from "sulcalc";
 
 export default {
   components: {
@@ -305,6 +284,8 @@ export default {
   data() {
     return {
       Gens,
+      Terrains,
+      Weathers,
       battleModes: [
         { value: false, label: "Singles" },
         { value: true, label: "Doubles" }
@@ -327,7 +308,6 @@ export default {
     ...mapState(["gen", "field", "attacker", "defender"]),
     weathers() {
       const weathers = [
-        { value: Weathers.CLEAR, label: "Clear" },
         { value: Weathers.SUN, label: "Sun" },
         { value: Weathers.RAIN, label: "Rain" },
         { value: Weathers.SAND, label: "Sand" }
@@ -336,6 +316,20 @@ export default {
         weathers.push({ value: Weathers.HAIL, label: "Hail" });
       }
       return weathers;
+    },
+    terrains() {
+      const terrains = [
+        { value: Terrains.GRASSY_TERRAIN, label: "Grassy Terrain" },
+        { value: Terrains.MISTY_TERRAIN, label: "Misty Terrain" },
+        { value: Terrains.ELECTRIC_TERRAIN, label: "Electric Terrain" }
+      ];
+      if (this.gen >= Gens.SM) {
+        terrains.push({
+          value: Terrains.PSYCHIC_TERRAIN,
+          label: "Psyhic Terrain"
+        });
+      }
+      return terrains;
     }
   },
   methods: {
@@ -347,15 +341,12 @@ export default {
       "toggleGravity",
       "toggleMagicRoom",
       "toggleWonderRoom",
-      "toggleGrassyTerrain",
-      "toggleElectricTerrain",
-      "toggleMistyTerrain",
-      "togglePsychicTerrain",
       "toggleFairyAura",
       "toggleDarkAura",
       "toggleAuraBreak",
       "toggleIonDeluge",
       "setWeather",
+      "setTerrain",
       "toggleStealthRock",
       "toggleReflect",
       "toggleLightScreen",

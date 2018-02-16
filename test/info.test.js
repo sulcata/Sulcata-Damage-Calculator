@@ -125,11 +125,11 @@ describe("info", () => {
       ).toEqual([1, 1]);
     });
 
-    test("Gravity ignores Flying-type", () => {
+    test("Grounded Pokemon are stripped of Flying-type", () => {
       expect(
         info.effectiveness(Types.ICE, [Types.WATER, Types.FLYING], {
           gen: Gens.SM,
-          gravity: true
+          grounded: true
         })
       ).toEqual([1, 2]);
     });
@@ -144,7 +144,7 @@ describe("info", () => {
       expect(
         info.effectiveness(Types.ICE, [Types.WATER, Types.FLYING], {
           gen: Gens.SM,
-          gravity: true,
+          grounded: true,
           freezeDry: true
         })
       ).toEqual([2, 1]);

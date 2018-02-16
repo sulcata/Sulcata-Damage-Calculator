@@ -2,7 +2,7 @@ import smCalculate from "../../src/calculate/smCalculate";
 import Pokemon from "../../src/Pokemon";
 import Move from "../../src/Move";
 import Field from "../../src/Field";
-import { Gens, Natures } from "../../src/utilities";
+import { Gens, Natures, Terrains } from "../../src/utilities";
 
 const gen = Gens.SM;
 
@@ -78,9 +78,21 @@ describe("smCalculate()", () => {
 
   test("Psychic Terrain blocks priority", () => {
     const quickAttack = new Move({ name: "Quick Attack", gen });
-    const psychicTerrain = new Field({ psychicTerrain: true, gen });
+    const psychicTerrain = new Field({
+      terrain: Terrains.PSYCHIC_TERRAIN,
+      gen
+    });
     const damage = smCalculate(heatran, landorusT, quickAttack, psychicTerrain);
-    expect(damage).toEqual([0]);
+    expect(damage).not.toEqual([0]);
+
+    landorusT.item.name = "Iron Ball";
+    const notDamage = smCalculate(
+      heatran,
+      landorusT,
+      quickAttack,
+      psychicTerrain
+    );
+    expect(notDamage).toEqual([0]);
   });
 
   test("Knock Off should multiply base power by 1.5x if it gets rid of an item", () => {

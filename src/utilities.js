@@ -105,6 +105,14 @@ export const Natures = {
   QUIRKY: 24
 };
 
+export const Terrains = {
+  NO_TERRAIN: Symbol("sulcalc.Terrains.NO_TERRAIN"),
+  GRASSY_TERRAIN: Symbol("sulcalc.Terrains.GRASSY_TERRAIN"),
+  MISTY_TERRAIN: Symbol("sulcalc.Terrains.MISTY_TERRAIN"),
+  ELECTRIC_TERRAIN: Symbol("sulcalc.Terrains.ELECTRIC_TERRAIN"),
+  PSYCHIC_TERRAIN: Symbol("sulcalc.Terrains.PSYCHIC_TERRAIN")
+};
+
 export const roundHalfToZero = n =>
   Math.trunc(n) + Math.sign(n) * (Math.abs(n - Math.trunc(n)) > 0.5);
 

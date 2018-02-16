@@ -1,4 +1,4 @@
-import { defaultTo } from "lodash";
+import { clamp, defaultTo } from "lodash";
 import Pokemon from "./Pokemon";
 import Move from "./Move";
 import Field from "./Field";
@@ -114,7 +114,13 @@ export default function sulcalc(attacker, defender, move, field) {
     move.critical = true;
   }
 
+  move.numberOfHits = clamp(move.numberOfHits, move.minHits(), move.maxHits());
+
   const dmg = calculate(attacker, defender, move, field);
+
+  if (move.name === "Smack Down" || move.name === "Thousand Arrows") {
+    defender.grounded = true;
+  }
 
   attacker.item.disabled = false;
   attacker.item.used = false;
@@ -284,7 +290,7 @@ export default function sulcalc(attacker, defender, move, field) {
       );
       hazardsDmg += Math.trunc(maxHp * numerator / (denominator * 8));
     }
-    if (defender.spikes > 0) {
+    if (defender.spikes > 0 && defender.isGrounded(field)) {
       hazardsDmg += Math.trunc(maxHp / (10 - 2 * defender.spikes));
     }
     initDmg = initDmg.map(v => Math.min(maxHp, v + hazardsDmg));

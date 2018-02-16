@@ -268,8 +268,15 @@ export const effectiveness = (
   attackingTypes = castArray(attackingTypes);
   defendingTypes = castArray(defendingTypes);
 
-  if (options.gravity) {
+  if (options.grounded) {
     defendingTypes = defendingTypes.filter(type => type !== Types.FLYING);
+  }
+
+  if (
+    attackingTypes.includes(options.immunity) &&
+    !(options.grounded && options.immunity === Types.GROUND)
+  ) {
+    return [0, 1];
   }
 
   let effectiveness = 1;

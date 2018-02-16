@@ -1,5 +1,5 @@
 import sulcalc from "../src/sulcalc";
-import { Gens, Statuses, Natures, maxGen } from "../src/utilities";
+import { Gens, Natures, Statuses, Terrains, maxGen } from "../src/utilities";
 import { NoPokemonError, NoMoveError } from "../src/errors";
 
 describe("sulcalc()", () => {
@@ -235,5 +235,162 @@ describe("sulcalc()", () => {
         ).toMatchSnapshot();
       }
     }
+  });
+
+  test("Terrains boost types", () => {
+    for (let gen = Gens.ORAS; gen <= maxGen; gen++) {
+      expect(
+        sulcalc(
+          {
+            name: "Tapu Lele",
+            nature: Natures.TIMID,
+            evs: [0, 0, 0, 252, 4, 252],
+            gen
+          },
+          {
+            name: "Landorus-Therian",
+            nature: Natures.ADAMANT,
+            evs: [0, 252, 4, 0, 0, 252],
+            gen
+          },
+          { name: "Psychic", gen },
+          { terrain: Terrains.PSYCHIC_TERRAIN, gen }
+        ).summary
+      ).toMatchSnapshot();
+
+      expect(
+        sulcalc(
+          {
+            name: "Tapu Koko",
+            nature: Natures.NAIVE,
+            evs: [0, 252, 0, 4, 0, 252],
+            gen
+          },
+          {
+            name: "Diancie",
+            nature: Natures.NAIVE,
+            evs: [0, 4, 0, 252, 0, 252],
+            gen
+          },
+          { name: "Wild Charge", gen },
+          { terrain: Terrains.ELECTRIC_TERRAIN, gen }
+        ).summary
+      ).toMatchSnapshot();
+
+      expect(
+        sulcalc(
+          {
+            name: "Tapu Bulu",
+            item: "Choice Band",
+            nature: Natures.ADAMANT,
+            evs: [0, 252, 4, 0, 0, 252],
+            boosts: [0, -1, 0, 0, 0, 0, 0, 0],
+            gen
+          },
+          {
+            name: "Landorus-Therian",
+            nature: Natures.IMPISH,
+            evs: [252, 0, 216, 0, 24, 16],
+            gen
+          },
+          { name: "Wood Hammer", gen },
+          { terrain: Terrains.GRASSY_TERRAIN, gen }
+        ).summary
+      ).toMatchSnapshot();
+    }
+  });
+
+  test("Greninja-Ash Water Shuriken", () => {
+    const gen = maxGen;
+    expect(
+      sulcalc(
+        {
+          name: "Greninja-Ash",
+          item: "Choice Specs",
+          nature: Natures.TIMID,
+          evs: [0, 0, 4, 252, 0, 252],
+          gen
+        },
+        {
+          name: "Tapu Koko",
+          nature: Natures.NAIVE,
+          evs: [0, 252, 0, 4, 0, 252],
+          gen
+        },
+        { name: "Water Shuriken", gen },
+        { gen }
+      ).summary
+    ).toMatchSnapshot();
+  });
+
+  test("Skill Link", () => {
+    const gen = maxGen;
+    expect(
+      sulcalc(
+        {
+          name: "Cloyster",
+          nature: Natures.NAUGHTY,
+          ability: "Skill Link",
+          evs: [0, 252, 4, 0, 0, 252],
+          gen
+        },
+        {
+          name: "Rotom-Wash",
+          nature: Natures.BOLD,
+          evs: [248, 0, 200, 0, 0, 60],
+          gen
+        },
+        { name: "Icicle Spear", gen },
+        { gen }
+      ).summary
+    ).toMatchSnapshot();
+  });
+
+  test("Thousand Arrows", () => {
+    const gen = maxGen;
+    expect(
+      sulcalc(
+        {
+          name: "Zygarde",
+          item: "Choice Band",
+          nature: Natures.ADAMANT,
+          evs: [4, 252, 0, 0, 0, 252],
+          gen
+        },
+        {
+          name: "Rotom-Wash",
+          nature: Natures.BOLD,
+          ability: "Levitate",
+          evs: [248, 0, 200, 0, 0, 60],
+          gen
+        },
+        { name: "Thousand Arrows", gen },
+        { gen }
+      ).summary
+    ).toMatchSnapshot();
+  });
+
+  test("Levitate immunity to Ground moves", () => {
+    const gen = maxGen;
+    expect(
+      sulcalc(
+        {
+          name: "Zygarde",
+          item: "Choice Band",
+          nature: Natures.ADAMANT,
+          evs: [4, 252, 0, 0, 0, 252],
+          gen
+        },
+        {
+          name: "Rotom-Wash",
+          nature: Natures.BOLD,
+          ability: "Levitate",
+          evs: [248, 0, 200, 0, 0, 60],
+          gen
+        },
+        { name: "Earthquake", gen },
+        { gen }
+      ).summary
+    ).toMatchSnapshot();
   });
 });

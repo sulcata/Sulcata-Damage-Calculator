@@ -228,7 +228,6 @@ export default class Pokemon {
     this.toxicCounter = defaultTo(Number(pokemon.toxicCounter), 0);
     this.stealthRock = Boolean(pokemon.stealthRock);
     this.spikes = defaultTo(Number(pokemon.spikes), 0);
-    this.grounded = Boolean(pokemon.grounded);
     this.flowerGift = Boolean(pokemon.flowerGift);
     this.powerTrick = Boolean(pokemon.powerTrick);
     this.foresight = Boolean(pokemon.foresight);
@@ -237,6 +236,9 @@ export default class Pokemon {
     this.charge = Boolean(pokemon.charge);
     this.helpingHand = Boolean(pokemon.helpingHand);
     this.auroraVeil = Boolean(pokemon.auroraVeil);
+
+    this.grounded = Boolean(pokemon.grounded);
+    this.ungrounded = Boolean(pokemon.ungrounded);
   }
 
   static fromImportable(importText, gen) {
@@ -537,7 +539,7 @@ export default class Pokemon {
       (field.sun() && this.ability.name === "Chlorophyll") ||
       (field.sand() && this.ability.name === "Sand Rush") ||
       (field.hail() && this.ability.name === "Slush Rush") ||
-      (field.electricTerrain && this.ability.name === "Surge Surfer")
+      (field.electricTerrain() && this.ability.name === "Surge Surfer")
     ) {
       speed *= 2;
     }
@@ -821,6 +823,18 @@ export default class Pokemon {
     return (
       this.ability.pinchType() === moveType &&
       this.stat(Stats.HP) >= this.currentHp * 3
+    );
+  }
+
+  isGrounded(field) {
+    return (
+      this.grounded ||
+      field.gravity ||
+      this.item.name === "Iron Ball" ||
+      (!this.ungrounded &&
+        this.ability.immunityType() !== Types.GROUND &&
+        !this.types().includes(Types.FLYING) &&
+        this.item.name !== "Air Balloon")
     );
   }
 

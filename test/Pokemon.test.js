@@ -5,6 +5,7 @@ import {
   Natures,
   Stats,
   Statuses,
+  Terrains,
   Types,
   Weathers
 } from "../src/utilities";
@@ -719,7 +720,7 @@ describe("Pokemon", () => {
 
     mudkip.ability.name = "Surge Surfer";
     expect(mudkip.speed()).toEqual(232);
-    expect(mudkip.speed({ electricTerrain: true })).toEqual(464);
+    expect(mudkip.speed({ terrain: Terrains.ELECTRIC_TERRAIN })).toEqual(464);
 
     mudkip.ability.name = "(No Ability)";
     mudkip.item.name = "Choice Scarf";

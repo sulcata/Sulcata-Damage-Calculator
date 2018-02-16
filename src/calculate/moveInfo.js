@@ -36,27 +36,20 @@ export default (attacker, defender, move, field) => {
     moveType = attacker.ability.normalToType();
   }
 
-  let eff;
   const moveTypes = [moveType];
   if (move.name === "Flying Press") {
     moveTypes.push(Types.FLYING);
   }
-  if (moveTypes.includes(defender.ability.immunityType())) {
-    eff = [0, 1];
-  } else {
-    eff = effectiveness(moveTypes, defender.types(), {
-      gen,
-      foresight: defender.foresight,
-      scrappy: attacker.ability.name === "Scrappy",
-      gravity: field.gravity,
-      freezeDry: move.name === "Freeze-Dry",
-      inverted: field.invertedBattle,
-      strongWinds: field.strongWinds()
-    });
-    if (eff[0] === 0 && move.name === "Thousand Arrows") {
-      eff = [1, 1];
-    }
-  }
+  const eff = effectiveness(moveTypes, defender.types(), {
+    gen,
+    foresight: defender.foresight,
+    grounded: defender.isGrounded(field) || move.name === "Thousand Arrows",
+    immunity: defender.ability.immunityType(),
+    scrappy: attacker.ability.name === "Scrappy",
+    freezeDry: move.name === "Freeze-Dry",
+    inverted: field.invertedBattle,
+    strongWinds: field.strongWinds()
+  });
   const superEffective = eff[0] > eff[1];
   const notVeryEffective = eff[0] < eff[1];
 
@@ -377,16 +370,6 @@ export default (attacker, defender, move, field) => {
       movePowerMod = chainMod(0x548, movePowerMod);
     }
     if (
-      ((field.grassyTerrain && moveType === Types.GRASS) ||
-        (field.electricTerrain && moveType === Types.ELECTRIC)) &&
-      attacker.grounded
-    ) {
-      movePowerMod = chainMod(0x1800, movePowerMod);
-    }
-    if (field.mistyTerrain && defender.grounded && moveType === Types.DRAGON) {
-      movePowerMod = chainMod(0x800, movePowerMod);
-    }
-    if (
       (field.fairyAura && moveType === Types.FAIRY) ||
       (field.darkAura && moveType === Types.DARK)
     ) {
@@ -408,7 +391,11 @@ export default (attacker, defender, move, field) => {
 function baseMoveInfo(attacker, defender, move, field) {
   const { gen } = field;
 
-  if (field.psychicTerrain && move.priority() > 0) {
+  if (
+    field.psychicTerrain() &&
+    move.priority() > 0 &&
+    defender.isGrounded(field)
+  ) {
     return { fail: true };
   }
 
@@ -542,6 +529,9 @@ function baseMoveInfo(attacker, defender, move, field) {
       break;
     case "Wake-Up Slap":
       if (defender.isAsleep()) info.power *= 2;
+      break;
+    case "Water Shuriken":
+      if (attacker.name === "Greninja-Ash") info.power = 20;
       break;
     case "Water Spout":
     case "Eruption":

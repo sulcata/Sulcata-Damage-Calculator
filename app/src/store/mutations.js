@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { Pokemon, Field, Gens, Weathers } from "sulcalc";
+import { Pokemon, Field, Gens, Terrains, Weathers } from "sulcalc";
 
 export function importPokemon(state, { importText, gen }) {
   const importedPokemon = importText
@@ -95,22 +95,6 @@ export function toggleGravity(state) {
   state.field.gravity = !state.field.gravity;
 }
 
-export function toggleGrassyTerrain(state) {
-  state.field.grassyTerrain = !state.field.grassyTerrain;
-}
-
-export function toggleElectricTerrain(state) {
-  state.field.electricTerrain = !state.field.electricTerrain;
-}
-
-export function toggleMistyTerrain(state) {
-  state.field.mistyTerrain = !state.field.mistyTerrain;
-}
-
-export function togglePsychicTerrain(state) {
-  state.field.psychicTerrain = !state.field.psychicTerrain;
-}
-
 export function toggleFairyAura(state) {
   state.field.fairyAura = !state.field.fairyAura;
 }
@@ -132,6 +116,13 @@ export function setWeather(state, { weather }) {
     throw new TypeError("Invalid weather.");
   }
   state.field.weather = weather;
+}
+
+export function setTerrain(state, { terrain }) {
+  if (!Object.values(Terrains).includes(terrain)) {
+    throw new TypeError("Invalid terrain.");
+  }
+  state.field.terrain = terrain;
 }
 
 export function toggleStealthRock(state, { side }) {

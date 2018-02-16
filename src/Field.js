@@ -1,5 +1,5 @@
 import { defaultTo } from "lodash";
-import { Weathers, maxGen } from "./utilities";
+import { Terrains, Weathers, maxGen } from "./utilities";
 
 export default class Field {
   constructor(field = {}) {
@@ -17,10 +17,7 @@ export default class Field {
     this.wonderRoom = Boolean(field.wonderRoom);
     this.gravity = Boolean(field.gravity); // a gravity field if you will
 
-    this.grassyTerrain = Boolean(field.grassyTerrain);
-    this.mistyTerrain = Boolean(field.mistyTerrain);
-    this.electricTerrain = Boolean(field.electricTerrain);
-    this.psychicTerrain = Boolean(field.psychicTerrain);
+    this.terrain = defaultTo(field.terrain, Terrains.NO_TERRAIN);
 
     this.fairyAura = Boolean(field.fairyAura);
     this.darkAura = Boolean(field.darkAura);
@@ -65,5 +62,21 @@ export default class Field {
 
   strongWinds() {
     return this.effectiveWeather() === Weathers.STRONG_WINDS;
+  }
+
+  grassyTerrain() {
+    return this.terrain === Terrains.GRASSY_TERRAIN;
+  }
+
+  mistyTerrain() {
+    return this.terrain === Terrains.MISTY_TERRAIN;
+  }
+
+  electricTerrain() {
+    return this.terrain === Terrains.ELECTRIC_TERRAIN;
+  }
+
+  psychicTerrain() {
+    return this.terrain === Terrains.PSYCHIC_TERRAIN;
   }
 }

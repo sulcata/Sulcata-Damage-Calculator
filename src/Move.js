@@ -81,7 +81,7 @@ export default class Move {
 
     this.critical = Boolean(move.critical);
     this.zMove = Boolean(move.zMove);
-    this.numberOfHits = defaultTo(Number(move.numberOfHits), 0);
+    this.numberOfHits = defaultTo(Number(move.numberOfHits), 1);
     this.beatUpHit = defaultTo(Number(move.beatUpHit), 0);
     this.secondHit = Boolean(move.secondHit);
     this.meFirst = Boolean(move.meFirst);
@@ -185,10 +185,27 @@ export default class Move {
   }
 
   minHits() {
+    if (this.user && this.user.ability.name === "Skill Link") {
+      return maxHits(this.id, this.gen);
+    }
+    if (
+      this.name === "Water Shuriken" &&
+      this.user &&
+      this.user.name === "Greninja-Ash"
+    ) {
+      return 3;
+    }
     return minHits(this.id, this.gen);
   }
 
   maxHits() {
+    if (
+      this.name === "Water Shuriken" &&
+      this.user &&
+      this.user.name === "Greninja-Ash"
+    ) {
+      return 3;
+    }
     return maxHits(this.id, this.gen);
   }
 

@@ -188,7 +188,7 @@ export default (attacker, defender, move, field) => {
 
   if (defender.ability.name === "Marvel Scale" && defender.status) {
     defMod = chainMod(0x1800, defMod);
-  } else if (defender.ability.name === "Grass Pelt" && field.grassyTerrain) {
+  } else if (defender.ability.name === "Grass Pelt" && field.grassyTerrain()) {
     defMod = chainMod(0x1800, defMod);
   }
 
@@ -272,6 +272,23 @@ export default (attacker, defender, move, field) => {
     }
   }
 
+  if (
+    ((field.grassyTerrain() && moveType === Types.GRASS) ||
+      (field.electricTerrain() && moveType === Types.ELECTRIC) ||
+      (field.psychicTerrain() && moveType === Types.PSYCHIC)) &&
+    attacker.isGrounded(field)
+  ) {
+    baseDamage = applyMod(0x1800, baseDamage);
+  }
+
+  if (
+    field.mistyTerrain() &&
+    defender.isGrounded(field) &&
+    moveType === Types.DRAGON
+  ) {
+    baseDamage = applyMod(0x800, baseDamage);
+  }
+
   if (move.critical) {
     baseDamage = applyMod(0x1800, baseDamage);
   }
@@ -339,7 +356,7 @@ export default (attacker, defender, move, field) => {
     finalMod = chainMod(0xc00, finalMod);
   }
 
-  if (field.grassyTerrain && move.weakenedByGrassyTerrain()) {
+  if (field.grassyTerrain() && move.weakenedByGrassyTerrain()) {
     finalMod = chainMod(0x800, finalMod);
   }
 

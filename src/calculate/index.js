@@ -1,4 +1,4 @@
-import { clamp, flowRight } from "lodash";
+import { flowRight } from "lodash";
 import Multiset from "../Multiset";
 import { Gens, Stats } from "../utilities";
 import rbyCalculate from "./rbyCalculate";
@@ -43,6 +43,8 @@ const genCalculate = flowRight(
       case "Super Fang":
       case "Nature's Madness":
         return [Math.max(1, Math.trunc(defender.currentHp / 2))];
+      case "Guardian of Alola":
+        return [Math.max(1, Math.trunc(defender.currentHp * 3 / 4))];
       case "Endeavor":
         return [Math.max(0, defender.currentHp - attacker.currentHp)];
       case "Final Gambit":
@@ -154,7 +156,7 @@ function turnCalculate(attacker, defender, move, field) {
     }
 
     if (move.numberOfHits >= 1) {
-      dmg = dmgs[clamp(move.numberOfHits, move.minHits(), move.maxHits())];
+      dmg = dmgs[move.numberOfHits];
     } else if (move.maxHits() === 2) {
       dmg = dmgs[2];
     } else {
