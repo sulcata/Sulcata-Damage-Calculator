@@ -393,4 +393,27 @@ describe("sulcalc()", () => {
       ).summary
     ).toMatchSnapshot();
   });
+
+  test("Grassy Terrain recovery", () => {
+    const gen = maxGen;
+    expect(
+      sulcalc(
+        {
+          name: "Tapu Bulu",
+          nature: Natures.JOLLY,
+          evs: [0, 252, 4, 0, 0, 252],
+          gen
+        },
+        {
+          name: "Chansey",
+          item: "Eviolite",
+          nature: Natures.BOLD,
+          evs: [248, 0, 252, 0, 8, 0],
+          gen
+        },
+        { name: "Horn Leech", gen },
+        { terrain: Terrains.GRASSY_TERRAIN, gen }
+      ).summary
+    ).toMatchSnapshot();
+  });
 });

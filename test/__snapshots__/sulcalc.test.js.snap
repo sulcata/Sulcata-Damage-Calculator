@@ -4,6 +4,8 @@ exports[`sulcalc() Ability 1`] = `"+2 252+ Atk Guts Heracross (burned) critical 
 
 exports[`sulcalc() Explosion 1`] = `"0 Atk Snorlax Explosion vs. 0 HP / 0 Def Skarmory: 109 - 129 (40.2 - 47.6%) -- this might take a while..."`;
 
+exports[`sulcalc() Grassy Terrain recovery 1`] = `"252 Atk Tapu Bulu Horn Leech vs. 248 HP / 252+ Def Eviolite Chansey: 246 - 289 (35 - 41.1%) -- 68.3% chance to 3HKO after Grassy Terrain"`;
+
 exports[`sulcalc() Greninja-Ash Water Shuriken 1`] = `"252 SpA Choice Specs Greninja-Ash Water Shuriken [3 hits] vs. 0 HP / 0- SpD Tapu Koko: 237 - 282 (84.3 - 100.4%) -- 0.1% chance to OHKO"`;
 
 exports[`sulcalc() Levitate immunity to Ground moves 1`] = `"252+ Atk Choice Band Zygarde Earthquake vs. 248 HP / 200+ Def Levitate Rotom-Wash: 0 (0%) -- this might take a while..."`;
