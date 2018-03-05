@@ -1,6 +1,6 @@
 import smogon from "../../../dist/setdex/smogon";
 import pokemonPerfect from "../../../dist/setdex/pokemonPerfect";
-import { Pokemon, Field, maxGen } from "sulcalc";
+import { maxGen } from "sulcalc";
 
 export default {
   sets: {
@@ -18,8 +18,16 @@ export default {
   longRolls: false,
   fractions: false,
   gen: maxGen,
-  attacker: new Pokemon(),
-  defender: new Pokemon(),
-  field: new Field(),
+  attacker: null,
+  defender: null,
+  field: null,
+  options: {
+    attacker: {
+      boostAllStats: false
+    },
+    defender: {
+      boostAllStats: false
+    }
+  },
   overrideReport: null
 };

@@ -12,9 +12,9 @@ const { summary } = sulcalc(attacker, defender, move, field);
 
 ## Installing Dependencies and Setup
 
-1. Install [Node.js][] if you haven't done so already.
-2. Run `npm install` in the root directory of the repository.
-3. Be sure to run `npm run setup` before running other tasks.
+1.  Install [Node.js][] if you haven't done so already.
+2.  Run `npm install` in the root directory of the repository.
+3.  Be sure to run `npm run setup` before running other tasks.
 
 ## Running
 

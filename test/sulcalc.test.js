@@ -416,4 +416,16 @@ describe("sulcalc()", () => {
       ).summary
     ).toMatchSnapshot();
   });
+
+  test("Defender health text shows for not completely healthy Pokemon", () => {
+    const gen = Gens.RBY;
+    expect(
+      sulcalc(
+        { name: "Tauros", gen },
+        { name: "Snorlax", currentHp: 40, gen },
+        { name: "Hyper Beam", gen },
+        { gen }
+      ).summary
+    ).toContain("at 7%");
+  });
 });

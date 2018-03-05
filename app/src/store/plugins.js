@@ -2,6 +2,7 @@ import { at, castArray, merge, set, zip } from "lodash";
 
 export function persistencePlugin({
   saveOn = {},
+  onLoad = () => {},
   prefix = "",
   storage = window.localStorage
 } = {}) {
@@ -24,6 +25,8 @@ export function persistencePlugin({
       }
     }
     store.replaceState(merge({}, store.state, water));
+
+    onLoad(store);
 
     store.subscribe(({ type }, state) => {
       if (saveOn.hasOwnProperty(type)) {

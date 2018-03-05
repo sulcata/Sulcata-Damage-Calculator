@@ -148,7 +148,7 @@ export default class Pokemon {
       this.ivs = Array(6).fill(gen >= Gens.ADV ? 31 : 15);
     }
 
-    this.boosts = pokemon.boosts || Array(6).fill(0);
+    this.boosts = pokemon.boosts || Array(8).fill(0);
     this.level = defaultTo(Number(pokemon.level), 100);
     this.nature = defaultTo(Number(pokemon.nature), Natures.HARDY);
 

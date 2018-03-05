@@ -1,5 +1,5 @@
 import Item from "../src/Item";
-import { Types, maxGen } from "../src/utilities";
+import { Gens, Types, maxGen } from "../src/utilities";
 
 describe("Item", () => {
   let noItem;
@@ -130,7 +130,7 @@ describe("Item", () => {
     expect(noItem.naturalGiftPower()).toEqual(0);
     expect(chopleBerry.naturalGiftPower()).toEqual(80);
 
-    chopleBerry.gen = 5;
+    chopleBerry.gen = Gens.B2W2;
     expect(chopleBerry.naturalGiftPower()).toEqual(60);
 
     chopleBerry.disabled = true;
@@ -201,10 +201,13 @@ describe("Item", () => {
     expect(sitrusBerry.berryHeal(27)).toEqual(6);
     expect(berry.berryHeal(27)).toEqual(10);
     expect(oranBerry.berryHeal(27)).toEqual(10);
-    expect(figyBerry.berryHeal(27)).toEqual(3);
+    expect(figyBerry.berryHeal(27)).toEqual(13);
     expect(goldBerry.berryHeal(27)).toEqual(30);
 
-    sitrusBerry.gen = 3;
+    figyBerry.gen = Gens.ORAS;
+    expect(figyBerry.berryHeal(27)).toEqual(3);
+
+    sitrusBerry.gen = Gens.ADV;
     expect(sitrusBerry.berryHeal()).toEqual(30);
 
     berry.disabled = true;
@@ -212,6 +215,14 @@ describe("Item", () => {
 
     oranBerry.used = true;
     expect(oranBerry.berryHeal()).toEqual(0);
+  });
+
+  test("#berryHealThreshold()", () => {
+    expect(sitrusBerry.berryHealThreshold(27)).toEqual(13);
+    expect(figyBerry.berryHealThreshold(27)).toEqual(6);
+
+    figyBerry.gen = Gens.ORAS;
+    expect(figyBerry.berryHealThreshold(27)).toEqual(13);
   });
 
   test("#memoryType()", () => {

@@ -160,6 +160,23 @@ export function toggleBattery(state, { side }) {
   state[side].battery = !state[side].battery;
 }
 
+// export function toggleBoostAllStats(state, { side }) {
+//   validateSide(side);
+//   const shouldBoostStats = !state.options[side].boostAllStats;
+//   state.options[side].boostAllStats = shouldBoostStats;
+//   const statChange = shouldBoostStats ? 1 : -1;
+//   const statsAffected = [
+//     Stats.ATK,
+//     Stats.DEF,
+//     Stats.SATK,
+//     Stats.SDEF,
+//     Stats.SPD
+//   ];
+//   for (const stat of statsAffected) {
+//     Vue.set(state[side].boosts, stat, state[side].boosts[stat] + statChange);
+//   }
+// }
+
 export function setSpikes(state, { side, spikes }) {
   validateSide(side);
   const parsedSpikes = Number(spikes);

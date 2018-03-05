@@ -42,7 +42,7 @@ export default (attacker, defender, field) => {
   }
   if (field.grassyTerrain() && defender.isGrounded(field)) {
     values.push(Math.max(1, Math.trunc(hp / 16)));
-    messages.push("Grassy Terrain")
+    messages.push("Grassy Terrain");
   }
   // aqua ring
   // ingrain

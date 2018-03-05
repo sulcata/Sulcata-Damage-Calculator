@@ -254,8 +254,11 @@ export default function sulcalc(attacker, defender, move, field) {
     reportPokes.push(`(${statusMessages[defender.status]})`);
   }
 
-  if (defender.currentHp < 100) {
-    reportPokes.push(` at ${defender.currentHp}%`);
+  const defenderHpPercent = Math.floor(
+    100 * defender.currentHp / defender.stat(Stats.HP)
+  );
+  if (defenderHpPercent < 100) {
+    reportPokes.push(`at ${defenderHpPercent}%`);
   }
 
   if (defender.reflect && d === Stats.DEF) {
@@ -366,6 +369,7 @@ function chanceToKo(poke, damageRanges, params) {
   const chances = [];
   const totalHp = poke.stat(Stats.HP);
   const berryHeal = poke.item.berryHeal(totalHp);
+  const berryHealThreshold = poke.item.berryHealThreshold(totalHp);
   const maxTurns = defaultTo(params.maxTurns, 9);
   const rechargeTurns = defaultTo(params.rechargeTurns, 0);
   const effects = defaultTo(params.effects, [0]);
@@ -412,6 +416,7 @@ function chanceToKo(poke, damageRanges, params) {
           toxicCounter,
           totalHp,
           berryHeal,
+          berryHealThreshold,
           berryDmg
         })
       );
@@ -472,16 +477,8 @@ function damageMap(v, w, skip) {
       !berryUsed &&
       this.berryHeal > 0 &&
       v < this.totalHp &&
-      2 * v >= this.totalHp
+      this.totalHp - v < this.berryHealThreshold
     ) {
-      /*
-       * berry can be whatever amount for sitrus, oran, etc.
-       * gen 3, 4, 5, & 6: apply at 1/2 or below
-       * I've personally confirmed that for gens 3, 4, & 5 it
-       * activates above 1/3, so I'm assuming it activates at <= 50%
-       * tested with Emerald, Heart Gold, and White
-       * tl;dr bulba lies, it was never 1/3
-       */
       v = Math.max(0, v - this.berryHeal);
       berryUsed = true;
     }

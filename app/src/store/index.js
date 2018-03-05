@@ -16,12 +16,16 @@ export default new Store({
     persistencePlugin({
       prefix: "sulcalc",
       saveOn: {
+        changeGen: "gen",
         importPokemon: "sets.custom",
         toggleSmogonSets: "enabledSets.smogon",
         togglePokemonPerfectSets: "enabledSets.pokemonPerfect",
         toggleCustomSets: "enabledSets.custom",
         toggleLongRolls: "longRolls",
         toggleFractions: "fractions"
+      },
+      onLoad(store) {
+        store.commit("changeGen", { gen: store.state.gen });
       }
     })
   ]

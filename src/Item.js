@@ -18,6 +18,14 @@ import {
   megaStone
 } from "./info";
 
+const flavorBerries = new Set([
+  "Figy Berry",
+  "Wiki Berry",
+  "Mago Berry",
+  "Aguav Berry",
+  "Iapapa Berry"
+]);
+
 export default class Item {
   constructor(item = {}) {
     this.gen = defaultTo(Number(item.gen), maxGen);
@@ -83,24 +91,29 @@ export default class Item {
     return memoryType(this.id, this.gen);
   }
 
-  berryHeal(hp) {
-    switch (this.name) {
+  berryHeal(maxHp) {
+    const name = this.name;
+    switch (name) {
       case "Sitrus Berry":
-        return this.gen >= Gens.HGSS ? Math.trunc(hp / 4) : 30;
+        return this.gen >= Gens.HGSS ? Math.trunc(maxHp / 4) : 30;
       case "Oran Berry":
       case "Berry":
         return 10;
-      case "Figy Berry":
-      case "Wiki Berry":
-      case "Mago Berry":
-      case "Aguav Berry":
-      case "Iapapa Berry":
-        return Math.trunc(hp / 8);
       case "Gold Berry":
         return 30;
       default:
+        if (flavorBerries.has(name)) {
+          return Math.trunc(maxHp / (this.gen >= Gens.SM ? 2 : 8));
+        }
         return 0;
     }
+  }
+
+  berryHealThreshold(maxHp) {
+    if (this.gen >= Gens.SM && flavorBerries.has(this.name)) {
+      return Math.floor(maxHp / 4);
+    }
+    return Math.floor(maxHp / 2);
   }
 
   zMoveTransformsTo() {

@@ -41,12 +41,22 @@
 
       <div class='col-2 text-center'>{{ pokemon.boostedStat(stat) }}</div>
 
-      <div class='col-2'>
+      <div class='col-2 text-center'>
+        <button
+          v-if='stat === Stats.HP'
+          type='button'
+          class='btn btn-sm btn-primary'
+          style='cursor: default;'
+          @click='boostAll'
+          >
+          +1 all
+        </button>
+
         <select
+          v-else
           :value='pokemon.boosts[stat]'
           @change='event => updateBoost(stat, event)'
           class='form-control'
-          :class='{invisible: stat === Stats.HP}'
           >
           <option v-for='n in 13' :key='n' :value='7 - n'>
               {{ statBoost(7 - n) }}
@@ -102,6 +112,15 @@ export default {
         return boost;
       }
       return "--";
+    },
+    boostAll() {
+      this.$emit(
+        "input",
+        copyWithEvent({
+          ...this.pokemon,
+          boosts: this.pokemon.boosts.map(b => Math.min(6, b + 1))
+        })
+      );
     },
     updateIv(stat, iv) {
       const ivs = [...this.pokemon.ivs];
