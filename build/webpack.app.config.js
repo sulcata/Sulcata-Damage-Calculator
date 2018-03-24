@@ -1,11 +1,11 @@
 "use strict";
 const path = require("path");
-const webpack = require("webpack");
 const HtmlPlugin = require("html-webpack-plugin");
 const ScriptExtHtmlPlugin = require("script-ext-html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
 
-const config = {
+module.exports = {
   entry: {
     main: path.join(__dirname, "../app/src/main"),
     db: path.join(__dirname, "../dist/db"),
@@ -18,6 +18,11 @@ const config = {
     path: path.join(__dirname, "../dist/app")
   },
   stats: "minimal",
+  devServer: {
+    port: 3000,
+    inline: false,
+    stats: "minimal"
+  },
   resolve: {
     alias: {
       sulcalc: path.join(__dirname, "../src/index")
@@ -28,6 +33,7 @@ const config = {
     rules: [
       {
         test: /\.js$/,
+        type: "javascript/esm",
         exclude: /(node_modules|dist)\//,
         loader: "babel-loader",
         options: {
@@ -57,11 +63,12 @@ const config = {
       }
     ]
   },
+  optimization: {
+    splitChunks: { chunks: "all" },
+    minimizer: [new BabelMinifyPlugin()]
+  },
   plugins: [
     new ExtractTextPlugin("style.[contenthash].css"),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: ["smogon", "pokemonPerfect", "db", "vendor"]
-    }),
     new HtmlPlugin({
       template: path.join(__dirname, "../app/index.hbs"),
       inject: "head"
@@ -69,5 +76,3 @@ const config = {
     new ScriptExtHtmlPlugin({ defaultAttribute: "defer" })
   ]
 };
-
-module.exports = config;

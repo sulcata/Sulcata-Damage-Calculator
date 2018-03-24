@@ -1,9 +1,8 @@
 "use strict";
 const path = require("path");
-const webpack = require("webpack");
 const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
 
-const config = {
+module.exports = {
   entry: path.join(__dirname, "../src/index"),
   output: {
     filename: "sulcalc.js",
@@ -11,13 +10,13 @@ const config = {
     library: "sulcalc",
     libraryTarget: "umd"
   },
-  devtool: "cheap-module-source-map",
   stats: "minimal",
   module: {
     strictExportPresence: true,
     rules: [
       {
         test: /\.js$/,
+        type: "javascript/esm",
         loader: "babel-loader",
         exclude: /(node_modules|db|translations|setdex)\//,
         options: {
@@ -32,12 +31,7 @@ const config = {
       }
     ]
   },
-  plugins: [
-    new webpack.LoaderOptionsPlugin({ minimize: true }),
-    new webpack.optimize.ModuleConcatenationPlugin(),
-    new webpack.EnvironmentPlugin({ NODE_ENV: "production" }),
-    new BabelMinifyPlugin()
-  ]
+  optimization: {
+    minimizer: [new BabelMinifyPlugin()]
+  }
 };
-
-module.exports = config;
