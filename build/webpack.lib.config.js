@@ -3,14 +3,13 @@ const path = require("path");
 const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
 
 module.exports = {
-  entry: path.join(__dirname, "../src/index"),
+  entry: path.join(__dirname, "../src"),
   output: {
     filename: "sulcalc.js",
-    path: path.join(__dirname, "../dist/lib"),
+    path: path.join(__dirname, "../dist/sulcalc"),
     library: "sulcalc",
     libraryTarget: "umd"
   },
-  stats: "minimal",
   module: {
     strictExportPresence: true,
     rules: [
@@ -18,19 +17,13 @@ module.exports = {
         test: /\.js$/,
         type: "javascript/esm",
         loader: "babel-loader",
-        exclude: /(node_modules|db|translations|setdex)\//,
-        options: {
-          babelrc: false,
-          plugins: [
-            "transform-object-rest-spread",
-            "syntax-dynamic-import",
-            "transform-export-extensions",
-            "lodash"
-          ]
-        }
+        exclude: /(node_modules|dist)\//,
+        options: { envName: "webpack" }
       }
     ]
   },
+  mode: "production",
+  devtool: "cheap-module-source-map",
   optimization: {
     minimizer: [new BabelMinifyPlugin()]
   }

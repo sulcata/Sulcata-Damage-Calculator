@@ -1,9 +1,8 @@
 import path from "path";
 import fs from "fs-extra";
 import _ from "lodash/fp";
-import { info, Move, Stats, Pokemon } from "../src";
+import { info, Move, Stats, Pokemon, Gens } from "../src";
 
-const mapUncapped = _.map.convert({ cap: false });
 const mapValuesUncapped = _.mapValues.convert({ cap: false });
 
 const importMove = _.curry((move, gen) => {
@@ -67,54 +66,52 @@ const minifySetdex = (setdex, gen) => {
   return mapValuesUncapped(minifySets(_, _, gen), omitted);
 };
 
-const minifySetdexData = mapUncapped(minifySetdex);
-
 const setdex = async () => {
   const inDir = path.join(__dirname, "data/setdex");
   const outDir = path.join(__dirname, "../dist/setdex");
-  const filesToSetdex = _.map(
-    _.cond([
-      [
-        _.isString,
-        async file => (await import(path.join(inDir, file))).default
-      ],
-      [_.stubTrue, _.identity]
-    ])
-  );
   await fs.mkdirs(outDir);
-  const data = [
-    {
-      file: "smogon.js",
-      data: await Promise.all(
-        filesToSetdex([
-          {},
-          "setdex_rby",
-          "setdex_gsc",
-          "setdex_rse",
-          "setdex_dpp",
-          "setdex_bw",
-          "setdex_xy",
-          "setdex_sm"
-        ])
-      )
-    },
-    {
-      file: "pokemonPerfect.js",
-      data: await Promise.all(
-        filesToSetdex([{}, "setdex_rby_pp", {}, {}, {}, {}, "setdex_xy_pp", {}])
-      )
-    }
-  ];
-  await Promise.all(
-    _.map(
-      entry =>
-        fs.writeFile(
-          path.join(outDir, entry.file),
-          `export default ${JSON.stringify(minifySetdexData(entry.data))}`
-        ),
-      data
+  const files = [
+    ["setdex_rby", Gens.RBY],
+    ["setdex_gsc", Gens.GSC],
+    ["setdex_rse", Gens.ADV],
+    ["setdex_dpp", Gens.HGSS],
+    ["setdex_bw", Gens.B2W2],
+    ["setdex_xy", Gens.ORAS],
+    ["setdex_sm", Gens.SM],
+    ["setdex_rby_pp", Gens.RBY],
+    ["setdex_xy_pp", Gens.ORAS]
+  ].map(async ([file, gen]) => {
+    const setdexData = (await import(path.join(inDir, file + ".js"))).default;
+    const minifiedSetdex = minifySetdex(setdexData, gen);
+    await fs.writeFile(
+      path.join(outDir, file + ".js"),
+      `export default ${JSON.stringify(minifiedSetdex)}`
+    );
+  });
+  await Promise.all([
+    ...files,
+    fs.writeFile(
+      path.join(outDir, "smogon.js"),
+      `
+        import rby from "./setdex_rby.js"
+        import gsc from "./setdex_gsc.js"
+        import adv from "./setdex_rse.js"
+        import hgss from "./setdex_dpp.js"
+        import b2w2 from "./setdex_bw.js"
+        import oras from "./setdex_xy.js"
+        import sm from "./setdex_sm.js"
+        export default [{}, rby, gsc, adv, hgss, b2w2, oras, sm]
+      `
+    ),
+    fs.writeFile(
+      path.join(outDir, "pokemonPerfect.js"),
+      `
+        import rby from "./setdex_rby_pp.js"
+        import oras from "./setdex_xy_pp.js"
+        export default [{}, rby, {}, {}, {}, {}, oras, {}]
+      `
     )
-  );
+  ]);
 };
 
 setdex().catch(error => {
