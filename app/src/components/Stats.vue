@@ -69,7 +69,6 @@
 </template>
 
 <script>
-import { copyWithEvent } from "../utilities";
 import Integer from "./ui/Integer.vue";
 import { Pokemon, Gens, Stats } from "sulcalc";
 
@@ -116,7 +115,7 @@ export default {
     boostAll() {
       this.$emit(
         "input",
-        copyWithEvent({
+        new Pokemon({
           ...this.pokemon,
           boosts: this.pokemon.boosts.map(b => Math.min(6, b + 1))
         })
@@ -128,7 +127,7 @@ export default {
       if (stat === Stats.HP || this.pokemon.gen <= Gens.GSC) {
         this.$emit(
           "input",
-          copyWithEvent({
+          new Pokemon({
             ...this.pokemon,
             ivs,
             currentHp: null,
@@ -137,7 +136,7 @@ export default {
           })
         );
       } else {
-        this.$emit("input", copyWithEvent({ ...this.pokemon, ivs }));
+        this.$emit("input", new Pokemon({ ...this.pokemon, ivs }));
       }
     },
     updateEv(stat, ev) {
@@ -146,7 +145,7 @@ export default {
       if (stat === Stats.HP) {
         this.$emit(
           "input",
-          copyWithEvent({
+          new Pokemon({
             ...this.pokemon,
             evs,
             currentHp: null,
@@ -155,13 +154,13 @@ export default {
           })
         );
       } else {
-        this.$emit("input", copyWithEvent({ ...this.pokemon, evs }));
+        this.$emit("input", new Pokemon({ ...this.pokemon, evs }));
       }
     },
     updateBoost(stat, event) {
       const boosts = [...this.pokemon.boosts];
       boosts[stat] = Number(event.target.value);
-      this.$emit("input", copyWithEvent({ ...this.pokemon, boosts }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, boosts }));
     },
     isIvDisabled(stat) {
       return (

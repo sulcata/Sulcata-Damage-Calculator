@@ -7,7 +7,7 @@
     :show-labels='false'
     placeholder='Pokemon'
     :options='sets'
-    :value='pokemon.event'
+    :value='pokemon.set'
     @input='updatePokemon'
     >
     <template slot='option' slot-scope='props'>
@@ -21,6 +21,8 @@
 import { mapState, mapGetters } from "vuex";
 import { Multiselect } from "vue-multiselect";
 import { Pokemon } from "sulcalc";
+
+const pokemonToSet = new WeakMap();
 
 export default {
   components: {
@@ -43,8 +45,11 @@ export default {
         set: event.set,
         gen: this.gen
       });
-      pokemon.event = event;
+      pokemon.set = event;
       this.$emit("input", pokemon);
+    },
+    selectedSet() {
+
     }
   }
 };

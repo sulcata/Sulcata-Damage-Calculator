@@ -239,6 +239,8 @@ export default class Pokemon {
 
     this.grounded = Boolean(pokemon.grounded);
     this.ungrounded = Boolean(pokemon.ungrounded);
+
+    this.set = defaultTo(pokemon.set, null);
   }
 
   static fromImportable(importText, gen) {

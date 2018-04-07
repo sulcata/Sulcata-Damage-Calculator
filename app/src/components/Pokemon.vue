@@ -60,7 +60,6 @@
 </template>
 
 <script>
-import { copyWithEvent } from "../utilities";
 import SetSelector from "./SetSelector.vue";
 import Ability from "./Ability.vue";
 import Item from "./Item.vue";
@@ -102,16 +101,16 @@ export default {
       this.$emit("input", pokemon);
     },
     updateItem(item) {
-      this.$emit("input", copyWithEvent({ ...this.pokemon, item }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, item }));
     },
     updateAbility(ability) {
-      this.$emit("input", copyWithEvent({ ...this.pokemon, ability }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, ability }));
     },
     updateNature(nature) {
-      this.$emit("input", copyWithEvent({ ...this.pokemon, nature }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, nature }));
     },
     updateLevel(level) {
-      this.$emit("input", copyWithEvent({ ...this.pokemon, level }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, level }));
     },
     updateMove(i, move) {
       const moves = [...this.pokemon.moves];
@@ -120,24 +119,24 @@ export default {
       if (move.usesHappiness()) {
         this.$emit(
           "input",
-          copyWithEvent({
+          new Pokemon({
             ...this.pokemon,
             moves,
             happiness: move.optimalHappiness()
           })
         );
       } else {
-        this.$emit("input", copyWithEvent({ ...this.pokemon, moves }));
+        this.$emit("input", new Pokemon({ ...this.pokemon, moves }));
       }
     },
     updateHappiness(happiness) {
-      this.$emit("input", copyWithEvent({ ...this.pokemon, happiness }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, happiness }));
     },
     updateHealth(health) {
-      this.$emit("input", copyWithEvent({ ...this.pokemon, ...health }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, ...health }));
     },
     updateStatus(status) {
-      this.$emit("input", copyWithEvent({ ...this.pokemon, status }));
+      this.$emit("input", new Pokemon({ ...this.pokemon, status }));
     }
   }
 };
