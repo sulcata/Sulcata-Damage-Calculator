@@ -22,8 +22,6 @@ import { mapState, mapGetters } from "vuex";
 import { Multiselect } from "vue-multiselect";
 import { Pokemon } from "sulcalc";
 
-const pokemonToSet = new WeakMap();
-
 export default {
   components: {
     Multiselect
@@ -47,9 +45,6 @@ export default {
       });
       pokemon.set = event;
       this.$emit("input", pokemon);
-    },
-    selectedSet() {
-
     }
   }
 };

@@ -23,15 +23,15 @@ const sizeClasses = {
 };
 
 const typeClasses = {
-  primary: "btn-primary",
-  secondary: "btn-secondary",
-  success: "btn-success",
-  danger: "btn-danger",
-  warning: "btn-warning",
-  info: "btn-warning",
-  light: "btn-light",
-  dark: "btn-dark",
-  link: "btn-link"
+  primary: "-primary",
+  secondary: "-secondary",
+  success: "-success",
+  danger: "-danger",
+  warning: "-warning",
+  info: "-info",
+  light: "-light",
+  dark: "-dark",
+  link: "-link"
 };
 
 const noDefaultValue = Symbol("ButtonRadioGroup.noDefaultValue");
@@ -112,7 +112,7 @@ export default {
       return {
         btn: true,
         active: this.isSelected(option),
-        [typeClasses[this.type] + outline]: true
+        ["btn" + outline + typeClasses[this.type]]: true
       };
     }
   }

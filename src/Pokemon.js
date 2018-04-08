@@ -137,13 +137,13 @@ export default class Pokemon {
     this.nickname = String(defaultTo(pokemon.nickname, ""));
 
     if (pokemon.evs) {
-      this.evs = [...pokemon.evs];
+      this.evs = pokemon.evs.slice(0);
     } else {
       this.evs = Array(6).fill(gen >= Gens.ADV ? 0 : 252);
     }
 
     if (pokemon.ivs) {
-      this.ivs = [...pokemon.ivs];
+      this.ivs = pokemon.ivs.slice(0);
     } else {
       this.ivs = Array(6).fill(gen >= Gens.ADV ? 31 : 15);
     }
@@ -417,7 +417,7 @@ export default class Pokemon {
       item: set.i ? { id: set.i, gen } : undefined,
       moves: set.m ? set.m.map(id => ({ id, gen })) : undefined,
       evs: set.e ? set.e.map(ev => 4 * ev) : undefined,
-      ivs: set.d ? set.d.slice() : undefined
+      ivs: set.d ? set.d.slice(0) : undefined
     });
 
     pokemon.happiness = Math.max(
@@ -440,7 +440,7 @@ export default class Pokemon {
       set.e = this.evs.map(ev => Math.trunc(ev / 4));
     }
     if (this.ivs.some(iv => iv !== defaultIv)) {
-      set.d = this.ivs.slice();
+      set.d = this.ivs.slice(0);
     }
     return set;
   }

@@ -21,13 +21,5 @@ export default {
   attacker: null,
   defender: null,
   field: null,
-  options: {
-    attacker: {
-      boostAllStats: false
-    },
-    defender: {
-      boostAllStats: false
-    }
-  },
   overrideReport: null
 };

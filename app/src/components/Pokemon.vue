@@ -113,7 +113,7 @@ export default {
       this.$emit("input", new Pokemon({ ...this.pokemon, level }));
     },
     updateMove(i, move) {
-      const moves = [...this.pokemon.moves];
+      const moves = this.pokemon.moves.slice(0);
       move.user = this.pokemon;
       moves[i] = move;
       if (move.usesHappiness()) {

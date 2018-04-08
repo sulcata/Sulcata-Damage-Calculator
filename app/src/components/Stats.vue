@@ -42,15 +42,28 @@
       <div class='col-2 text-center'>{{ pokemon.boostedStat(stat) }}</div>
 
       <div class='col-2 text-center'>
-        <button
+        <div
           v-if='stat === Stats.HP'
-          type='button'
-          class='btn btn-sm btn-primary'
-          style='cursor: default;'
-          @click='boostAll'
+          role='group'
+          class='btn-group btn-group-sm d-flex'
           >
-          +1 all
-        </button>
+          <button
+            type='button'
+            class='btn btn-outline-primary w-100'
+            style='cursor: default;'
+            @click='() => boostAll(1)'
+            >
+            +1
+          </button>
+          <button
+            type='button'
+            class='btn btn-outline-primary w-100'
+            style='cursor: default;'
+            @click='() => boostAll(-1)'
+            >
+            -1
+          </button>
+        </div>
 
         <select
           v-else
@@ -69,6 +82,7 @@
 </template>
 
 <script>
+import { clamp } from "lodash";
 import Integer from "./ui/Integer.vue";
 import { Pokemon, Gens, Stats } from "sulcalc";
 
@@ -112,17 +126,16 @@ export default {
       }
       return "--";
     },
-    boostAll() {
-      this.$emit(
-        "input",
-        new Pokemon({
-          ...this.pokemon,
-          boosts: this.pokemon.boosts.map(b => Math.min(6, b + 1))
-        })
-      );
+    boostAll(amount) {
+      const boosts = this.pokemon.boosts.slice(0);
+      const stats = [Stats.ATK, Stats.DEF, Stats.SATK, Stats.SDEF, Stats.SPD];
+      for (const stat of stats) {
+        boosts[stat] = clamp(boosts[stat] + amount, -6, 6);
+      }
+      this.$emit("input", new Pokemon({ ...this.pokemon, boosts }));
     },
     updateIv(stat, iv) {
-      const ivs = [...this.pokemon.ivs];
+      const ivs = this.pokemon.ivs.slice(0);
       ivs[stat] = iv;
       if (stat === Stats.HP || this.pokemon.gen <= Gens.GSC) {
         this.$emit(
@@ -140,7 +153,7 @@ export default {
       }
     },
     updateEv(stat, ev) {
-      const evs = [...this.pokemon.evs];
+      const evs = this.pokemon.evs.slice(0);
       evs[stat] = ev;
       if (stat === Stats.HP) {
         this.$emit(
@@ -158,7 +171,7 @@ export default {
       }
     },
     updateBoost(stat, event) {
-      const boosts = [...this.pokemon.boosts];
+      const boosts = this.pokemon.boosts.slice(0);
       boosts[stat] = Number(event.target.value);
       this.$emit("input", new Pokemon({ ...this.pokemon, boosts }));
     },

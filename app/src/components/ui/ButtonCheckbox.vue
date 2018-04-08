@@ -17,15 +17,15 @@ const sizeClasses = {
 };
 
 const typeClasses = {
-  primary: "btn-primary",
-  secondary: "btn-secondary",
-  success: "btn-success",
-  danger: "btn-danger",
-  warning: "btn-warning",
-  info: "btn-warning",
-  light: "btn-light",
-  dark: "btn-dark",
-  link: "btn-link"
+  primary: "-primary",
+  secondary: "-secondary",
+  success: "-success",
+  danger: "-danger",
+  warning: "-warning",
+  info: "-info",
+  light: "-light",
+  dark: "-dark",
+  link: "-link"
 };
 
 export default {
@@ -60,7 +60,7 @@ export default {
         btn: true,
         active: this.value,
         [sizeClasses[this.size]]: true,
-        [typeClasses[this.type] + outline]: true
+        ["btn" + outline + typeClasses[this.type]]: true
       };
     }
   },
