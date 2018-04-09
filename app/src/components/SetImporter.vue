@@ -2,7 +2,7 @@
   <div>
     <textarea
       v-model='importText'
-      class='form-control'
+      class='form-control text-monospace'
       style='resize: vertical;'
       rows='10'
     ></textarea>
