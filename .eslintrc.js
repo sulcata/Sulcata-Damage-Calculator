@@ -64,7 +64,7 @@ module.exports = {
     "consistent-this": ["error", "self"],
     "default-case": "error",
     "dot-notation": "error",
-    eqeqeq: "error",
+    eqeqeq: ["error", "always", { null: "ignore" }],
     "for-direction": "error",
     "func-name-matching": "error",
     "func-style": ["error", "declaration", { allowArrowFunctions: true }],

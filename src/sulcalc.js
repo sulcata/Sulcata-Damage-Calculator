@@ -1,4 +1,4 @@
-import { clamp, defaultTo } from "lodash";
+import { defaultTo } from "lodash";
 import Pokemon from "./Pokemon";
 import Move from "./Move";
 import Field from "./Field";
@@ -113,8 +113,6 @@ export default function sulcalc(attacker, defender, move, field) {
   ) {
     move.critical = true;
   }
-
-  move.numberOfHits = clamp(move.numberOfHits, move.minHits(), move.maxHits());
 
   const dmg = calculate(attacker, defender, move, field);
 

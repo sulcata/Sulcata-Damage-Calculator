@@ -79,9 +79,24 @@ export default class Move {
     this.user = move.user;
     this.target = move.target;
 
+    if (move.numberOfHits == null) {
+      if (this.user && this.user.ability.name === "Skill Link") {
+        this.numberOfHits = maxHits(this.id, this.gen);
+      } else if (
+        this.name === "Water Shuriken" &&
+        this.user &&
+        this.user.name === "Greninja-Ash"
+      ) {
+        this.numberOfHits = 3;
+      } else {
+        this.numberOfHits = 0;
+      }
+    } else {
+      this.numberOfHits = Number(move.numberOfHits);
+    }
+
     this.critical = Boolean(move.critical);
     this.zMove = Boolean(move.zMove);
-    this.numberOfHits = defaultTo(Number(move.numberOfHits), 1);
     this.beatUpHit = defaultTo(Number(move.beatUpHit), 0);
     this.secondHit = Boolean(move.secondHit);
     this.meFirst = Boolean(move.meFirst);
@@ -185,27 +200,10 @@ export default class Move {
   }
 
   minHits() {
-    if (this.user && this.user.ability.name === "Skill Link") {
-      return maxHits(this.id, this.gen);
-    }
-    if (
-      this.name === "Water Shuriken" &&
-      this.user &&
-      this.user.name === "Greninja-Ash"
-    ) {
-      return 3;
-    }
     return minHits(this.id, this.gen);
   }
 
   maxHits() {
-    if (
-      this.name === "Water Shuriken" &&
-      this.user &&
-      this.user.name === "Greninja-Ash"
-    ) {
-      return 3;
-    }
     return maxHits(this.id, this.gen);
   }
 

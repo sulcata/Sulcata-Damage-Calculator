@@ -254,7 +254,10 @@ export default {
       return ordinalHitOptions(5);
     },
     numberOfHitsInput() {
-      return this.move.hitsMultipleTimes();
+      return (
+        this.move.hitsMultipleTimes() &&
+        this.move.minHits() < this.move.maxHits()
+      );
     }
   },
   methods: {
