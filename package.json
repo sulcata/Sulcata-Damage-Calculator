@@ -13,8 +13,7 @@
     "url": "https://github.com/sulcata/sulcalc/issues"
   },
   "scripts": {
-    "serve":
-      "webpack-serve --config build/webpack.app.config.js --no-clipboard",
+    "serve": "webpack-serve --config build/webpack.app.config.js --no-clipboard",
     "build": "webpack --config build/webpack.app.config.js",
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "npm run lint && npm run test:unit",
