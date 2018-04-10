@@ -4,8 +4,6 @@ node_js:
 cache:
   directories:
     - $HOME/.npm
-install:
-  - npm ci
 before_script:
   - npm run setup
 script:
