@@ -9,15 +9,7 @@ export function importPokemon(state, { importText, gen }) {
     .map(importText => Pokemon.fromImportable(importText, gen));
   const custom = state.sets.custom[gen];
   for (const pokemon of importedPokemon) {
-    if (!custom.hasOwnProperty(pokemon.id)) {
-      Vue.set(custom, pokemon.id, {});
-    }
-    if (!pokemon.nickname) {
-      let i = 1;
-      while (custom[pokemon.id].hasOwnProperty(i)) i++;
-      pokemon.nickname = String(i);
-    }
-    Vue.set(custom[pokemon.id], pokemon.nickname, pokemon.toSet());
+    Vue.set(custom, pokemon.id, { "Custom Set": pokemon.toSet() });
   }
 }
 
