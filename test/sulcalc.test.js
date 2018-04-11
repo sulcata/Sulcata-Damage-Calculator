@@ -447,6 +447,6 @@ describe("sulcalc()", () => {
         { name: "Judgment", gen },
         { gen }
       ).summary
-    ).toMatchSnapshot()
+    ).toMatchSnapshot();
   });
 });
