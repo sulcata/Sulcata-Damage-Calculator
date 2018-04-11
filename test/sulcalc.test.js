@@ -428,4 +428,25 @@ describe("sulcalc()", () => {
       ).summary
     ).toContain("at 7%");
   });
+
+  test("Arceus Judgment with plate", () => {
+    const gen = maxGen;
+    expect(
+      sulcalc(
+        {
+          name: "Arceus-Dark",
+          item: "Dread Plate",
+          evs: [0, 0, 0, 8, 0, 0],
+          gen
+        },
+        {
+          name: "Abomasnow",
+          evs: [252, 0, 0, 0, 0, 0],
+          gen
+        },
+        { name: "Judgment", gen },
+        { gen }
+      ).summary
+    ).toMatchSnapshot()
+  });
 });

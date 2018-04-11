@@ -753,7 +753,7 @@ export default class Pokemon {
   }
 
   hasPlate() {
-    return this.item.nonDisabledName().endsWith(" Plate");
+    return this.item.isPlate();
   }
 
   hasDrive() {

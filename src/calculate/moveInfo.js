@@ -472,7 +472,7 @@ function baseMoveInfo(attacker, defender, move, field) {
       info.power = Move.heavySlam(attacker.weight(), defender.weight());
       break;
     case "Judgment":
-      if (attacker.item.isPlate()) info.type = attacker.item.plateType();
+      if (attacker.item.isPlate()) info.type = attacker.item.boostedType();
       break;
     case "Low Kick":
     case "Grass Knot":

@@ -2,6 +2,8 @@
 
 exports[`sulcalc() Ability 1`] = `"+2 252+ Atk Guts Heracross (burned) critical hit Close Combat vs. 248 HP / 252+ Def Sturdy Skarmory: 332 (99.7%) -- guaranteed 2HKO"`;
 
+exports[`sulcalc() Arceus Judgment with plate 1`] = `"8 SpA Dread Plate Arceus-Dark Judgment vs. 252 HP / 0 SpD Abomasnow: 175 - 207 (45.6 - 53.9%) -- 43.8% chance to 2HKO"`;
+
 exports[`sulcalc() Explosion 1`] = `"0 Atk Snorlax Explosion vs. 0 HP / 0 Def Skarmory: 109 - 129 (40.2 - 47.6%) -- this might take a while..."`;
 
 exports[`sulcalc() Grassy Terrain recovery 1`] = `"252 Atk Tapu Bulu Horn Leech vs. 248 HP / 252+ Def Eviolite Chansey: 246 - 289 (35 - 41.1%) -- 68.3% chance to 3HKO after Grassy Terrain"`;
