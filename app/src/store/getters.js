@@ -60,7 +60,7 @@ function getReportList(attacker, defender, field) {
   for (const move of attacker.moves) {
     try {
       reports.push(sulcalc(attacker, defender, move, field));
-    } catch (error) {
+    } catch {
       reports.push({ attacker, defender, move, field });
     }
   }

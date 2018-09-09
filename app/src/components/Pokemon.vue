@@ -1,6 +1,6 @@
 <template>
   <div>
-    <set-selector :pokemon='pokemon' @input='updatePokemon'/>
+    <set-selector :pokemon='pokemon' @input='updateNewPokemon'/>
 
     <div class='mt-1' v-if='pokemon.gen >= Gens.GSC'>
       <item :item='pokemon.item' @input='updateItem'/>
@@ -61,15 +61,15 @@
 
 <script>
 import SetSelector from "./SetSelector.vue";
-import Ability from "./Ability.vue";
-import Item from "./Item.vue";
-import Move from "./Move.vue";
-import Nature from "./Nature.vue";
-import Status from "./Status.vue";
+import AbilityComponent from "./Ability.vue";
+import ItemComponent from "./Item.vue";
+import MoveComponent from "./Move.vue";
+import NatureComponent from "./Nature.vue";
+import StatusComponent from "./Status.vue";
 import StatsComponent from "./Stats.vue";
 import Health from "./Health.vue";
 import Integer from "./ui/Integer.vue";
-import { Gens, Stats, Pokemon } from "sulcalc";
+import { Gens, Stats, Pokemon, Move } from "sulcalc";
 
 export default {
   model: {
@@ -78,11 +78,11 @@ export default {
   },
   components: {
     SetSelector,
-    Ability,
-    Item,
-    Move,
-    Nature,
-    Status,
+    Ability: AbilityComponent,
+    Item: ItemComponent,
+    Move: MoveComponent,
+    Nature: NatureComponent,
+    Status: StatusComponent,
     Stats: StatsComponent,
     Health,
     Integer
@@ -100,6 +100,13 @@ export default {
     updatePokemon(pokemon) {
       this.$emit("input", pokemon);
     },
+    updateNewPokemon(pokemon) {
+      const suggestions = Object.assign(
+        {},
+        ...pokemon.moves.map(move => suggestedMoveChanges(move))
+      );
+      this.$emit("input", new Pokemon({ ...pokemon, ...suggestions }));
+    },
     updateItem(item) {
       this.$emit("input", new Pokemon({ ...this.pokemon, item }));
     },
@@ -116,18 +123,9 @@ export default {
       const moves = this.pokemon.moves.slice(0);
       move.user = this.pokemon;
       moves[i] = move;
-      if (move.usesHappiness()) {
-        this.$emit(
-          "input",
-          new Pokemon({
-            ...this.pokemon,
-            moves,
-            happiness: move.optimalHappiness()
-          })
-        );
-      } else {
-        this.$emit("input", new Pokemon({ ...this.pokemon, moves }));
-      }
+      const suggestions = suggestedMoveChanges(move);
+      const pokemon = new Pokemon({ ...this.pokemon, moves, ...suggestions });
+      this.$emit("input", pokemon);
     },
     updateHappiness(happiness) {
       this.$emit("input", new Pokemon({ ...this.pokemon, happiness }));
@@ -140,4 +138,19 @@ export default {
     }
   }
 };
+
+function suggestedMoveChanges(move) {
+  const suggestions = {};
+  if (move.usesHappiness()) {
+    suggestions.happiness = move.optimalHappiness();
+  }
+  if (
+    move.isHiddenPower() &&
+    move.gen < Gens.SM &&
+    move.type() !== Move.hiddenPowerType(move.user.ivs, move.gen)
+  ) {
+    suggestions.ivs = Move.hiddenPowers(move.type(), move.gen)[0];
+  }
+  return suggestions;
+}
 </script>

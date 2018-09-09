@@ -173,7 +173,7 @@ describe("Pokemon", () => {
         Gens.ORAS
       );
       expect(landorusTherian.moves).toMatchObject([
-        { id: "hiddenpower" },
+        { id: "hiddenpowerice" },
         { id: "rest" },
         { id: "nomove" },
         { id: "nomove" }
@@ -796,11 +796,17 @@ describe("Pokemon", () => {
     const clefable = new Pokemon({ name: "Clefable" });
     expect(clefable.types()).toEqual([Types.FAIRY]);
 
-    clefable.gen = 5;
+    clefable.gen = Gens.B2W2;
     expect(clefable.types()).toEqual([Types.NORMAL]);
 
     clefable.addedType = Types.WATER;
     expect(clefable.types()).toEqual([Types.NORMAL, Types.WATER]);
+
+    const mrMime = new Pokemon({ name: "Mr. Mime" });
+    expect(mrMime.types()).toEqual([Types.PSYCHIC, Types.FAIRY]);
+
+    mrMime.gen = Gens.GSC;
+    expect(mrMime.types()).toEqual([Types.PSYCHIC]);
   });
 
   test("#stab()", () => {

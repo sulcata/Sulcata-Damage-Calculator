@@ -28,7 +28,7 @@ const genCalculate = flowRight(
         if (gen <= Gens.GSC) {
           // intentionally 1-149
           const range = [];
-          for (let i = 1; i < Math.trunc(level * 3 / 2); i++) {
+          for (let i = 1; i < Math.trunc((level * 3) / 2); i++) {
             range.push(i);
           }
           return range;
@@ -36,7 +36,7 @@ const genCalculate = flowRight(
         {
           const range = [];
           for (let i = 50; i <= 150; i += gen <= Gens.HGSS ? 10 : 1) {
-            range.push(Math.max(1, Math.trunc(level * i / 100)));
+            range.push(Math.max(1, Math.trunc((level * i) / 100)));
           }
           return range;
         }
@@ -44,7 +44,7 @@ const genCalculate = flowRight(
       case "Nature's Madness":
         return [Math.max(1, Math.trunc(defender.currentHp / 2))];
       case "Guardian of Alola":
-        return [Math.max(1, Math.trunc(defender.currentHp * 3 / 4))];
+        return [Math.max(1, Math.trunc((defender.currentHp * 3) / 4))];
       case "Endeavor":
         return [Math.max(0, defender.currentHp - attacker.currentHp)];
       case "Final Gambit":
@@ -64,7 +64,7 @@ const genCalculate = flowRight(
     }
 
     const calculateFns = [
-      undefined, // i swear undefined is a function
+      undefined,
       rbyCalculate,
       gscCalculate,
       advCalculate,
@@ -88,11 +88,11 @@ function turnCalculate(attacker, defender, move, field) {
   if (move.name === "Triple Kick") {
     dmg = new Multiset([0]);
     for (let i = 1; i <= 3; i++) {
-      move.tripleKickCount = i; // Determine which turn it is.
+      move.tripleKickCount = i;
       dmg = dmg.permute(genCalculate(attacker, defender, move, field));
       defender.brokenMultiscale = true;
     }
-    move.tripleKickCount = 1; // Reset count for next calculation.
+    move.tripleKickCount = 1;
   } else if (move.name === "Beat Up") {
     dmg = new Multiset([0]);
     for (let i = 0; i < attacker.beatUpStats.length; i++) {
@@ -174,7 +174,7 @@ function turnCalculate(attacker, defender, move, field) {
       );
     }
   } else {
-    // Simple move; default case.
+    // simple move; default case.
     dmg = genCalculate(attacker, defender, move, field);
     defender.brokenMultiscale = true;
   }
@@ -197,16 +197,18 @@ export default (attacker, defender, move, field) => {
       dmg.push(turnCalculate(attacker, defender, move, field));
       move.furyCutter++;
     }
-    dmg.push(-1); // look at the last damage range
-    move.furyCutter = tempCutter; // restore
+    move.furyCutter = tempCutter;
+    // point to the last damage range
+    dmg.push(-1);
   } else if (move.name === "Echoed Voice") {
     const tempVoice = move.echoedVoice;
     while (move.echoedVoice <= 4) {
       dmg.push(turnCalculate(attacker, defender, move, field));
       move.echoedVoice++;
     }
-    dmg.push(-1); // look at the last damage range
     move.echoedVoice = tempVoice;
+    // point to the last damage range
+    dmg.push(-1);
   } else if (move.name === "Trump Card") {
     const tempPP = move.trumpPP;
     dmg.push(turnCalculate(attacker, defender, move, field));
@@ -218,14 +220,15 @@ export default (attacker, defender, move, field) => {
       }
       dmg.push(turnCalculate(attacker, defender, move, field));
     }
-    dmg.push(0); // no more PP, no more damage ranges
     move.trumpPP = tempPP;
+    // no more PP, no more damage ranges
+    dmg.push(0);
   } else if (move.name === "Explosion" || move.name === "Self-Destruct") {
     dmg.push(turnCalculate(attacker, defender, move, field));
-    dmg.push(0); // ur dead
+    dmg.push(0);
   } else if (move.name === "Rollout" || move.name === "Ice Ball") {
     const tempRollout = move.rollout;
-    // repeat 5 times, The formulas wrap around automatically
+    // repeat 5 times, the formulas wrap around automatically
     for (let i = 0; i < 5; i++) {
       dmg.push(turnCalculate(attacker, defender, move, field));
       move.rollout++;
@@ -236,8 +239,9 @@ export default (attacker, defender, move, field) => {
     dmg.push(turnCalculate(attacker, defender, move, field));
     // an item like a type-resist berry or a gem might get used
     dmg.push(turnCalculate(attacker, defender, move, field));
-    dmg.push(-1); // only repeat the last roll
+    // only repeat the last roll
+    dmg.push(-1);
   }
-  defender.brokenMultiscale = false; // reset multiscale
+  defender.brokenMultiscale = false;
   return dmg;
 };

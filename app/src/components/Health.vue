@@ -50,7 +50,7 @@ export default {
   },
   computed: {
     percentHealth() {
-      return Math.max(1, Math.floor(100 * this.currentHp / this.totalHp));
+      return Math.max(1, Math.floor((100 * this.currentHp) / this.totalHp));
     },
     actualHealth() {
       return this.currentHpRange.toString(prettyPrintItems);
@@ -97,9 +97,9 @@ function parseHealthList(list, min, max) {
 }
 
 function minMaxHp(totalHp, percent) {
-  const minHp = Math.ceil(percent / 100 * totalHp);
+  const minHp = Math.ceil((percent / 100) * totalHp);
   const maxHp = clamp(
-    Math.ceil((percent + 1) / 100 * totalHp) - 1,
+    Math.ceil(((percent + 1) / 100) * totalHp) - 1,
     minHp,
     totalHp
   );

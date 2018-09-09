@@ -15,13 +15,14 @@ import {
   roundHalfToZero
 } from "./utilities";
 import {
-  typeId,
   typeName,
   pokemonId,
   pokemonName,
   natureName,
   natureId,
   natureStats,
+  moveId,
+  moveName,
   natureMultiplier,
   baseStats,
   pokeType1,
@@ -35,7 +36,6 @@ import {
 
 const statNames = ["HP", "Atk", "Def", "SpA", "SpD", "Spe"];
 const genderShorthands = ["", "(M)", "(F)", ""];
-const hiddenPowerRegex = /Hidden Power( \[?(\w*)]?)?/i;
 const statMatches = Object.assign(Object.create(null), {
   HP: Stats.HP,
   Atk: Stats.ATK,
@@ -51,23 +51,21 @@ const statMatches = Object.assign(Object.create(null), {
   Spc: Stats.SPC
 });
 
-function parseMove(move, poke, nextMove) {
-  const match = hiddenPowerRegex.exec(move);
-  if (match) {
-    poke.moves[nextMove].name = "Hidden Power";
-    const type = typeId(match[2]);
-    if (type !== Move.hiddenPowerType(poke.ivs, poke.gen)) {
-      poke.ivs = Move.hiddenPowers(type, poke.gen)[0];
+function parseMove(move, name) {
+  move.name = moveName(moveId(name));
+  if (move.isHiddenPower()) {
+    const type = move.type();
+    const ivs = Move.hiddenPowers(type, move.gen)[0];
+    if (ivs && type !== Move.hiddenPowerType(move.user.ivs, move.gen)) {
+      move.user.ivs = ivs;
     }
-  } else {
-    poke.moves[nextMove].name = move;
   }
 }
 
 function parseStats(statsString, { min, max, multipleOf = 1, defaultValue }) {
   const stats = Array(6).fill(defaultValue);
   for (const statString of statsString.split("/").map(s => s.trim())) {
-    let value = parseInt(statString, 10);
+    let value = Number.parseInt(statString, 10);
     if (Number.isNaN(value)) {
       value = defaultValue;
     } else {
@@ -285,23 +283,23 @@ export default class Pokemon {
     }
 
     for (const line of lines.slice(1)) {
-      const idx = line.indexOf(":");
-      if (idx < 0) {
+      const index = line.indexOf(":");
+      if (index < 0) {
         if (line.startsWith("-") || line.startsWith("~")) {
-          parseMove(line.slice(1), poke, nextMove);
+          parseMove(poke.moves[nextMove], line.slice(1));
           nextMove++;
         } else if (line.split(" ")[1].toLowerCase() === "nature") {
           poke.nature = natureId(line.split(" ")[0]);
         }
       } else {
         const key = line
-          .slice(0, idx)
+          .slice(0, index)
           .trim()
           .toLowerCase();
-        const value = line.slice(idx + 1).trim();
+        const value = line.slice(index + 1).trim();
         switch (key) {
           case "level":
-            poke.level = clamp(parseInt(value, 10), 1, 100) || 100;
+            poke.level = clamp(Number.parseInt(value, 10), 1, 100) || 100;
             break;
           case "ability":
           case "trait":
@@ -394,8 +392,7 @@ export default class Pokemon {
 
     for (const move of this.moves) {
       if (move.name === "Hidden Power") {
-        const type = typeName(hiddenPowerType);
-        importable.push(`- Hidden Power [${type}]`);
+        importable.push(`- Hidden Power ${typeName(hiddenPowerType)}`);
       } else if (move.name !== "(No Move)") {
         importable.push(`- ${move.name}`);
       }
@@ -432,9 +429,15 @@ export default class Pokemon {
     const defaultEv = this.gen >= Gens.ADV ? 0 : 252;
     const defaultIv = this.gen >= Gens.ADV ? 31 : 15;
     if (this.level !== 100) set.l = this.level;
-    if (this.nature !== Natures.HARDY) set.n = this.nature;
-    if (this.ability.name !== "(No Ability)") set.a = this.ability.id;
-    if (this.item.name !== "(No Item)") set.i = this.item.id;
+    if (this.gen >= Gens.ADV && this.nature !== Natures.HARDY) {
+      set.n = this.nature;
+    }
+    if (this.gen >= Gens.ADV && this.ability.name !== "(No Ability)") {
+      set.a = this.ability.id;
+    }
+    if (this.gen >= Gens.GSC && this.item.name !== "(No Item)") {
+      set.i = this.item.id;
+    }
     set.m = this.moves.map(move => move.id);
     if (this.evs.some(ev => ev !== defaultEv)) {
       set.e = this.evs.map(ev => Math.trunc(ev / 4));
@@ -482,13 +485,13 @@ export default class Pokemon {
         // (2*(iv+base) + ev/4) * level/100 + level + 10
         return Math.min(
           999,
-          Math.trunc(((iv + base) * 2 + ev) * level / 100) + level + 10
+          Math.trunc((((iv + base) * 2 + ev) * level) / 100) + level + 10
         );
       }
       // (2*(iv+base) + ev/4) * level/100 + 5
       return Math.min(
         999,
-        Math.trunc(((iv + base) * 2 + ev) * level / 100) + 5
+        Math.trunc((((iv + base) * 2 + ev) * level) / 100) + 5
       );
     }
 
@@ -498,13 +501,13 @@ export default class Pokemon {
         return 1;
       }
       // (iv + 2*base + ev/4 + 100) * level/100 + 10
-      return Math.trunc((iv + 2 * base + ev + 100) * level / 100) + 10;
+      return Math.trunc(((iv + 2 * base + ev + 100) * level) / 100) + 10;
     }
 
     // ((iv + 2*base + ev/4) * level/100 + 5)*nature
     const n = natureMultiplier(this.nature, s);
-    const stat = Math.trunc((iv + 2 * base + ev) * level / 100) + 5;
-    return Math.trunc(stat * (10 + n) / 10);
+    const stat = Math.trunc(((iv + 2 * base + ev) * level) / 100) + 5;
+    return Math.trunc((stat * (10 + n)) / 10);
   }
 
   boost(s) {
@@ -524,12 +527,12 @@ export default class Pokemon {
 
     if (this.gen < Gens.ADV) {
       const numerator = Math.trunc(
-        Math.max(2, 2 + boost) / Math.max(2, 2 - boost) * 100
+        (Math.max(2, 2 + boost) / Math.max(2, 2 - boost)) * 100
       );
-      return clamp(Math.trunc(stat * numerator / 100), 1, 999);
+      return clamp(Math.trunc((stat * numerator) / 100), 1, 999);
     }
 
-    return Math.trunc(stat * Math.max(2, 2 + boost) / Math.max(2, 2 - boost));
+    return Math.trunc((stat * Math.max(2, 2 + boost)) / Math.max(2, 2 - boost));
   }
 
   speed(field = {}) {
@@ -548,7 +551,7 @@ export default class Pokemon {
 
     switch (this.item.name) {
       case "Choice Scarf":
-        speed = Math.trunc(speed * 3 / 2);
+        speed = Math.trunc((speed * 3) / 2);
         break;
       case "Quick Powder":
         if (this.name === "Ditto") speed *= 2;
@@ -558,7 +561,7 @@ export default class Pokemon {
     }
 
     if (this.status && this.ability.name === "Quick Feet") {
-      speed = Math.trunc(speed * 3 / 2);
+      speed = Math.trunc((speed * 3) / 2);
     } else if (this.isParalyzed()) {
       speed = Math.trunc(speed / 4);
     }

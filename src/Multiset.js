@@ -256,7 +256,7 @@ export default class Multiset {
 
     const exp = 10 ** (digits + 1);
     const quotient = weightedSum.multiply(exp).divide(size);
-    return Math.round(quotient / 10) * 10 / exp;
+    return (Math.round(quotient / 10) * 10) / exp;
   }
 
   static weightedUnion(sets, weights) {

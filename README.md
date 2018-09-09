@@ -23,8 +23,7 @@ serve files as changes are made. Files will be served from `localhost:3000`.
 
 ## Issues
 
-* [Github][]
-* [Pokemon Online][]
+- [Github][]
 
 ## License
 
@@ -32,5 +31,4 @@ See [LICENSE][]
 
 [node.js]: https://nodejs.org/ "Node.js"
 [github]: https://github.com/sulcata/sulcalc/issues "Github Issue Tracker"
-[pokemon online]: http://pokemon-online.eu/threads/27643/ "Pokemon Online Bugs Thread"
 [license]: LICENSE "MIT License"

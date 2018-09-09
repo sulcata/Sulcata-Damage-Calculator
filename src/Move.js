@@ -315,6 +315,10 @@ export default class Move {
     return ["Photon Geyser", "Light That Burns the Sky"].includes(this.name);
   }
 
+  isHiddenPower() {
+    return this.name.startsWith("Hidden Power");
+  }
+
   static hiddenPowers(typeId, gen) {
     if (gen < Gens.ADV) {
       if (typeId < 1 || typeId > 16) {
@@ -333,24 +337,26 @@ export default class Move {
       ];
     }
 
-    const hiddenPowers = [];
-
-    // check if each possible hidden power matches the type
-    for (let i = 0; i < 64; i++) {
-      const ivs = [
-        i & 1 ? 31 : 30,
-        i & 2 ? 31 : 30,
-        i & 4 ? 31 : 30,
-        i & 8 ? 31 : 30,
-        i & 16 ? 31 : 30,
-        i & 32 ? 31 : 30
-      ];
-      if (typeId === Move.hiddenPowerType(ivs)) {
-        hiddenPowers.push(ivs);
+    if (gen < Gens.SM) {
+      const hiddenPowers = [];
+      // check if each possible hidden power matches the type
+      for (let i = 0; i < 64; i++) {
+        const ivs = [
+          i & 1 ? 31 : 30,
+          i & 2 ? 31 : 30,
+          i & 4 ? 31 : 30,
+          i & 8 ? 31 : 30,
+          i & 16 ? 31 : 30,
+          i & 32 ? 31 : 30
+        ];
+        if (typeId === Move.hiddenPowerType(ivs)) {
+          hiddenPowers.push(ivs);
+        }
       }
+      return hiddenPowers.sort(ivsCmp);
     }
 
-    return hiddenPowers.sort(ivsCmp);
+    return [[31, 31, 31, 31, 31, 31]];
   }
 
   static hiddenPowerBp(ivs, gen) {
@@ -373,7 +379,7 @@ export default class Move {
         ((ivs[Stats.SPD] & 2) << 2) |
         ((ivs[Stats.SATK] & 2) << 3) |
         ((ivs[Stats.SDEF] & 2) << 4);
-      return 30 + Math.trunc(bits * 40 / 63);
+      return 30 + Math.trunc((bits * 40) / 63);
     }
 
     // constant in oras
@@ -394,12 +400,12 @@ export default class Move {
       ((ivs[Stats.SPD] & 1) << 3) |
       ((ivs[Stats.SATK] & 1) << 4) |
       ((ivs[Stats.SDEF] & 1) << 5);
-    return 1 + Math.trunc(bits * 15 / 63);
+    return 1 + Math.trunc((bits * 15) / 63);
   }
 
   static flail(currentHealth, totalHealth, gen) {
     if (gen === Gens.HGSS) {
-      const p = Math.trunc(64 * currentHealth / totalHealth);
+      const p = Math.trunc((64 * currentHealth) / totalHealth);
       if (p < 2) return 200;
       if (p < 6) return 150;
       if (p < 13) return 100;
@@ -408,7 +414,7 @@ export default class Move {
       return 20;
     }
 
-    const p = Math.trunc(48 * currentHealth / totalHealth);
+    const p = Math.trunc((48 * currentHealth) / totalHealth);
     if (p <= 1) return 200;
     if (p <= 4) return 150;
     if (p <= 9) return 100;
@@ -453,7 +459,7 @@ export default class Move {
   static gyroBall(attackerSpeed, defenderSpeed) {
     return Math.min(
       150,
-      Math.trunc(25 * defenderSpeed / Math.max(attackerSpeed, 1))
+      Math.trunc((25 * defenderSpeed) / Math.max(attackerSpeed, 1))
     );
   }
 
@@ -497,14 +503,14 @@ export default class Move {
   }
 
   static frustration(happiness) {
-    return Math.max(1, Math.trunc((255 - happiness) * 10 / 25));
+    return Math.max(1, Math.trunc(((255 - happiness) * 10) / 25));
   }
 
   static return(happiness) {
-    return Math.max(1, Math.trunc(happiness * 10 / 25));
+    return Math.max(1, Math.trunc((happiness * 10) / 25));
   }
 
   static eruption(hp, totalHp) {
-    return Math.max(1, Math.trunc(150 * hp / totalHp));
+    return Math.max(1, Math.trunc((150 * hp) / totalHp));
   }
 }

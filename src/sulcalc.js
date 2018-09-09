@@ -4,12 +4,7 @@ import Move from "./Move";
 import Field from "./Field";
 import Multiset from "./Multiset";
 import { Gens, Stats, Statuses, Types, Weathers } from "./utilities";
-import {
-  isPhysicalType,
-  natureMultiplier,
-  typeName,
-  effectiveness
-} from "./info";
+import { isPhysicalType, natureMultiplier, effectiveness } from "./info";
 import { NoPokemonError, NoMoveError } from "./errors";
 import calculate from "./calculate";
 import endOfTurn from "./endOfTurn";
@@ -128,8 +123,8 @@ export default function sulcalc(attacker, defender, move, field) {
 
   const maxHp = defender.stat(Stats.HP);
 
-  const minPercent = Math.round(dmg[0].min() / maxHp * 1000) / 10;
-  const maxPercent = Math.round(dmg[0].max() / maxHp * 1000) / 10;
+  const minPercent = Math.round((dmg[0].min() / maxHp) * 1000) / 10;
+  const maxPercent = Math.round((dmg[0].max() / maxHp) * 1000) / 10;
 
   const convertToDamage = v => Math.max(0, maxHp - v);
   let initDmg = defender.currentHpRange.map(convertToDamage);
@@ -148,7 +143,7 @@ export default function sulcalc(attacker, defender, move, field) {
     movePower = move.power();
   } else {
     moveType = move.type();
-    movePower = null; // we'll say null means non-var BP
+    movePower = null;
   }
 
   let a, d;
@@ -205,15 +200,11 @@ export default function sulcalc(attacker, defender, move, field) {
 
   reportPokes.push(move.name);
 
-  if (move.name === "Hidden Power" && field.gen >= Gens.ORAS) {
-    reportPokes.push(`(${typeName(moveType)})`);
-  } else if (move.name === "Hidden Power") {
-    reportPokes.push(`(${typeName(moveType)} ${movePower} BP)`);
+  if (move.zMove || (move.name === "Hidden Power" && field.gen <= Gens.B2W2)) {
+    reportPokes.push(`[${movePower} BP]`);
   } else if (move.hitsMultipleTimes() && move.numberOfHits >= 1) {
     const n = move.numberOfHits;
     reportPokes.push(n > 1 ? `[${n} hits]` : `[${n} hit]`);
-  } else if (move.zMove) {
-    reportPokes.push(`(${movePower} BP)`);
   }
 
   reportPokes.push("vs.");
@@ -253,7 +244,7 @@ export default function sulcalc(attacker, defender, move, field) {
   }
 
   const defenderHpPercent = Math.floor(
-    100 * defender.currentHp / defender.stat(Stats.HP)
+    (100 * defender.currentHp) / defender.stat(Stats.HP)
   );
   if (defenderHpPercent < 100) {
     reportPokes.push(`at ${defenderHpPercent}%`);
@@ -278,7 +269,7 @@ export default function sulcalc(attacker, defender, move, field) {
     );
   }
 
-  // Remove field hazards from current HP for probability calculation
+  // remove field hazards from current HP for probability calculation
   if (defender.ability.name !== "Magic Guard") {
     let hazardsDmg = 0;
     if (defender.stealthRock) {
@@ -289,7 +280,7 @@ export default function sulcalc(attacker, defender, move, field) {
           gen: field.gen
         }
       );
-      hazardsDmg += Math.trunc(maxHp * numerator / (denominator * 8));
+      hazardsDmg += Math.trunc((maxHp * numerator) / (denominator * 8));
     }
     if (defender.spikes > 0 && defender.isGrounded(field)) {
       hazardsDmg += Math.trunc(maxHp / (10 - 2 * defender.spikes));
@@ -452,7 +443,7 @@ function berryDamageMap(v) {
   for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
     if (this.effects[e] === "toxic") {
       // limit to at most enough to KO
-      v += Math.trunc((this.toxicCounter + 1) * this.totalHp / 16);
+      v += Math.trunc(((this.toxicCounter + 1) * this.totalHp) / 16);
     } else {
       // limit to at most enough to KO, at least enough to fully heal
       v = Math.max(0, v - this.effects[e]);
@@ -466,7 +457,7 @@ function damageMap(v, w, skip) {
   for (let e = 0; e < this.effects.length && v < this.totalHp; e++) {
     if (this.effects[e] === "toxic") {
       // limit to at most enough to KO
-      v += Math.trunc((this.toxicCounter + 1) * this.totalHp / 16);
+      v += Math.trunc(((this.toxicCounter + 1) * this.totalHp) / 16);
     } else {
       // limit to at most enough to KO, at least enough to fully heal
       v = Math.max(0, v - this.effects[e]);
@@ -484,7 +475,8 @@ function damageMap(v, w, skip) {
   v = Math.min(this.totalHp, v);
   // berry might not be the last effect added, so do this at the end
   if (berryUsed) {
-    this.berryDmg.add(v, w); // separate berry modified value into berryDmg
+    // separate berry modified value into berryDmg
+    this.berryDmg.add(v, w);
     skip();
   }
   return v;

@@ -81,10 +81,12 @@ export const releasedPokes = gen =>
 export const baseStats = (pokeId, gen) =>
   getInfo(gen, ["pokedex", pokeId, "c"]);
 export const weight = (pokeId, gen) => getInfo(gen, ["pokedex", pokeId, "d"]);
+export const pokeTypes = (pokeId, gen) =>
+  getInfo(gen, ["pokedex", pokeId, "e"], [Types.CURSE]);
 export const pokeType1 = (pokeId, gen) =>
-  getInfo(gen, ["pokedex", pokeId, "e", "0"], Types.CURSE);
+  defaultTo(pokeTypes(pokeId, gen)[0], Types.CURSE);
 export const pokeType2 = (pokeId, gen) =>
-  getInfo(gen, ["pokedex", pokeId, "e", "1"], Types.CURSE);
+  defaultTo(pokeTypes(pokeId, gen)[1], Types.CURSE);
 export const hasEvolution = (pokeId, gen) => {
   const evolutions = getInfo(gen, ["pokedex", pokeId, "f"], []);
   return evolutions.some(pokeId => isPokeReleased(pokeId, gen));

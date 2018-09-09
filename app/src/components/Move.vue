@@ -186,10 +186,12 @@
 
 <script>
 import { mapState } from "vuex";
-import { Multiselect } from "vue-multiselect";
+import VueMultiselect from "vue-multiselect";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import Integer from "./ui/Integer.vue";
 import { Move, Gens, info } from "sulcalc";
+
+const { Multiselect } = VueMultiselect;
 
 export default {
   model: {
@@ -209,8 +211,8 @@ export default {
     happiness: {
       type: Number,
       default: 0,
-      validator(value) {
-        return 0 <= value && value <= 255;
+      validator(happiness) {
+        return 0 <= happiness && happiness <= 255;
       }
     }
   },

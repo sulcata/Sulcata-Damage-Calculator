@@ -242,7 +242,8 @@ export default (attacker, defender, move, field) => {
   }
 
   let baseDamage = Math.trunc(
-    Math.trunc(Math.trunc(2 * attacker.level / 5 + 2) * movePower * a / d) / 50
+    Math.trunc((Math.trunc((2 * attacker.level) / 5 + 2) * movePower * a) / d) /
+      50
   );
   baseDamage += 2;
 
@@ -304,7 +305,7 @@ export default (attacker, defender, move, field) => {
   }
 
   damages = damages.map(d =>
-    Math.trunc(d * effectiveness[0] / effectiveness[1])
+    Math.trunc((d * effectiveness[0]) / effectiveness[1])
   );
 
   if (

@@ -11,8 +11,10 @@
 </template>
 
 <script>
-import { Multiselect } from "vue-multiselect";
+import VueMultiselect from "vue-multiselect";
 import { Natures, info } from "sulcalc";
+
+const { Multiselect } = VueMultiselect;
 
 export default {
   model: {

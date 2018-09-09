@@ -85,7 +85,7 @@ export default (attacker, defender, move, field) => {
   // in-game Crystal would repeatedly shift by 2 until it fits in a byte
 
   if (attacker.name === "Ditto" && attacker.item.name === "Metal Powder") {
-    d = Math.trunc(d * 3 / 2);
+    d = Math.trunc((d * 3) / 2);
     if (needsScaling(d)) {
       a = scaleStat(a, 1);
       d = Math.max(1, scaleStat(d, 1));
@@ -101,15 +101,15 @@ export default (attacker, defender, move, field) => {
     d = defender.baseStat(Stats.DEF);
     level = attacker.beatUpLevels[move.beatUpHit];
   } else if (move.name === "Present") {
-    a = Math.floor(10 * effectiveness[0] / effectiveness[1]);
-    // Intentionally switches the attacker and defender's secondary types
+    a = Math.floor((10 * effectiveness[0]) / effectiveness[1]);
+    // intentionally switches the attacker and defender's secondary types
     d = typeToPresent[attacker.secondaryType()] || 0;
     level = typeToPresent[defender.secondaryType()] || 0;
   }
 
   d = Math.max(1, d);
   let baseDamage = Math.trunc(
-    Math.trunc(Math.trunc(2 * level / 5 + 2) * movePower * a / d) / 50
+    Math.trunc((Math.trunc((2 * level) / 5 + 2) * movePower * a) / d) / 50
   );
 
   if (move.critical) {
@@ -117,30 +117,30 @@ export default (attacker, defender, move, field) => {
   }
 
   if (attacker.item.boostedType() === moveType) {
-    baseDamage = Math.trunc(baseDamage * 110 / 100);
+    baseDamage = Math.trunc((baseDamage * 110) / 100);
   }
 
   baseDamage = Math.min(997, baseDamage) + 2;
 
   if (field.sun()) {
     if (moveType === Types.FIRE) {
-      baseDamage = Math.trunc(baseDamage * 3 / 2);
+      baseDamage = Math.trunc((baseDamage * 3) / 2);
     } else if (moveType === Types.WATER) {
       baseDamage = Math.trunc(baseDamage / 2);
     }
   } else if (field.rain()) {
     if (moveType === Types.WATER) {
-      baseDamage = Math.trunc(baseDamage * 3 / 2);
+      baseDamage = Math.trunc((baseDamage * 3) / 2);
     } else if (moveType === Types.FIRE || move.name === "Solar Beam") {
       baseDamage = Math.trunc(baseDamage / 2);
     }
   }
 
   if (attacker.stab(moveType)) {
-    baseDamage = Math.trunc(baseDamage * 3 / 2);
+    baseDamage = Math.trunc((baseDamage * 3) / 2);
   }
 
-  baseDamage = Math.trunc(baseDamage * effectiveness[0] / effectiveness[1]);
+  baseDamage = Math.trunc((baseDamage * effectiveness[0]) / effectiveness[1]);
 
   // these don't have damage variance
   if (move.name === "Reversal" || move.name === "Flail") {

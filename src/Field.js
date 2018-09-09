@@ -15,7 +15,7 @@ export default class Field {
 
     this.magicRoom = Boolean(field.magicRoom);
     this.wonderRoom = Boolean(field.wonderRoom);
-    this.gravity = Boolean(field.gravity); // a gravity field if you will
+    this.gravity = Boolean(field.gravity);
 
     this.terrain = defaultTo(field.terrain, Terrains.NO_TERRAIN);
 

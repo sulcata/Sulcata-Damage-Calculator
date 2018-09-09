@@ -19,8 +19,10 @@
 
 <script>
 import { mapState, mapGetters } from "vuex";
-import { Multiselect } from "vue-multiselect";
+import VueMultiselect from "vue-multiselect";
 import { Pokemon } from "sulcalc";
+
+const { Multiselect } = VueMultiselect;
 
 export default {
   components: {

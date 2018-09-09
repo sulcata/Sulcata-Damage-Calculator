@@ -66,19 +66,19 @@ export default (attacker, defender, move, field) => {
 
   switch (attacker.ability.name) {
     case "Guts":
-      if (attacker.status) atk = Math.trunc(atk * 3 / 2);
+      if (attacker.status) atk = Math.trunc((atk * 3) / 2);
       break;
     case "Hustle":
-      atk = Math.trunc(atk * 3 / 2);
+      atk = Math.trunc((atk * 3) / 2);
       break;
     case "Slow Start":
       if (field.slowStart) atk = Math.trunc(atk / 2);
       break;
     case "Plus":
-      if (attacker.minus) satk = Math.trunc(satk * 3 / 2);
+      if (attacker.minus) satk = Math.trunc((satk * 3) / 2);
       break;
     case "Minus":
-      if (attacker.plus) satk = Math.trunc(satk * 3 / 2);
+      if (attacker.plus) satk = Math.trunc((satk * 3) / 2);
       break;
     case "Solar Power":
       if (field.sun()) satk *= 2;
@@ -88,14 +88,14 @@ export default (attacker, defender, move, field) => {
 
   switch (attacker.item.name) {
     case "Choice Band":
-      atk = Math.trunc(atk * 3 / 2);
+      atk = Math.trunc((atk * 3) / 2);
       break;
     case "Choice Specs":
-      satk = Math.trunc(satk * 3 / 2);
+      satk = Math.trunc((satk * 3) / 2);
       break;
     case "Soul Dew":
       if (attacker.name === "Latias" || attacker.name === "Latios") {
-        satk = Math.trunc(satk * 3 / 2);
+        satk = Math.trunc((satk * 3) / 2);
       }
       break;
     case "Deep Sea Tooth":
@@ -115,11 +115,11 @@ export default (attacker, defender, move, field) => {
   }
 
   if (defender.ability.name === "Marvel Scale" && defender.status) {
-    def = Math.trunc(def * 3 / 2);
+    def = Math.trunc((def * 3) / 2);
   }
 
   if (defender.flowerGift && field.sun()) {
-    sdef = Math.trunc(sdef * 3 / 2);
+    sdef = Math.trunc((sdef * 3) / 2);
   }
 
   switch (defender.item.name) {
@@ -128,7 +128,7 @@ export default (attacker, defender, move, field) => {
       break;
     case "Soul Dew":
       if (defender.name === "Latias" || defender.name === "Latios") {
-        sdef = Math.trunc(sdef * 3 / 2);
+        sdef = Math.trunc((sdef * 3) / 2);
       }
       break;
     case "Deep Sea Scale":
@@ -138,7 +138,7 @@ export default (attacker, defender, move, field) => {
   }
 
   if (field.sand() && defender.stab(Types.ROCK)) {
-    sdef = Math.trunc(sdef * 3 / 2);
+    sdef = Math.trunc((sdef * 3) / 2);
   }
 
   let a, d, level;
@@ -159,7 +159,7 @@ export default (attacker, defender, move, field) => {
   }
 
   let baseDamage = Math.trunc(
-    Math.trunc(Math.trunc(2 * level / 5 + 2) * movePower * a / d) / 50
+    Math.trunc((Math.trunc((2 * level) / 5 + 2) * movePower * a) / d) / 50
   );
 
   if (move.name !== "Beat Up") {
@@ -177,7 +177,7 @@ export default (attacker, defender, move, field) => {
         (defender.lightScreen && move.isSpecial()))
     ) {
       if (field.multiBattle) {
-        baseDamage = Math.trunc(baseDamage * 2 / 3);
+        baseDamage = Math.trunc((baseDamage * 2) / 3);
       } else {
         baseDamage = Math.trunc(baseDamage / 2);
       }
@@ -185,19 +185,19 @@ export default (attacker, defender, move, field) => {
   }
 
   if (field.multiBattle && move.hasMultipleTargets()) {
-    baseDamage = Math.trunc(baseDamage * 3 / 4);
+    baseDamage = Math.trunc((baseDamage * 3) / 4);
   }
 
   if (move.name !== "Weather Ball") {
     if (field.sun()) {
       if (moveType === Types.FIRE) {
-        baseDamage = Math.trunc(baseDamage * 3 / 2);
+        baseDamage = Math.trunc((baseDamage * 3) / 2);
       } else if (moveType === Types.WATER) {
         baseDamage = Math.trunc(baseDamage / 2);
       }
     } else if (field.rain()) {
       if (moveType === Types.WATER) {
-        baseDamage = Math.trunc(baseDamage * 3 / 2);
+        baseDamage = Math.trunc((baseDamage * 3) / 2);
       } else if (moveType === Types.FIRE) {
         baseDamage = Math.trunc(baseDamage / 2);
       }
@@ -212,7 +212,7 @@ export default (attacker, defender, move, field) => {
     moveType === Types.FIRE &&
     attacker.ability.name === "Flash Fire"
   ) {
-    baseDamage = Math.trunc(baseDamage * 3 / 2);
+    baseDamage = Math.trunc((baseDamage * 3) / 2);
   }
 
   baseDamage += 2;
@@ -223,34 +223,34 @@ export default (attacker, defender, move, field) => {
 
   if (move.name !== "Beat Up") {
     if (attacker.item.name === "Life Orb") {
-      baseDamage = Math.trunc(baseDamage * 13 / 10);
+      baseDamage = Math.trunc((baseDamage * 13) / 10);
     } else if (attacker.item.name === "Metronome") {
       const m = Math.min(20, 10 + attacker.metronome);
-      baseDamage = Math.trunc(baseDamage * m / 10);
+      baseDamage = Math.trunc((baseDamage * m) / 10);
     }
 
     if (move.meFirst) {
-      baseDamage = Math.trunc(baseDamage * 3 / 2);
+      baseDamage = Math.trunc((baseDamage * 3) / 2);
     }
   }
 
   let damages = damageVariation(baseDamage, 85, 100);
 
   if (attacker.stab(moveType)) {
-    damages = damages.map(d => Math.trunc(d * 3 / 2));
+    damages = damages.map(d => Math.trunc((d * 3) / 2));
   }
 
   damages = damages.map(d =>
-    Math.trunc(d * effectiveness[0] / effectiveness[1])
+    Math.trunc((d * effectiveness[0]) / effectiveness[1])
   );
 
   if (superEffective) {
     if (defender.ability.reducesSuperEffective()) {
-      damages = damages.map(d => Math.trunc(d * 3 / 4));
+      damages = damages.map(d => Math.trunc((d * 3) / 4));
     }
 
     if (attacker.item.name === "Expert Belt") {
-      damages = damages.map(d => Math.trunc(d * 12 / 10));
+      damages = damages.map(d => Math.trunc((d * 12) / 10));
     }
 
     if (moveType === defender.item.berryTypeResist()) {

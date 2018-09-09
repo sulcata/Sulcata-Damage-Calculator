@@ -5,16 +5,6 @@ import { info, Move, Stats, Pokemon, Gens } from "../src";
 
 const mapValuesUncapped = _.mapValues.convert({ cap: false });
 
-const importMove = _.curry((move, gen) => {
-  const hiddenPowerMatch = /Hidden Power( \[?(\w*)]?)?/i.exec(move);
-  if (hiddenPowerMatch) {
-    const type = info.typeId(hiddenPowerMatch[2]);
-    const ivs = Move.hiddenPowers(type, gen)[0];
-    return { move: new Move({ name: "Hidden Power", gen }), ivs };
-  }
-  return { move: new Move({ name: move, gen }) };
-});
-
 const minifySet = _.curry((set, pokemonId, gen) => {
   const statMatches = {
     hp: Stats.HP,
@@ -34,8 +24,7 @@ const minifySet = _.curry((set, pokemonId, gen) => {
 
   pokemon.nature = info.natureId(set.nature || "");
 
-  const moveInfo = _.map(importMove(_, gen), set.moves);
-  pokemon.moves = _.map(_.property("move"), moveInfo);
+  pokemon.moves = _.map(move => new Move({ name: move, gen }), set.moves);
 
   if (set.evs) {
     for (const [stat, value] of Object.entries(set.evs)) {
@@ -43,10 +32,7 @@ const minifySet = _.curry((set, pokemonId, gen) => {
     }
   }
 
-  const { ivs } = Object(_.find(_.property("ivs"), moveInfo));
-  if (ivs) {
-    pokemon.ivs = ivs;
-  } else if (set.ivs) {
+  if (set.ivs) {
     for (const [stat, value] of Object.entries(set.ivs)) {
       pokemon.ivs[statMatches[stat]] = value;
     }

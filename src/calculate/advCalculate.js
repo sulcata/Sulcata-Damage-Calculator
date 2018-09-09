@@ -25,26 +25,26 @@ export default (attacker, defender, move, field) => {
 
   switch (attacker.item.name) {
     case "Choice Band":
-      atk = Math.trunc(atk * 3 / 2);
+      atk = Math.trunc((atk * 3) / 2);
       break;
     case "Soul Dew":
       if (attacker.name === "Latias" || attacker.name === "Latios") {
-        satk = Math.trunc(satk * 3 / 2);
+        satk = Math.trunc((satk * 3) / 2);
       }
       break;
     case "Deep Sea Tooth":
       if (attacker.name === "Clamperl") satk *= 2;
       break;
     case "Sea Incense":
-      satk = Math.trunc(satk * 105 / 100);
+      satk = Math.trunc((satk * 105) / 100);
       break;
     default:
       if (attacker.item.boostedType() === moveType) {
         // make sure we are boosting the right stat
         if (isPhysicalType(moveType)) {
-          atk = Math.trunc(atk * 110 / 100);
+          atk = Math.trunc((atk * 110) / 100);
         } else {
-          satk = Math.trunc(satk * 110 / 100);
+          satk = Math.trunc((satk * 110) / 100);
         }
       } else if (attacker.thickClubBoosted()) {
         atk *= 2;
@@ -56,7 +56,7 @@ export default (attacker, defender, move, field) => {
   switch (defender.item.name) {
     case "Soul Dew":
       if (defender.name === "Latias" || defender.name === "Latios") {
-        sdef = Math.trunc(sdef * 3 / 2);
+        sdef = Math.trunc((sdef * 3) / 2);
       }
       break;
     case "Deep Sea Scale":
@@ -70,16 +70,16 @@ export default (attacker, defender, move, field) => {
 
   switch (attacker.ability.name) {
     case "Hustle":
-      atk = Math.trunc(atk * 3 / 2);
+      atk = Math.trunc((atk * 3) / 2);
       break;
     case "Plus":
-      if (attacker.minus) satk = Math.trunc(satk * 3 / 2);
+      if (attacker.minus) satk = Math.trunc((satk * 3) / 2);
       break;
     case "Minus":
-      if (attacker.plus) satk = Math.trunc(satk * 3 / 2);
+      if (attacker.plus) satk = Math.trunc((satk * 3) / 2);
       break;
     case "Guts":
-      if (attacker.status) atk = Math.trunc(atk * 3 / 2);
+      if (attacker.status) atk = Math.trunc((atk * 3) / 2);
       break;
     /* no default */
   }
@@ -91,7 +91,7 @@ export default (attacker, defender, move, field) => {
       }
       break;
     case "Marvel Scale":
-      if (defender.status) def = Math.trunc(def * 3 / 2);
+      if (defender.status) def = Math.trunc((def * 3) / 2);
       break;
     /* no default */
   }
@@ -101,29 +101,29 @@ export default (attacker, defender, move, field) => {
   }
 
   if (move.critical) {
-    atk = Math.trunc(atk * Math.max(2, 2 + attacker.boosts[Stats.ATK]) / 2);
-    satk = Math.trunc(satk * Math.max(2, 2 + attacker.boosts[Stats.SATK]) / 2);
-    def = Math.trunc(def * 2 / Math.max(2, 2 - defender.boosts[Stats.DEF]));
-    sdef = Math.trunc(sdef * 2 / Math.max(2, 2 - defender.boosts[Stats.SDEF]));
+    atk = Math.trunc((atk * Math.max(2, 2 + attacker.boosts[Stats.ATK])) / 2);
+    satk = Math.trunc(
+      (satk * Math.max(2, 2 + attacker.boosts[Stats.SATK])) / 2
+    );
+    def = Math.trunc((def * 2) / Math.max(2, 2 - defender.boosts[Stats.DEF]));
+    sdef = Math.trunc(
+      (sdef * 2) / Math.max(2, 2 - defender.boosts[Stats.SDEF])
+    );
   } else {
     atk = Math.trunc(
-      atk *
-        Math.max(2, 2 + attacker.boosts[Stats.ATK]) /
+      (atk * Math.max(2, 2 + attacker.boosts[Stats.ATK])) /
         Math.max(2, 2 - attacker.boosts[Stats.ATK])
     );
     satk = Math.trunc(
-      satk *
-        Math.max(2, 2 + attacker.boosts[Stats.SATK]) /
+      (satk * Math.max(2, 2 + attacker.boosts[Stats.SATK])) /
         Math.max(2, 2 - attacker.boosts[Stats.SATK])
     );
     def = Math.trunc(
-      def *
-        Math.max(2, 2 + defender.boosts[Stats.DEF]) /
+      (def * Math.max(2, 2 + defender.boosts[Stats.DEF])) /
         Math.max(2, 2 - defender.boosts[Stats.DEF])
     );
     sdef = Math.trunc(
-      sdef *
-        Math.max(2, 2 + defender.boosts[Stats.SDEF]) /
+      (sdef * Math.max(2, 2 + defender.boosts[Stats.SDEF])) /
         Math.max(2, 2 - defender.boosts[Stats.SDEF])
     );
   }
@@ -146,7 +146,7 @@ export default (attacker, defender, move, field) => {
   }
 
   let baseDamage = Math.trunc(
-    Math.trunc(Math.trunc(2 * level / 5 + 2) * movePower * a / d) / 50
+    Math.trunc((Math.trunc((2 * level) / 5 + 2) * movePower * a) / d) / 50
   );
 
   if (move.name !== "Beat Up") {
@@ -160,7 +160,7 @@ export default (attacker, defender, move, field) => {
         (defender.lightScreen && isSpecialType(moveType)))
     ) {
       baseDamage = Math.trunc(
-        field.multiBattle ? baseDamage * 2 / 3 : baseDamage / 2
+        field.multiBattle ? (baseDamage * 2) / 3 : baseDamage / 2
       );
     }
   }
@@ -172,13 +172,13 @@ export default (attacker, defender, move, field) => {
   if (move.name !== "Weather Ball") {
     if (field.sun()) {
       if (moveType === Types.FIRE) {
-        baseDamage = Math.trunc(baseDamage * 3 / 2);
+        baseDamage = Math.trunc((baseDamage * 3) / 2);
       } else if (moveType === Types.WATER) {
         baseDamage = Math.trunc(baseDamage / 2);
       }
     } else if (field.rain()) {
       if (moveType === Types.WATER) {
-        baseDamage = Math.trunc(baseDamage * 3 / 2);
+        baseDamage = Math.trunc((baseDamage * 3) / 2);
       } else if (moveType === Types.FIRE) {
         baseDamage = Math.trunc(baseDamage / 2);
       }
@@ -193,7 +193,7 @@ export default (attacker, defender, move, field) => {
     moveType === Types.FIRE &&
     attacker.ability.name === "Flash Fire"
   ) {
-    baseDamage = Math.trunc(baseDamage * 3 / 2);
+    baseDamage = Math.trunc((baseDamage * 3) / 2);
   }
 
   if (isPhysicalType(moveType)) {
@@ -234,14 +234,14 @@ export default (attacker, defender, move, field) => {
   }
 
   if (attacker.helpingHand) {
-    baseDamage = Math.trunc(baseDamage * 3 / 2);
+    baseDamage = Math.trunc((baseDamage * 3) / 2);
   }
 
   if (attacker.stab(moveType)) {
-    baseDamage = Math.trunc(baseDamage * 3 / 2);
+    baseDamage = Math.trunc((baseDamage * 3) / 2);
   }
 
-  baseDamage = Math.trunc(baseDamage * effectiveness[0] / effectiveness[1]);
+  baseDamage = Math.trunc((baseDamage * effectiveness[0]) / effectiveness[1]);
 
   if (move.name === "Spit Up") return [baseDamage];
 

@@ -18,6 +18,14 @@
         Pokemon Perfect Sets
       </button-checkbox>
       <button-checkbox
+        :value='enabledSets.usage'
+        @input='toggleUsageSets()'
+        size='small'
+        type='secondary'
+        >
+        Usage Sets
+      </button-checkbox>
+      <button-checkbox
         :value='enabledSets.custom'
         @input='toggleCustomSets()'
         size='small'
@@ -63,6 +71,7 @@ export default {
     ...mapMutations([
       "toggleSmogonSets",
       "togglePokemonPerfectSets",
+      "toggleUsageSets",
       "toggleCustomSets",
       "toggleFractions",
       "toggleLongRolls"

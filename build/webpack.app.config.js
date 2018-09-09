@@ -1,5 +1,6 @@
 "use strict";
 const path = require("path");
+const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const ScriptExtHtmlPlugin = require("script-ext-html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -28,7 +29,8 @@ module.exports = {
         test: /\.js$/,
         type: "javascript/esm",
         loader: "babel-loader",
-        exclude: /(node_modules|dist)\//,
+        exclude: file =>
+          /(node_modules|dist)\//.test(file) && !/\.vue\.js/.test(file),
         options: { envName: "webpack" }
       },
       {
@@ -84,6 +86,7 @@ module.exports = {
     minimizer: [new BabelMinifyPlugin()]
   },
   plugins: [
+    new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
       filename: "[name].[contenthash].css",
       chunkFilename: "[name].[contenthash].css"

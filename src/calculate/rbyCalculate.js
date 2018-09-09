@@ -57,15 +57,15 @@ export default (attacker, defender, move, field) => {
   d = Math.max(1, d);
 
   let baseDamage = Math.trunc(
-    Math.trunc(Math.trunc(2 * level / 5 + 2) * movePower * a / d) / 50
+    Math.trunc((Math.trunc((2 * level) / 5 + 2) * movePower * a) / d) / 50
   );
   baseDamage = Math.min(997, baseDamage) + 2;
 
   if (attacker.stab(moveType)) {
-    baseDamage = Math.trunc(baseDamage * 3 / 2);
+    baseDamage = Math.trunc((baseDamage * 3) / 2);
   }
 
-  baseDamage = Math.trunc(baseDamage * effectiveness[0] / effectiveness[1]);
+  baseDamage = Math.trunc((baseDamage * effectiveness[0]) / effectiveness[1]);
 
   const damages = damageVariation(baseDamage, 217, 255);
 

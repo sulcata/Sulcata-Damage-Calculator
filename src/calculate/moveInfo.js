@@ -68,7 +68,7 @@ export default (attacker, defender, move, field) => {
       movePower = Math.trunc(movePower / 2);
     }
     if (attacker.pinchAbilityActivated(moveType)) {
-      movePower = Math.trunc(movePower * 3 / 2);
+      movePower = Math.trunc((movePower * 3) / 2);
     }
   } else if (gen === Gens.HGSS) {
     if (
@@ -80,33 +80,33 @@ export default (attacker, defender, move, field) => {
       movePower *= 2;
     }
     if (attacker.helpingHand) {
-      movePower = Math.trunc(movePower * 3 / 2);
+      movePower = Math.trunc((movePower * 3) / 2);
     }
     switch (attacker.item.name) {
       case "Muscle Band":
-        if (move.isPhysical()) movePower = Math.trunc(movePower * 11 / 10);
+        if (move.isPhysical()) movePower = Math.trunc((movePower * 11) / 10);
         break;
       case "Wise Glasses":
-        if (move.isSpecial()) movePower = Math.trunc(movePower * 11 / 10);
+        if (move.isSpecial()) movePower = Math.trunc((movePower * 11) / 10);
         break;
       case "Adamant Orb":
         if (attacker.name === "Dialga" && isAdamantType(moveType)) {
-          movePower = Math.trunc(movePower * 12 / 10);
+          movePower = Math.trunc((movePower * 12) / 10);
         }
         break;
       case "Lustrous Orb":
         if (attacker.name === "Palkia" && isLustrousType(moveType)) {
-          movePower = Math.trunc(movePower * 12 / 10);
+          movePower = Math.trunc((movePower * 12) / 10);
         }
         break;
       case "Griseous Orb":
         if (attacker.name.startsWith("Giratina") && isGriseousType(moveType)) {
-          movePower = Math.trunc(movePower * 12 / 10);
+          movePower = Math.trunc((movePower * 12) / 10);
         }
         break;
       default:
         if (moveType === attacker.item.boostedType()) {
-          movePower = Math.trunc(movePower * 12 / 10);
+          movePower = Math.trunc((movePower * 12) / 10);
         }
     }
     if (attacker.charge && moveType === Types.ELECTRIC) {
@@ -121,14 +121,14 @@ export default (attacker, defender, move, field) => {
         break;
       case "Reckless":
         if (move.isRecklessBoosted()) {
-          movePower = Math.trunc(movePower * 12 / 10);
+          movePower = Math.trunc((movePower * 12) / 10);
         }
         break;
       case "Iron Fist":
-        if (move.isPunch()) movePower = Math.trunc(movePower * 12 / 10);
+        if (move.isPunch()) movePower = Math.trunc((movePower * 12) / 10);
         break;
       case "Technician":
-        if (movePower <= 60) movePower = Math.trunc(movePower * 3 / 2);
+        if (movePower <= 60) movePower = Math.trunc((movePower * 3) / 2);
         break;
       /* no default */
     }
@@ -143,7 +143,7 @@ export default (attacker, defender, move, field) => {
         break;
       case "Dry Skin":
         if (moveType === Types.FIRE) {
-          movePower = Math.trunc(movePower * 5 / 4);
+          movePower = Math.trunc((movePower * 5) / 4);
         }
         break;
       /* no default */
@@ -463,10 +463,6 @@ function baseMoveInfo(attacker, defender, move, field) {
     case "Hex":
       if (defender.status) info.power *= 2;
       break;
-    case "Hidden Power":
-      info.type = Move.hiddenPowerType(attacker.ivs, gen);
-      info.power = Move.hiddenPowerBp(attacker.ivs, gen);
-      break;
     case "Heavy Slam":
     case "Heat Crash":
       info.power = Move.heavySlam(attacker.weight(), defender.weight());
@@ -505,7 +501,7 @@ function baseMoveInfo(attacker, defender, move, field) {
       break;
     case "Rollout":
     case "Ice Ball":
-      info.power *= 2 ** ((move.rollout - 1) % 5 + move.defenseCurl);
+      info.power *= 2 ** (((move.rollout - 1) % 5) + move.defenseCurl);
       break;
     case "Round":
       if (move.roundBoost) info.power *= 2;
@@ -545,15 +541,21 @@ function baseMoveInfo(attacker, defender, move, field) {
       break;
     case "Wring Out":
     case "Crush Grip": {
-      const r = 120 * defender.currentHp / defender.stat(Stats.HP);
+      const ratio = (120 * defender.currentHp) / defender.stat(Stats.HP);
       if (gen <= Gens.HGSS) {
-        info.power = 1 + Math.trunc(r);
+        info.power = 1 + Math.trunc(ratio);
       } else {
-        info.power = Math.max(1, roundHalfToZero(r));
+        info.power = Math.max(1, roundHalfToZero(ratio));
       }
       break;
     }
     default:
+      if (move.isHiddenPower()) {
+        if (info.type === Types.NORMAL) {
+          info.type = Move.hiddenPowerType(attacker.ivs, gen);
+        }
+        info.power = Move.hiddenPowerBp(attacker.ivs, gen);
+      }
       if (gen >= Gens.B2W2) {
         if (move.fly && move.boostedByFly()) {
           info.power *= 2;

@@ -3,7 +3,7 @@
 exports[`Pokemon #toImportable() handles GSC sets 1`] = `
 "Zapdos @ Leftovers
 - Thunder
-- Hidden Power [Ice]
+- Hidden Power Ice
 - Rest
 - Sleep Talk"
 `;
@@ -13,7 +13,7 @@ exports[`Pokemon #toImportable() handles GSC sets 2`] = `
 EVs: 40 SpA / 40 SpD
 IVs: 11 SpA / 11 SpD
 - Thunder
-- Hidden Power [Dark]
+- Hidden Power Dark
 - Rest
 - Sleep Talk"
 `;

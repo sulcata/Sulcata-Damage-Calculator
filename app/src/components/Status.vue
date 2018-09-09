@@ -11,8 +11,10 @@
 </template>
 
 <script>
-import { Multiselect } from "vue-multiselect";
+import VueMultiselect from "vue-multiselect";
 import { Statuses } from "sulcalc";
+
+const { Multiselect } = VueMultiselect;
 
 const statusNames = {
   [Statuses.POISONED]: "Poisoned",

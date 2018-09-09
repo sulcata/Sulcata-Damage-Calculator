@@ -66,7 +66,7 @@ export const ignorableAbilities = new Set([
 
 export const requiredItems = new Map(
   Object.entries({
-    // Don't exclude plates & orbs as those affect damage
+    // don't exclude plates & orbs as those affect damage
     // Genesect
     "Genesect-Douse": "Douse Drive",
     "Genesect-Shock": "Shock Drive",

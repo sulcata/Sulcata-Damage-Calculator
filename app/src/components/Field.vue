@@ -270,10 +270,12 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import { Multiselect } from "vue-multiselect";
+import VueMultiselect from "vue-multiselect";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import { Terrains, Weathers, Gens } from "sulcalc";
+
+const { Multiselect } = VueMultiselect;
 
 export default {
   components: {

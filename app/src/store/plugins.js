@@ -35,7 +35,7 @@ export function persistencePlugin({
           const stringifiedValue = JSON.stringify(value);
           try {
             storage.setItem(prefixKey(path), stringifiedValue);
-          } catch (error) {
+          } catch {
             // this can sometimes throw based on the spec
           }
         }

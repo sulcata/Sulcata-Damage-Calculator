@@ -278,7 +278,12 @@ const processTypechart = _.flow(
       _.get("damageTaken"),
       _.mapKeys(processType),
       _.toPairs,
-      _.reject(_.flow(_.get(0), _.eq(String(Types.CURSE)))),
+      _.reject(
+        _.flow(
+          _.get(0),
+          _.eq(String(Types.CURSE))
+        )
+      ),
       _.fromPairs,
       _.mapValues(n => [2, 4, 1, 0][n])
     )
@@ -308,7 +313,7 @@ function processStats(stats) {
 async function tryImport(importPath) {
   try {
     return await import(importPath);
-  } catch (error) {
+  } catch {
     return {};
   }
 }

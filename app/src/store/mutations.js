@@ -21,6 +21,10 @@ export function togglePokemonPerfectSets(state) {
   state.enabledSets.pokemonPerfect = !state.enabledSets.pokemonPerfect;
 }
 
+export function toggleUsageSets(state) {
+  state.enabledSets.usage = !state.enabledSets.usage;
+}
+
 export function toggleCustomSets(state) {
   state.enabledSets.custom = !state.enabledSets.custom;
 }

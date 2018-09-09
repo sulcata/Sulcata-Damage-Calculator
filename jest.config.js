@@ -1,11 +1,7 @@
 "use strict";
 
 module.exports = {
-  coveragePathIgnorePatterns: [
-    "<rootDir>/node_modules/",
-    "<rootDir>/test/",
-    "<rootDir>/dist/"
-  ],
+  coveragePathIgnorePatterns: ["/node_modules/", "/test/", "/dist/"],
   coverageThreshold: {
     global: {
       branches: 55,
