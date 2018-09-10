@@ -4,7 +4,7 @@ const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const ScriptExtHtmlPlugin = require("script-ext-html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 const setdexRegex = /dist[\\/]setdex[\\/].*?\.(js|json)$/;
 
@@ -46,8 +46,8 @@ module.exports = {
   mode: process.env.WEBPACK_SERVE ? "development" : "production",
   // babili issue with sourcemaps
   devtool: process.env.WEBPACK_SERVE
-    ? "module-source-map"
-    : "cheap-module-source-map",
+    ? "inline-cheap-module-source-map"
+    : "source-map",
   optimization: {
     splitChunks: {
       chunks: "all",
@@ -83,7 +83,12 @@ module.exports = {
         }
       }
     },
-    minimizer: [new BabelMinifyPlugin()]
+    minimizer: [
+      new TerserPlugin({
+        sourceMap: true,
+        terserOptions: { ecma: 8 }
+      })
+    ]
   },
   plugins: [
     new VueLoaderPlugin(),

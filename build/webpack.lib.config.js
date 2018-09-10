@@ -1,6 +1,6 @@
 "use strict";
 const path = require("path");
-const BabelMinifyPlugin = require("babel-minify-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   entry: path.join(__dirname, "../src"),
@@ -23,8 +23,13 @@ module.exports = {
     ]
   },
   mode: "production",
-  devtool: "cheap-module-source-map",
+  devtool: "source-map",
   optimization: {
-    minimizer: [new BabelMinifyPlugin()]
+    minimizer: [
+      new TerserPlugin({
+        sourceMap: true,
+        terserOptions: { ecma: 8 }
+      })
+    ]
   }
 };
