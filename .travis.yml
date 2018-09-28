@@ -7,8 +7,8 @@ cache:
 before_script:
   - npm run setup
 script:
-  - npm run test
-  - npm run build
+  - npm run lint && npm run test
+  - npm run build:app
   - npm run build:lib
 deploy:
   - provider: pages

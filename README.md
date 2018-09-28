@@ -18,8 +18,7 @@ const { summary } = sulcalc(attacker, defender, move, field);
 
 ## Running
 
-`npm run serve` to start a local server that will automatically build and
-serve files as changes are made. Files will be served from `localhost:3000`.
+`npm start` to start a local server that will serve the app.
 
 ## Issues
 

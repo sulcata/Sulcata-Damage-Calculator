@@ -13,18 +13,17 @@
     "url": "https://github.com/sulcata/sulcalc/issues"
   },
   "scripts": {
-    "serve": "webpack-serve --config build/webpack.app.config.js --no-clipboard",
-    "build": "webpack --config build/webpack.app.config.js",
+    "start": "webpack-serve --config build/webpack.app.config.js --no-clipboard",
+    "build:app": "webpack --config build/webpack.app.config.js",
     "build:lib": "webpack --config build/webpack.lib.config.js",
-    "test": "npm run lint && npm run test:unit",
-    "test:unit": "jest --coverage",
+    "test": "jest --coverage",
     "lint": "eslint '**/*.{js,vue}' && npm run style -- --list-different",
-    "style:fix": "npm run style -- --write",
     "style": "prettier '**/*.{js,json,md,vue,yml,yaml}' --ignore-path .eslintignore",
-    "setup": "npm run db && npm run stats && npm run setdex",
-    "db": "babel-node scripts/db",
-    "stats": "babel-node scripts/stats",
-    "setdex": "babel-node scripts/setdex"
+    "style:fix": "npm run style -- --write",
+    "setup": "npm run setup:db && npm run setup:stats && npm run setup:setdex",
+    "setup:db": "babel-node scripts/db",
+    "setup:stats": "babel-node scripts/stats",
+    "setup:setdex": "babel-node scripts/setdex"
   },
   "dependencies": {
     "big-integer": "^1.6.36",
