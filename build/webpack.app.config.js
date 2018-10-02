@@ -9,7 +9,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const setdexRegex = /dist[\\/]setdex[\\/].*?\.(js|json)$/;
 
 module.exports = {
-  entry: path.join(__dirname, "../app/src/main"),
+  entry: path.join(__dirname, "../app/index"),
   output: {
     filename: process.env.WEBPACK_SERVE
       ? "[name].[hash].js"
@@ -19,7 +19,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      sulcalc: path.join(__dirname, "../src/index")
+      sulcalc: path.join(__dirname, "../src")
     }
   },
   module: {

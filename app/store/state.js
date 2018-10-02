@@ -1,6 +1,6 @@
-import smogon from "../../../dist/setdex/smogon";
-import pokemonPerfect from "../../../dist/setdex/pokemonPerfect";
-import usage from "../../../dist/setdex/usage";
+import smogon from "../../dist/setdex/smogon";
+import pokemonPerfect from "../../dist/setdex/pokemonPerfect";
+import usage from "../../dist/setdex/usage";
 import { maxGen } from "sulcalc";
 
 export default {
