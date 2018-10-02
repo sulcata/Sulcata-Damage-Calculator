@@ -1,8 +1,8 @@
-import gscCalculate from "../../src/calculate/gscCalculate";
-import Pokemon from "../../src/Pokemon";
-import Move from "../../src/Move";
-import Field from "../../src/Field";
-import { Gens, Stats, Statuses, Weathers } from "../../src/utilities";
+import gscCalculate from "sulcalc/calculate/gscCalculate";
+import Pokemon from "sulcalc/Pokemon";
+import Move from "sulcalc/Move";
+import Field from "sulcalc/Field";
+import { Gens, Stats, Statuses, Weathers } from "sulcalc/utilities";
 
 const gen = Gens.GSC;
 

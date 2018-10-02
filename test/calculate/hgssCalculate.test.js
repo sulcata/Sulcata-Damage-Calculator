@@ -1,8 +1,8 @@
-import hgssCalculate from "../../src/calculate/hgssCalculate";
-import Pokemon from "../../src/Pokemon";
-import Move from "../../src/Move";
-import Field from "../../src/Field";
-import { Gens, Natures } from "../../src/utilities";
+import hgssCalculate from "sulcalc/calculate/hgssCalculate";
+import Pokemon from "sulcalc/Pokemon";
+import Move from "sulcalc/Move";
+import Field from "sulcalc/Field";
+import { Gens, Natures } from "sulcalc/utilities";
 
 const gen = Gens.HGSS;
 

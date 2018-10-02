@@ -1,5 +1,5 @@
 import bigInt from "big-integer";
-import Multiset from "../src/Multiset";
+import Multiset from "sulcalc/Multiset";
 
 describe("Multiset", () => {
   let emptySet;

@@ -1,6 +1,12 @@
-import Move from "../src/Move";
-import Pokemon from "../src/Pokemon";
-import { DamageClasses, Gens, Types, Weathers, maxGen } from "../src/utilities";
+import Move from "sulcalc/Move";
+import Pokemon from "sulcalc/Pokemon";
+import {
+  DamageClasses,
+  Gens,
+  Types,
+  Weathers,
+  maxGen
+} from "sulcalc/utilities";
 
 describe("Move", () => {
   let noMove;

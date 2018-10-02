@@ -1,4 +1,4 @@
-import { roundHalfToZero, chainMod, applyMod } from "../src/utilities";
+import { roundHalfToZero, chainMod, applyMod } from "sulcalc/utilities";
 
 describe("utilities", () => {
   test("roundHalfToZero()", () => {

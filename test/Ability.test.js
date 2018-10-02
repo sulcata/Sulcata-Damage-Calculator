@@ -1,5 +1,5 @@
-import Ability from "../src/Ability";
-import { Types, maxGen } from "../src/utilities";
+import Ability from "sulcalc/Ability";
+import { Types, maxGen } from "sulcalc/utilities";
 
 describe("Ability", () => {
   let noAbility;

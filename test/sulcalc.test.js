@@ -1,6 +1,6 @@
-import sulcalc from "../src/sulcalc";
-import { Gens, Natures, Statuses, Terrains, maxGen } from "../src/utilities";
-import { NoPokemonError, NoMoveError } from "../src/errors";
+import sulcalc from "sulcalc/sulcalc";
+import { Gens, Natures, Statuses, Terrains, maxGen } from "sulcalc/utilities";
+import { NoPokemonError, NoMoveError } from "sulcalc/errors";
 
 describe("sulcalc()", () => {
   test("sanity check", () => {

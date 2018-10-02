@@ -1,8 +1,8 @@
-import b2w2Calculate from "../../src/calculate/b2w2Calculate";
-import Pokemon from "../../src/Pokemon";
-import Move from "../../src/Move";
-import Field from "../../src/Field";
-import { Gens, Natures } from "../../src/utilities";
+import b2w2Calculate from "sulcalc/calculate/b2w2Calculate";
+import Pokemon from "sulcalc/Pokemon";
+import Move from "sulcalc/Move";
+import Field from "sulcalc/Field";
+import { Gens, Natures } from "sulcalc/utilities";
 
 const gen = Gens.B2W2;
 

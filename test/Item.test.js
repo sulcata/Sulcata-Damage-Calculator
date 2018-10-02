@@ -1,5 +1,5 @@
-import Item from "../src/Item";
-import { Gens, Types, maxGen } from "../src/utilities";
+import Item from "sulcalc/Item";
+import { Gens, Types, maxGen } from "sulcalc/utilities";
 
 describe("Item", () => {
   let noItem;

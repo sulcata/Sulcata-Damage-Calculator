@@ -8,5 +8,9 @@ module.exports = {
       functions: 95,
       statements: 60
     }
+  },
+  moduleNameMapper: {
+    "^sulcalc$": "<rootDir>/src/index",
+    "^sulcalc/(.*)$": "<rootDir>/src/$1"
   }
 };

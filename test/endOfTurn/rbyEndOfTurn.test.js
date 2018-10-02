@@ -1,6 +1,6 @@
-import rbyEndOfTurn from "../../src/endOfTurn/rbyEndOfTurn";
-import Pokemon from "../../src/Pokemon";
-import { Gens, Statuses } from "../../src/utilities";
+import rbyEndOfTurn from "sulcalc/endOfTurn/rbyEndOfTurn";
+import Pokemon from "sulcalc/Pokemon";
+import { Gens, Statuses } from "sulcalc/utilities";
 
 const gen = Gens.RBY;
 

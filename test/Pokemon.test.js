@@ -1,4 +1,4 @@
-import Pokemon from "../src/Pokemon";
+import Pokemon from "sulcalc/Pokemon";
 import {
   Genders,
   Gens,
@@ -8,7 +8,7 @@ import {
   Terrains,
   Types,
   Weathers
-} from "../src/utilities";
+} from "sulcalc/utilities";
 
 describe("Pokemon", () => {
   let nopokemon;

@@ -1,8 +1,8 @@
-import rbyCalculate from "../../src/calculate/rbyCalculate";
-import Pokemon from "../../src/Pokemon";
-import Move from "../../src/Move";
-import Field from "../../src/Field";
-import { Gens, Statuses } from "../../src/utilities";
+import rbyCalculate from "sulcalc/calculate/rbyCalculate";
+import Pokemon from "sulcalc/Pokemon";
+import Move from "sulcalc/Move";
+import Field from "sulcalc/Field";
+import { Gens, Statuses } from "sulcalc/utilities";
 
 const gen = Gens.RBY;
 

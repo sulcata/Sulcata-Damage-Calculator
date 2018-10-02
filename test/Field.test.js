@@ -1,5 +1,5 @@
-import Field from "../src/Field";
-import { Weathers } from "../src/utilities";
+import Field from "sulcalc/Field";
+import { Weathers } from "sulcalc/utilities";
 
 describe("Field", () => {
   let clearField;

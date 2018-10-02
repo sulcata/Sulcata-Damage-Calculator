@@ -1,8 +1,8 @@
-import smCalculate from "../../src/calculate/smCalculate";
-import Pokemon from "../../src/Pokemon";
-import Move from "../../src/Move";
-import Field from "../../src/Field";
-import { Gens, Natures, Terrains } from "../../src/utilities";
+import smCalculate from "sulcalc/calculate/smCalculate";
+import Pokemon from "sulcalc/Pokemon";
+import Move from "sulcalc/Move";
+import Field from "sulcalc/Field";
+import { Gens, Natures, Terrains } from "sulcalc/utilities";
 
 const gen = Gens.SM;
 

@@ -21,7 +21,7 @@ module.exports = function(api) {
     "@babel/plugin-proposal-export-default-from",
     "@babel/plugin-proposal-export-namespace-from",
     "lodash",
-    api.env(["development", "test"]) && "babel-plugin-dynamic-import-node"
+    !api.env("webpack") && "babel-plugin-dynamic-import-node"
   ].filter(Boolean);
 
   return { presets, plugins };

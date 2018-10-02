@@ -1,5 +1,5 @@
-import * as info from "../src/info";
-import { Gens, Natures, Stats, Types } from "../src/utilities";
+import * as info from "sulcalc/info";
+import { Gens, Natures, Stats, Types } from "sulcalc/utilities";
 
 describe("info", () => {
   test("natureName()", () => {
