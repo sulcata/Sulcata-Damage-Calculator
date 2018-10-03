@@ -3,17 +3,17 @@
     <label>HP</label>
     <input
       :value='actualHealth'
-      @change='updateHealth'
       class='form-control'
       style='width: 6rem; display: inline-block;'
+      @change='updateHealth'
       >
     /{{ totalHp }} (
     <integer
       :min='1'
       :max='100'
       :value='percentHealth'
-      @input='updatePercent'
       style='width: 6rem; display: inline-block;'
+      @input='updatePercent'
       />
     %)
   </div>

@@ -2,7 +2,6 @@
   <button
     type='button'
     :class='classes'
-    style='cursor: default;'
     @click='toggle'
     >
     <slot></slot>

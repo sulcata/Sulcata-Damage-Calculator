@@ -18,12 +18,12 @@ import { Item, info } from "sulcalc";
 const { Multiselect } = VueMultiselect;
 
 export default {
+  components: {
+    Multiselect
+  },
   model: {
     prop: "item",
     event: "input"
-  },
-  components: {
-    Multiselect
   },
   props: {
     item: {
@@ -39,10 +39,9 @@ export default {
         .map(id => ({ value: id, label: info.itemName(id) }));
     },
     valueObj() {
-      if (this.item.name === "(No Item)") {
-        return {};
-      }
-      return { value: this.item.id, label: this.item.name };
+      return this.item.name === "(No Item)"
+        ? null
+        : { value: this.item.id, label: this.item.name };
     }
   },
   methods: {

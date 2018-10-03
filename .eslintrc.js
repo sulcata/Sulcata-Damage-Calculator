@@ -8,8 +8,8 @@ const scripts = "scripts/**/*.js";
 
 module.exports = {
   root: true,
-  parser: "babel-eslint",
   parserOptions: {
+    parser: "babel-eslint",
     ecmaVersion: 2018,
     sourceType: "script"
   },
@@ -17,10 +17,8 @@ module.exports = {
     es6: true,
     node: true
   },
-  plugins: ["babel", "html", "import", "promise"],
+  plugins: ["babel", "import", "promise", "vue"],
   settings: {
-    "html/indent": "0",
-    "html/report-bad-indent": "error",
     "import/resolver": {
       webpack: { config: "build/webpack.app.config.js" }
     }
@@ -28,7 +26,8 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:import/errors",
-    "plugin:promise/recommended"
+    "plugin:promise/recommended",
+    "plugin:vue/recommended"
   ],
   rules: {
     "import/extensions": "error",
@@ -55,6 +54,14 @@ module.exports = {
     "promise/prefer-await-to-callbacks": "error",
     "promise/prefer-await-to-then": "error",
     "promise/valid-params": "error",
+
+    "vue/html-closing-bracket-newline": "off",
+    "vue/html-closing-bracket-spacing": "off",
+    "vue/html-indent": "off",
+    "vue/html-quotes": "off",
+    "vue/html-self-closing": "off",
+    "vue/max-attributes-per-line": "off",
+    "vue/require-prop-type-constructor": "off",
 
     "accessor-pairs": "error",
     camelcase: "error",

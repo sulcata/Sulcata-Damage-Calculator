@@ -19,9 +19,9 @@
         <!-- Critical Hit -->
         <button-checkbox
           :value='move.critical'
-          @input='updateCritical'
           size='small'
           type='secondary'
+          @input='updateCritical'
           >
           Crit
         </button-checkbox>
@@ -30,9 +30,9 @@
         <button-checkbox
           v-if='gen >= Gens.SM'
           :value='move.zMove'
-          @input='updateZMove'
           size='small'
           type='secondary'
+          @input='updateZMove'
           >
           Z-Move
         </button-checkbox>
@@ -43,8 +43,8 @@
         <select
           v-if='numberOfHitsInput'
           :value='move.numberOfHits'
-          @input='updateNumberOfHits'
           class='form-control form-control-sm'
+          @input='updateNumberOfHits'
           >
           <option
             v-for='{value, label} in multiHitOptions'
@@ -61,16 +61,16 @@
           :min='0'
           :max='255'
           :value='happiness'
-          @input='updateHappiness'
           size='small'
+          @input='updateHappiness'
           />
 
         <!-- Fury Cutter -->
         <select
           v-else-if='move.name === "Fury Cutter"'
           :value='move.furyCutter'
-          @input='updateFuryCutter'
           class='form-control form-control-sm'
+          @input='updateFuryCutter'
           >
           <option
             v-for='{value, label} in furyCutterOptions'
@@ -85,8 +85,8 @@
         <select
           v-else-if='move.name === "Present"'
           :value='move.present'
-          @input='updatePresent'
           class='form-control form-control-sm'
+          @input='updatePresent'
           >
           <option :value='-1'>--</option>
           <option :value='0'>Heal</option>
@@ -99,8 +99,8 @@
         <select
           v-else-if='move.name === "Echoed Voice"'
           :value='move.echoedVoice'
-          @input='updateEchoedVoice'
           class='form-control form-control-sm'
+          @input='updateEchoedVoice'
           >
           <option
             v-for='{value, label} in echoedVoiceOptions'
@@ -115,9 +115,9 @@
         <button-checkbox
           v-else-if='move.name === "Round"'
           :value='move.roundBoost'
-          @input='updateRoundBoost'
           size='small'
           type='secondary'
+          @input='updateRoundBoost'
           >
           Round
         </button-checkbox>
@@ -126,8 +126,8 @@
         <select
           v-else-if='move.name === "Trump Card"'
           :value='move.trumpPP'
-          @input='updateTrumpPP'
           class='form-control form-control-sm'
+          @input='updateTrumpPP'
           >
           <option value='4'>4+ PP after use</option>
           <option value='3'>3 PP after use</option>
@@ -140,9 +140,9 @@
         <button-checkbox
           v-else-if='move.boostedByMinimize()'
           :value='move.minimize'
-          @input='updateMinimize'
           size='small'
           type='secondary'
+          @input='updateMinimize'
           >
           Minimize
         </button-checkbox>
@@ -151,9 +151,9 @@
         <button-checkbox
           v-else-if='move.boostedByDig()'
           :value='move.dig'
-          @input='updateDig'
           size='small'
           type='secondary'
+          @input='updateDig'
           >
           Dig
         </button-checkbox>
@@ -162,9 +162,9 @@
         <button-checkbox
           v-else-if='move.boostedByDive()'
           :value='move.dive'
-          @input='updateDive'
           size='small'
           type='secondary'
+          @input='updateDive'
           >
           Dive
         </button-checkbox>
@@ -173,9 +173,9 @@
         <button-checkbox
           v-else-if='move.boostedByFly()'
           :value='move.fly'
-          @input='updateFly'
           size='small'
           type='secondary'
+          @input='updateFly'
           >
           Fly / Bounce
         </button-checkbox>
@@ -194,14 +194,14 @@ import { Move, Gens, info } from "sulcalc";
 const { Multiselect } = VueMultiselect;
 
 export default {
-  model: {
-    prop: "move",
-    event: "input"
-  },
   components: {
     Multiselect,
     ButtonCheckbox,
     Integer
+  },
+  model: {
+    prop: "move",
+    event: "input"
   },
   props: {
     move: {
@@ -227,10 +227,9 @@ export default {
         .map(id => ({ value: id, label: info.moveName(id) }));
     },
     valueObj() {
-      if (this.move.name === "(No Move)") {
-        return {};
-      }
-      return { value: this.move.id, label: this.move.name };
+      return this.move.name === "(No Move)"
+        ? null
+        : { value: this.move.id, label: this.move.name };
     },
     multiHitOptions() {
       const options = [

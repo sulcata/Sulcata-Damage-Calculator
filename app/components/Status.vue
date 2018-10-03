@@ -35,12 +35,12 @@ const statusList = [
 ];
 
 export default {
+  components: {
+    Multiselect
+  },
   model: {
     prop: "status",
     event: "input"
-  },
-  components: {
-    Multiselect
   },
   props: {
     status: {
@@ -59,10 +59,9 @@ export default {
       }));
     },
     valueObj() {
-      if (this.status === Statuses.NO_STATUS) {
-        return {};
-      }
-      return { value: this.status, label: statusNames[this.status] };
+      return this.status === Statuses.NO_STATUS
+        ? null
+        : { value: this.status, label: statusNames[this.status] };
     }
   },
   methods: {

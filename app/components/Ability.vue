@@ -18,12 +18,12 @@ import { Ability, info } from "sulcalc";
 const { Multiselect } = VueMultiselect;
 
 export default {
+  components: {
+    Multiselect
+  },
   model: {
     prop: "ability",
     event: "input"
-  },
-  components: {
-    Multiselect
   },
   props: {
     ability: {
@@ -39,10 +39,9 @@ export default {
         .map(id => ({ value: id, label: info.abilityName(id) }));
     },
     valueObj() {
-      if (this.ability.name === "(No Ability)") {
-        return {};
-      }
-      return { value: this.ability.id, label: this.ability.name };
+      return this.ability.name === "(No Ability)"
+        ? null
+        : { value: this.ability.id, label: this.ability.name };
     }
   },
   methods: {

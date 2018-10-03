@@ -4,11 +4,11 @@
       <li
         v-for='tab in tabs'
         :key='tab'
-        @click='selectTab(tab)'
         role='presentation'
         class='nav-item nav-link'
         :class='{active: isActive(tab)}'
         style='cursor: pointer; user-select: none;'
+        @click='selectTab(tab)'
         >
         {{ tab }}
       </li>

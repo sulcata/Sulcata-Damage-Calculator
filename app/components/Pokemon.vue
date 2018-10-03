@@ -2,15 +2,15 @@
   <div>
     <set-selector :pokemon='pokemon' @input='updateNewPokemon'/>
 
-    <div class='mt-1' v-if='pokemon.gen >= Gens.GSC'>
+    <div v-show='pokemon.gen >= Gens.GSC' class='mt-1'>
       <item :item='pokemon.item' @input='updateItem'/>
     </div>
 
-    <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
+    <div v-show='pokemon.gen >= Gens.ADV' class='mt-1'>
       <ability :ability='pokemon.ability' @input='updateAbility'/>
     </div>
 
-    <div class='mt-1' v-if='pokemon.gen >= Gens.ADV'>
+    <div v-show='pokemon.gen >= Gens.ADV' class='mt-1'>
       <nature :nature='pokemon.nature' @input='updateNature'/>
     </div>
 
@@ -20,8 +20,8 @@
         :min='1'
         :max='100'
         :value='pokemon.level'
-        @input='updateLevel'
         style='width: 6rem; display: inline-block;'
+        @input='updateLevel'
         />
     </div>
 
@@ -29,7 +29,7 @@
       <stats :pokemon='pokemon' @input='updatePokemon'/>
     </div>
 
-    <div class='mt-1' v-for='i in pokemon.moves.length' :key='i'>
+    <div v-for='i in pokemon.moves.length' :key='i' class='mt-1'>
       <move
         :move='pokemon.moves[i - 1]'
         :happiness='pokemon.happiness'
@@ -72,10 +72,6 @@ import Integer from "./ui/Integer.vue";
 import { Gens, Stats, Pokemon, Move } from "sulcalc";
 
 export default {
-  model: {
-    prop: "pokemon",
-    event: "input"
-  },
   components: {
     SetSelector,
     Ability: AbilityComponent,
@@ -86,6 +82,10 @@ export default {
     Stats: StatsComponent,
     Health,
     Integer
+  },
+  model: {
+    prop: "pokemon",
+    event: "input"
   },
   props: {
     pokemon: {

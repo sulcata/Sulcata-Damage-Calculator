@@ -8,9 +8,8 @@
     </div>
 
     <div
-      v-for='(statName, stat) in stats'
+      v-for='[stat, statName] in stats'
       :key='stat'
-      v-if='statName'
       class='row align-items-center no-gutters'
       >
 
@@ -68,8 +67,8 @@
         <select
           v-else
           :value='pokemon.boosts[stat]'
-          @change='event => updateBoost(stat, event)'
           class='form-control'
+          @change='event => updateBoost(stat, event)'
           >
           <option v-for='n in 13' :key='n' :value='7 - n'>
               {{ statBoost(7 - n) }}
@@ -87,12 +86,12 @@ import Integer from "./ui/Integer.vue";
 import { Pokemon, Gens, Stats } from "sulcalc";
 
 export default {
+  components: {
+    Integer
+  },
   model: {
     prop: "pokemon",
     event: "input"
-  },
-  components: {
-    Integer
   },
   props: {
     pokemon: {
@@ -105,9 +104,23 @@ export default {
   },
   computed: {
     stats() {
-      return this.pokemon.gen >= Gens.GSC
-        ? ["HP", "Atk", "Def", "SpAtk", "SpDef", "Spe"]
-        : ["HP", "Atk", "Def", "Spc", null, "Spe"];
+      if (this.pokemon.gen >= Gens.GSC) {
+        return [
+          [Stats.HP, "HP"],
+          [Stats.ATK, "Atk"],
+          [Stats.DEF, "Def"],
+          [Stats.SATK, "SpAtk"],
+          [Stats.SDEF, "SpDef"],
+          [Stats.SPD, "Spe"]
+        ];
+      }
+      return [
+        [Stats.HP, "HP"],
+        [Stats.ATK, "Atk"],
+        [Stats.DEF, "Def"],
+        [Stats.SPC, "Spc"],
+        [Stats.SPD, "Spe"]
+      ];
     },
     maxIv() {
       return this.pokemon.gen >= Gens.ADV ? 31 : 15;

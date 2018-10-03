@@ -2,8 +2,8 @@
   <button-radio-group
     :value='gen'
     :options='gens'
-    @input='gen => changeGen({gen})'
     type='secondary'
+    @input='gen => changeGen({gen})'
     />
 </template>
 

@@ -6,9 +6,9 @@
     :step='step'
     :value='value'
     :disabled='disabled'
-    @change='updateValue'
     class='form-control'
     :class='sizeClass'
+    @change='updateValue'
     >
 </template>
 

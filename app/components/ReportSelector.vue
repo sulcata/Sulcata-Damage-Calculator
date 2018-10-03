@@ -2,8 +2,8 @@
   <button-radio-group
       :value='selectedReport'
       :options='reportOptions'
-      @input='report => setReport({report})'
       layout='vertical'
+      @input='report => setReport({report})'
       />
 </template>
 

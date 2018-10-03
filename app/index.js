@@ -4,9 +4,9 @@ import Vue from "vue";
 import App from "./components/App.vue";
 import store from "./store";
 
-// eslint-disable-next-line no-new
-new Vue({
-  el: "#app",
+const vm = new Vue({
   render: h => h(App),
   store
-});
+}).$mount();
+
+document.body.appendChild(vm.$el);

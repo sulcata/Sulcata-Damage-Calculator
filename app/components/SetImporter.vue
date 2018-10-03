@@ -8,9 +8,9 @@
     ></textarea>
     <div class='text-center mt-3'>
       <button
-        @click='importPokemon({importText, gen})'
         type='button'
         class='btn btn-primary'
+        @click='importPokemon({importText, gen})'
         >
         Import
       </button>

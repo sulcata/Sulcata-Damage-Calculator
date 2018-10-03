@@ -17,12 +17,12 @@ import { Natures, info } from "sulcalc";
 const { Multiselect } = VueMultiselect;
 
 export default {
+  components: {
+    Multiselect
+  },
   model: {
     prop: "nature",
     event: "input"
-  },
-  components: {
-    Multiselect
   },
   props: {
     nature: {
@@ -40,10 +40,9 @@ export default {
         .sort((a, b) => a.label.localeCompare(b.label));
     },
     valueObj() {
-      if (this.nature === Natures.HARDY) {
-        return {};
-      }
-      return { value: this.nature, label: info.natureName(this.nature) };
+      return this.nature === Natures.HARDY
+        ? null
+        : { value: this.nature, label: info.natureName(this.nature) };
     }
   },
   methods: {

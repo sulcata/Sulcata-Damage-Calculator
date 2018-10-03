@@ -3,33 +3,33 @@
     <div>
       <button-checkbox
         :value='enabledSets.smogon'
-        @input='toggleSmogonSets()'
         size='small'
         type='secondary'
+        @input='toggleSmogonSets()'
         >
         Smogon Sets
       </button-checkbox>
       <button-checkbox
         :value='enabledSets.pokemonPerfect'
-        @input='togglePokemonPerfectSets()'
         size='small'
         type='secondary'
+        @input='togglePokemonPerfectSets()'
         >
         Pokemon Perfect Sets
       </button-checkbox>
       <button-checkbox
         :value='enabledSets.usage'
-        @input='toggleUsageSets()'
         size='small'
         type='secondary'
+        @input='toggleUsageSets()'
         >
         Usage Sets
       </button-checkbox>
       <button-checkbox
         :value='enabledSets.custom'
-        @input='toggleCustomSets()'
         size='small'
         type='secondary'
+        @input='toggleCustomSets()'
         >
         Custom Sets
       </button-checkbox>
@@ -38,17 +38,17 @@
     <div>
       <button-checkbox
         :value='fractions'
-        @input='toggleFractions()'
         size='small'
         type='secondary'
+        @input='toggleFractions()'
         >
         Show Fractions
       </button-checkbox>
       <button-checkbox
         :value='longRolls'
-        @input='toggleLongRolls()'
         size='small'
         type='secondary'
+        @input='toggleLongRolls()'
         >
         Show Long Damage Rolls
       </button-checkbox>

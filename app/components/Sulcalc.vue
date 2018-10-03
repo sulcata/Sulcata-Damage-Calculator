@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div class='row mt-3' v-if='isReportSelected'>
+    <div v-if='isReportSelected' class='row mt-3'>
       <div class='col'>
         <report-display/>
       </div>
