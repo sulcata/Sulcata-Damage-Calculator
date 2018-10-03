@@ -8,7 +8,7 @@
       @change='updateHealth'
       >
     /{{ totalHp }} (
-    <integer
+    <integer-input
       :min='1'
       :max='100'
       :value='percentHealth'
@@ -21,14 +21,14 @@
 
 <script>
 import { clamp } from "lodash";
-import Integer from "./ui/Integer.vue";
+import IntegerInput from "./ui/IntegerInput.vue";
 import { Multiset } from "sulcalc";
 
 const damageListRegex = /^(\d+(:\d+)?,)*\d+(:\d+)?$/;
 
 export default {
   components: {
-    Integer
+    IntegerInput
   },
   props: {
     currentHp: {

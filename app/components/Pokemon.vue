@@ -16,7 +16,7 @@
 
     <div class='mt-1'>
       <strong>Level: </strong>
-      <integer
+      <integer-input
         :min='1'
         :max='100'
         :value='pokemon.level'
@@ -68,7 +68,7 @@ import NatureComponent from "./Nature.vue";
 import StatusComponent from "./Status.vue";
 import StatsComponent from "./Stats.vue";
 import Health from "./Health.vue";
-import Integer from "./ui/Integer.vue";
+import IntegerInput from "./ui/IntegerInput.vue";
 import { Gens, Stats, Pokemon, Move } from "sulcalc";
 
 export default {
@@ -81,7 +81,7 @@ export default {
     Status: StatusComponent,
     Stats: StatsComponent,
     Health,
-    Integer
+    IntegerInput
   },
   model: {
     prop: "pokemon",

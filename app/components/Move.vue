@@ -56,7 +56,7 @@
         </select>
 
         <!-- Return / Frustration -->
-        <integer
+        <integer-input
           v-else-if='move.usesHappiness()'
           :min='0'
           :max='255'
@@ -188,7 +188,7 @@
 import { mapState } from "vuex";
 import VueMultiselect from "vue-multiselect";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
-import Integer from "./ui/Integer.vue";
+import IntegerInput from "./ui/IntegerInput.vue";
 import { Move, Gens, info } from "sulcalc";
 
 const { Multiselect } = VueMultiselect;
@@ -197,7 +197,7 @@ export default {
   components: {
     Multiselect,
     ButtonCheckbox,
-    Integer
+    IntegerInput
   },
   model: {
     prop: "move",

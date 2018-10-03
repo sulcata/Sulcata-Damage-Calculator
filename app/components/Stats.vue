@@ -18,7 +18,7 @@
       </div>
 
       <div class='col-3'>
-        <integer
+        <integer-input
           :value='computedIv(stat)'
           :min='0'
           :max='maxIv'
@@ -28,7 +28,7 @@
       </div>
 
       <div class='col-3'>
-        <integer
+        <integer-input
           :value='computedEv(stat)'
           :min='0'
           :max='252'
@@ -82,12 +82,12 @@
 
 <script>
 import { clamp } from "lodash";
-import Integer from "./ui/Integer.vue";
+import IntegerInput from "./ui/IntegerInput.vue";
 import { Pokemon, Gens, Stats } from "sulcalc";
 
 export default {
   components: {
-    Integer
+    IntegerInput
   },
   model: {
     prop: "pokemon",
