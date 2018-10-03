@@ -1,4 +1,4 @@
-import { clamp, defaultTo } from "lodash";
+import { clamp } from "lodash";
 import {
   Gens,
   DamageClasses,
@@ -72,7 +72,7 @@ function ivsCmp(a, b) {
 
 export default class Move {
   constructor(move = {}) {
-    this.gen = defaultTo(Number(move.gen), maxGen);
+    this.gen = Number(move.gen ?? maxGen);
     this.id = moveId(move.id);
     if (typeof move.name === "string") this.name = move.name;
 
@@ -97,18 +97,18 @@ export default class Move {
 
     this.critical = Boolean(move.critical);
     this.zMove = Boolean(move.zMove);
-    this.beatUpHit = defaultTo(Number(move.beatUpHit), 0);
+    this.beatUpHit = Number(move.beatUpHit ?? 0);
     this.secondHit = Boolean(move.secondHit);
     this.meFirst = Boolean(move.meFirst);
-    this.furyCutter = defaultTo(Number(move.furyCutter), 0);
-    this.echoedVoice = defaultTo(Number(move.echoedVoice), 0);
-    this.trumpPP = defaultTo(Number(move.trumpPP), 5);
+    this.furyCutter = Number(move.furyCutter ?? 0);
+    this.echoedVoice = Number(move.echoedVoice ?? 0);
+    this.trumpPP = Number(move.trumpPP ?? 5);
     this.roundBoost = Boolean(move.roundBoost);
     this.minimize = Boolean(move.minimize);
     this.dig = Boolean(move.dig);
     this.dive = Boolean(move.dive);
     this.fly = Boolean(move.fly);
-    this.present = defaultTo(Number(move.present), -1);
+    this.present = Number(move.present ?? -1);
   }
 
   get name() {

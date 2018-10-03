@@ -265,7 +265,6 @@ describe("Multiset", () => {
   });
 
   test(".average()", () => {
-    const emptySet = new Multiset();
     expect(Multiset.average(emptySet)).toEqual(NaN);
 
     const set1 = new Multiset();
@@ -278,5 +277,11 @@ describe("Multiset", () => {
 
     const zeroSet = new Multiset([0, 0, 0]);
     expect(Multiset.average(zeroSet)).toEqual(0);
+  });
+
+  test(".weightedUnion()", () => {
+    expect(
+      Multiset.weightedUnion([set1, set2, set1, set2], [2, 1, 0]).toString()
+    ).toEqual("-2:7, 1:23, 2:23, 3:23, 4:8");
   });
 });

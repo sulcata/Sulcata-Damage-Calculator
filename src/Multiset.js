@@ -1,4 +1,3 @@
-import { defaultTo } from "lodash";
 import bigInt from "big-integer";
 
 export default class Multiset {
@@ -264,16 +263,13 @@ export default class Multiset {
       (result, set) => result.multiply(set.size),
       bigInt.one
     );
-    const scaledSets = sets.map(set => {
-      const multiplier = product.divide(set.size);
-      return set.scale(multiplier);
-    });
     let result = new Multiset();
-    for (let i = 0; i < scaledSets.length; i++) {
-      const scaledSet = scaledSets[i];
-      const weight = defaultTo(weights[i], 1);
-      result = result.union(scaledSet.scale(weight));
+    for (let i = 0; i < sets.length; i++) {
+      if (!weights[i]) continue;
+      const multiplier = product.divide(sets[i].size).multiply(weights[i]);
+      const set = sets[i].scale(multiplier);
+      result = result.union(set);
     }
-    return result;
+    return result.simplify();
   }
 }

@@ -11,8 +11,8 @@ const nameToId = name => name.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 
 function processType(typeString) {
   const normalized = typeString.toUpperCase();
-  if (["???", "CURSE"].includes(normalized)) return 18;
-  return _.defaultTo(18, Types[normalized]);
+  if (["???", "CURSE"].includes(normalized)) return Types.CURSE;
+  return Types[normalized] ?? Types.CURSE;
 }
 
 const processAbilityInfo = _.curry((gen, abilityInfo) => {

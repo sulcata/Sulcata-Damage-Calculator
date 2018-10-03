@@ -1,6 +1,5 @@
 import {
   castArray,
-  defaultTo,
   findKey,
   snakeCase,
   words,
@@ -35,7 +34,7 @@ const makeEnumNameGetter = (enumObject, defaultName) => value =>
   );
 
 const makeEnumValueGetter = (enumObject, defaultValue) => name =>
-  defaultTo(enumObject[constCase(name)], defaultValue);
+  enumObject[constCase(name)] ?? defaultValue;
 
 function getInfo(gen, path, defaultValue = undefined) {
   for (let currentGen = gen; currentGen <= maxGen; currentGen++) {
@@ -84,9 +83,9 @@ export const weight = (pokeId, gen) => getInfo(gen, ["pokedex", pokeId, "d"]);
 export const pokeTypes = (pokeId, gen) =>
   getInfo(gen, ["pokedex", pokeId, "e"], [Types.CURSE]);
 export const pokeType1 = (pokeId, gen) =>
-  defaultTo(pokeTypes(pokeId, gen)[0], Types.CURSE);
+  pokeTypes(pokeId, gen)[0] ?? Types.CURSE;
 export const pokeType2 = (pokeId, gen) =>
-  defaultTo(pokeTypes(pokeId, gen)[1], Types.CURSE);
+  pokeTypes(pokeId, gen)[1] ?? Types.CURSE;
 export const hasEvolution = (pokeId, gen) => {
   const evolutions = getInfo(gen, ["pokedex", pokeId, "f"], []);
   return evolutions.some(pokeId => isPokeReleased(pokeId, gen));

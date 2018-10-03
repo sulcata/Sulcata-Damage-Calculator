@@ -1,4 +1,3 @@
-import { defaultTo } from "lodash";
 import { Gens, maxGen } from "./utilities";
 import {
   itemId,
@@ -28,7 +27,7 @@ const flavorBerries = new Set([
 
 export default class Item {
   constructor(item = {}) {
-    this.gen = defaultTo(Number(item.gen), maxGen);
+    this.gen = Number(item.gen ?? maxGen);
     this.id = itemId(item.id);
     if (typeof item.name === "string") this.name = item.name;
     this.used = Boolean(item.used);

@@ -1,4 +1,3 @@
-import { defaultTo } from "lodash";
 import Pokemon from "./Pokemon";
 import Move from "./Move";
 import Field from "./Field";
@@ -359,13 +358,13 @@ function chanceToKo(poke, damageRanges, params) {
   const totalHp = poke.stat(Stats.HP);
   const berryHeal = poke.item.berryHeal(totalHp);
   const berryHealThreshold = poke.item.berryHealThreshold(totalHp);
-  const maxTurns = defaultTo(params.maxTurns, 9);
-  const rechargeTurns = defaultTo(params.rechargeTurns, 0);
-  const effects = defaultTo(params.effects, [0]);
+  const maxTurns = params.maxTurns ?? 9;
+  const rechargeTurns = params.rechargeTurns ?? 0;
+  const effects = params.effects ?? [0];
 
-  let dmg = new Multiset(defaultTo(params.initDmgRange, [0]));
-  let berryDmg = new Multiset(defaultTo(params.initDmgRangeBerry, []));
-  let toxicCounter = defaultTo(params.toxicCounter, 0);
+  let dmg = new Multiset(params.initDmgRange ?? [0]);
+  let berryDmg = new Multiset(params.initDmgRangeBerry ?? []);
+  let toxicCounter = params.toxicCounter ?? 0;
 
   let remainingHealth, remainingHealthBerry;
 

@@ -17,6 +17,8 @@ module.exports = function(api) {
   ];
 
   const plugins = [
+    "@babel/plugin-proposal-optional-chaining",
+    "@babel/plugin-proposal-nullish-coalescing-operator",
     "@babel/plugin-syntax-dynamic-import",
     "@babel/plugin-proposal-export-default-from",
     "@babel/plugin-proposal-export-namespace-from",

@@ -1,4 +1,3 @@
-import { defaultTo } from "lodash";
 import { maxGen } from "./utilities";
 import {
   abilityId,
@@ -13,7 +12,7 @@ import {
 
 export default class Ability {
   constructor(ability = {}) {
-    this.gen = defaultTo(Number(ability.gen), maxGen);
+    this.gen = Number(ability.gen ?? maxGen);
     this.id = abilityId(ability.id);
     if (typeof ability.name === "string") this.name = ability.name;
     this.disabled = Boolean(ability.disabled);

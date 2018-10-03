@@ -1,4 +1,4 @@
-import { clamp, defaultTo } from "lodash";
+import { clamp } from "lodash";
 import Multiset from "./Multiset";
 import Ability from "./Ability";
 import Item from "./Item";
@@ -126,13 +126,13 @@ function printEv(stat, ev, evs, gen) {
 
 export default class Pokemon {
   constructor(pokemon = {}) {
-    const gen = defaultTo(Number(pokemon.gen), maxGen);
+    const gen = Number(pokemon.gen ?? maxGen);
     this.gen = gen;
 
     this.id = pokemonId(pokemon.id);
     if (typeof pokemon.name === "string") this.name = pokemon.name;
 
-    this.nickname = String(defaultTo(pokemon.nickname, ""));
+    this.nickname = String(pokemon.nickname ?? "");
 
     if (pokemon.evs) {
       this.evs = pokemon.evs.slice(0);
@@ -147,14 +147,13 @@ export default class Pokemon {
     }
 
     this.boosts = pokemon.boosts || Array(8).fill(0);
-    this.level = defaultTo(Number(pokemon.level), 100);
-    this.nature = defaultTo(Number(pokemon.nature), Natures.HARDY);
+    this.level = Number(pokemon.level ?? 100);
+    this.nature = Number(pokemon.nature ?? Natures.HARDY);
 
-    this._status = defaultTo(
-      Number(defaultTo(pokemon.status, pokemon._status)),
-      Statuses.NO_STATUS
+    this._status = Number(
+      pokemon.status ?? pokemon._status ?? Statuses.NO_STATUS
     );
-    this.gender = defaultTo(Number(pokemon.gender), Genders.NO_GENDER);
+    this.gender = Number(pokemon.gender ?? Genders.NO_GENDER);
 
     this.ability = new Ability({
       name: pokemon.ability,
@@ -186,10 +185,7 @@ export default class Pokemon {
     this.overrideStats = pokemon.overrideStats || [];
 
     const hp = this.stat(Stats.HP);
-    this._currentHp = defaultTo(
-      defaultTo(pokemon.currentHp, pokemon._currentHp),
-      hp
-    );
+    this._currentHp = pokemon.currentHp ?? pokemon._currentHp ?? hp;
     this._currentHpRange = new Multiset(
       pokemon.currentHpRange || pokemon._currentHpRange || [hp]
     );
@@ -198,15 +194,15 @@ export default class Pokemon {
     );
 
     // GHOST: Trick or Treat, GRASS: Forest's Curse, can't coexist
-    this.addedType = defaultTo(Number(pokemon.addedType), Types.CURSE);
+    this.addedType = Number(pokemon.addedType ?? Types.CURSE);
 
     this.lightScreen = Boolean(pokemon.lightScreen);
     this.reflect = Boolean(pokemon.reflect);
 
     this.luckyChant = Boolean(pokemon.luckyChant);
-    this.stockpile = defaultTo(Number(pokemon.stockpile), 0);
+    this.stockpile = Number(pokemon.stockpile ?? 0);
     this.flashFire = Boolean(pokemon.flashFire);
-    this.metronome = defaultTo(Number(pokemon.metronome), 0);
+    this.metronome = Number(pokemon.metronome ?? 0);
     this.switchedOut = Boolean(pokemon.switchedOut);
     this.movedFirst = Boolean(pokemon.movedFirst);
     this.damagedPreviously = Boolean(pokemon.damagedPreviously);
@@ -217,15 +213,15 @@ export default class Pokemon {
     this.plus = Boolean(pokemon.plus);
     this.minus = Boolean(pokemon.minus);
     this.electrify = Boolean(pokemon.electrify);
-    this.happiness = defaultTo(Number(pokemon.happiness), 0);
+    this.happiness = Number(pokemon.happiness ?? 0);
     this.brokenMultiscale = Boolean(pokemon.brokenMultiscale);
     this.autotomize = Boolean(pokemon.autotomize);
     this.unburden = Boolean(pokemon.unburden);
     this.tailwind = Boolean(pokemon.tailwind);
     this.slowStart = Boolean(pokemon.slowStart);
-    this.toxicCounter = defaultTo(Number(pokemon.toxicCounter), 0);
+    this.toxicCounter = Number(pokemon.toxicCounter ?? 0);
     this.stealthRock = Boolean(pokemon.stealthRock);
-    this.spikes = defaultTo(Number(pokemon.spikes), 0);
+    this.spikes = Number(pokemon.spikes ?? 0);
     this.flowerGift = Boolean(pokemon.flowerGift);
     this.powerTrick = Boolean(pokemon.powerTrick);
     this.foresight = Boolean(pokemon.foresight);
@@ -238,7 +234,7 @@ export default class Pokemon {
     this.grounded = Boolean(pokemon.grounded);
     this.ungrounded = Boolean(pokemon.ungrounded);
 
-    this.set = defaultTo(pokemon.set, null);
+    this.set = pokemon.set ?? null;
   }
 
   static fromImportable(importText, gen) {
