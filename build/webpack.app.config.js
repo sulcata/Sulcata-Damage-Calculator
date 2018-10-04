@@ -11,9 +11,7 @@ const setdexRegex = /dist[\\/]setdex[\\/].*?\.(js|json)$/;
 module.exports = {
   entry: path.join(__dirname, "../app/index"),
   output: {
-    filename: process.env.WEBPACK_SERVE
-      ? "[name].[hash].js"
-      : "[name].[chunkhash].js",
+    filename: "[name].[chunkhash].js",
     chunkFilename: "[name].[chunkhash].js",
     path: path.join(__dirname, "../dist/app")
   },
@@ -43,11 +41,6 @@ module.exports = {
       }
     ]
   },
-  mode: process.env.WEBPACK_SERVE ? "development" : "production",
-  // babili issue with sourcemaps
-  devtool: process.env.WEBPACK_SERVE
-    ? "inline-cheap-module-source-map"
-    : "source-map",
   optimization: {
     splitChunks: {
       chunks: "all",
