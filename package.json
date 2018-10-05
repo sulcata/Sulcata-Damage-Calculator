@@ -13,9 +13,9 @@
     "url": "https://github.com/sulcata/sulcalc/issues"
   },
   "scripts": {
-    "start": "webpack-dev-server --config build/webpack.app.config.js --mode development",
-    "build:app": "webpack --config build/webpack.app.config.js --mode production",
-    "build:lib": "webpack --config build/webpack.lib.config.js --mode production",
+    "start": "webpack-dev-server --config build/webpack.app.config.js --env.development",
+    "build:app": "webpack --config build/webpack.app.config.js --env.production",
+    "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "jest --coverage",
     "lint": "eslint '**/*.{js,vue}' && npm run style -- --list-different",
     "style": "prettier '**/*.{js,json,md,vue,yml,yaml}' --ignore-path .eslintignore",

@@ -8,11 +8,10 @@ const TerserPlugin = require("terser-webpack-plugin");
 
 const setdexRegex = /dist[\\/]setdex[\\/].*?\.(js|json)$/;
 
-module.exports = {
+module.exports = env => ({
   entry: path.join(__dirname, "../app/index"),
   output: {
-    filename: "[name].[chunkhash].js",
-    chunkFilename: "[name].[chunkhash].js",
+    filename: "[name].[chunkhash:8].js",
     path: path.join(__dirname, "../dist/app")
   },
   resolve: {
@@ -41,6 +40,8 @@ module.exports = {
       }
     ]
   },
+  mode: env.production ? "production" : "development",
+  devtool: env.production ? "source-map" : "cheap-module-eval-source-map",
   optimization: {
     splitChunks: {
       chunks: "all",
@@ -85,14 +86,11 @@ module.exports = {
   },
   plugins: [
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({
-      filename: "[name].[contenthash].css",
-      chunkFilename: "[name].[contenthash].css"
-    }),
+    new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" }),
     new HtmlPlugin({
       template: path.join(__dirname, "../app/index.html"),
       inject: "head"
     }),
     new ScriptExtHtmlPlugin({ defaultAttribute: "defer" })
   ]
-};
+});

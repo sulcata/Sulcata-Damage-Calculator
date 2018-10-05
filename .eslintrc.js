@@ -20,7 +20,10 @@ module.exports = {
   plugins: ["babel", "import", "promise", "vue"],
   settings: {
     "import/resolver": {
-      webpack: { config: "build/webpack.app.config.js" }
+      webpack: {
+        config: "build/webpack.app.config.js",
+        env: {}
+      }
     }
   },
   extends: [
