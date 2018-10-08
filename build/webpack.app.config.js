@@ -5,8 +5,10 @@ const HtmlPlugin = require("html-webpack-plugin");
 const ScriptExtHtmlPlugin = require("script-ext-html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
-const setdexRegex = /dist[\\/]setdex[\\/].*?\.(js|json)$/;
+const setdexRegex = /[\\/]dist[\\/]setdex[\\/].*?\.(js|json)$/;
+const libRegex = /[\\/]node_modules[\\/](lodash|big-integer|bootstrap|vue|vuex|vue-multiselect)[\\/]/;
 
 module.exports = env => ({
   entry: path.join(__dirname, "../app/index"),
@@ -27,7 +29,7 @@ module.exports = env => ({
         type: "javascript/esm",
         loader: "babel-loader",
         exclude: file =>
-          /(node_modules|dist)\//.test(file) && !/\.vue\.js/.test(file),
+          /[\\/](node_modules|dist)[\\/]/.test(file) && !/\.vue\.js/.test(file),
         options: { envName: "webpack" }
       },
       {
@@ -41,7 +43,7 @@ module.exports = env => ({
     ]
   },
   mode: env.production ? "production" : "development",
-  devtool: env.production ? "source-map" : "cheap-module-eval-source-map",
+  devtool: env.production ? false : "cheap-module-eval-source-map",
   optimization: {
     splitChunks: {
       chunks: "all",
@@ -53,6 +55,9 @@ module.exports = env => ({
         },
         db: {
           test: path.join(__dirname, "../dist/db")
+        },
+        usage: {
+          test: path.join(__dirname, "../dist/setdex/usage")
         },
         setdex1: {
           test({ resource }) {
@@ -74,12 +79,20 @@ module.exports = env => ({
                 resource.includes("sm"))
             );
           }
+        },
+        vendors: {
+          test: libRegex,
+          priority: -10
+        },
+        webpack: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -15
         }
       }
     },
     minimizer: [
       new TerserPlugin({
-        sourceMap: true,
+        sourceMap: !env.production,
         terserOptions: { ecma: 8 }
       })
     ]
@@ -91,6 +104,12 @@ module.exports = env => ({
       template: path.join(__dirname, "../app/index.html"),
       inject: "head"
     }),
-    new ScriptExtHtmlPlugin({ defaultAttribute: "defer" })
+    new ScriptExtHtmlPlugin({ defaultAttribute: "defer" }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: env.production ? "disabled" : "server",
+      analyzerHost: "localhost",
+      defaultSizes: "gzip",
+      openAnalyzer: !env.production
+    })
   ]
 });
