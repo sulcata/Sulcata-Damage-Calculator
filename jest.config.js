@@ -9,8 +9,15 @@ module.exports = {
       statements: 60
     }
   },
+  moduleFileExtensions: ["js", "json", "vue"],
   moduleNameMapper: {
     "^sulcalc$": "<rootDir>/src/index",
-    "^sulcalc/(.*)$": "<rootDir>/src/$1"
+    "^sulcalc/(.*)$": "<rootDir>/src/$1",
+    "^app$": "<rootDir>/app/index",
+    "^app/(.*)$": "<rootDir>/app/$1"
+  },
+  transform: {
+    "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
+    "^.+\\.vue$": "<rootDir>/node_modules/vue-jest"
   }
 };

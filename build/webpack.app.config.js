@@ -18,8 +18,10 @@ module.exports = env => ({
   },
   resolve: {
     alias: {
-      sulcalc: path.join(__dirname, "../src")
-    }
+      sulcalc: path.join(__dirname, "../src"),
+      app: path.join(__dirname, "../app")
+    },
+    extensions: [".js", ".json", ".vue"]
   },
   module: {
     strictExportPresence: true,

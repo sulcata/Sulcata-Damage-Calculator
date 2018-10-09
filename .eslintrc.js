@@ -2,7 +2,7 @@
 
 const src = "src/**/*.js";
 const app = "app/**/*.{js,vue}";
-const test = "test/**/*.js";
+const test = "**/*.test.{js,vue}";
 const build = "build/**/*.js";
 const scripts = "scripts/**/*.js";
 
@@ -33,7 +33,7 @@ module.exports = {
     "plugin:vue/recommended"
   ],
   rules: {
-    "import/extensions": "error",
+    "import/extensions": ["error", { vue: "always" }],
     "import/first": "error",
     "import/max-dependencies": "error",
     "import/newline-after-import": "error",
