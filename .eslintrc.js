@@ -150,8 +150,22 @@ module.exports = {
     {
       files: [src, app],
       env: { node: false },
-      globals: { process: false },
-      rules: { "import/no-nodejs-modules": "error" }
+      globals: { process: false }
+    },
+    {
+      files: [src, app],
+      excludedFiles: [test],
+      rules: {
+        "import/no-nodejs-modules": "error",
+        "import/no-extraneous-dependencies": [
+          "error",
+          {
+            devDependencies: false,
+            optionalDependencies: false,
+            peerDependencies: false
+          }
+        ]
+      }
     },
     {
       files: [app],
