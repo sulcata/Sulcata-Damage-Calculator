@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`smCalculate() Aurora Veil 1`] = `
+exports[`Aurora Veil 1`] = `
 Array [
   284,
   288,
@@ -21,7 +21,7 @@ Array [
 ]
 `;
 
-exports[`smCalculate() Aurora Veil 2`] = `
+exports[`Aurora Veil 2`] = `
 Array [
   283,
   288,
@@ -42,7 +42,7 @@ Array [
 ]
 `;
 
-exports[`smCalculate() Fairy Aura is a move power mod 1`] = `
+exports[`Fairy Aura is a move power mod 1`] = `
 Array [
   172,
   173,

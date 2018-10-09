@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Pokemon #toImportable() handles GSC sets 1`] = `
+exports[`#toImportable() handles GSC sets 1`] = `
 "Zapdos @ Leftovers
 - Thunder
 - Hidden Power Ice
@@ -8,7 +8,7 @@ exports[`Pokemon #toImportable() handles GSC sets 1`] = `
 - Sleep Talk"
 `;
 
-exports[`Pokemon #toImportable() handles GSC sets 2`] = `
+exports[`#toImportable() handles GSC sets 2`] = `
 "Zapdos @ Leftovers
 EVs: 40 SpA / 40 SpD
 IVs: 11 SpA / 11 SpD
@@ -18,7 +18,7 @@ IVs: 11 SpA / 11 SpD
 - Sleep Talk"
 `;
 
-exports[`Pokemon #toImportable() handles LC sets 1`] = `
+exports[`#toImportable() handles LC sets 1`] = `
 "Porygon @ Eviolite
 Ability: Trace
 EVs: 236 HP / 116 Def / 156 SpD
@@ -29,7 +29,7 @@ Calm Nature
 - Tri Attack"
 `;
 
-exports[`Pokemon #toImportable() handles RBY sets 1`] = `
+exports[`#toImportable() handles RBY sets 1`] = `
 "Tauros
 - Body Slam
 - Hyper Beam
@@ -37,7 +37,7 @@ exports[`Pokemon #toImportable() handles RBY sets 1`] = `
 - Blizzard"
 `;
 
-exports[`Pokemon #toImportable() handles RBY sets 2`] = `
+exports[`#toImportable() handles RBY sets 2`] = `
 "Tauros
 EVs: 200 Def / 40 Spc
 IVs: 11 HP / 10 Def / 11 Spc
@@ -47,7 +47,7 @@ IVs: 11 HP / 10 Def / 11 Spc
 - Blizzard"
 `;
 
-exports[`Pokemon #toImportable() handles sets with less than 4 moves 1`] = `
+exports[`#toImportable() handles sets with less than 4 moves 1`] = `
 "Crobat (F) @ Choice Band
 Ability: Infiltrator
 EVs: 252 Atk / 4 SpD / 252 Spe
@@ -57,7 +57,7 @@ Jolly Nature
 - Sleep Talk"
 `;
 
-exports[`Pokemon #toImportable() handles simple sets 1`] = `
+exports[`#toImportable() handles simple sets 1`] = `
 "Snorlax (M) @ Leftovers
 Ability: Immunity
 EVs: 252 HP / 212 Atk / 40 SpD
@@ -68,7 +68,7 @@ Careful Nature
 - Earthquake"
 `;
 
-exports[`Pokemon #toImportable() handles simple sets 2`] = `
+exports[`#toImportable() handles simple sets 2`] = `
 "Bronzong @ Leftovers
 Ability: Levitate
 EVs: 252 HP / 4 Def / 252 SpD
@@ -80,13 +80,13 @@ Sassy Nature
 - Toxic"
 `;
 
-exports[`Pokemon #toImportable() optionally adds nature info 1`] = `
+exports[`#toImportable() optionally adds nature info 1`] = `
 "Munchlax (M) @ (No Item)
 Ability: (No Ability)
 Relaxed Nature (+Def, -Spe)"
 `;
 
-exports[`Pokemon #toImportable() optionally adds nature info 2`] = `
+exports[`#toImportable() optionally adds nature info 2`] = `
 "Munchlax (M) @ (No Item)
 Ability: (No Ability)
 Serious Nature"

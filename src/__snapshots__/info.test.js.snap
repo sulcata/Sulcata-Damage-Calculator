@@ -1,10 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`info releasedAbilities() 1`] = `Array []`;
+exports[`releasedAbilities() 1`] = `Array []`;
 
-exports[`info releasedAbilities() 2`] = `Array []`;
+exports[`releasedAbilities() 2`] = `Array []`;
 
-exports[`info releasedAbilities() 3`] = `
+exports[`releasedAbilities() 3`] = `
 Array [
   "airlock",
   "arenatrap",
@@ -85,7 +85,7 @@ Array [
 ]
 `;
 
-exports[`info releasedAbilities() 4`] = `
+exports[`releasedAbilities() 4`] = `
 Array [
   "adaptability",
   "aftermath",
@@ -213,7 +213,7 @@ Array [
 ]
 `;
 
-exports[`info releasedAbilities() 5`] = `
+exports[`releasedAbilities() 5`] = `
 Array [
   "adaptability",
   "aftermath",
@@ -382,7 +382,7 @@ Array [
 ]
 `;
 
-exports[`info releasedAbilities() 6`] = `
+exports[`releasedAbilities() 6`] = `
 Array [
   "adaptability",
   "aerilate",
@@ -578,7 +578,7 @@ Array [
 ]
 `;
 
-exports[`info releasedAbilities() 7`] = `
+exports[`releasedAbilities() 7`] = `
 Array [
   "adaptability",
   "aerilate",
@@ -816,7 +816,7 @@ Array [
 ]
 `;
 
-exports[`info releasedItems() 1`] = `
+exports[`releasedItems() 1`] = `
 Array [
   "greatball",
   "masterball",
@@ -826,7 +826,7 @@ Array [
 ]
 `;
 
-exports[`info releasedItems() 2`] = `
+exports[`releasedItems() 2`] = `
 Array [
   "berry",
   "berryjuice",
@@ -888,7 +888,7 @@ Array [
 ]
 `;
 
-exports[`info releasedItems() 3`] = `
+exports[`releasedItems() 3`] = `
 Array [
   "aguavberry",
   "apicotberry",
@@ -1016,7 +1016,7 @@ Array [
 ]
 `;
 
-exports[`info releasedItems() 4`] = `
+exports[`releasedItems() 4`] = `
 Array [
   "adamantorb",
   "aguavberry",
@@ -1233,7 +1233,7 @@ Array [
 ]
 `;
 
-exports[`info releasedItems() 5`] = `
+exports[`releasedItems() 5`] = `
 Array [
   "absorbbulb",
   "adamantorb",
@@ -1484,7 +1484,7 @@ Array [
 ]
 `;
 
-exports[`info releasedItems() 6`] = `
+exports[`releasedItems() 6`] = `
 Array [
   "abomasite",
   "absolite",
@@ -1794,7 +1794,7 @@ Array [
 ]
 `;
 
-exports[`info releasedItems() 7`] = `
+exports[`releasedItems() 7`] = `
 Array [
   "abomasite",
   "absolite",
@@ -2164,7 +2164,7 @@ Array [
 ]
 `;
 
-exports[`info releasedMoves() 1`] = `
+exports[`releasedMoves() 1`] = `
 Array [
   "absorb",
   "acid",
@@ -2334,7 +2334,7 @@ Array [
 ]
 `;
 
-exports[`info releasedMoves() 2`] = `
+exports[`releasedMoves() 2`] = `
 Array [
   "absorb",
   "acid",
@@ -2606,7 +2606,7 @@ Array [
 ]
 `;
 
-exports[`info releasedMoves() 3`] = `
+exports[`releasedMoves() 3`] = `
 Array [
   "absorb",
   "acid",
@@ -2981,7 +2981,7 @@ Array [
 ]
 `;
 
-exports[`info releasedMoves() 4`] = `
+exports[`releasedMoves() 4`] = `
 Array [
   "absorb",
   "acid",
@@ -3469,7 +3469,7 @@ Array [
 ]
 `;
 
-exports[`info releasedMoves() 5`] = `
+exports[`releasedMoves() 5`] = `
 Array [
   "absorb",
   "acid",
@@ -4049,7 +4049,7 @@ Array [
 ]
 `;
 
-exports[`info releasedMoves() 6`] = `
+exports[`releasedMoves() 6`] = `
 Array [
   "absorb",
   "acid",
@@ -4691,7 +4691,7 @@ Array [
 ]
 `;
 
-exports[`info releasedMoves() 7`] = `
+exports[`releasedMoves() 7`] = `
 Array [
   "10000000voltthunderbolt",
   "absorb",
@@ -5422,7 +5422,7 @@ Array [
 ]
 `;
 
-exports[`info releasedPokes() 1`] = `
+exports[`releasedPokes() 1`] = `
 Array [
   "abra",
   "aerodactyl",
@@ -5590,7 +5590,7 @@ Array [
 ]
 `;
 
-exports[`info releasedPokes() 2`] = `
+exports[`releasedPokes() 2`] = `
 Array [
   "abra",
   "aerodactyl",
@@ -5860,7 +5860,7 @@ Array [
 ]
 `;
 
-exports[`info releasedPokes() 3`] = `
+exports[`releasedPokes() 3`] = `
 Array [
   "abra",
   "absol",
@@ -6271,7 +6271,7 @@ Array [
 ]
 `;
 
-exports[`info releasedPokes() 4`] = `
+exports[`releasedPokes() 4`] = `
 Array [
   "abomasnow",
   "abra",
@@ -6816,7 +6816,7 @@ Array [
 ]
 `;
 
-exports[`info releasedPokes() 5`] = `
+exports[`releasedPokes() 5`] = `
 Array [
   "abomasnow",
   "abra",
@@ -7530,7 +7530,7 @@ Array [
 ]
 `;
 
-exports[`info releasedPokes() 6`] = `
+exports[`releasedPokes() 6`] = `
 Array [
   "abomasnow",
   "abomasnowmega",
@@ -8381,7 +8381,7 @@ Array [
 ]
 `;
 
-exports[`info releasedPokes() 7`] = `
+exports[`releasedPokes() 7`] = `
 Array [
   "abomasnow",
   "abomasnowmega",
@@ -9366,7 +9366,7 @@ Array [
 ]
 `;
 
-exports[`info types() 1`] = `
+exports[`types() 1`] = `
 Array [
   0,
   1,
@@ -9387,14 +9387,14 @@ Array [
 ]
 `;
 
-exports[`info types() 2`] = `Array []`;
+exports[`types() 2`] = `Array []`;
 
-exports[`info types() 3`] = `Array []`;
+exports[`types() 3`] = `Array []`;
 
-exports[`info types() 4`] = `Array []`;
+exports[`types() 4`] = `Array []`;
 
-exports[`info types() 5`] = `Array []`;
+exports[`types() 5`] = `Array []`;
 
-exports[`info types() 6`] = `Array []`;
+exports[`types() 6`] = `Array []`;
 
-exports[`info types() 7`] = `Array []`;
+exports[`types() 7`] = `Array []`;

@@ -1,82 +1,82 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`sulcalc() Ability 1`] = `"+2 252+ Atk Guts Heracross (burned) critical hit Close Combat vs. 248 HP / 252+ Def Sturdy Skarmory: 332 (99.7%) -- guaranteed 2HKO"`;
+exports[`Ability 1`] = `"+2 252+ Atk Guts Heracross (burned) critical hit Close Combat vs. 248 HP / 252+ Def Sturdy Skarmory: 332 (99.7%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Arceus Judgment with plate 1`] = `"8 SpA Dread Plate Arceus-Dark Judgment vs. 252 HP / 0 SpD Abomasnow: 175 - 207 (45.6 - 53.9%) -- 43.8% chance to 2HKO"`;
+exports[`Arceus Judgment with plate 1`] = `"8 SpA Dread Plate Arceus-Dark Judgment vs. 252 HP / 0 SpD Abomasnow: 175 - 207 (45.6 - 53.9%) -- 43.8% chance to 2HKO"`;
 
-exports[`sulcalc() Explosion 1`] = `"0 Atk Snorlax Explosion vs. 0 HP / 0 Def Skarmory: 109 - 129 (40.2 - 47.6%) -- this might take a while..."`;
+exports[`Explosion 1`] = `"0 Atk Snorlax Explosion vs. 0 HP / 0 Def Skarmory: 109 - 129 (40.2 - 47.6%) -- this might take a while..."`;
 
-exports[`sulcalc() Grassy Terrain recovery 1`] = `"252 Atk Tapu Bulu Horn Leech vs. 248 HP / 252+ Def Eviolite Chansey: 246 - 289 (35 - 41.1%) -- 68.3% chance to 3HKO after Grassy Terrain"`;
+exports[`Grassy Terrain recovery 1`] = `"252 Atk Tapu Bulu Horn Leech vs. 248 HP / 252+ Def Eviolite Chansey: 246 - 289 (35 - 41.1%) -- 68.3% chance to 3HKO after Grassy Terrain"`;
 
-exports[`sulcalc() Greninja-Ash Water Shuriken 1`] = `"252 SpA Choice Specs Greninja-Ash Water Shuriken [3 hits] vs. 0 HP / 0- SpD Tapu Koko: 237 - 282 (84.3 - 100.4%) -- 0.1% chance to OHKO"`;
+exports[`Greninja-Ash Water Shuriken 1`] = `"252 SpA Choice Specs Greninja-Ash Water Shuriken [3 hits] vs. 0 HP / 0- SpD Tapu Koko: 237 - 282 (84.3 - 100.4%) -- 0.1% chance to OHKO"`;
 
-exports[`sulcalc() Levitate immunity to Ground moves 1`] = `"252+ Atk Choice Band Zygarde Earthquake vs. 248 HP / 200+ Def Levitate Rotom-Wash: 0 (0%) -- this might take a while..."`;
+exports[`Levitate immunity to Ground moves 1`] = `"252+ Atk Choice Band Zygarde Earthquake vs. 248 HP / 200+ Def Levitate Rotom-Wash: 0 (0%) -- this might take a while..."`;
 
-exports[`sulcalc() Light Screen 1`] = `"252+ SpA Choice Specs Heatran Fire Blast vs. 252 HP / 156+ SpD Klefki behind Light Screen: 256 - 303 (80.5 - 95.3%) -- guaranteed 2HKO"`;
+exports[`Light Screen 1`] = `"252+ SpA Choice Specs Heatran Fire Blast vs. 252 HP / 156+ SpD Klefki behind Light Screen: 256 - 303 (80.5 - 95.3%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Present GSC 1`] = `"Blissey Present vs. Raikou: -95 - 399 (-24.8 - 104.2%) -- 2.9% chance to OHKO, 30.3% chance to 2HKO, 61.9% chance to 3HKO, 81.9% chance to 4HKO, 91.3% chance to 5HKO, 95.6% chance to 6HKO, 97.7% chance to 7HKO, 98.8% chance to 8HKO, 99.4% chance to 9HKO"`;
+exports[`Present GSC 1`] = `"Blissey Present vs. Raikou: -95 - 399 (-24.8 - 104.2%) -- 2.9% chance to OHKO, 30.3% chance to 2HKO, 61.9% chance to 3HKO, 81.9% chance to 4HKO, 91.3% chance to 5HKO, 95.6% chance to 6HKO, 97.7% chance to 7HKO, 98.8% chance to 8HKO, 99.4% chance to 9HKO"`;
 
-exports[`sulcalc() Present GSC 2`] = `"Blissey Present vs. Raikou: -95 (-24.8%) -- this might take a while..."`;
+exports[`Present GSC 2`] = `"Blissey Present vs. Raikou: -95 (-24.8%) -- this might take a while..."`;
 
-exports[`sulcalc() Present GSC 3`] = `"Blissey Present vs. Raikou: 114 - 135 (29.8 - 35.2%) -- 19.8% chance to 3HKO"`;
+exports[`Present GSC 3`] = `"Blissey Present vs. Raikou: 114 - 135 (29.8 - 35.2%) -- 19.8% chance to 3HKO"`;
 
-exports[`sulcalc() Present GSC 4`] = `"Blissey Present vs. Raikou: 227 - 267 (59.3 - 69.7%) -- guaranteed 2HKO"`;
+exports[`Present GSC 4`] = `"Blissey Present vs. Raikou: 227 - 267 (59.3 - 69.7%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Present GSC 5`] = `"Blissey Present vs. Raikou: 339 - 399 (88.5 - 104.2%) -- 28.2% chance to OHKO"`;
+exports[`Present GSC 5`] = `"Blissey Present vs. Raikou: 339 - 399 (88.5 - 104.2%) -- 28.2% chance to OHKO"`;
 
-exports[`sulcalc() Present GSC 6`] = `"Blissey Present vs. Vaporeon: -115 - 363 (-24.8 - 78.4%) -- 10.9% chance to 2HKO, 38.1% chance to 3HKO, 60.8% chance to 4HKO, 75.9% chance to 5HKO, 85.5% chance to 6HKO, 91.3% chance to 7HKO, 94.9% chance to 8HKO, 97% chance to 9HKO"`;
+exports[`Present GSC 6`] = `"Blissey Present vs. Vaporeon: -115 - 363 (-24.8 - 78.4%) -- 10.9% chance to 2HKO, 38.1% chance to 3HKO, 60.8% chance to 4HKO, 75.9% chance to 5HKO, 85.5% chance to 6HKO, 91.3% chance to 7HKO, 94.9% chance to 8HKO, 97% chance to 9HKO"`;
 
-exports[`sulcalc() Present GSC 7`] = `"Blissey Present vs. Vaporeon: -115 (-24.8%) -- this might take a while..."`;
+exports[`Present GSC 7`] = `"Blissey Present vs. Vaporeon: -115 (-24.8%) -- this might take a while..."`;
 
-exports[`sulcalc() Present GSC 8`] = `"Blissey Present vs. Vaporeon: 104 - 123 (22.5 - 26.6%) -- 21.3% chance to 4HKO"`;
+exports[`Present GSC 8`] = `"Blissey Present vs. Vaporeon: 104 - 123 (22.5 - 26.6%) -- 21.3% chance to 4HKO"`;
 
-exports[`sulcalc() Present GSC 9`] = `"Blissey Present vs. Vaporeon: 206 - 243 (44.5 - 52.5%) -- 20.1% chance to 2HKO"`;
+exports[`Present GSC 9`] = `"Blissey Present vs. Vaporeon: 206 - 243 (44.5 - 52.5%) -- 20.1% chance to 2HKO"`;
 
-exports[`sulcalc() Present GSC 10`] = `"Blissey Present vs. Vaporeon: 308 - 363 (66.5 - 78.4%) -- guaranteed 2HKO"`;
+exports[`Present GSC 10`] = `"Blissey Present vs. Vaporeon: 308 - 363 (66.5 - 78.4%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Present GSC 11`] = `"Blissey Present vs. Zapdos: -95 - 75 (-24.8 - 19.6%) -- negligible chance to 6HKO, 0.1% chance to 7HKO, 0.9% chance to 8HKO, 3.1% chance to 9HKO"`;
+exports[`Present GSC 11`] = `"Blissey Present vs. Zapdos: -95 - 75 (-24.8 - 19.6%) -- negligible chance to 6HKO, 0.1% chance to 7HKO, 0.9% chance to 8HKO, 3.1% chance to 9HKO"`;
 
-exports[`sulcalc() Present GSC 12`] = `"Blissey Present vs. Zapdos: -95 (-24.8%) -- this might take a while..."`;
+exports[`Present GSC 12`] = `"Blissey Present vs. Zapdos: -95 (-24.8%) -- this might take a while..."`;
 
-exports[`sulcalc() Present GSC 13`] = `"Blissey Present vs. Zapdos: 22 - 27 (5.7 - 7%) -- this might take a while..."`;
+exports[`Present GSC 13`] = `"Blissey Present vs. Zapdos: 22 - 27 (5.7 - 7%) -- this might take a while..."`;
 
-exports[`sulcalc() Present GSC 14`] = `"Blissey Present vs. Zapdos: 43 - 51 (11.2 - 13.3%) -- 10.5% chance to 8HKO"`;
+exports[`Present GSC 14`] = `"Blissey Present vs. Zapdos: 43 - 51 (11.2 - 13.3%) -- 10.5% chance to 8HKO"`;
 
-exports[`sulcalc() Present GSC 15`] = `"Blissey Present vs. Zapdos: 63 - 75 (16.4 - 19.6%) -- almost guaranteed 6HKO"`;
+exports[`Present GSC 15`] = `"Blissey Present vs. Zapdos: 63 - 75 (16.4 - 19.6%) -- almost guaranteed 6HKO"`;
 
-exports[`sulcalc() Psyshock 1`] = `"252 SpA Life Orb Latios Psyshock vs. 252 HP / 252+ Def Eviolite Chansey: 226 - 266 (32.1 - 37.8%) -- 93.8% chance to 3HKO"`;
+exports[`Psyshock 1`] = `"252 SpA Life Orb Latios Psyshock vs. 252 HP / 252+ Def Eviolite Chansey: 226 - 266 (32.1 - 37.8%) -- 93.8% chance to 3HKO"`;
 
-exports[`sulcalc() Reflect 1`] = `"0 SpA Ferrothorn Fire Blast vs. 4 HP / 0 SpD Starmie: 28 - 33 (10.7 - 12.6%) -- negligible chance to 8HKO, 98.7% chance to 9HKO"`;
+exports[`Reflect 1`] = `"0 SpA Ferrothorn Fire Blast vs. 4 HP / 0 SpD Starmie: 28 - 33 (10.7 - 12.6%) -- negligible chance to 8HKO, 98.7% chance to 9HKO"`;
 
-exports[`sulcalc() Skill Link 1`] = `"252+ Atk Skill Link Cloyster Icicle Spear [5 hits] vs. 248 HP / 200+ Def Rotom-Wash: 65 - 80 (21.5 - 26.4%) -- negligible chance to 4HKO"`;
+exports[`Skill Link 1`] = `"252+ Atk Skill Link Cloyster Icicle Spear [5 hits] vs. 248 HP / 200+ Def Rotom-Wash: 65 - 80 (21.5 - 26.4%) -- negligible chance to 4HKO"`;
 
-exports[`sulcalc() Terrains boost types 1`] = `"252 SpA Tapu Lele Psychic vs. 0 HP / 0 SpD Landorus-Therian: 267 - 315 (83.7 - 98.7%) -- guaranteed 2HKO"`;
+exports[`Terrains boost types 1`] = `"252 SpA Tapu Lele Psychic vs. 0 HP / 0 SpD Landorus-Therian: 267 - 315 (83.7 - 98.7%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Terrains boost types 2`] = `"252 Atk Tapu Koko Wild Charge vs. 0 HP / 0 Def Diancie: 144 - 171 (59.8 - 71%) -- guaranteed 2HKO"`;
+exports[`Terrains boost types 2`] = `"252 Atk Tapu Koko Wild Charge vs. 0 HP / 0 Def Diancie: 144 - 171 (59.8 - 71%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Terrains boost types 3`] = `"-1 252+ Atk Choice Band Tapu Bulu Wood Hammer vs. 252 HP / 216+ Def Landorus-Therian: 256 - 303 (67 - 79.3%) -- guaranteed 2HKO"`;
+exports[`Terrains boost types 3`] = `"-1 252+ Atk Choice Band Tapu Bulu Wood Hammer vs. 252 HP / 216+ Def Landorus-Therian: 256 - 303 (67 - 79.3%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Terrains boost types 4`] = `"252 SpA Tapu Lele Psychic vs. 0 HP / 0 SpD Landorus-Therian: 267 - 315 (83.7 - 98.7%) -- guaranteed 2HKO"`;
+exports[`Terrains boost types 4`] = `"252 SpA Tapu Lele Psychic vs. 0 HP / 0 SpD Landorus-Therian: 267 - 315 (83.7 - 98.7%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Terrains boost types 5`] = `"252 Atk Tapu Koko Wild Charge vs. 0 HP / 0 Def Diancie: 144 - 171 (59.8 - 71%) -- guaranteed 2HKO"`;
+exports[`Terrains boost types 5`] = `"252 Atk Tapu Koko Wild Charge vs. 0 HP / 0 Def Diancie: 144 - 171 (59.8 - 71%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Terrains boost types 6`] = `"-1 252+ Atk Choice Band Tapu Bulu Wood Hammer vs. 252 HP / 216+ Def Landorus-Therian: 256 - 303 (67 - 79.3%) -- guaranteed 2HKO"`;
+exports[`Terrains boost types 6`] = `"-1 252+ Atk Choice Band Tapu Bulu Wood Hammer vs. 252 HP / 216+ Def Landorus-Therian: 256 - 303 (67 - 79.3%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() Thousand Arrows 1`] = `"252+ Atk Choice Band Zygarde Thousand Arrows vs. 248 HP / 200+ Def Levitate Rotom-Wash: 288 - 342 (95 - 112.9%) -- 68.8% chance to OHKO"`;
+exports[`Thousand Arrows 1`] = `"252+ Atk Choice Band Zygarde Thousand Arrows vs. 248 HP / 200+ Def Levitate Rotom-Wash: 288 - 342 (95 - 112.9%) -- 68.8% chance to OHKO"`;
 
-exports[`sulcalc() Variable BP fix 1`] = `"Polkadot Bow Gyarados Flail vs. Articuno: 218 (56.9%) -- guaranteed 2HKO"`;
+exports[`Variable BP fix 1`] = `"Polkadot Bow Gyarados Flail vs. Articuno: 218 (56.9%) -- guaranteed 2HKO"`;
 
-exports[`sulcalc() almost guaranteed KO 1`] = `"200 Atk Snorlax Double-Edge vs. Snorlax: 173 - 204 (33.1 - 39%) -- almost guaranteed 3HKO"`;
+exports[`almost guaranteed KO 1`] = `"200 Atk Snorlax Double-Edge vs. Snorlax: 173 - 204 (33.1 - 39%) -- almost guaranteed 3HKO"`;
 
-exports[`sulcalc() bail out on insufficient damage 1`] = `"0 Atk Munchlax Pound vs. 0 HP / 0 Def Aggron: 6 - 7 (2.1 - 2.5%) -- this might take a while..."`;
+exports[`bail out on insufficient damage 1`] = `"0 Atk Munchlax Pound vs. 0 HP / 0 Def Aggron: 6 - 7 (2.1 - 2.5%) -- this might take a while..."`;
 
-exports[`sulcalc() guaranteed KO 1`] = `"Snorlax Self-Destruct vs. Raikou: 548 - 645 (143.1 - 168.4%) -- guaranteed OHKO"`;
+exports[`guaranteed KO 1`] = `"Snorlax Self-Destruct vs. Raikou: 548 - 645 (143.1 - 168.4%) -- guaranteed OHKO"`;
 
-exports[`sulcalc() negligible chance to KO 1`] = `"176 Atk Tauros Body Slam vs. Snorlax: 112 - 132 (21.4 - 25.2%) -- negligible chance to 4HKO"`;
+exports[`negligible chance to KO 1`] = `"176 Atk Tauros Body Slam vs. Snorlax: 112 - 132 (21.4 - 25.2%) -- negligible chance to 4HKO"`;
 
-exports[`sulcalc() sanity check 1`] = `"Snorlax Body Slam vs. Snorlax: 127 - 150 (24.3 - 28.7%) -- 99.2% chance to 4HKO"`;
+exports[`sanity check 1`] = `"Snorlax Body Slam vs. Snorlax: 127 - 150 (24.3 - 28.7%) -- 99.2% chance to 4HKO"`;
 
-exports[`sulcalc() sanity check 2`] = `
+exports[`sanity check 2`] = `
 Multiset {
   "_data": Map {
     127 => "1",
@@ -107,9 +107,9 @@ Multiset {
 }
 `;
 
-exports[`sulcalc() sanity check 3`] = `"Snorlax Body Slam vs. Snorlax: 127 - 150 (24.3 - 28.7%) -- 99.2% chance to 4HKO"`;
+exports[`sanity check 3`] = `"Snorlax Body Slam vs. Snorlax: 127 - 150 (24.3 - 28.7%) -- 99.2% chance to 4HKO"`;
 
-exports[`sulcalc() sanity check 4`] = `
+exports[`sanity check 4`] = `
 Multiset {
   "_data": Map {
     127 => "1",
@@ -140,9 +140,9 @@ Multiset {
 }
 `;
 
-exports[`sulcalc() sanity check 5`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 61.1% chance to 3HKO"`;
+exports[`sanity check 5`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 61.1% chance to 3HKO"`;
 
-exports[`sulcalc() sanity check 6`] = `
+exports[`sanity check 6`] = `
 Multiset {
   "_data": Map {
     142 => "1",
@@ -165,9 +165,9 @@ Multiset {
 }
 `;
 
-exports[`sulcalc() sanity check 7`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+exports[`sanity check 7`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
 
-exports[`sulcalc() sanity check 8`] = `
+exports[`sanity check 8`] = `
 Multiset {
   "_data": Map {
     142 => "1",
@@ -190,9 +190,9 @@ Multiset {
 }
 `;
 
-exports[`sulcalc() sanity check 9`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+exports[`sanity check 9`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
 
-exports[`sulcalc() sanity check 10`] = `
+exports[`sanity check 10`] = `
 Multiset {
   "_data": Map {
     142 => "1",
@@ -215,9 +215,9 @@ Multiset {
 }
 `;
 
-exports[`sulcalc() sanity check 11`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+exports[`sanity check 11`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
 
-exports[`sulcalc() sanity check 12`] = `
+exports[`sanity check 12`] = `
 Multiset {
   "_data": Map {
     142 => "1",
@@ -240,9 +240,9 @@ Multiset {
 }
 `;
 
-exports[`sulcalc() sanity check 13`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
+exports[`sanity check 13`] = `"0 Atk Snorlax Body Slam vs. 0 HP / 0 Def Snorlax: 142 - 168 (30.8 - 36.4%) -- 57.8% chance to 3HKO"`;
 
-exports[`sulcalc() sanity check 14`] = `
+exports[`sanity check 14`] = `
 Multiset {
   "_data": Map {
     142 => "1",

@@ -1,189 +1,171 @@
 import Ability from "sulcalc/Ability";
-import { Types, maxGen } from "sulcalc/utilities";
+import { Gens, Types, maxGen } from "sulcalc/utilities";
 
-describe("Ability", () => {
-  let noAbility;
-  let swiftSwim;
-  let sandRush;
-  let magicGuard;
-  let overcoat;
-  let sandVeil;
-  let sandForce;
-  let iceBody;
-  let snowCloak;
-  let blaze;
-  let swarm;
-  let pixilate;
-  let refrigerate;
-  let waterAbsorb;
-  let stormDrain;
-  let sapSipper;
-  let levitate;
-  let motorDrive;
-  let flashFire;
-  let drySkin;
+let noAbility, pickpocket;
+beforeEach(() => {
+  noAbility = new Ability();
+  pickpocket = new Ability({ name: "Pickpocket" });
+});
 
-  beforeEach(() => {
-    noAbility = new Ability();
-    swiftSwim = new Ability({ name: "Swift Swim" });
-    sandRush = new Ability({ name: "Sand Rush" });
-    magicGuard = new Ability({ name: "Magic Guard" });
-    overcoat = new Ability({ name: "Overcoat" });
-    sandVeil = new Ability({ name: "Sand Veil" });
-    sandForce = new Ability({ name: "Sand Force" });
-    iceBody = new Ability({ name: "Ice Body" });
-    snowCloak = new Ability({ name: "Snow Cloak" });
-    blaze = new Ability({ name: "Blaze" });
-    swarm = new Ability({ name: "Swarm" });
-    pixilate = new Ability({ name: "Pixilate" });
-    refrigerate = new Ability({ name: "Refrigerate" });
-    waterAbsorb = new Ability({ name: "Water Absorb" });
-    stormDrain = new Ability({ name: "Storm Drain" });
-    sapSipper = new Ability({ name: "Sap Sipper" });
-    levitate = new Ability({ name: "Levitate" });
-    motorDrive = new Ability({ name: "Motor Drive" });
-    flashFire = new Ability({ name: "Flash Fire" });
-    drySkin = new Ability({ name: "Dry Skin" });
+test("#constructor()", () => {
+  const ability1 = new Ability({ name: "Effect Spore" });
+  expect(ability1.id).toEqual("effectspore");
+
+  const ability2 = new Ability({
+    name: "Effect Spore",
+    disabled: true
   });
+  expect(ability2.id).toEqual("effectspore");
+  expect(ability2.disabled).toBe(true);
+  expect(ability2.gen).toEqual(maxGen);
 
-  test("#constructor()", () => {
-    const ability1 = new Ability({ name: "Effect Spore" });
-    expect(ability1.id).toEqual("effectspore");
+  const ability3 = new Ability({ id: 27, gen: Gens.ADV });
+  expect(ability3.id).toEqual("noability");
+  expect(ability3.disabled).toBe(false);
+  expect(ability3.gen).toEqual(3);
+});
 
-    const ability2 = new Ability({
-      name: "Effect Spore",
-      disabled: true
-    });
-    expect(ability2.id).toEqual("effectspore");
-    expect(ability2.disabled).toBe(true);
-    expect(ability2.gen).toEqual(maxGen);
+test("#name", () => {
+  expect(noAbility.name).toEqual("(No Ability)");
+  expect(pickpocket.name).toEqual("Pickpocket");
 
-    const ability3 = new Ability({
-      id: 27,
-      gen: 3
-    });
-    expect(ability3.id).toEqual("noability");
-    expect(ability3.disabled).toBe(false);
-    expect(ability3.gen).toEqual(3);
-  });
+  pickpocket.disabled = true;
+  expect(pickpocket.name).toEqual("(No Ability)");
 
-  test("#name", () => {
-    expect(noAbility.name).toEqual("(No Ability)");
-    expect(swiftSwim.name).toEqual("Swift Swim");
+  const ability = new Ability();
 
-    swiftSwim.disabled = true;
-    expect(swiftSwim.name).toEqual("(No Ability)");
+  ability.name = "  drought";
+  expect(ability.id).toEqual("drought");
 
-    const ability = new Ability();
+  ability.name = "Swift Swim";
+  expect(ability.id).toEqual("swiftswim");
 
-    ability.name = "  drought";
-    expect(ability.id).toEqual("drought");
+  ability.name = "d  rought";
+  expect(ability.id).toEqual("drought");
+});
 
-    ability.name = "Swift Swim";
-    expect(ability.id).toEqual("swiftswim");
+test("#pinchType()", () => {
+  const blaze = new Ability({ name: "Blaze" });
+  const swarm = new Ability({ name: "Swarm" });
 
-    ability.name = "d  rought";
-    expect(ability.id).toEqual("drought");
-  });
+  expect(blaze.pinchType()).toEqual(Types.FIRE);
+  expect(swarm.pinchType()).toEqual(Types.BUG);
+  expect(pickpocket.pinchType()).toEqual(-1);
+  expect(noAbility.pinchType()).toEqual(-1);
 
-  test("#pinchType()", () => {
-    expect(blaze.pinchType()).toEqual(Types.FIRE);
-    expect(swarm.pinchType()).toEqual(Types.BUG);
-    expect(magicGuard.pinchType()).toEqual(-1);
-    expect(noAbility.pinchType()).toEqual(-1);
+  blaze.disabled = true;
+  expect(blaze.pinchType()).toEqual(-1);
+});
 
-    blaze.disabled = true;
-    expect(blaze.pinchType()).toEqual(-1);
-  });
+test("#normalToType()", () => {
+  const pixilate = new Ability({ name: "Pixilate" });
+  const refrigerate = new Ability({ name: "Refrigerate" });
 
-  test("#normalToType()", () => {
-    expect(pixilate.normalToType()).toEqual(Types.FAIRY);
-    expect(refrigerate.normalToType()).toEqual(Types.ICE);
-    expect(noAbility.normalToType()).toEqual(-1);
+  expect(pixilate.normalToType()).toEqual(Types.FAIRY);
+  expect(refrigerate.normalToType()).toEqual(Types.ICE);
+  expect(noAbility.normalToType()).toEqual(-1);
 
-    pixilate.disabled = true;
-    expect(pixilate.normalToType()).toEqual(-1);
-  });
+  pixilate.disabled = true;
+  expect(pixilate.normalToType()).toEqual(-1);
+});
 
-  test("#immunityType()", () => {
-    expect(noAbility.immunityType()).toEqual(-1);
-    expect(waterAbsorb.immunityType()).toEqual(Types.WATER);
-    expect(stormDrain.immunityType()).toEqual(Types.WATER);
-    expect(sapSipper.immunityType()).toEqual(Types.GRASS);
-    expect(levitate.immunityType()).toEqual(Types.GROUND);
-    expect(motorDrive.immunityType()).toEqual(Types.ELECTRIC);
-    expect(flashFire.immunityType()).toEqual(Types.FIRE);
-    expect(drySkin.immunityType()).toEqual(Types.WATER);
+test("#immunityType()", () => {
+  const waterAbsorb = new Ability({ name: "Water Absorb" });
+  const stormDrain = new Ability({ name: "Storm Drain" });
+  const drySkin = new Ability({ name: "Dry Skin" });
+  const sapSipper = new Ability({ name: "Sap Sipper" });
+  const levitate = new Ability({ name: "Levitate" });
+  const motorDrive = new Ability({ name: "Motor Drive" });
+  const flashFire = new Ability({ name: "Flash Fire" });
 
-    stormDrain.disabled = true;
-    expect(stormDrain.immunityType()).toEqual(-1);
+  expect(noAbility.immunityType()).toEqual(-1);
+  expect(waterAbsorb.immunityType()).toEqual(Types.WATER);
+  expect(stormDrain.immunityType()).toEqual(Types.WATER);
+  expect(drySkin.immunityType()).toEqual(Types.WATER);
+  expect(sapSipper.immunityType()).toEqual(Types.GRASS);
+  expect(levitate.immunityType()).toEqual(Types.GROUND);
+  expect(motorDrive.immunityType()).toEqual(Types.ELECTRIC);
+  expect(flashFire.immunityType()).toEqual(Types.FIRE);
 
-    stormDrain.disabled = false;
-    stormDrain.gen = 4;
-    expect(stormDrain.immunityType()).toEqual(-1);
+  stormDrain.disabled = true;
+  expect(stormDrain.immunityType()).toEqual(-1);
 
-    const invalidAbility = new Ability({ id: -1 });
-    expect(invalidAbility.immunityType()).toEqual(-1);
-  });
+  stormDrain.disabled = false;
+  stormDrain.gen = 4;
+  expect(stormDrain.immunityType()).toEqual(-1);
 
-  test("#ignoresAbilities()", () => {
-    const moldBreaker = new Ability({ name: "Mold Breaker" });
-    const turboblaze = new Ability({ name: "Turboblaze" });
-    const teravolt = new Ability({ name: "Teravolt" });
-    expect(noAbility.ignoresAbilities()).toBe(false);
-    expect(moldBreaker.ignoresAbilities()).toBe(true);
-    expect(turboblaze.ignoresAbilities()).toBe(true);
-    expect(teravolt.ignoresAbilities()).toBe(true);
-    moldBreaker.disabled = true;
-    expect(moldBreaker.ignoresAbilities()).toBe(false);
-  });
+  const invalidAbility = new Ability({ id: -1 });
+  expect(invalidAbility.immunityType()).toEqual(-1);
+});
 
-  test("#isIgnorable()", () => {
-    const multiscale = new Ability({ name: "Multiscale" });
-    expect(multiscale.isIgnorable()).toBe(true);
-    expect(swiftSwim.isIgnorable()).toBe(false);
-  });
+test("#ignoresAbilities()", () => {
+  const moldBreaker = new Ability({ name: "Mold Breaker" });
+  const turboblaze = new Ability({ name: "Turboblaze" });
+  const teravolt = new Ability({ name: "Teravolt" });
+  expect(noAbility.ignoresAbilities()).toBe(false);
+  expect(moldBreaker.ignoresAbilities()).toBe(true);
+  expect(turboblaze.ignoresAbilities()).toBe(true);
+  expect(teravolt.ignoresAbilities()).toBe(true);
+  moldBreaker.disabled = true;
+  expect(moldBreaker.ignoresAbilities()).toBe(false);
+});
 
-  test("#isSandImmunity()", () => {
-    expect(noAbility.isSandImmunity()).toBe(false);
-    expect(magicGuard.isSandImmunity()).toBe(true);
-    expect(overcoat.isSandImmunity()).toBe(true);
-    expect(sandVeil.isSandImmunity()).toBe(true);
-    expect(sandRush.isSandImmunity()).toBe(true);
-    expect(sandForce.isSandImmunity()).toBe(true);
+test("#isIgnorable()", () => {
+  const multiscale = new Ability({ name: "Multiscale" });
+  expect(multiscale.isIgnorable()).toBe(true);
+  expect(pickpocket.isIgnorable()).toBe(false);
+});
 
-    magicGuard.disabled = true;
-    expect(magicGuard.isSandImmunity()).toBe(false);
-  });
+test("#isSandImmunity()", () => {
+  const magicGuard = new Ability({ name: "Magic Guard" });
+  const overcoat = new Ability({ name: "Overcoat" });
+  const sandVeil = new Ability({ name: "Sand Veil" });
+  const sandRush = new Ability({ name: "Sand Rush" });
+  const sandForce = new Ability({ name: "Sand Force" });
 
-  test("#isHailImmunity()", () => {
-    expect(noAbility.isHailImmunity()).toBe(false);
-    expect(magicGuard.isHailImmunity()).toBe(true);
-    expect(overcoat.isHailImmunity()).toBe(true);
-    expect(iceBody.isHailImmunity()).toBe(true);
-    expect(snowCloak.isHailImmunity()).toBe(true);
+  expect(noAbility.isSandImmunity()).toBe(false);
+  expect(magicGuard.isSandImmunity()).toBe(true);
+  expect(overcoat.isSandImmunity()).toBe(true);
+  expect(sandVeil.isSandImmunity()).toBe(true);
+  expect(sandRush.isSandImmunity()).toBe(true);
+  expect(sandForce.isSandImmunity()).toBe(true);
 
-    magicGuard.disabled = true;
-    expect(magicGuard.isHailImmunity()).toBe(false);
-  });
+  magicGuard.disabled = true;
+  expect(magicGuard.isSandImmunity()).toBe(false);
+});
 
-  test("#reducesSuperEffective()", () => {
-    const filter = new Ability({ name: "Filter" });
-    const solidRock = new Ability({ name: "Solid Rock" });
-    const prismArmor = new Ability({ name: "Prism Armor" });
-    expect(filter.reducesSuperEffective()).toBe(true);
-    expect(solidRock.reducesSuperEffective()).toBe(true);
-    expect(prismArmor.reducesSuperEffective()).toBe(true);
-    expect(noAbility.reducesSuperEffective()).toBe(false);
-    expect(magicGuard.reducesSuperEffective()).toBe(false);
-  });
+test("#isHailImmunity()", () => {
+  const magicGuard = new Ability({ name: "Magic Guard" });
+  const overcoat = new Ability({ name: "Overcoat" });
+  const iceBody = new Ability({ name: "Ice Body" });
+  const snowCloak = new Ability({ name: "Snow Cloak" });
 
-  test("#hasCritArmor()", () => {
-    const battleArmor = new Ability({ name: "Battle Armor" });
-    const shellArmor = new Ability({ name: "Shell Armor" });
-    expect(battleArmor.hasCritArmor()).toBe(true);
-    expect(shellArmor.hasCritArmor()).toBe(true);
-    expect(noAbility.hasCritArmor()).toBe(false);
-    expect(magicGuard.hasCritArmor()).toBe(false);
-  });
+  expect(noAbility.isHailImmunity()).toBe(false);
+  expect(magicGuard.isHailImmunity()).toBe(true);
+  expect(overcoat.isHailImmunity()).toBe(true);
+  expect(iceBody.isHailImmunity()).toBe(true);
+  expect(snowCloak.isHailImmunity()).toBe(true);
+
+  magicGuard.disabled = true;
+  expect(magicGuard.isHailImmunity()).toBe(false);
+});
+
+test("#reducesSuperEffective()", () => {
+  const filter = new Ability({ name: "Filter" });
+  const solidRock = new Ability({ name: "Solid Rock" });
+  const prismArmor = new Ability({ name: "Prism Armor" });
+  expect(filter.reducesSuperEffective()).toBe(true);
+  expect(solidRock.reducesSuperEffective()).toBe(true);
+  expect(prismArmor.reducesSuperEffective()).toBe(true);
+  expect(noAbility.reducesSuperEffective()).toBe(false);
+  expect(pickpocket.reducesSuperEffective()).toBe(false);
+});
+
+test("#hasCritArmor()", () => {
+  const battleArmor = new Ability({ name: "Battle Armor" });
+  const shellArmor = new Ability({ name: "Shell Armor" });
+  expect(battleArmor.hasCritArmor()).toBe(true);
+  expect(shellArmor.hasCritArmor()).toBe(true);
+  expect(noAbility.hasCritArmor()).toBe(false);
+  expect(pickpocket.hasCritArmor()).toBe(false);
 });
