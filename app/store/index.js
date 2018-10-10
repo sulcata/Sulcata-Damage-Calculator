@@ -8,7 +8,7 @@ import { persistencePlugin } from "./plugins";
 Vue.use(Vuex);
 
 export default new Store({
-  strict: process.env.NODE_ENV === "development",
+  strict: process.env.NODE_ENV !== "production",
   state,
   mutations,
   getters,

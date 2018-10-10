@@ -11,7 +11,7 @@ import db from "../dist/db";
 import { Gens, Types, DamageClasses, Natures, maxGen } from "./utilities";
 
 // istanbul ignore else
-if (process.env.NODE_ENV === "development") {
+if (process.env.NODE_ENV !== "production") {
   (function deepFreeze(obj) {
     for (const value of Object.values(obj)) {
       if (value && typeof value === "object") {
