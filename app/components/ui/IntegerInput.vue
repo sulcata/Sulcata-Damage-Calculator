@@ -24,8 +24,8 @@ const sizeClasses = {
 export default {
   props: {
     value: {
-      required: true,
       type: Number,
+      default: 0,
       validator: Number.isSafeInteger
     },
     defaultValue: {

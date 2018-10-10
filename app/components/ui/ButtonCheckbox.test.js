@@ -10,3 +10,22 @@ it("emits a toggled state when clicked", () => {
   expect(wrapper.emitted().input[0]).toEqual([true]);
   expect(wrapper.emitted().input[1]).toEqual([false]);
 });
+
+it("toggles display when active", () => {
+  const wrapper = shallowMount(ButtonCheckbox);
+  expect(wrapper.classes()).not.toContain("active");
+  wrapper.setProps({ value: true });
+  expect(wrapper.classes()).toContain("active");
+});
+
+it("customizes display", () => {
+  const wrapper = shallowMount(ButtonCheckbox);
+
+  expect(wrapper.classes()).toContain("btn");
+  expect(wrapper.classes()).toContain("btn-primary");
+
+  wrapper.setProps({ size: "large", type: "info", outline: true });
+  expect(wrapper.classes()).toContain("btn");
+  expect(wrapper.classes()).toContain("btn-lg");
+  expect(wrapper.classes()).toContain("btn-outline-info");
+});
