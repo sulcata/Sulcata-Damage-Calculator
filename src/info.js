@@ -30,7 +30,7 @@ const constCase = string => snakeCase(string.toLowerCase()).toUpperCase();
 
 const makeEnumNameGetter = (enumObject, defaultName) => value =>
   capsCase(
-    findKey(enumObject, testValue => testValue === value) || defaultName
+    findKey(enumObject, testValue => testValue === value) ?? defaultName
   );
 
 const makeEnumValueGetter = (enumObject, defaultValue) => name =>

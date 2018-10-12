@@ -22,7 +22,7 @@ const minifySet = _.curry((set, pokemonId, gen) => {
     item: set.item
   });
 
-  pokemon.nature = info.natureId(set.nature || "");
+  pokemon.nature = info.natureId(set.nature ?? "");
 
   pokemon.moves = _.map(move => new Move({ name: move, gen }), set.moves);
 

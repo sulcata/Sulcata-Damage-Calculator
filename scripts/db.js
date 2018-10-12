@@ -301,12 +301,12 @@ function processCategory(categoryString) {
 
 function processStats(stats) {
   return [
-    stats.hp || 0,
-    stats.atk || 0,
-    stats.def || 0,
-    stats.spa || 0,
-    stats.spd || 0,
-    stats.spe || 0
+    stats.hp ?? 0,
+    stats.atk ?? 0,
+    stats.def ?? 0,
+    stats.spa ?? 0,
+    stats.spd ?? 0,
+    stats.spe ?? 0
   ];
 }
 

@@ -103,8 +103,8 @@ export default (attacker, defender, move, field) => {
   } else if (move.name === "Present") {
     a = Math.floor((10 * effectiveness[0]) / effectiveness[1]);
     // intentionally switches the attacker and defender's secondary types
-    d = typeToPresent[attacker.secondaryType()] || 0;
-    level = typeToPresent[defender.secondaryType()] || 0;
+    d = typeToPresent[attacker.secondaryType()] ?? 0;
+    level = typeToPresent[defender.secondaryType()] ?? 0;
   }
 
   d = Math.max(1, d);

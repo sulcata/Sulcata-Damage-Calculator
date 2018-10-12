@@ -146,7 +146,7 @@ export default class Pokemon {
       this.ivs = Array(6).fill(gen >= Gens.ADV ? 31 : 15);
     }
 
-    this.boosts = pokemon.boosts || Array(8).fill(0);
+    this.boosts = pokemon.boosts ?? Array(8).fill(0);
     this.level = Number(pokemon.level ?? 100);
     this.nature = Number(pokemon.nature ?? Natures.HARDY);
 
@@ -167,7 +167,7 @@ export default class Pokemon {
       gen
     });
 
-    this.moves = (pokemon.moves || []).map(
+    this.moves = (pokemon.moves ?? []).map(
       move =>
         new Move({
           name: move,
@@ -181,16 +181,16 @@ export default class Pokemon {
     }
     this.moves.length = 4;
 
-    this.overrideTypes = pokemon.overrideTypes || [-1, -1];
-    this.overrideStats = pokemon.overrideStats || [];
+    this.overrideTypes = pokemon.overrideTypes ?? [-1, -1];
+    this.overrideStats = pokemon.overrideStats ?? [];
 
     const hp = this.stat(Stats.HP);
     this._currentHp = pokemon.currentHp ?? pokemon._currentHp ?? hp;
     this._currentHpRange = new Multiset(
-      pokemon.currentHpRange || pokemon._currentHpRange || [hp]
+      pokemon.currentHpRange ?? pokemon._currentHpRange ?? [hp]
     );
     this._currentHpRangeBerry = new Multiset(
-      pokemon.currentHpRangeBerry || pokemon._currentHpRangeBerry || []
+      pokemon.currentHpRangeBerry ?? pokemon._currentHpRangeBerry ?? []
     );
 
     // GHOST: Trick or Treat, GRASS: Forest's Curse, can't coexist
@@ -207,8 +207,8 @@ export default class Pokemon {
     this.movedFirst = Boolean(pokemon.movedFirst);
     this.damagedPreviously = Boolean(pokemon.damagedPreviously);
     this.damagedByPainSplit = Boolean(pokemon.damagedByPainSplit);
-    this.beatUpStats = pokemon.beatUpStats || [0];
-    this.beatUpLevels = pokemon.beatUpLevels || [1];
+    this.beatUpStats = pokemon.beatUpStats ?? [0];
+    this.beatUpLevels = pokemon.beatUpLevels ?? [1];
 
     this.plus = Boolean(pokemon.plus);
     this.minus = Boolean(pokemon.minus);
