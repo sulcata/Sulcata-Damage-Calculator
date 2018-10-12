@@ -21,6 +21,7 @@
 
 <script>
 import Sulcalc from "./Sulcalc.vue";
+import { bugs, repository } from "package";
 
 export default {
   components: {
@@ -30,11 +31,11 @@ export default {
     links() {
       return [
         {
-          href: "https://github.com/sulcata/sulcalc/issues",
+          href: bugs.url,
           label: "Report a bug"
         },
         {
-          href: "https://github.com/sulcata/sulcalc/",
+          href: repository.url,
           label: "GitHub"
         }
       ];

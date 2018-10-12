@@ -14,7 +14,8 @@ module.exports = {
     "^sulcalc$": "<rootDir>/src/index",
     "^sulcalc/(.*)$": "<rootDir>/src/$1",
     "^app$": "<rootDir>/app/index",
-    "^app/(.*)$": "<rootDir>/app/$1"
+    "^app/(.*)$": "<rootDir>/app/$1",
+    "^package$": "<rootDir>/package.json"
   },
   transform: {
     "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
