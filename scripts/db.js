@@ -98,7 +98,7 @@ const processItemInfo = _.curry((gen, itemInfo) => {
     result.i = processType(itemInfo.onMemory);
     result.d = 50;
   }
-  if (/Speed(.*?)halved/.test(itemInfo.desc)) result.j = 1;
+  if (/Speed(.*?)halved/i.test(itemInfo.desc)) result.j = 1;
   const typeBoostCheck = /holder's (\S+?)-type/i.exec(itemInfo.desc);
   if (typeBoostCheck !== null) result.k = processType(typeBoostCheck[1]);
   const typeResistCheck = /halves damage .+? (.\S+?)-type attack/i.exec(
