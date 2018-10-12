@@ -111,7 +111,7 @@ module.exports = env => ({
       analyzerMode: env.production ? "disabled" : "server",
       analyzerHost: "localhost",
       defaultSizes: "gzip",
-      openAnalyzer: !env.production
+      openAnalyzer: false
     })
   ]
 });
