@@ -256,7 +256,7 @@ export default function sulcalc(attacker, defender, move, field) {
   }
 
   if (weatherMessages[field.weather]) {
-    reportDamage.push(" " + weatherMessages[field.weather]);
+    reportPokes.push(weatherMessages[field.weather]);
   }
 
   if (dmg[0].min() === dmg[0].max()) {

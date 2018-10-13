@@ -1,5 +1,12 @@
 import sulcalc from "sulcalc/sulcalc";
-import { Gens, Natures, Statuses, Terrains, maxGen } from "sulcalc/utilities";
+import {
+  Gens,
+  Natures,
+  Statuses,
+  Terrains,
+  Weathers,
+  maxGen
+} from "sulcalc/utilities";
 import { NoPokemonError, NoMoveError } from "sulcalc/errors";
 
 test("sanity check", () => {
@@ -447,4 +454,16 @@ test("Arceus Judgment with plate", () => {
       { gen }
     ).summary
   ).toMatchSnapshot();
+});
+
+test("Weather is reported during Pokemon description", () => {
+  const gen = Gens.GSC;
+  expect(
+    sulcalc(
+      { name: "Moltres", gen },
+      { name: "Snorlax", gen },
+      { name: "Fire Blast", gen },
+      { weather: Weathers.SUN, gen }
+    ).summary
+  ).toMatch(/^.+? vs\. .+? in Sun: /);
 });
