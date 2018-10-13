@@ -6,8 +6,7 @@ module.exports = function(api) {
       "@babel/preset-env",
       {
         targets: {
-          node: "current",
-          browsers: ">= 1%, not ie 11, not dead"
+          browsers: ">= 0.1%, last 1 version, not dead, current node"
         },
         modules: api.env("webpack") ? false : "commonjs",
         shippedProposals: true,
