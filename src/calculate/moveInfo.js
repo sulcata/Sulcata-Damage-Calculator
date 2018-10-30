@@ -25,7 +25,7 @@ export default (attacker, defender, move, field) => {
     move,
     field
   );
-  if (fail) return { fail };
+  if (fail || baseMovePower === 0) return { fail: true };
 
   let moveType = baseMoveType;
   let movePower = baseMovePower;

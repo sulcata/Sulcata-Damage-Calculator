@@ -6,12 +6,9 @@ import { Gens, Stats, Statuses, Weathers } from "sulcalc/utilities";
 
 const gen = Gens.GSC;
 
-let field, rain, sand, sun;
+let field;
 beforeEach(() => {
   field = new Field({ gen });
-  rain = new Field({ weather: Weathers.RAIN, gen });
-  sand = new Field({ weather: Weathers.SAND, gen });
-  sun = new Field({ weather: Weathers.SUN, gen });
 });
 
 describe("crit mechanics", () => {
@@ -97,6 +94,65 @@ describe("crit mechanics", () => {
   });
 });
 
+describe("weather mechanics", () => {
+  let rain, sand, sun;
+  beforeEach(() => {
+    rain = new Field({ weather: Weathers.RAIN, gen });
+    sand = new Field({ weather: Weathers.SAND, gen });
+    sun = new Field({ weather: Weathers.SUN, gen });
+  });
+
+  test("Solar Beam is reduced by rain", () => {
+    const houndoom = new Pokemon({ name: "Houndoom", gen });
+    const cloyster = new Pokemon({ name: "Cloyster", gen });
+    const solarBeam = new Move({ name: "Solar Beam", gen });
+
+    const damage = gscCalculate(houndoom, cloyster, solarBeam, field);
+    expect(damage).toHaveLength(39);
+    expect(Math.max(...damage)).toEqual(342);
+
+    const sandDamage = gscCalculate(houndoom, cloyster, solarBeam, sand);
+    expect(sandDamage).toHaveLength(39);
+    expect(Math.max(...sandDamage)).toEqual(342);
+
+    const rainDamage = gscCalculate(houndoom, cloyster, solarBeam, rain);
+    expect(rainDamage).toHaveLength(39);
+    expect(Math.max(...rainDamage)).toEqual(170);
+  });
+
+  test("Rain and Sun affect Fire-type and Water-type damage", () => {
+    const moltres = new Pokemon({ name: "Moltres", gen });
+    const suicune = new Pokemon({ name: "Suicune", gen });
+    const fireBlast = new Move({ name: "Fire Blast", gen });
+    const hydroPump = new Move({ name: "Hydro Pump", gen });
+    const doubleEdge = new Move({ name: "Double-Edge", gen });
+
+    const sunBoosted = gscCalculate(moltres, suicune, fireBlast, sun);
+    expect(sunBoosted).toHaveLength(39);
+    expect(Math.max(...sunBoosted)).toEqual(121);
+
+    const sunReduced = gscCalculate(moltres, suicune, fireBlast, rain);
+    expect(sunReduced).toHaveLength(39);
+    expect(Math.max(...sunReduced)).toEqual(40);
+
+    const rainBoosted = gscCalculate(suicune, moltres, hydroPump, rain);
+    expect(rainBoosted).toHaveLength(39);
+    expect(Math.max(...rainBoosted)).toEqual(470);
+
+    const rainReduced = gscCalculate(suicune, moltres, hydroPump, sun);
+    expect(rainReduced).toHaveLength(39);
+    expect(Math.max(...rainReduced)).toEqual(156);
+
+    const rainUnboosted = gscCalculate(moltres, suicune, doubleEdge, rain);
+    expect(rainUnboosted).toHaveLength(39);
+    expect(Math.max(...rainUnboosted)).toEqual(92);
+
+    const sunUnboosted = gscCalculate(moltres, suicune, doubleEdge, sun);
+    expect(sunUnboosted).toHaveLength(39);
+    expect(Math.max(...sunUnboosted)).toEqual(92);
+  });
+});
+
 test("sanity check", () => {
   const doubleEdge = new Move({ name: "Double-Edge", gen });
 
@@ -160,24 +216,6 @@ test("Light Ball doubles Special Attack", () => {
   expect(Math.max(...damage)).toEqual(219);
 });
 
-test("Solar Beam is reduced by rain", () => {
-  const houndoom = new Pokemon({ name: "Houndoom", gen });
-  const cloyster = new Pokemon({ name: "Cloyster", gen });
-  const solarBeam = new Move({ name: "Solar Beam", gen });
-
-  const damage = gscCalculate(houndoom, cloyster, solarBeam, field);
-  expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(342);
-
-  const sandDamage = gscCalculate(houndoom, cloyster, solarBeam, sand);
-  expect(sandDamage).toHaveLength(39);
-  expect(Math.max(...sandDamage)).toEqual(342);
-
-  const rainDamage = gscCalculate(houndoom, cloyster, solarBeam, rain);
-  expect(rainDamage).toHaveLength(39);
-  expect(Math.max(...rainDamage)).toEqual(170);
-});
-
 test("Reversal and Flail have no damage variance", () => {
   const reversal = new Move({ name: "Reversal", gen });
   const flail = new Move({ name: "Flail", gen });
@@ -189,38 +227,6 @@ test("Reversal and Flail have no damage variance", () => {
   const skarmory = new Pokemon({ name: "Skarmory", gen });
   expect(gscCalculate(heracross, skarmory, reversal, field)).toEqual([235]);
   expect(gscCalculate(heracross, skarmory, flail, field)).toEqual([78]);
-});
-
-test("Rain and Sun affect Fire-type and Water-type damage", () => {
-  const moltres = new Pokemon({ name: "Moltres", gen });
-  const suicune = new Pokemon({ name: "Suicune", gen });
-  const fireBlast = new Move({ name: "Fire Blast", gen });
-  const hydroPump = new Move({ name: "Hydro Pump", gen });
-  const doubleEdge = new Move({ name: "Double-Edge", gen });
-
-  const sunBoosted = gscCalculate(moltres, suicune, fireBlast, sun);
-  expect(sunBoosted).toHaveLength(39);
-  expect(Math.max(...sunBoosted)).toEqual(121);
-
-  const sunReduced = gscCalculate(moltres, suicune, fireBlast, rain);
-  expect(sunReduced).toHaveLength(39);
-  expect(Math.max(...sunReduced)).toEqual(40);
-
-  const rainBoosted = gscCalculate(suicune, moltres, hydroPump, rain);
-  expect(rainBoosted).toHaveLength(39);
-  expect(Math.max(...rainBoosted)).toEqual(470);
-
-  const rainReduced = gscCalculate(suicune, moltres, hydroPump, sun);
-  expect(rainReduced).toHaveLength(39);
-  expect(Math.max(...rainReduced)).toEqual(156);
-
-  const rainUnboosted = gscCalculate(moltres, suicune, doubleEdge, rain);
-  expect(rainUnboosted).toHaveLength(39);
-  expect(Math.max(...rainUnboosted)).toEqual(92);
-
-  const sunUnboosted = gscCalculate(moltres, suicune, doubleEdge, sun);
-  expect(sunUnboosted).toHaveLength(39);
-  expect(Math.max(...sunUnboosted)).toEqual(92);
 });
 
 test("Type boosting items increase damage by 10%", () => {
@@ -241,4 +247,11 @@ test("Type immunity", () => {
   const gengar = new Pokemon({ name: "Gengar", gen });
   const bodySlam = new Move({ name: "Body Slam", gen });
   expect(gscCalculate(snorlax, gengar, bodySlam, field)).toEqual([0]);
+});
+
+test("status moves do no damage", () => {
+  const snorlax = new Pokemon({ name: "Snorlax", gen });
+  const zapdos = new Pokemon({ name: "Zapdos", gen });
+  const rest = new Move({ name: "Rest", gen });
+  expect(gscCalculate(snorlax, zapdos, rest, field)).toEqual([0]);
 });
