@@ -3,7 +3,7 @@
 const src = "src/**/*.js";
 const app = "app/**/*.{js,vue}";
 const test = "**/*.test.{js,vue}";
-const build = "build/**/*.js";
+const mocks = "**/__mocks__/**/*.js";
 const scripts = "scripts/**/*.js";
 
 module.exports = {
@@ -144,7 +144,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: [src, app, test, scripts],
+      files: [src, app, test, mocks, scripts],
       parserOptions: { sourceType: "module" }
     },
     {
@@ -172,11 +172,11 @@ module.exports = {
       env: { browser: true }
     },
     {
-      files: [test],
+      files: [test, mocks],
       env: { jest: true }
     },
     {
-      files: [build, scripts],
+      files: [scripts],
       rules: { "no-console": "off" }
     }
   ]
