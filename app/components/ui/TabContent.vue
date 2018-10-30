@@ -5,9 +5,8 @@
         v-for='tab in tabs'
         :key='tab'
         role='presentation'
-        class='nav-item nav-link'
+        class='nav-item nav-link clickable-control'
         :class='{active: isActive(tab)}'
-        style='cursor: pointer; user-select: none;'
         @click='selectTab(tab)'
         >
         {{ tab }}
@@ -53,3 +52,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.clickable-control {
+  cursor: pointer;
+  user-select: none;
+}
+</style>

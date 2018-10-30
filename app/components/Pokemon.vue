@@ -20,7 +20,7 @@
         :min='1'
         :max='100'
         :value='pokemon.level'
-        style='width: 6rem; display: inline-block;'
+        class='small-fixed-width'
         @input='updateLevel'
         />
     </div>
@@ -154,3 +154,10 @@ function suggestedMoveChanges(move) {
   return suggestions;
 }
 </script>
+
+<style scoped>
+.small-fixed-width {
+  width: 6rem;
+  display: inline-block;
+}
+</style>

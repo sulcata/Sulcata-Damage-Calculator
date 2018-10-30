@@ -33,7 +33,7 @@ const typeClasses = {
   link: "-link"
 };
 
-const noDefaultValue = Symbol("ButtonRadioGroup.noDefaultValue");
+const noDefaultValue = {};
 
 export default {
   props: {
@@ -42,12 +42,12 @@ export default {
       default: null
     },
     options: {
-      type: Array,
-      default: () => []
+      required: true,
+      type: Array
     },
     defaultValue: {
       type: null,
-      default: noDefaultValue
+      default: () => noDefaultValue
     },
     layout: {
       type: String,
@@ -94,13 +94,11 @@ export default {
   },
   methods: {
     select(option) {
-      if (
-        this.defaultValue !== noDefaultValue &&
-        eq(this.value, option[this.trackBy])
-      ) {
+      const value = option[this.trackBy];
+      if (!eq(this.value, value)) {
+        this.$emit("input", value);
+      } else if (this.defaultValue !== noDefaultValue) {
         this.$emit("input", this.defaultValue);
-      } else {
-        this.$emit("input", option[this.trackBy]);
       }
     },
     isSelected(option) {

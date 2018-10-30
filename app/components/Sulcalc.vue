@@ -1,5 +1,5 @@
 <template>
-  <div class='container' style='min-width: 95rem;'>
+  <div class='container'>
     <div class='row justify-content-center mt-3'>
       <div class='col-auto'>
         <generation/>
@@ -74,7 +74,7 @@ export default {
     TabContent
   },
   computed: {
-    ...mapState(["attacker", "defender", "field"]),
+    ...mapState(["attacker", "defender"]),
     ...mapGetters(["attackerReports", "defenderReports", "isReportSelected"])
   },
   methods: {

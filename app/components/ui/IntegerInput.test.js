@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import IntegerInput from "app/components/ui/IntegerInput.vue";
+import IntegerInput from "./IntegerInput.vue";
 
 it("emits the validated input on changes", () => {
   const wrapper = shallowMount(IntegerInput);
@@ -38,7 +38,7 @@ it("allows custom step size", () => {
   const wrapper = shallowMount(IntegerInput, {
     propsData: { step: 2 }
   });
-  expect(wrapper.attributes("step")).toBe("2");
+  expect(wrapper.attributes().step).toBe("2");
 });
 
 it("can be disabled", () => {

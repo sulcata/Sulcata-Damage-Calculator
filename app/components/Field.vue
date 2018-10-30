@@ -164,7 +164,7 @@
           size='small'
           type='secondary'
           class='mt-1'
-          :style='pokeAlign(side)'
+          :class='pokeAlign(side)'
           @input='toggleStealthRock({side})'
           >
           Stealth Rock
@@ -178,7 +178,7 @@
           size='small'
           type='secondary'
           class='mt-1'
-          :style='pokeAlign(side)'
+          :class='pokeAlign(side)'
           @input='spikes => setSpikes({side, spikes})'
           />
         <button-checkbox
@@ -187,14 +187,14 @@
           size='small'
           type='secondary'
           class='mt-1'
-          :style='pokeAlign(side)'
+          :class='pokeAlign(side)'
           @input='spikes => setSpikes({side, spikes})'
           >
           Spikes
         </button-checkbox>
 
         <!-- Reflect / Light Screen -->
-        <div class='btn-group btn-group-sm mt-1' :style='pokeAlign(side)'>
+        <div class='btn-group btn-group-sm mt-1' :class='pokeAlign(side)'>
           <button-checkbox
             :value='pokemon.reflect'
             type='secondary'
@@ -218,7 +218,7 @@
           size='small'
           type='secondary'
           class='mt-1'
-          :style='pokeAlign(side)'
+          :class='pokeAlign(side)'
           @input='toggleForesight({side})'
           >
           Foresight
@@ -231,7 +231,7 @@
           size='small'
           type='secondary'
           class='mt-1'
-          :style='pokeAlign(side)'
+          :class='pokeAlign(side)'
           @input='toggleFriendGuard({side})'
           >
           Friend Guard
@@ -244,7 +244,7 @@
           size='small'
           type='secondary'
           class='mt-1'
-          :style='pokeAlign(side)'
+          :class='pokeAlign(side)'
           @input='toggleAuroraVeil({side})'
           >
           Aurora Veil
@@ -257,7 +257,7 @@
           size='small'
           type='secondary'
           class='mt-1'
-          :style='pokeAlign(side)'
+          :class='pokeAlign(side)'
           @input='toggleBattery({side})'
           >
           Battery
@@ -355,11 +355,20 @@ export default {
       "setSpikes"
     ]),
     pokeAlign(side) {
-      if (side === "attacker") {
-        return { float: "left", clear: "left" };
-      }
-      return { float: "right", clear: "right" };
+      return side === "attacker" ? "align-left" : "align-right";
     }
   }
 };
 </script>
+
+<style scoped>
+.align-left {
+  float: left;
+  clear: left;
+}
+
+.align-right {
+  float: right;
+  clear: right;
+}
+</style>

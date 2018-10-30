@@ -1,5 +1,5 @@
 import { shallowMount } from "@vue/test-utils";
-import ButtonCheckbox from "app/components/ui/ButtonCheckbox.vue";
+import ButtonCheckbox from "./ButtonCheckbox.vue";
 
 it("emits a toggled state when clicked", () => {
   const wrapper = shallowMount(ButtonCheckbox);

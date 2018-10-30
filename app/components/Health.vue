@@ -3,8 +3,7 @@
     <label>HP</label>
     <input
       :value='actualHealth'
-      class='form-control'
-      style='width: 6rem; display: inline-block;'
+      class='form-control small-fixed-width'
       @change='updateHealth'
       >
     /{{ totalHp }} (
@@ -12,7 +11,7 @@
       :min='1'
       :max='100'
       :value='percentHealth'
-      style='width: 6rem; display: inline-block;'
+      class='small-fixed-width'
       @input='updatePercent'
       />
     %)
@@ -110,3 +109,10 @@ function prettyPrintItems([value, multiplicity]) {
   return multiplicity.eq(1) ? value : `${value}:${multiplicity}`;
 }
 </script>
+
+<style scoped>
+.small-fixed-width {
+  width: 6rem;
+  display: inline-block;
+}
+</style>

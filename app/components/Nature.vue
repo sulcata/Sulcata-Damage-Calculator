@@ -6,7 +6,7 @@
       placeholder='Nature'
       :value='valueObj'
       :options='natures'
-      @input='updateValue'
+      @input='updateNature'
       />
 </template>
 
@@ -46,7 +46,7 @@ export default {
     }
   },
   methods: {
-    updateValue(event) {
+    updateNature(event) {
       this.$emit("input", event ? event.value : Natures.HARDY);
     }
   }

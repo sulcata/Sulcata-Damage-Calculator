@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     updateStatus(event) {
-      this.$emit("input", event ? event.value : 0);
+      this.$emit("input", event ? event.value : Statuses.NO_STATUS);
     }
   }
 };

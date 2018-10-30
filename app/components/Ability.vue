@@ -6,7 +6,7 @@
     placeholder='Ability'
     :value='valueObj'
     :options='abilities'
-    @input='updateValue'
+    @input='updateAbility'
     />
 </template>
 
@@ -45,7 +45,7 @@ export default {
     }
   },
   methods: {
-    updateValue(event) {
+    updateAbility(event) {
       this.$emit(
         "input",
         new Ability({

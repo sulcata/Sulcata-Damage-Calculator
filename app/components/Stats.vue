@@ -49,7 +49,6 @@
           <button
             type='button'
             class='btn btn-outline-primary w-100'
-            style='cursor: default;'
             @click='() => boostAll(1)'
             >
             +1
@@ -57,7 +56,6 @@
           <button
             type='button'
             class='btn btn-outline-primary w-100'
-            style='cursor: default;'
             @click='() => boostAll(-1)'
             >
             -1
@@ -132,10 +130,10 @@ export default {
   methods: {
     statBoost(boost) {
       if (boost > 0) {
-        return "+" + boost;
+        return `+${boost}`;
       }
       if (boost < 0) {
-        return boost;
+        return `${boost}`;
       }
       return "--";
     },

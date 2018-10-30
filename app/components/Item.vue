@@ -6,7 +6,7 @@
     placeholder='Item'
     :value='valueObj'
     :options='items'
-    @input='updateValue'
+    @input='updateItem'
     />
 </template>
 
@@ -45,7 +45,7 @@ export default {
     }
   },
   methods: {
-    updateValue(event) {
+    updateItem(event) {
       this.$emit(
         "input",
         new Item({

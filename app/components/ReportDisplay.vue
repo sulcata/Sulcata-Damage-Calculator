@@ -16,7 +16,7 @@ import { mapState, mapGetters, mapMutations } from "vuex";
 
 export default {
   computed: {
-    ...mapState(["attacker", "defender", "fractions", "longRolls"]),
+    ...mapState(["fractions", "longRolls"]),
     ...mapGetters(["selectedReport", "attackerReports", "defenderReports"]),
     summary() {
       return this.selectedReport.summary || "";
@@ -25,7 +25,7 @@ export default {
       const damage = this.selectedReport.damage;
       if (!damage) return "";
       if (damage.size.gt(39)) {
-        return this.longRolls ? String(damage) : "";
+        return this.longRolls ? `(${damage})` : "";
       }
       return `(${damage.toArray().join(", ")})`;
     },
@@ -41,10 +41,8 @@ export default {
       const report = this.selectedReport;
       const pokemon = this.selectedReport.defender;
       if (this.attackerReports.includes(report)) {
-        pokemon.event = this.defender.event;
         this.setDefender({ pokemon });
       } else if (this.defenderReports.includes(report)) {
-        pokemon.event = this.attacker.event;
         this.setAttacker({ pokemon });
       }
     }
