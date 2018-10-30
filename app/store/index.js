@@ -1,10 +1,9 @@
-import { Store } from "vuex";
 import state from "./state";
 import * as mutations from "./mutations";
 import * as getters from "./getters";
 import { persistencePlugin } from "./plugins";
 
-export default new Store({
+export default {
   strict: process.env.NODE_ENV !== "production",
   state,
   mutations,
@@ -26,4 +25,4 @@ export default new Store({
       }
     })
   ]
-});
+};

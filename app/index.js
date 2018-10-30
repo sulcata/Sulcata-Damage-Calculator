@@ -1,15 +1,17 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "vue-multiselect/dist/vue-multiselect.min.css";
 import Vue from "vue";
-import Vuex from "vuex";
+import { install as vuexInstall, Store } from "vuex";
 import App from "./components/App.vue";
 import store from "./store";
 
-Vue.use(Vuex);
+Vue.use(vuexInstall);
 
-const vm = new Vue({
+const app = new Vue({
   render: h => h(App),
-  store
+  store: new Store(store)
 });
 
-document.body.appendChild(vm.$mount().$el);
+document.body.appendChild(app.$mount().$el);
+
+export default app;

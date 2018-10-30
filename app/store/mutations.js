@@ -39,7 +39,7 @@ export function toggleFractions(state) {
 
 export function changeGen(state, { gen }) {
   if (!Object.values(Gens).includes(gen)) {
-    throw new TypeError("Invalid generation.");
+    throw new RangeError("gen must be in sulcalc.Gens");
   }
   state.gen = gen;
   state.attacker = new Pokemon({ gen });
@@ -53,20 +53,20 @@ export function setReport(state, { report }) {
 
 export function setAttacker(state, { pokemon }) {
   if (!(pokemon instanceof Pokemon)) {
-    throw new TypeError("Attacker must be a Pokemon.");
+    throw new RangeError("pokemon must be a sulcalc.Pokemon");
   }
   if (pokemon.gen !== state.gen) {
-    throw new Error("Expected gen of attacker to match current state.");
+    throw new RangeError("expected gen of pokemon to match current state");
   }
   state.attacker = pokemon;
 }
 
 export function setDefender(state, { pokemon }) {
   if (!(pokemon instanceof Pokemon)) {
-    throw new TypeError("Defender must be a Pokemon.");
+    throw new RangeError("pokemon must be a sulcalc.Pokemon");
   }
   if (pokemon.gen !== state.gen) {
-    throw new Error("Expected gen of defender to match current state.");
+    throw new RangeError("expected gen of pokemon to match current state");
   }
   state.defender = pokemon;
 }
@@ -109,14 +109,14 @@ export function toggleIonDeluge(state) {
 
 export function setWeather(state, { weather }) {
   if (!Object.values(Weathers).includes(weather)) {
-    throw new TypeError("Invalid weather.");
+    throw new RangeError("weather must be in sulcalc.Weathers");
   }
   state.field.weather = weather;
 }
 
 export function setTerrain(state, { terrain }) {
   if (!Object.values(Terrains).includes(terrain)) {
-    throw new TypeError("Invalid terrain.");
+    throw new RangeError("terrain must be in sulcalc.Terrains");
   }
   state.field.terrain = terrain;
 }
@@ -160,17 +160,17 @@ export function setSpikes(state, { side, spikes }) {
   validateSide(side);
   const parsedSpikes = Number(spikes);
   if (!Number.isInteger(parsedSpikes)) {
-    throw new TypeError("Spikes must be an integer.");
+    throw new RangeError("spikes must be an integer");
   }
   const maxSpikes = state.gen >= Gens.ADV ? 3 : 1;
   if (parsedSpikes < 0 || parsedSpikes > maxSpikes) {
-    throw new Error("Spikes out of valid range.");
+    throw new RangeError(`spikes must be at most ${maxSpikes}`);
   }
   state[side].spikes = parsedSpikes;
 }
 
 function validateSide(side) {
   if (side !== "attacker" && side !== "defender") {
-    throw new TypeError("Invalid side.");
+    throw new RangeError("side must be 'attacker' or 'defender'");
   }
 }
