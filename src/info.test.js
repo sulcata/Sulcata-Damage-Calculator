@@ -1,88 +1,94 @@
 import * as info from "sulcalc/info";
 import { Gens, Natures, Stats, Types } from "sulcalc/utilities";
 
-test("natureName()", () => {
-  expect(info.natureName(0)).toEqual("Hardy");
-  expect(info.natureName(3)).toEqual("Adamant");
-  expect(info.natureName("toString")).toEqual("Hardy");
-  expect(info.natureName(-1)).toEqual("Hardy");
-  expect(info.natureName(1.5)).toEqual("Hardy");
+test.each([
+  [0, "Hardy"],
+  [3, "Adamant"],
+  ["toString", "Hardy"],
+  [-1, "Hardy"],
+  [1.5, "Hardy"]
+])("natureName(%p)", (natureId, expected) => {
+  expect(info.natureName(natureId)).toBe(expected);
 });
 
-test("natureId()", () => {
-  expect(info.natureId("  adamant ")).toEqual(Natures.ADAMANT);
-  expect(info.natureId("Hardy")).toEqual(Natures.HARDY);
-  expect(info.natureId("  HAsTy")).toEqual(Natures.HASTY);
-  expect(info.natureId("toString")).toEqual(Natures.HARDY);
+test.each([
+  ["  adamant ", Natures.ADAMANT],
+  ["Hardy", Natures.HARDY],
+  ["  HAsTy", Natures.HASTY],
+  ["toString", Natures.HARDY]
+])("natureId(%p)", (natureName, expected) => {
+  expect(info.natureId(natureName)).toBe(expected);
 });
 
-test("genName()", () => {
-  expect(info.genName(Gens.RBY)).toEqual("RBY");
-  expect(info.genName(Gens.GSC)).toEqual("GSC");
-  expect(info.genName(Gens.ADV)).toEqual("ADV");
-  expect(info.genName(Gens.HGSS)).toEqual("HGSS");
-  expect(info.genName(Gens.B2W2)).toEqual("B2W2");
-  expect(info.genName(Gens.ORAS)).toEqual("ORAS");
-  expect(info.genName(Gens.SM)).toEqual("SM");
+test.each([
+  [Gens.RBY, "RBY"],
+  [Gens.GSC, "GSC"],
+  [Gens.ADV, "ADV"],
+  [Gens.HGSS, "HGSS"],
+  [Gens.B2W2, "B2W2"],
+  [Gens.ORAS, "ORAS"],
+  [Gens.SM, "SM"]
+])("genName(%p)", (gen, expected) => {
+  expect(info.genName(gen)).toBe(expected);
 });
 
-test("natureMultiplier()", () => {
-  const adamantStatMultipliers = [0, 1, 0, -1, 0, 0];
-  for (let i = 0; i < 6; i++) {
-    expect(info.natureMultiplier(Natures.ADAMANT, i)).toEqual(
-      adamantStatMultipliers[i]
-    );
-  }
-
-  for (let i = 0; i < 6; i++) {
-    expect(info.natureMultiplier(Natures.HARDY, i)).toEqual(0);
-  }
+test.each([
+  [Natures.ADAMANT, 0, 0],
+  [Natures.ADAMANT, 1, 1],
+  [Natures.ADAMANT, 2, 0],
+  [Natures.ADAMANT, 3, -1],
+  [Natures.ADAMANT, 4, 0],
+  [Natures.ADAMANT, 5, 0],
+  [Natures.HARDY, 0, 0],
+  [Natures.HARDY, 1, 0],
+  [Natures.HARDY, 2, 0],
+  [Natures.HARDY, 3, 0],
+  [Natures.HARDY, 4, 0],
+  [Natures.HARDY, 5, 0]
+])("natureMultiplier(%p, %p)", (nature, stat, expected) => {
+  expect(info.natureMultiplier(nature, stat)).toBe(expected);
 });
 
-test("natureStats()", () => {
-  expect(info.natureStats(Natures.ADAMANT)).toEqual([Stats.ATK, Stats.SATK]);
-  expect(info.natureStats(Natures.HARDY)).toEqual([-1, -1]);
+test.each([
+  [Natures.ADAMANT, [Stats.ATK, Stats.SATK]],
+  [Natures.HARDY, [-1, -1]]
+])("natureStats(%p)", (nature, expected) => {
+  expect(info.natureStats(nature)).toEqual(expected);
 });
 
-test("releasedPokes()", () => {
-  for (const gen of Object.values(Gens)) {
-    expect(info.releasedPokes(gen)).toMatchSnapshot();
-  }
+test.each(Object.values(Gens))("releasedPokes(%p)", gen => {
+  expect(info.releasedPokes(gen)).toMatchSnapshot();
 });
 
-test("pokeType1()", () => {
-  expect(info.pokeType1("snorlax", Gens.SM)).toEqual(Types.NORMAL);
-  expect(info.pokeType1("not a pokemon id", Gens.SM)).toEqual(Types.CURSE);
+test.each([
+  ["snorlax", Gens.SM, Types.NORMAL],
+  ["not a pokemon id", Gens.SM, Types.CURSE]
+])("pokeType1(%p, %p)", (pokeId, gen, expected) => {
+  expect(info.pokeType1(pokeId, gen)).toBe(expected);
 });
 
-test("pokeType2()", () => {
-  expect(info.pokeType2("snorlax", Gens.SM)).toEqual(Types.CURSE);
-  expect(info.pokeType2("dragonite", Gens.SM)).toEqual(Types.FLYING);
-  expect(info.pokeType2("not a pokemon id", Gens.SM)).toEqual(Types.CURSE);
+test.each([
+  ["snorlax", Gens.SM, Types.CURSE],
+  ["dragonite", Gens.SM, Types.FLYING],
+  ["not a pokemon id", Gens.SM, Types.CURSE]
+])("pokeType2(%p, %p)", (pokeId, gen, expected) => {
+  expect(info.pokeType2(pokeId, gen)).toBe(expected);
 });
 
-test("releasedMoves()", () => {
-  for (const gen of Object.values(Gens)) {
-    expect(info.releasedMoves(gen)).toMatchSnapshot();
-  }
+test.each(Object.values(Gens))("releasedMoves(%p)", gen => {
+  expect(info.releasedMoves(gen)).toMatchSnapshot();
 });
 
-test("releasedItems()", () => {
-  for (const gen of Object.values(Gens)) {
-    expect(info.releasedItems(gen)).toMatchSnapshot();
-  }
+test.each(Object.values(Gens))("releasedItems(%p)", gen => {
+  expect(info.releasedItems(gen)).toMatchSnapshot();
 });
 
-test("releasedAbilities()", () => {
-  for (const gen of Object.values(Gens)) {
-    expect(info.releasedAbilities(gen)).toMatchSnapshot();
-  }
+test.each(Object.values(Gens))("releasedAbilities(%p)", gen => {
+  expect(info.releasedAbilities(gen)).toMatchSnapshot();
 });
 
-test("types()", () => {
-  for (const gen of Object.values(Gens)) {
-    expect(info.types(gen)).toMatchSnapshot();
-  }
+test.each(Object.values(Gens))("types(%p)", gen => {
+  expect(info.types(gen)).toMatchSnapshot();
 });
 
 test("isLustrousType()", () => {

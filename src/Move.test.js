@@ -18,105 +18,105 @@ beforeEach(() => {
 
 test("#constructor()", () => {
   const move1 = new Move({ name: "Pound" });
-  expect(move1.id).toEqual("pound");
-  expect(move1.gen).toEqual(maxGen);
+  expect(move1.id).toBe("pound");
+  expect(move1.gen).toBe(maxGen);
 
   const move2 = new Move({ name: "Pay Day", gen: Gens.ADV });
-  expect(move2.id).toEqual("payday");
-  expect(move2.gen).toEqual(Gens.ADV);
+  expect(move2.id).toBe("payday");
+  expect(move2.gen).toBe(Gens.ADV);
 
   const move3 = new Move({ id: "payday" });
-  expect(move3.id).toEqual("payday");
+  expect(move3.id).toBe("payday");
 
   const move4 = new Move({ id: "Bullet Seed", numberOfHits: 4 });
-  expect(move4.numberOfHits).toEqual(4);
+  expect(move4.numberOfHits).toBe(4);
 });
 
 test("#name", () => {
-  expect(noMove.name).toEqual("(No Move)");
-  expect(tackle.name).toEqual("Tackle");
+  expect(noMove.name).toBe("(No Move)");
+  expect(tackle.name).toBe("Tackle");
 
   const move1 = new Move();
   move1.name = "Tackle";
-  expect(move1.id).toEqual("tackle");
+  expect(move1.id).toBe("tackle");
 
   const move2 = new Move();
   move2.name = " bullet   seed    ";
-  expect(move2.id).toEqual("bulletseed");
+  expect(move2.id).toBe("bulletseed");
 
   const move3 = new Move();
   move3.name = "b ullet seed";
-  expect(move3.id).toEqual("bulletseed");
+  expect(move3.id).toBe("bulletseed");
 
   const doubleEdge = new Move({ name: "Double-Edge", zMove: true });
-  expect(doubleEdge.name).toEqual("Breakneck Blitz");
+  expect(doubleEdge.name).toBe("Breakneck Blitz");
 
   const clangingScales = new Move({ name: "Clanging Scales", zMove: true });
-  expect(clangingScales.name).toEqual("Devastating Drake");
+  expect(clangingScales.name).toBe("Devastating Drake");
   clangingScales.user = new Pokemon({
     name: "Kommo-o",
     item: "Kommonium Z"
   });
-  expect(clangingScales.name).toEqual("Clangorous Soulblaze");
+  expect(clangingScales.name).toBe("Clangorous Soulblaze");
 
   const photonGeyser = new Move({ name: "Photon Geyser", zMove: true });
-  expect(photonGeyser.name).toEqual("Shattered Psyche");
+  expect(photonGeyser.name).toBe("Shattered Psyche");
   photonGeyser.user = new Pokemon({
     name: "Necrozma-Ultra",
     item: "Ultranecrozium Z"
   });
-  expect(photonGeyser.name).toEqual("Light That Burns the Sky");
+  expect(photonGeyser.name).toBe("Light That Burns the Sky");
 });
 
 describe("#power()", () => {
   test("basic tests", () => {
     const leer = new Move({ name: "Leer" });
-    expect(noMove.power()).toEqual(0);
-    expect(leer.power()).toEqual(0);
-    expect(struggle.power()).toEqual(50);
-    expect(tackle.power()).toEqual(40);
+    expect(noMove.power()).toBe(0);
+    expect(leer.power()).toBe(0);
+    expect(struggle.power()).toBe(50);
+    expect(tackle.power()).toBe(40);
   });
 
   test("gen changes", () => {
     tackle.gen = 6;
-    expect(tackle.power()).toEqual(50);
+    expect(tackle.power()).toBe(50);
     tackle.gen = 4;
-    expect(tackle.power()).toEqual(35);
+    expect(tackle.power()).toBe(35);
   });
 
   test("Z-Moves", () => {
     const doubleEdge = new Move({ name: "Double-Edge", zMove: true });
-    expect(doubleEdge.power()).toEqual(190);
+    expect(doubleEdge.power()).toBe(190);
 
     const clangingScales = new Move({ name: "Clanging Scales" });
-    expect(clangingScales.power()).toEqual(110);
+    expect(clangingScales.power()).toBe(110);
     clangingScales.zMove = true;
-    expect(clangingScales.power()).toEqual(185);
+    expect(clangingScales.power()).toBe(185);
     clangingScales.user = new Pokemon({
       name: "Kommo-o",
       item: "Kommonium Z"
     });
-    expect(clangingScales.power()).toEqual(185);
+    expect(clangingScales.power()).toBe(185);
 
     const photonGeyser = new Move({ name: "Photon Geyser" });
-    expect(photonGeyser.power()).toEqual(100);
+    expect(photonGeyser.power()).toBe(100);
     photonGeyser.zMove = true;
-    expect(photonGeyser.power()).toEqual(180);
+    expect(photonGeyser.power()).toBe(180);
     photonGeyser.user = new Pokemon({
       name: "Necrozma-Ultra",
       item: "Ultranecrozium Z"
     });
-    expect(photonGeyser.power()).toEqual(200);
+    expect(photonGeyser.power()).toBe(200);
   });
 });
 
 test("#damageClass()", () => {
   const hiddenPower = new Move({ name: "Hidden Power" });
-  expect(noMove.damageClass()).toEqual(DamageClasses.OTHER);
-  expect(tackle.damageClass()).toEqual(DamageClasses.PHYSICAL);
-  expect(struggle.damageClass()).toEqual(DamageClasses.PHYSICAL);
-  expect(psychic.damageClass()).toEqual(DamageClasses.SPECIAL);
-  expect(hiddenPower.damageClass()).toEqual(DamageClasses.SPECIAL);
+  expect(noMove.damageClass()).toBe(DamageClasses.OTHER);
+  expect(tackle.damageClass()).toBe(DamageClasses.PHYSICAL);
+  expect(struggle.damageClass()).toBe(DamageClasses.PHYSICAL);
+  expect(psychic.damageClass()).toBe(DamageClasses.SPECIAL);
+  expect(hiddenPower.damageClass()).toBe(DamageClasses.SPECIAL);
 });
 
 test("#isPhysical()", () => {
@@ -150,9 +150,9 @@ test("#isPsyshockLike()", () => {
 
 test("#type()", () => {
   const hiddenPower = new Move({ name: "Hidden Power" });
-  expect(psychic.type()).toEqual(Types.PSYCHIC);
-  expect(hiddenPower.type()).toEqual(Types.NORMAL);
-  expect(struggle.type()).toEqual(Types.CURSE);
+  expect(psychic.type()).toBe(Types.PSYCHIC);
+  expect(hiddenPower.type()).toBe(Types.NORMAL);
+  expect(struggle.type()).toBe(Types.CURSE);
 });
 
 test("#hasRecoil()", () => {
@@ -245,12 +245,12 @@ test("#minHits()", () => {
   const gearGrind = new Move({ name: "Gear Grind" });
   const tripleKick = new Move({ name: "Triple Kick" });
   const beatUp = new Move({ name: "Beat Up" });
-  expect(noMove.minHits()).toEqual(0);
-  expect(tackle.minHits()).toEqual(1);
-  expect(bulletSeed.minHits()).toEqual(2);
-  expect(gearGrind.minHits()).toEqual(2);
-  expect(tripleKick.minHits()).toEqual(3);
-  expect(beatUp.minHits()).toEqual(1);
+  expect(noMove.minHits()).toBe(0);
+  expect(tackle.minHits()).toBe(1);
+  expect(bulletSeed.minHits()).toBe(2);
+  expect(gearGrind.minHits()).toBe(2);
+  expect(tripleKick.minHits()).toBe(3);
+  expect(beatUp.minHits()).toBe(1);
 });
 
 test("#maxHits()", () => {
@@ -258,23 +258,23 @@ test("#maxHits()", () => {
   const gearGrind = new Move({ name: "Gear Grind" });
   const tripleKick = new Move({ name: "Triple Kick" });
   const beatUp = new Move({ name: "Beat Up" });
-  expect(noMove.maxHits()).toEqual(0);
-  expect(tackle.maxHits()).toEqual(1);
-  expect(bulletSeed.maxHits()).toEqual(5);
-  expect(gearGrind.maxHits()).toEqual(2);
-  expect(tripleKick.maxHits()).toEqual(3);
-  expect(beatUp.maxHits()).toEqual(1);
+  expect(noMove.maxHits()).toBe(0);
+  expect(tackle.maxHits()).toBe(1);
+  expect(bulletSeed.maxHits()).toBe(5);
+  expect(gearGrind.maxHits()).toBe(2);
+  expect(tripleKick.maxHits()).toBe(3);
+  expect(beatUp.maxHits()).toBe(1);
 });
 
 test("#hitsMultipleTimes()", () => {
   const bulletSeed = new Move({ name: "Bullet Seed" });
   const gearGrind = new Move({ name: "Gear Grind" });
   const tripleKick = new Move({ name: "Triple Kick" });
-  expect(noMove.hitsMultipleTimes()).toEqual(false);
-  expect(tackle.hitsMultipleTimes()).toEqual(false);
-  expect(bulletSeed.hitsMultipleTimes()).toEqual(true);
-  expect(gearGrind.hitsMultipleTimes()).toEqual(true);
-  expect(tripleKick.hitsMultipleTimes()).toEqual(true);
+  expect(noMove.hitsMultipleTimes()).toBe(false);
+  expect(tackle.hitsMultipleTimes()).toBe(false);
+  expect(bulletSeed.hitsMultipleTimes()).toBe(true);
+  expect(gearGrind.hitsMultipleTimes()).toBe(true);
+  expect(tripleKick.hitsMultipleTimes()).toBe(true);
 });
 
 test("#hasMultipleTargets()", () => {
@@ -492,8 +492,8 @@ test("#usesHappiness()", () => {
 test("#optimalHappiness()", () => {
   const returnMove = new Move({ name: "Return" });
   const frustration = new Move({ name: "Frustration" });
-  expect(returnMove.optimalHappiness()).toEqual(255);
-  expect(frustration.optimalHappiness()).toEqual(0);
+  expect(returnMove.optimalHappiness()).toBe(255);
+  expect(frustration.optimalHappiness()).toBe(0);
 });
 
 test("#isExplosion()", () => {
@@ -511,12 +511,12 @@ test(".hiddenPowers()", () => {
   for (const type of Object.values(Types)) {
     for (const ivs of Move.hiddenPowers(type, Gens.B2W2)) {
       expect(ivs.every(isMaxIv)).toBe(true);
-      expect(Move.hiddenPowerType(ivs, Gens.B2W2)).toEqual(type);
-      expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).toEqual(70);
+      expect(Move.hiddenPowerType(ivs, Gens.B2W2)).toBe(type);
+      expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).toBe(70);
     }
     for (const ivs of Move.hiddenPowers(type, Gens.GSC)) {
-      expect(Move.hiddenPowerType(ivs, Gens.GSC)).toEqual(type);
-      expect(Move.hiddenPowerBp(ivs, Gens.GSC)).toEqual(70);
+      expect(Move.hiddenPowerType(ivs, Gens.GSC)).toBe(type);
+      expect(Move.hiddenPowerBp(ivs, Gens.GSC)).toBe(70);
     }
   }
 });
@@ -531,8 +531,8 @@ test(".hiddenPowerBp()", () => {
   ];
 
   for (const ivs of base70) {
-    expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).toEqual(70);
-    expect(Move.hiddenPowerBp(ivs, Gens.ORAS)).toEqual(60);
+    expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).toBe(70);
+    expect(Move.hiddenPowerBp(ivs, Gens.ORAS)).toBe(60);
   }
 
   const notBase70 = [
@@ -544,8 +544,8 @@ test(".hiddenPowerBp()", () => {
   ];
 
   for (const ivs of notBase70) {
-    expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).not.toEqual(70);
-    expect(Move.hiddenPowerBp(ivs, Gens.ORAS)).toEqual(60);
+    expect(Move.hiddenPowerBp(ivs, Gens.B2W2)).not.toBe(70);
+    expect(Move.hiddenPowerBp(ivs, Gens.ORAS)).toBe(60);
   }
 
   const base70Gen2 = [
@@ -557,7 +557,7 @@ test(".hiddenPowerBp()", () => {
   ];
 
   for (const ivs of base70Gen2) {
-    expect(Move.hiddenPowerBp(ivs, Gens.GSC)).toEqual(70);
+    expect(Move.hiddenPowerBp(ivs, Gens.GSC)).toBe(70);
   }
 
   const notBase70Gen2 = [
@@ -574,176 +574,179 @@ test(".hiddenPowerBp()", () => {
 });
 
 test(".hiddenPowerType()", () => {
-  expect(Move.hiddenPowerType([31, 31, 31, 31, 31, 31])).toEqual(Types.DARK);
-  expect(Move.hiddenPowerType([31, 30, 30, 31, 31, 31])).toEqual(Types.ICE);
-  expect(Move.hiddenPowerType([31, 30, 31, 30, 31, 30])).toEqual(Types.FIRE);
-  expect(Move.hiddenPowerType([31, 30, 31, 30, 31, 31])).toEqual(Types.GRASS);
+  expect(Move.hiddenPowerType([31, 31, 31, 31, 31, 31])).toBe(Types.DARK);
+  expect(Move.hiddenPowerType([31, 30, 30, 31, 31, 31])).toBe(Types.ICE);
+  expect(Move.hiddenPowerType([31, 30, 31, 30, 31, 30])).toBe(Types.FIRE);
+  expect(Move.hiddenPowerType([31, 30, 31, 30, 31, 31])).toBe(Types.GRASS);
 
-  expect(Move.hiddenPowerType([NaN, 15, 15, 15, NaN, 15], Gens.GSC)).toEqual(
+  expect(Move.hiddenPowerType([NaN, 15, 15, 15, NaN, 15], Gens.GSC)).toBe(
     Types.DARK
   );
-  expect(Move.hiddenPowerType([NaN, 15, 13, 15, NaN, 15], Gens.GSC)).toEqual(
+  expect(Move.hiddenPowerType([NaN, 15, 13, 15, NaN, 15], Gens.GSC)).toBe(
     Types.ICE
   );
-  expect(Move.hiddenPowerType([NaN, 13, 13, 15, NaN, 15], Gens.GSC)).toEqual(
+  expect(Move.hiddenPowerType([NaN, 13, 13, 15, NaN, 15], Gens.GSC)).toBe(
     Types.BUG
   );
-  expect(Move.hiddenPowerType([NaN, 14, 13, 15, NaN, 15], Gens.GSC)).toEqual(
+  expect(Move.hiddenPowerType([NaN, 14, 13, 15, NaN, 15], Gens.GSC)).toBe(
     Types.WATER
   );
 });
 
-test(".flail()", () => {
-  expect(Move.flail(1, 100)).toEqual(200);
-  expect(Move.flail(4, 100)).toEqual(200);
-  expect(Move.flail(5, 100)).toEqual(150);
-  expect(Move.flail(10, 100)).toEqual(150);
-  expect(Move.flail(11, 100)).toEqual(100);
-  expect(Move.flail(20, 100)).toEqual(100);
-  expect(Move.flail(21, 100)).toEqual(80);
-  expect(Move.flail(35, 100)).toEqual(80);
-  expect(Move.flail(36, 100)).toEqual(40);
-  expect(Move.flail(68, 100)).toEqual(40);
-  expect(Move.flail(69, 100)).toEqual(20);
-  expect(Move.flail(100, 100)).toEqual(20);
-
-  expect(Move.flail(1, 100, Gens.HGSS)).toEqual(200);
-  expect(Move.flail(3, 100, Gens.HGSS)).toEqual(200);
-  expect(Move.flail(4, 100, Gens.HGSS)).toEqual(150);
-  expect(Move.flail(9, 100, Gens.HGSS)).toEqual(150);
-  expect(Move.flail(10, 100, Gens.HGSS)).toEqual(100);
-  expect(Move.flail(20, 100, Gens.HGSS)).toEqual(100);
-  expect(Move.flail(21, 100, Gens.HGSS)).toEqual(80);
-  expect(Move.flail(34, 100, Gens.HGSS)).toEqual(80);
-  expect(Move.flail(35, 100, Gens.HGSS)).toEqual(40);
-  expect(Move.flail(67, 100, Gens.HGSS)).toEqual(40);
-  expect(Move.flail(68, 100, Gens.HGSS)).toEqual(20);
-  expect(Move.flail(100, 100, Gens.HGSS)).toEqual(20);
+test.each([
+  [1, 100, undefined, 200],
+  [4, 100, undefined, 200],
+  [5, 100, undefined, 150],
+  [10, 100, undefined, 150],
+  [11, 100, undefined, 100],
+  [20, 100, undefined, 100],
+  [21, 100, undefined, 80],
+  [35, 100, undefined, 80],
+  [36, 100, undefined, 40],
+  [68, 100, undefined, 40],
+  [69, 100, undefined, 20],
+  [100, 100, undefined, 20],
+  [1, 100, Gens.HGSS, 200],
+  [3, 100, Gens.HGSS, 200],
+  [4, 100, Gens.HGSS, 150],
+  [9, 100, Gens.HGSS, 150],
+  [10, 100, Gens.HGSS, 100],
+  [20, 100, Gens.HGSS, 100],
+  [21, 100, Gens.HGSS, 80],
+  [34, 100, Gens.HGSS, 80],
+  [35, 100, Gens.HGSS, 40],
+  [67, 100, Gens.HGSS, 40],
+  [68, 100, Gens.HGSS, 20],
+  [100, 100, Gens.HGSS, 20]
+])(".flail(%p, %p, %p)", (currentHp, maxHp, gen, expected) => {
+  expect(Move.flail(currentHp, maxHp, gen)).toBe(expected);
 });
 
-test(".magnitude()", () => {
-  expect(Move.magnitude(4)).toEqual(10);
-  expect(Move.magnitude(5)).toEqual(30);
-  expect(Move.magnitude(6)).toEqual(50);
-  expect(Move.magnitude(7)).toEqual(70);
-  expect(Move.magnitude(8)).toEqual(90);
-  expect(Move.magnitude(9)).toEqual(110);
-  expect(Move.magnitude(10)).toEqual(150);
-});
+test.each([[4, 10], [5, 30], [6, 50], [7, 70], [8, 90], [9, 110], [10, 150]])(
+  ".magnitude(%p)",
+  (magnitude, expected) => {
+    expect(Move.magnitude(magnitude)).toBe(expected);
+  }
+);
 
 test(".weatherBall()", () => {
-  expect(Move.weatherBall(Weathers.CLEAR)).toEqual(Types.NORMAL);
-  expect(Move.weatherBall(Weathers.SUN)).toEqual(Types.FIRE);
-  expect(Move.weatherBall(Weathers.RAIN)).toEqual(Types.WATER);
-  expect(Move.weatherBall(Weathers.SAND)).toEqual(Types.ROCK);
-  expect(Move.weatherBall(Weathers.HAIL)).toEqual(Types.ICE);
-  expect(Move.weatherBall(Weathers.HARSH_SUN)).toEqual(Types.FIRE);
-  expect(Move.weatherBall(Weathers.HEAVY_RAIN)).toEqual(Types.WATER);
-  expect(Move.weatherBall(Weathers.STRONG_WINDS)).toEqual(Types.NORMAL);
+  expect(Move.weatherBall(Weathers.CLEAR)).toBe(Types.NORMAL);
+  expect(Move.weatherBall(Weathers.SUN)).toBe(Types.FIRE);
+  expect(Move.weatherBall(Weathers.RAIN)).toBe(Types.WATER);
+  expect(Move.weatherBall(Weathers.SAND)).toBe(Types.ROCK);
+  expect(Move.weatherBall(Weathers.HAIL)).toBe(Types.ICE);
+  expect(Move.weatherBall(Weathers.HARSH_SUN)).toBe(Types.FIRE);
+  expect(Move.weatherBall(Weathers.HEAVY_RAIN)).toBe(Types.WATER);
+  expect(Move.weatherBall(Weathers.STRONG_WINDS)).toBe(Types.NORMAL);
 });
 
-test(".trumpCard()", () => {
-  expect(Move.trumpCard(0)).toEqual(200);
-  expect(Move.trumpCard(1)).toEqual(80);
-  expect(Move.trumpCard(2)).toEqual(60);
-  expect(Move.trumpCard(3)).toEqual(50);
-  expect(Move.trumpCard(4)).toEqual(40);
-  expect(Move.trumpCard(5)).toEqual(40);
-  expect(Move.trumpCard(6)).toEqual(40);
-});
+test.each([[0, 200], [1, 80], [2, 60], [3, 50], [4, 40], [5, 40], [6, 40]])(
+  ".trumpCard(%p)",
+  (ppLeft, expected) => {
+    expect(Move.trumpCard(ppLeft)).toBe(expected);
+  }
+);
 
-test(".electroBall()", () => {
-  expect(Move.electroBall(100, 20000)).toEqual(40);
-  expect(Move.electroBall(100, 101)).toEqual(40);
-  expect(Move.electroBall(100, 100)).toEqual(60);
-  expect(Move.electroBall(100, 51)).toEqual(60);
-  expect(Move.electroBall(100, 50)).toEqual(80);
-  expect(Move.electroBall(100, 34)).toEqual(80);
-  expect(Move.electroBall(100, 33)).toEqual(120);
-  expect(Move.electroBall(100, 26)).toEqual(120);
-  expect(Move.electroBall(100, 25)).toEqual(150);
-  expect(Move.electroBall(100, 1)).toEqual(150);
-  expect(Move.electroBall(100, 0)).toEqual(150);
+test.each([
+  [100, 20000, 40],
+  [100, 101, 40],
+  [100, 100, 60],
+  [100, 51, 60],
+  [100, 50, 80],
+  [100, 34, 80],
+  [100, 33, 120],
+  [100, 26, 120],
+  [100, 25, 150],
+  [100, 1, 150],
+  [100, 0, 150]
+])(".electroBall(%p, %p)", (userSpeed, targetSpeed, expected) => {
+  expect(Move.electroBall(userSpeed, targetSpeed)).toBe(expected);
 });
 
 test(".gyroBall()", () => {
-  expect(Move.gyroBall(0, 100)).toEqual(150);
-  expect(Move.gyroBall(1, 100)).toEqual(150);
-  expect(Move.gyroBall(25, 100)).toEqual(100);
+  expect(Move.gyroBall(0, 100)).toBe(150);
+  expect(Move.gyroBall(1, 100)).toBe(150);
+  expect(Move.gyroBall(25, 100)).toBe(100);
   expect(Move.gyroBall(26, 100)).toBeLessThan(150);
-  expect(Move.gyroBall(100, 100)).toEqual(25);
+  expect(Move.gyroBall(100, 100)).toBe(25);
   expect(Move.gyroBall(101, 100)).toBeLessThan(25);
-  expect(Move.gyroBall(500, 100)).toEqual(5);
+  expect(Move.gyroBall(500, 100)).toBe(5);
   expect(Move.gyroBall(501, 100)).toBeLessThan(5);
-  expect(Move.gyroBall(2500, 100)).toEqual(1);
+  expect(Move.gyroBall(2500, 100)).toBe(1);
 });
 
-test(".grassKnot()", () => {
-  expect(Move.grassKnot(200000)).toEqual(120);
-  expect(Move.grassKnot(2000)).toEqual(120);
-  expect(Move.grassKnot(1999)).toEqual(100);
-  expect(Move.grassKnot(1000)).toEqual(100);
-  expect(Move.grassKnot(999)).toEqual(80);
-  expect(Move.grassKnot(500)).toEqual(80);
-  expect(Move.grassKnot(499)).toEqual(60);
-  expect(Move.grassKnot(250)).toEqual(60);
-  expect(Move.grassKnot(249)).toEqual(40);
-  expect(Move.grassKnot(100)).toEqual(40);
-  expect(Move.grassKnot(99)).toEqual(20);
-  expect(Move.grassKnot(1)).toEqual(20);
-  expect(Move.grassKnot(0)).toEqual(20);
+test.each([
+  [200000, 120],
+  [2000, 120],
+  [1999, 100],
+  [1000, 100],
+  [999, 80],
+  [500, 80],
+  [499, 60],
+  [250, 60],
+  [249, 40],
+  [100, 40],
+  [99, 20],
+  [1, 20],
+  [0, 20]
+])(".grassKnot(%p)", (targetWeight, expected) => {
+  expect(Move.grassKnot(targetWeight)).toBe(expected);
 });
 
-test(".heavySlam()", () => {
-  expect(Move.heavySlam(100, 1)).toEqual(120);
-  expect(Move.heavySlam(100, 20)).toEqual(120);
-  expect(Move.heavySlam(100, 21)).toEqual(100);
-  expect(Move.heavySlam(100, 25)).toEqual(100);
-  expect(Move.heavySlam(100, 26)).toEqual(80);
-  expect(Move.heavySlam(100, 33)).toEqual(80);
-  expect(Move.heavySlam(100, 34)).toEqual(60);
-  expect(Move.heavySlam(100, 50)).toEqual(60);
-  expect(Move.heavySlam(100, 51)).toEqual(40);
-  expect(Move.heavySlam(100, 100)).toEqual(40);
+test.each([
+  [100, 1, 120],
+  [100, 20, 120],
+  [100, 21, 100],
+  [100, 25, 100],
+  [100, 26, 80],
+  [100, 33, 80],
+  [100, 34, 60],
+  [100, 50, 60],
+  [100, 51, 40],
+  [100, 100, 40]
+])(".heavySlam(%p, %p)", (userWeight, targetWeight, expected) => {
+  expect(Move.heavySlam(userWeight, targetWeight)).toBe(expected);
 });
 
-test(".punishment()", () => {
-  expect(Move.punishment([NaN, 0, 0, 0, 0, 0, 0, 0])).toEqual(60);
-  expect(Move.punishment([NaN, -3, 0, 0, 0, 0, -5, 0])).toEqual(60);
-  expect(Move.punishment([NaN, 1, 0, 0, 0, 0, 0, 0])).toEqual(80);
-  expect(Move.punishment([NaN, 1, 0, 0, 0, 0, 2, 0])).toEqual(120);
-  expect(Move.punishment([NaN, 0, 0, 0, 0, 0, 1, 1])).toEqual(100);
-  expect(Move.punishment([NaN, 0, 0, 0, 0, -3, 3, 0])).toEqual(120);
+test.each([
+  [[NaN, 0, 0, 0, 0, 0, 0, 0], 60],
+  [[NaN, -3, 0, 0, 0, 0, -5, 0], 60],
+  [[NaN, 1, 0, 0, 0, 0, 0, 0], 80],
+  [[NaN, 0, 0, 0, 0, 0, 1, 1], 100],
+  [[NaN, 1, 0, 0, 0, 0, 2, 0], 120],
+  [[NaN, 0, 0, 0, 0, -3, 3, 0], 120]
+])(".punishment(%p)", (statBoosts, expected) => {
+  expect(Move.punishment(statBoosts)).toBe(expected);
 });
 
-test(".storedPower()", () => {
-  expect(Move.storedPower([NaN, 0, 0, 0, 0, 0, 0, 0])).toEqual(20);
-  expect(Move.storedPower([NaN, -3, 0, 0, 0, 0, -5, 0])).toEqual(20);
-  expect(Move.storedPower([NaN, 1, 0, 0, 0, 0, 0, 0])).toEqual(40);
-  expect(Move.storedPower([NaN, 1, 0, 0, 0, 0, 2, 0])).toEqual(80);
-  expect(Move.storedPower([NaN, 0, 0, 0, 0, 0, 1, 1])).toEqual(60);
-  expect(Move.storedPower([NaN, 6, 6, 6, 6, 6, 6, 6])).toEqual(860);
+test.each([
+  [[NaN, 0, 0, 0, 0, 0, 0, 0], 20],
+  [[NaN, -3, 0, 0, 0, 0, -5, 0], 20],
+  [[NaN, 1, 0, 0, 0, 0, 0, 0], 40],
+  [[NaN, 0, 0, 0, 0, 0, 1, 1], 60],
+  [[NaN, 1, 0, 0, 0, 0, 2, 0], 80],
+  [[NaN, 6, 6, 6, 6, 6, 6, 6], 860]
+])(".storedPower(%p)", (statBoosts, expected) => {
+  expect(Move.storedPower(statBoosts)).toBe(expected);
 });
 
-test(".frustration()", () => {
-  expect(Move.frustration(0)).toEqual(102);
-  expect(Move.frustration(5)).toEqual(100);
-  expect(Move.frustration(250)).toEqual(2);
-  expect(Move.frustration(251)).toEqual(1);
-  expect(Move.frustration(255)).toEqual(1);
-});
+test.each([[0, 102], [5, 100], [250, 2], [251, 1], [255, 1]])(
+  ".frustration(%p)",
+  (happiness, expected) => {
+    expect(Move.frustration(happiness)).toBe(expected);
+  }
+);
 
-test(".return()", () => {
-  expect(Move.return(255)).toEqual(102);
-  expect(Move.return(250)).toEqual(100);
-  expect(Move.return(5)).toEqual(2);
-  expect(Move.return(2)).toEqual(1);
-  expect(Move.return(0)).toEqual(1);
-});
+test.each([[255, 102], [250, 100], [5, 2], [2, 1], [0, 1]])(
+  ".return(%p)",
+  (happiness, expected) => {
+    expect(Move.return(happiness)).toBe(expected);
+  }
+);
 
-test(".eruption()", () => {
-  expect(Move.eruption(100, 100)).toEqual(150);
-  expect(Move.eruption(1, 300)).toEqual(1);
-  expect(Move.eruption(1, 2)).toEqual(75);
-  expect(Move.eruption(1, 3)).toEqual(50);
-});
+test.each([[100, 100, 150], [1, 300, 1], [1, 2, 75], [1, 3, 50]])(
+  ".eruption(%p, %p)",
+  (currentHp, maxHp, expected) => {
+    expect(Move.eruption(currentHp, maxHp)).toBe(expected);
+  }
+);

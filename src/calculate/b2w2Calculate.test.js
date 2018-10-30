@@ -26,5 +26,5 @@ test("sanity check", () => {
   });
   const move = new Move({ name: "Lava Plume", gen });
   const damage = b2w2Calculate(attacker, defender, move, field);
-  expect(Math.max(...damage)).toEqual(150);
+  expect(Math.max(...damage)).toBe(150);
 });

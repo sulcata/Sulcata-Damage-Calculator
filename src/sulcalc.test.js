@@ -181,7 +181,7 @@ test("Explosion", () => {
     { name: "Explosion", gen },
     { gen }
   );
-  expect(roundedChances.length).toEqual(1);
+  expect(roundedChances.length).toBe(1);
   const { summary } = sulcalc(
     { name: "Snorlax", gen },
     { name: "Skarmory", gen },

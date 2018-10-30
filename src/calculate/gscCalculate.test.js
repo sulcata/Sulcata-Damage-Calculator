@@ -26,7 +26,7 @@ describe("crit mechanics", () => {
   test("doubles damage", () => {
     const damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(168);
+    expect(Math.max(...damage)).toBe(168);
   });
 
   test("only ignores modifiers if boosts are the same or worse", () => {
@@ -34,19 +34,19 @@ describe("crit mechanics", () => {
     starmie.boosts[Stats.DEF] = 5;
     let damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(135);
+    expect(Math.max(...damage)).toBe(135);
 
     machamp.boosts[Stats.ATK] = 6;
     starmie.boosts[Stats.DEF] = 6;
     damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(168);
+    expect(Math.max(...damage)).toBe(168);
 
     machamp.boosts[Stats.ATK] = 5;
     starmie.boosts[Stats.DEF] = 6;
     damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(168);
+    expect(Math.max(...damage)).toBe(168);
   });
 
   test("ignoring includes Reflect", () => {
@@ -54,12 +54,12 @@ describe("crit mechanics", () => {
 
     let damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(168);
+    expect(Math.max(...damage)).toBe(168);
 
     machamp.boosts[Stats.ATK] = 1;
     damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(127);
+    expect(Math.max(...damage)).toBe(127);
   });
 
   test("ignoring includes Light Screen", () => {
@@ -72,12 +72,12 @@ describe("crit mechanics", () => {
 
     let damage = gscCalculate(machamp, starmie, thunderCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(344);
+    expect(Math.max(...damage)).toBe(344);
 
     machamp.boosts[Stats.SATK] = 1;
     damage = gscCalculate(machamp, starmie, thunderCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(256);
+    expect(Math.max(...damage)).toBe(256);
   });
 
   test("ignoring includes Burn", () => {
@@ -85,12 +85,12 @@ describe("crit mechanics", () => {
 
     let damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(168);
+    expect(Math.max(...damage)).toBe(168);
 
     machamp.boosts[Stats.ATK] = 1;
     damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(127);
+    expect(Math.max(...damage)).toBe(127);
   });
 });
 
@@ -109,15 +109,15 @@ describe("weather mechanics", () => {
 
     const damage = gscCalculate(houndoom, cloyster, solarBeam, field);
     expect(damage).toHaveLength(39);
-    expect(Math.max(...damage)).toEqual(342);
+    expect(Math.max(...damage)).toBe(342);
 
     const sandDamage = gscCalculate(houndoom, cloyster, solarBeam, sand);
     expect(sandDamage).toHaveLength(39);
-    expect(Math.max(...sandDamage)).toEqual(342);
+    expect(Math.max(...sandDamage)).toBe(342);
 
     const rainDamage = gscCalculate(houndoom, cloyster, solarBeam, rain);
     expect(rainDamage).toHaveLength(39);
-    expect(Math.max(...rainDamage)).toEqual(170);
+    expect(Math.max(...rainDamage)).toBe(170);
   });
 
   test("Rain and Sun affect Fire-type and Water-type damage", () => {
@@ -129,27 +129,27 @@ describe("weather mechanics", () => {
 
     const sunBoosted = gscCalculate(moltres, suicune, fireBlast, sun);
     expect(sunBoosted).toHaveLength(39);
-    expect(Math.max(...sunBoosted)).toEqual(121);
+    expect(Math.max(...sunBoosted)).toBe(121);
 
     const sunReduced = gscCalculate(moltres, suicune, fireBlast, rain);
     expect(sunReduced).toHaveLength(39);
-    expect(Math.max(...sunReduced)).toEqual(40);
+    expect(Math.max(...sunReduced)).toBe(40);
 
     const rainBoosted = gscCalculate(suicune, moltres, hydroPump, rain);
     expect(rainBoosted).toHaveLength(39);
-    expect(Math.max(...rainBoosted)).toEqual(470);
+    expect(Math.max(...rainBoosted)).toBe(470);
 
     const rainReduced = gscCalculate(suicune, moltres, hydroPump, sun);
     expect(rainReduced).toHaveLength(39);
-    expect(Math.max(...rainReduced)).toEqual(156);
+    expect(Math.max(...rainReduced)).toBe(156);
 
     const rainUnboosted = gscCalculate(moltres, suicune, doubleEdge, rain);
     expect(rainUnboosted).toHaveLength(39);
-    expect(Math.max(...rainUnboosted)).toEqual(92);
+    expect(Math.max(...rainUnboosted)).toBe(92);
 
     const sunUnboosted = gscCalculate(moltres, suicune, doubleEdge, sun);
     expect(sunUnboosted).toHaveLength(39);
-    expect(Math.max(...sunUnboosted)).toEqual(92);
+    expect(Math.max(...sunUnboosted)).toBe(92);
   });
 });
 
@@ -160,13 +160,13 @@ test("sanity check", () => {
   const zapdos = new Pokemon({ name: "Zapdos", gen });
   let damage = gscCalculate(snorlax, zapdos, doubleEdge, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(180);
+  expect(Math.max(...damage)).toBe(180);
 
   const umbreon = new Pokemon({ name: "Umbreon", gen });
   const blissey = new Pokemon({ name: "Blissey", gen });
   damage = gscCalculate(umbreon, blissey, doubleEdge, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(196);
+  expect(Math.max(...damage)).toBe(196);
 });
 
 test("Pursuit doubles after variance", () => {
@@ -186,7 +186,7 @@ test("Explosion halves Defense", () => {
   const explosion = new Move({ name: "Explosion", gen });
   const damage = gscCalculate(cloyster, snorlax, explosion, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(542);
+  expect(Math.max(...damage)).toBe(542);
 });
 
 test("Hidden Power is physical for certain types", () => {
@@ -200,7 +200,7 @@ test("Hidden Power is physical for certain types", () => {
   const hiddenPower = new Move({ name: "Hidden Power", gen });
   const damage = gscCalculate(marowak, exeggutor, hiddenPower, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(452);
+  expect(Math.max(...damage)).toBe(452);
 });
 
 test("Light Ball doubles Special Attack", () => {
@@ -213,7 +213,7 @@ test("Light Ball doubles Special Attack", () => {
   const thunder = new Move({ name: "Thunder", gen });
   const damage = gscCalculate(pikachu, zapdos, thunder, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(219);
+  expect(Math.max(...damage)).toBe(219);
 });
 
 test("Reversal and Flail have no damage variance", () => {
@@ -239,7 +239,7 @@ test("Type boosting items increase damage by 10%", () => {
   const fireBlast = new Move({ name: "Fire Blast", gen });
   const damage = gscCalculate(moltres, snorlax, fireBlast, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(186);
+  expect(Math.max(...damage)).toBe(186);
 });
 
 test("Type immunity", () => {

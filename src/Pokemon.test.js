@@ -147,14 +147,14 @@ describe(".fromImportable()", () => {
       - Return`,
       Gens.ORAS
     );
-    expect(returnSnorlax.happiness).toEqual(255);
+    expect(returnSnorlax.happiness).toBe(255);
 
     const snorlax = Pokemon.fromImportable(
       `Snorlax
       - Waterfall`,
       Gens.ORAS
     );
-    expect(snorlax.happiness).toEqual(0);
+    expect(snorlax.happiness).toBe(0);
   });
 
   test("puts (No Move) last", () => {
@@ -516,20 +516,20 @@ test("#toSet()", () => {
 });
 
 test("#name", () => {
-  expect(mudkip.name).toEqual("Mudkip");
-  expect(nopokemon.name).toEqual("(No Pokemon)");
+  expect(mudkip.name).toBe("Mudkip");
+  expect(nopokemon.name).toBe("(No Pokemon)");
 
   const poke1 = new Pokemon();
   poke1.name = "   latias ";
-  expect(poke1.id).toEqual("latias");
+  expect(poke1.id).toBe("latias");
 
   const poke2 = new Pokemon();
   poke2.name = " laTIos    MEGA      ";
-  expect(poke2.id).toEqual("latiosmega");
+  expect(poke2.id).toBe("latiosmega");
 
   const poke3 = new Pokemon();
   poke3.name = "SNOR LAX";
-  expect(poke3.id).toEqual("snorlax");
+  expect(poke3.id).toBe("snorlax");
 });
 
 test("#stat()", () => {
@@ -539,95 +539,95 @@ test("#stat()", () => {
     ivs: [31, 0, 31, 31, 31, 31],
     nature: Natures.MODEST
   });
-  expect(nidoking.stat(Stats.HP)).toEqual(303);
-  expect(nidoking.stat(Stats.ATK)).toEqual(188);
-  expect(nidoking.stat(Stats.DEF)).toEqual(191);
-  expect(nidoking.stat(Stats.SATK)).toEqual(295);
-  expect(nidoking.stat(Stats.SDEF)).toEqual(186);
-  expect(nidoking.stat(Stats.SPD)).toEqual(269);
+  expect(nidoking.stat(Stats.HP)).toBe(303);
+  expect(nidoking.stat(Stats.ATK)).toBe(188);
+  expect(nidoking.stat(Stats.DEF)).toBe(191);
+  expect(nidoking.stat(Stats.SATK)).toBe(295);
+  expect(nidoking.stat(Stats.SDEF)).toBe(186);
+  expect(nidoking.stat(Stats.SPD)).toBe(269);
 
   nidoking.gen = Gens.B2W2;
-  expect(nidoking.stat(Stats.HP)).toEqual(303);
-  expect(nidoking.stat(Stats.ATK)).toEqual(170);
-  expect(nidoking.stat(Stats.DEF)).toEqual(191);
-  expect(nidoking.stat(Stats.SATK)).toEqual(295);
-  expect(nidoking.stat(Stats.SDEF)).toEqual(186);
-  expect(nidoking.stat(Stats.SPD)).toEqual(269);
+  expect(nidoking.stat(Stats.HP)).toBe(303);
+  expect(nidoking.stat(Stats.ATK)).toBe(170);
+  expect(nidoking.stat(Stats.DEF)).toBe(191);
+  expect(nidoking.stat(Stats.SATK)).toBe(295);
+  expect(nidoking.stat(Stats.SDEF)).toBe(186);
+  expect(nidoking.stat(Stats.SPD)).toBe(269);
 
   const shedinja = new Pokemon({
     name: "Shedinja",
     evs: [252, 252, 4, 0, 0, 0]
   });
-  expect(shedinja.stat(Stats.HP)).toEqual(1);
-  expect(shedinja.stat(Stats.ATK)).toEqual(279);
-  expect(shedinja.stat(Stats.DEF)).toEqual(127);
-  expect(shedinja.stat(Stats.SATK)).toEqual(96);
-  expect(shedinja.stat(Stats.SDEF)).toEqual(96);
-  expect(shedinja.stat(Stats.SPD)).toEqual(116);
+  expect(shedinja.stat(Stats.HP)).toBe(1);
+  expect(shedinja.stat(Stats.ATK)).toBe(279);
+  expect(shedinja.stat(Stats.DEF)).toBe(127);
+  expect(shedinja.stat(Stats.SATK)).toBe(96);
+  expect(shedinja.stat(Stats.SDEF)).toBe(96);
+  expect(shedinja.stat(Stats.SPD)).toBe(116);
 
   const gscSnorlax = new Pokemon({ name: "Snorlax", gen: Gens.GSC });
-  expect(gscSnorlax.stat(Stats.HP)).toEqual(523);
-  expect(gscSnorlax.stat(Stats.ATK)).toEqual(318);
-  expect(gscSnorlax.stat(Stats.DEF)).toEqual(228);
-  expect(gscSnorlax.stat(Stats.SATK)).toEqual(228);
-  expect(gscSnorlax.stat(Stats.SDEF)).toEqual(318);
-  expect(gscSnorlax.stat(Stats.SPD)).toEqual(158);
+  expect(gscSnorlax.stat(Stats.HP)).toBe(523);
+  expect(gscSnorlax.stat(Stats.ATK)).toBe(318);
+  expect(gscSnorlax.stat(Stats.DEF)).toBe(228);
+  expect(gscSnorlax.stat(Stats.SATK)).toBe(228);
+  expect(gscSnorlax.stat(Stats.SDEF)).toBe(318);
+  expect(gscSnorlax.stat(Stats.SPD)).toBe(158);
   gscSnorlax.evs[Stats.SPD] = 0;
-  expect(gscSnorlax.stat(Stats.SPD)).toEqual(95);
+  expect(gscSnorlax.stat(Stats.SPD)).toBe(95);
 
   const gscZapdos = new Pokemon({ name: "Zapdos", gen: Gens.GSC });
-  expect(gscZapdos.stat(Stats.HP)).toEqual(383);
-  expect(gscZapdos.stat(Stats.ATK)).toEqual(278);
-  expect(gscZapdos.stat(Stats.DEF)).toEqual(268);
-  expect(gscZapdos.stat(Stats.SATK)).toEqual(348);
-  expect(gscZapdos.stat(Stats.SDEF)).toEqual(278);
-  expect(gscZapdos.stat(Stats.SPD)).toEqual(298);
+  expect(gscZapdos.stat(Stats.HP)).toBe(383);
+  expect(gscZapdos.stat(Stats.ATK)).toBe(278);
+  expect(gscZapdos.stat(Stats.DEF)).toBe(268);
+  expect(gscZapdos.stat(Stats.SATK)).toBe(348);
+  expect(gscZapdos.stat(Stats.SDEF)).toBe(278);
+  expect(gscZapdos.stat(Stats.SPD)).toBe(298);
   gscZapdos.ivs[Stats.DEF] = 13;
-  expect(gscZapdos.stat(Stats.DEF)).toEqual(264);
+  expect(gscZapdos.stat(Stats.DEF)).toBe(264);
 
   const rbyTauros = new Pokemon({ name: "Tauros", gen: Gens.RBY });
-  expect(rbyTauros.stat(Stats.HP)).toEqual(353);
-  expect(rbyTauros.stat(Stats.ATK)).toEqual(298);
-  expect(rbyTauros.stat(Stats.DEF)).toEqual(288);
-  expect(rbyTauros.stat(Stats.SPC)).toEqual(238);
-  expect(rbyTauros.stat(Stats.SPD)).toEqual(318);
+  expect(rbyTauros.stat(Stats.HP)).toBe(353);
+  expect(rbyTauros.stat(Stats.ATK)).toBe(298);
+  expect(rbyTauros.stat(Stats.DEF)).toBe(288);
+  expect(rbyTauros.stat(Stats.SPC)).toBe(238);
+  expect(rbyTauros.stat(Stats.SPD)).toBe(318);
 
   const tauros = new Pokemon({ name: "Tauros", powerTrick: true });
-  expect(tauros.stat(Stats.HP)).toEqual(291);
-  expect(tauros.stat(Stats.ATK)).toEqual(226);
-  expect(tauros.stat(Stats.DEF)).toEqual(236);
-  expect(tauros.stat(Stats.SATK)).toEqual(116);
-  expect(tauros.stat(Stats.SDEF)).toEqual(176);
-  expect(tauros.stat(Stats.SPD)).toEqual(256);
+  expect(tauros.stat(Stats.HP)).toBe(291);
+  expect(tauros.stat(Stats.ATK)).toBe(226);
+  expect(tauros.stat(Stats.DEF)).toBe(236);
+  expect(tauros.stat(Stats.SATK)).toBe(116);
+  expect(tauros.stat(Stats.SDEF)).toBe(176);
+  expect(tauros.stat(Stats.SPD)).toBe(256);
 
   mudkip.overrideStats = [0, 0, 244, 0, 0, 0];
-  expect(mudkip.stat(Stats.HP)).toEqual(241);
-  expect(mudkip.stat(Stats.ATK)).toEqual(176);
-  expect(mudkip.stat(Stats.DEF)).toEqual(244);
-  expect(mudkip.stat(Stats.SATK)).toEqual(136);
-  expect(mudkip.stat(Stats.SDEF)).toEqual(136);
-  expect(mudkip.stat(Stats.SPD)).toEqual(116);
+  expect(mudkip.stat(Stats.HP)).toBe(241);
+  expect(mudkip.stat(Stats.ATK)).toBe(176);
+  expect(mudkip.stat(Stats.DEF)).toBe(244);
+  expect(mudkip.stat(Stats.SATK)).toBe(136);
+  expect(mudkip.stat(Stats.SDEF)).toBe(136);
+  expect(mudkip.stat(Stats.SPD)).toBe(116);
 });
 
 test("#boost()", () => {
   mudkip.boosts = [NaN, 2, 3, 0, 1, 2, -1, 6];
   mudkip.ability.name = "Simple";
-  expect(mudkip.boost(Stats.ATK)).toEqual(2);
-  expect(mudkip.boost(Stats.DEF)).toEqual(3);
-  expect(mudkip.boost(Stats.SATK)).toEqual(0);
-  expect(mudkip.boost(Stats.SDEF)).toEqual(1);
-  expect(mudkip.boost(Stats.SPD)).toEqual(2);
-  expect(mudkip.boost(Stats.ACC)).toEqual(-1);
-  expect(mudkip.boost(Stats.EVA)).toEqual(6);
+  expect(mudkip.boost(Stats.ATK)).toBe(2);
+  expect(mudkip.boost(Stats.DEF)).toBe(3);
+  expect(mudkip.boost(Stats.SATK)).toBe(0);
+  expect(mudkip.boost(Stats.SDEF)).toBe(1);
+  expect(mudkip.boost(Stats.SPD)).toBe(2);
+  expect(mudkip.boost(Stats.ACC)).toBe(-1);
+  expect(mudkip.boost(Stats.EVA)).toBe(6);
 
   mudkip.gen = 4;
-  expect(mudkip.boost(Stats.ATK)).toEqual(4);
-  expect(mudkip.boost(Stats.DEF)).toEqual(6);
-  expect(mudkip.boost(Stats.SATK)).toEqual(0);
-  expect(mudkip.boost(Stats.SDEF)).toEqual(2);
-  expect(mudkip.boost(Stats.SPD)).toEqual(4);
-  expect(mudkip.boost(Stats.ACC)).toEqual(-2);
-  expect(mudkip.boost(Stats.EVA)).toEqual(6);
+  expect(mudkip.boost(Stats.ATK)).toBe(4);
+  expect(mudkip.boost(Stats.DEF)).toBe(6);
+  expect(mudkip.boost(Stats.SATK)).toBe(0);
+  expect(mudkip.boost(Stats.SDEF)).toBe(2);
+  expect(mudkip.boost(Stats.SPD)).toBe(4);
+  expect(mudkip.boost(Stats.ACC)).toBe(-2);
+  expect(mudkip.boost(Stats.EVA)).toBe(6);
 });
 
 test("#boostedStat()", () => {
@@ -636,69 +636,69 @@ test("#boostedStat()", () => {
     evs: [4, 252, 0, 0, 0, 252],
     boosts: [NaN, 2, 0, 0, 0, 0, 0, 0]
   });
-  expect(mew.boostedStat(Stats.ATK)).toEqual(598);
+  expect(mew.boostedStat(Stats.ATK)).toBe(598);
 
   const bidoof = new Pokemon({
     name: "Bidoof",
     ability: "Simple",
     boosts: [3, 2, 0, 0, -1, 0, 0, 0]
   });
-  expect(bidoof.boostedStat(Stats.ATK)).toEqual(252);
-  expect(bidoof.boostedStat(Stats.SDEF)).toEqual(77);
-  expect(bidoof.boostedStat(Stats.HP)).toEqual(259);
+  expect(bidoof.boostedStat(Stats.ATK)).toBe(252);
+  expect(bidoof.boostedStat(Stats.SDEF)).toBe(77);
+  expect(bidoof.boostedStat(Stats.HP)).toBe(259);
   bidoof.gen = 4;
   bidoof.ability.gen = 4;
-  expect(bidoof.boostedStat(Stats.ATK)).toEqual(378);
-  expect(bidoof.boostedStat(Stats.SDEF)).toEqual(58);
+  expect(bidoof.boostedStat(Stats.ATK)).toBe(378);
+  expect(bidoof.boostedStat(Stats.SDEF)).toBe(58);
 
   const gscSkarmory = new Pokemon({
     name: "Skarmory",
     boosts: [NaN, 1, 1, 0, 0, -1, 0, 0],
     gen: Gens.GSC
   });
-  expect(gscSkarmory.boostedStat(Stats.SPD)).toEqual(157);
+  expect(gscSkarmory.boostedStat(Stats.SPD)).toBe(157);
 
   const gscSnorlax = new Pokemon({ name: "Snorlax", gen: Gens.GSC });
-  expect(gscSnorlax.boostedStat(Stats.SPD)).toEqual(158);
+  expect(gscSnorlax.boostedStat(Stats.SPD)).toBe(158);
 });
 
 test("#baseStat()", () => {
   const nidoking = new Pokemon({ name: "Nidoking" });
-  expect(nidoking.baseStat(Stats.HP)).toEqual(81);
-  expect(nidoking.baseStat(Stats.ATK)).toEqual(102);
-  expect(nidoking.baseStat(Stats.DEF)).toEqual(77);
-  expect(nidoking.baseStat(Stats.SATK)).toEqual(85);
-  expect(nidoking.baseStat(Stats.SDEF)).toEqual(75);
-  expect(nidoking.baseStat(Stats.SPD)).toEqual(85);
+  expect(nidoking.baseStat(Stats.HP)).toBe(81);
+  expect(nidoking.baseStat(Stats.ATK)).toBe(102);
+  expect(nidoking.baseStat(Stats.DEF)).toBe(77);
+  expect(nidoking.baseStat(Stats.SATK)).toBe(85);
+  expect(nidoking.baseStat(Stats.SDEF)).toBe(75);
+  expect(nidoking.baseStat(Stats.SPD)).toBe(85);
 
   nidoking.gen = Gens.B2W2;
-  expect(nidoking.baseStat(Stats.HP)).toEqual(81);
-  expect(nidoking.baseStat(Stats.ATK)).toEqual(92);
-  expect(nidoking.baseStat(Stats.DEF)).toEqual(77);
-  expect(nidoking.baseStat(Stats.SATK)).toEqual(85);
-  expect(nidoking.baseStat(Stats.SDEF)).toEqual(75);
-  expect(nidoking.baseStat(Stats.SPD)).toEqual(85);
+  expect(nidoking.baseStat(Stats.HP)).toBe(81);
+  expect(nidoking.baseStat(Stats.ATK)).toBe(92);
+  expect(nidoking.baseStat(Stats.DEF)).toBe(77);
+  expect(nidoking.baseStat(Stats.SATK)).toBe(85);
+  expect(nidoking.baseStat(Stats.SDEF)).toBe(75);
+  expect(nidoking.baseStat(Stats.SPD)).toBe(85);
 
   const charizard = new Pokemon({ name: "Charizard" });
-  expect(charizard.baseStat(Stats.HP)).toEqual(78);
-  expect(charizard.baseStat(Stats.ATK)).toEqual(84);
-  expect(charizard.baseStat(Stats.DEF)).toEqual(78);
-  expect(charizard.baseStat(Stats.SATK)).toEqual(109);
-  expect(charizard.baseStat(Stats.SDEF)).toEqual(85);
-  expect(charizard.baseStat(Stats.SPD)).toEqual(100);
+  expect(charizard.baseStat(Stats.HP)).toBe(78);
+  expect(charizard.baseStat(Stats.ATK)).toBe(84);
+  expect(charizard.baseStat(Stats.DEF)).toBe(78);
+  expect(charizard.baseStat(Stats.SATK)).toBe(109);
+  expect(charizard.baseStat(Stats.SDEF)).toBe(85);
+  expect(charizard.baseStat(Stats.SPD)).toBe(100);
 
   charizard.gen = Gens.RBY;
-  expect(charizard.baseStat(Stats.HP)).toEqual(78);
-  expect(charizard.baseStat(Stats.ATK)).toEqual(84);
-  expect(charizard.baseStat(Stats.DEF)).toEqual(78);
-  expect(charizard.baseStat(Stats.SATK)).toEqual(85);
-  expect(charizard.baseStat(Stats.SDEF)).toEqual(85);
-  expect(charizard.baseStat(Stats.SPD)).toEqual(100);
+  expect(charizard.baseStat(Stats.HP)).toBe(78);
+  expect(charizard.baseStat(Stats.ATK)).toBe(84);
+  expect(charizard.baseStat(Stats.DEF)).toBe(78);
+  expect(charizard.baseStat(Stats.SATK)).toBe(85);
+  expect(charizard.baseStat(Stats.SDEF)).toBe(85);
+  expect(charizard.baseStat(Stats.SPD)).toBe(100);
 });
 
 test("#speed()", () => {
   mudkip.boosts = [NaN, 0, 0, 0, 0, 2, 0, 0];
-  expect(mudkip.speed()).toEqual(232);
+  expect(mudkip.speed()).toBe(232);
 
   const weatherAbilities = [
     ["Swift Swim", Weathers.RAIN],
@@ -708,77 +708,77 @@ test("#speed()", () => {
   ];
   for (const [ability, weather] of weatherAbilities) {
     mudkip.ability.name = ability;
-    expect(mudkip.speed()).toEqual(232);
-    expect(mudkip.speed({ weather })).toEqual(464);
+    expect(mudkip.speed()).toBe(232);
+    expect(mudkip.speed({ weather })).toBe(464);
   }
 
   mudkip.ability.name = "Surge Surfer";
-  expect(mudkip.speed()).toEqual(232);
-  expect(mudkip.speed({ terrain: Terrains.ELECTRIC_TERRAIN })).toEqual(464);
+  expect(mudkip.speed()).toBe(232);
+  expect(mudkip.speed({ terrain: Terrains.ELECTRIC_TERRAIN })).toBe(464);
 
   mudkip.ability.name = "(No Ability)";
   mudkip.item.name = "Choice Scarf";
-  expect(mudkip.speed()).toEqual(348);
+  expect(mudkip.speed()).toBe(348);
 
   mudkip.item.name = "Quick Powder";
-  expect(mudkip.speed()).toEqual(232);
+  expect(mudkip.speed()).toBe(232);
 
   const ditto = new Pokemon({ name: "Ditto" });
-  expect(ditto.speed()).toEqual(132);
+  expect(ditto.speed()).toBe(132);
   ditto.item.name = "Quick Powder";
-  expect(ditto.speed()).toEqual(264);
+  expect(ditto.speed()).toBe(264);
 
   mudkip.item.name = "Iron Ball";
-  expect(mudkip.speed()).toEqual(116);
+  expect(mudkip.speed()).toBe(116);
 
   mudkip.status = Statuses.PARALYZED;
-  expect(mudkip.speed()).toEqual(29);
+  expect(mudkip.speed()).toBe(29);
   mudkip.ability.name = "Quick Feet";
-  expect(mudkip.speed()).toEqual(174);
+  expect(mudkip.speed()).toBe(174);
 
   mudkip.status = Statuses.NO_STATUS;
   mudkip.ability.name = "Slow Start";
-  expect(mudkip.speed()).toEqual(116);
+  expect(mudkip.speed()).toBe(116);
   mudkip.slowStart = true;
-  expect(mudkip.speed()).toEqual(58);
+  expect(mudkip.speed()).toBe(58);
 
   mudkip.ability.name = "Unburden";
   mudkip.item.name = "(No Item)";
-  expect(mudkip.speed()).toEqual(232);
+  expect(mudkip.speed()).toBe(232);
   mudkip.unburden = true;
-  expect(mudkip.speed()).toEqual(464);
+  expect(mudkip.speed()).toBe(464);
 
   mudkip.ability.name = "(No Ability)";
   mudkip.tailwind = true;
-  expect(mudkip.speed()).toEqual(464);
+  expect(mudkip.speed()).toBe(464);
 });
 
 test("#type1()", () => {
-  expect(mudkip.type1()).toEqual(Types.WATER);
-  expect(marshtomp.type1()).toEqual(Types.WATER);
+  expect(mudkip.type1()).toBe(Types.WATER);
+  expect(marshtomp.type1()).toBe(Types.WATER);
 
   const sceptile = new Pokemon({ name: "Sceptile" });
-  expect(sceptile.type1()).toEqual(Types.GRASS);
+  expect(sceptile.type1()).toBe(Types.GRASS);
 
   const megaSceptile = new Pokemon({ name: "Sceptile-Mega" });
-  expect(megaSceptile.type1()).toEqual(Types.GRASS);
+  expect(megaSceptile.type1()).toBe(Types.GRASS);
 });
 
 test("#type2()", () => {
-  expect(mudkip.type2()).toEqual(Types.CURSE);
-  expect(marshtomp.type2()).toEqual(Types.GROUND);
+  expect(mudkip.type2()).toBe(Types.CURSE);
+  expect(marshtomp.type2()).toBe(Types.GROUND);
 
   const sceptile = new Pokemon({ name: "Sceptile" });
-  expect(sceptile.type2()).toEqual(Types.CURSE);
+  expect(sceptile.type2()).toBe(Types.CURSE);
 
   const megaSceptile = new Pokemon({ name: "Sceptile-Mega" });
-  expect(megaSceptile.type2()).toEqual(Types.DRAGON);
+  expect(megaSceptile.type2()).toBe(Types.DRAGON);
 });
 
 test("#overrideTypes", () => {
   mudkip.overrideTypes = [Types.NORMAL, Types.CURSE];
-  expect(mudkip.type1()).toEqual(Types.NORMAL);
-  expect(mudkip.type2()).toEqual(Types.CURSE);
+  expect(mudkip.type1()).toBe(Types.NORMAL);
+  expect(mudkip.type2()).toBe(Types.CURSE);
   expect(mudkip.types()).toEqual([Types.NORMAL]);
 });
 
@@ -813,29 +813,29 @@ test("#stab()", () => {
 });
 
 test("#weight()", () => {
-  expect(mudkip.weight()).toEqual(76);
-  expect(marshtomp.weight()).toEqual(280);
-  expect(swampert.weight()).toEqual(819);
-  expect(megaSwampert.weight()).toEqual(1020);
+  expect(mudkip.weight()).toBe(76);
+  expect(marshtomp.weight()).toBe(280);
+  expect(swampert.weight()).toBe(819);
+  expect(megaSwampert.weight()).toBe(1020);
 
   mudkip.autotomize = true;
-  expect(mudkip.weight()).toEqual(1);
+  expect(mudkip.weight()).toBe(1);
 
   mudkip.ability.name = "Light Metal";
-  expect(mudkip.weight()).toEqual(1);
+  expect(mudkip.weight()).toBe(1);
 
   megaSwampert.autotomize = true;
-  expect(megaSwampert.weight()).toEqual(20);
+  expect(megaSwampert.weight()).toBe(20);
 
   swampert.ability.name = "Light Metal";
-  expect(swampert.weight()).toEqual(409);
+  expect(swampert.weight()).toBe(409);
 
   swampert.ability.name = "Heavy Metal";
-  expect(swampert.weight()).toEqual(1638);
+  expect(swampert.weight()).toBe(1638);
 
   swampert.ability.name = "(No Ability)";
   swampert.item.name = "Float Stone";
-  expect(swampert.weight()).toEqual(409);
+  expect(swampert.weight()).toBe(409);
 });
 
 test("#hasEvolution()", () => {
@@ -1281,10 +1281,12 @@ test("#lightBallBoosted()", () => {
   expect(pichuWithLightBall.lightBallBoosted()).toBe(false);
 });
 
-test(".calcHealthDv()", () => {
-  expect(Pokemon.calcHealthDv([NaN, 15, 15, 15, 15, 15])).toEqual(15);
-  expect(Pokemon.calcHealthDv([NaN, 15, 14, 15, 15, 15])).toEqual(11);
-  expect(Pokemon.calcHealthDv([NaN, 15, 9, 8, 8, 15])).toEqual(14);
-  expect(Pokemon.calcHealthDv([NaN, 1, 15, 5, 5, 4])).toEqual(13);
-  expect(Pokemon.calcHealthDv([NaN, 0, 2, 4, 4, 8])).toEqual(0);
+test.each([
+  [[NaN, 15, 15, 15, 15, 15], 15],
+  [[NaN, 15, 14, 15, 15, 15], 11],
+  [[NaN, 15, 9, 8, 8, 15], 14],
+  [[NaN, 1, 15, 5, 5, 4], 13],
+  [[NaN, 0, 2, 4, 4, 8], 0]
+])(".calcHealthDv(%p)", (dvs, expected) => {
+  expect(Pokemon.calcHealthDv(dvs)).toBe(expected);
 });

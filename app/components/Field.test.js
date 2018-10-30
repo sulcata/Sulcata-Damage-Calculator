@@ -47,8 +47,8 @@ beforeEach(() => {
 
 it("aligns attacker left and defender right", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
-  expect(wrapper.vm.pokeAlign("attacker")).toEqual("align-left");
-  expect(wrapper.vm.pokeAlign("defender")).toEqual("align-right");
+  expect(wrapper.vm.pokeAlign("attacker")).toBe("align-left");
+  expect(wrapper.vm.pokeAlign("defender")).toBe("align-right");
 });
 
 it("weathers computed property returns non-harsh weathers", () => {

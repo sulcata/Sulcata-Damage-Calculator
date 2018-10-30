@@ -29,7 +29,7 @@ test("sanity check", () => {
     gen
   });
   const damage = orasCalculate(attacker, defender, move, field);
-  expect(Math.max(...damage)).toEqual(150);
+  expect(Math.max(...damage)).toBe(150);
 });
 
 test("Fairy Aura is a move power mod", () => {

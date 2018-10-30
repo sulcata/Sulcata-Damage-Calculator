@@ -16,14 +16,14 @@ beforeEach(() => {
 });
 
 test("#airLock", () => {
-  expect(rainField.effectiveWeather()).toEqual(Weathers.RAIN);
+  expect(rainField.effectiveWeather()).toBe(Weathers.RAIN);
 
   rainField.airLock = true;
   heavyRainField.airLock = true;
   strongWindsField.airLock = true;
-  expect(rainField.effectiveWeather()).toEqual(Weathers.CLEAR);
-  expect(heavyRainField.effectiveWeather()).toEqual(Weathers.CLEAR);
-  expect(strongWindsField.effectiveWeather()).toEqual(Weathers.CLEAR);
+  expect(rainField.effectiveWeather()).toBe(Weathers.CLEAR);
+  expect(heavyRainField.effectiveWeather()).toBe(Weathers.CLEAR);
+  expect(strongWindsField.effectiveWeather()).toBe(Weathers.CLEAR);
 });
 
 test("#isClearWeather()", () => {

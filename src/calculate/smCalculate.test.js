@@ -27,7 +27,7 @@ beforeEach(() => {
 
 test("sanity check", () => {
   const damage = smCalculate(heatran, landorusT, lavaPlume, field);
-  expect(Math.max(...damage)).toEqual(150);
+  expect(Math.max(...damage)).toBe(150);
 });
 
 test("Aurora Veil", () => {
@@ -95,8 +95,8 @@ test("Knock Off should multiply base power by 1.5x if it gets rid of an item", (
   const bisharp = new Pokemon({ name: "Bisharp", gen });
   const rotomW = new Pokemon({ name: "Rotom-Wash", gen });
   const damage = smCalculate(bisharp, rotomW, knockOff, field);
-  expect(Math.max(...damage)).toEqual(96);
+  expect(Math.max(...damage)).toBe(96);
   rotomW.item.name = "Rocky Helmet";
   const boostedDamage = smCalculate(bisharp, rotomW, knockOff, field);
-  expect(Math.max(...boostedDamage)).toEqual(142);
+  expect(Math.max(...boostedDamage)).toBe(142);
 });

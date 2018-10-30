@@ -9,64 +9,64 @@ beforeEach(() => {
 
 test("#constructor()", () => {
   const ability1 = new Ability({ name: "Effect Spore" });
-  expect(ability1.id).toEqual("effectspore");
+  expect(ability1.id).toBe("effectspore");
 
   const ability2 = new Ability({
     name: "Effect Spore",
     disabled: true
   });
-  expect(ability2.id).toEqual("effectspore");
+  expect(ability2.id).toBe("effectspore");
   expect(ability2.disabled).toBe(true);
-  expect(ability2.gen).toEqual(maxGen);
+  expect(ability2.gen).toBe(maxGen);
 
   const ability3 = new Ability({ id: 27, gen: Gens.ADV });
-  expect(ability3.id).toEqual("noability");
+  expect(ability3.id).toBe("noability");
   expect(ability3.disabled).toBe(false);
-  expect(ability3.gen).toEqual(3);
+  expect(ability3.gen).toBe(3);
 });
 
 test("#name", () => {
-  expect(noAbility.name).toEqual("(No Ability)");
-  expect(pickpocket.name).toEqual("Pickpocket");
+  expect(noAbility.name).toBe("(No Ability)");
+  expect(pickpocket.name).toBe("Pickpocket");
 
   pickpocket.disabled = true;
-  expect(pickpocket.name).toEqual("(No Ability)");
+  expect(pickpocket.name).toBe("(No Ability)");
 
   const ability = new Ability();
 
   ability.name = "  drought";
-  expect(ability.id).toEqual("drought");
+  expect(ability.id).toBe("drought");
 
   ability.name = "Swift Swim";
-  expect(ability.id).toEqual("swiftswim");
+  expect(ability.id).toBe("swiftswim");
 
   ability.name = "d  rought";
-  expect(ability.id).toEqual("drought");
+  expect(ability.id).toBe("drought");
 });
 
 test("#pinchType()", () => {
   const blaze = new Ability({ name: "Blaze" });
   const swarm = new Ability({ name: "Swarm" });
 
-  expect(blaze.pinchType()).toEqual(Types.FIRE);
-  expect(swarm.pinchType()).toEqual(Types.BUG);
-  expect(pickpocket.pinchType()).toEqual(-1);
-  expect(noAbility.pinchType()).toEqual(-1);
+  expect(blaze.pinchType()).toBe(Types.FIRE);
+  expect(swarm.pinchType()).toBe(Types.BUG);
+  expect(pickpocket.pinchType()).toBe(-1);
+  expect(noAbility.pinchType()).toBe(-1);
 
   blaze.disabled = true;
-  expect(blaze.pinchType()).toEqual(-1);
+  expect(blaze.pinchType()).toBe(-1);
 });
 
 test("#normalToType()", () => {
   const pixilate = new Ability({ name: "Pixilate" });
   const refrigerate = new Ability({ name: "Refrigerate" });
 
-  expect(pixilate.normalToType()).toEqual(Types.FAIRY);
-  expect(refrigerate.normalToType()).toEqual(Types.ICE);
-  expect(noAbility.normalToType()).toEqual(-1);
+  expect(pixilate.normalToType()).toBe(Types.FAIRY);
+  expect(refrigerate.normalToType()).toBe(Types.ICE);
+  expect(noAbility.normalToType()).toBe(-1);
 
   pixilate.disabled = true;
-  expect(pixilate.normalToType()).toEqual(-1);
+  expect(pixilate.normalToType()).toBe(-1);
 });
 
 test("#immunityType()", () => {
@@ -78,24 +78,24 @@ test("#immunityType()", () => {
   const motorDrive = new Ability({ name: "Motor Drive" });
   const flashFire = new Ability({ name: "Flash Fire" });
 
-  expect(noAbility.immunityType()).toEqual(-1);
-  expect(waterAbsorb.immunityType()).toEqual(Types.WATER);
-  expect(stormDrain.immunityType()).toEqual(Types.WATER);
-  expect(drySkin.immunityType()).toEqual(Types.WATER);
-  expect(sapSipper.immunityType()).toEqual(Types.GRASS);
-  expect(levitate.immunityType()).toEqual(Types.GROUND);
-  expect(motorDrive.immunityType()).toEqual(Types.ELECTRIC);
-  expect(flashFire.immunityType()).toEqual(Types.FIRE);
+  expect(noAbility.immunityType()).toBe(-1);
+  expect(waterAbsorb.immunityType()).toBe(Types.WATER);
+  expect(stormDrain.immunityType()).toBe(Types.WATER);
+  expect(drySkin.immunityType()).toBe(Types.WATER);
+  expect(sapSipper.immunityType()).toBe(Types.GRASS);
+  expect(levitate.immunityType()).toBe(Types.GROUND);
+  expect(motorDrive.immunityType()).toBe(Types.ELECTRIC);
+  expect(flashFire.immunityType()).toBe(Types.FIRE);
 
   stormDrain.disabled = true;
-  expect(stormDrain.immunityType()).toEqual(-1);
+  expect(stormDrain.immunityType()).toBe(-1);
 
   stormDrain.disabled = false;
   stormDrain.gen = 4;
-  expect(stormDrain.immunityType()).toEqual(-1);
+  expect(stormDrain.immunityType()).toBe(-1);
 
   const invalidAbility = new Ability({ id: -1 });
-  expect(invalidAbility.immunityType()).toEqual(-1);
+  expect(invalidAbility.immunityType()).toBe(-1);
 });
 
 test("#ignoresAbilities()", () => {

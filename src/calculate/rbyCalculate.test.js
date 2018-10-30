@@ -16,7 +16,7 @@ test("physical", () => {
   const earthquake = new Move({ name: "Earthquake", gen });
   const damage = rbyCalculate(snorlax, snorlax, earthquake, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(118);
+  expect(Math.max(...damage)).toBe(118);
 });
 
 test("special", () => {
@@ -24,7 +24,7 @@ test("special", () => {
   const iceBeam = new Move({ name: "Ice Beam", gen });
   const damage = rbyCalculate(chansey, chansey, iceBeam, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(81);
+  expect(Math.max(...damage)).toBe(81);
 });
 
 test("critical", () => {
@@ -33,7 +33,7 @@ test("critical", () => {
   const thunderCrit = new Move({ name: "Thunder", critical: true, gen });
   const damage = rbyCalculate(zapdos, snorlax, thunderCrit, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(453);
+  expect(Math.max(...damage)).toBe(453);
 });
 
 test("STAB", () => {
@@ -41,7 +41,7 @@ test("STAB", () => {
   const bodySlam = new Move({ name: "Body Slam", gen });
   const damage = rbyCalculate(snorlax, snorlax, bodySlam, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(150);
+  expect(Math.max(...damage)).toBe(150);
 });
 
 test("Reflect", () => {
@@ -54,7 +54,7 @@ test("Reflect", () => {
   const bodySlam = new Move({ name: "Body Slam", gen });
   const damage = rbyCalculate(snorlax, alakazam, bodySlam, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(93);
+  expect(Math.max(...damage)).toBe(93);
 });
 
 test("Light Screen", () => {
@@ -67,7 +67,7 @@ test("Light Screen", () => {
   const blizzard = new Move({ name: "Blizzard", gen });
   const damage = rbyCalculate(tauros, zapdos, blizzard, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(72);
+  expect(Math.max(...damage)).toBe(72);
 });
 
 test("burn", () => {
@@ -80,7 +80,7 @@ test("burn", () => {
   const rockSlide = new Move({ name: "Rock Slide", gen });
   const damage = rbyCalculate(golem, moltres, rockSlide, field);
   expect(damage).toHaveLength(39);
-  expect(Math.max(...damage)).toEqual(220);
+  expect(Math.max(...damage)).toBe(220);
 });
 
 test("type immunity", () => {
@@ -97,11 +97,11 @@ test("Explosion and Self-Destruct", () => {
   const explosion = new Move({ name: "Explosion", gen });
   const gengarDamage = rbyCalculate(gengar, tauros, explosion, field);
   expect(gengarDamage).toHaveLength(39);
-  expect(Math.max(...gengarDamage)).toEqual(228);
+  expect(Math.max(...gengarDamage)).toBe(228);
 
   const snorlax = new Pokemon({ name: "Snorlax", gen });
   const selfDestruct = new Move({ name: "Self-Destruct", gen });
   const snorlaxDamage = rbyCalculate(snorlax, tauros, selfDestruct, field);
   expect(snorlaxDamage).toHaveLength(39);
-  expect(Math.max(...snorlaxDamage)).toEqual(361);
+  expect(Math.max(...snorlaxDamage)).toBe(361);
 });

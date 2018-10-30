@@ -27,5 +27,5 @@ test("sanity check", () => {
   });
   const move = new Move({ name: "Fire Blast", gen });
   const damage = hgssCalculate(attacker, defender, move, field);
-  expect(Math.max(...damage)).toEqual(298);
+  expect(Math.max(...damage)).toBe(298);
 });

@@ -27,7 +27,7 @@ test("sanity check", () => {
   });
   const rockSlide = new Move({ name: "Rock Slide", gen });
   const damage = advCalculate(aerodactyl, skarmory, rockSlide, field);
-  expect(Math.max(...damage)).toEqual(127);
+  expect(Math.max(...damage)).toBe(127);
 });
 
 test("ensure proper stats are used", () => {
@@ -43,7 +43,7 @@ test("ensure proper stats are used", () => {
   });
   const psychic = new Move({ name: "Psychic", gen });
   const damage = advCalculate(celebi, dugtrio, psychic, field);
-  expect(Math.max(...damage)).toEqual(213);
+  expect(Math.max(...damage)).toBe(213);
 });
 
 test("minimize boost", () => {
@@ -55,7 +55,7 @@ test("minimize boost", () => {
     gen
   });
   const damage = advCalculate(snorlax, blissey, stomp, field);
-  expect(Math.max(...damage)).toEqual(753);
+  expect(Math.max(...damage)).toBe(753);
 });
 
 test("Pure Power and Huge Power boost attack", () => {
@@ -75,7 +75,7 @@ test("Pure Power and Huge Power boost attack", () => {
   for (const ability of ["Huge Power", "Pure Power"]) {
     medicham.ability.name = ability;
     const damage = advCalculate(medicham, snorlax, brickBreak, field);
-    expect(Math.max(...damage)).toEqual(686);
+    expect(Math.max(...damage)).toBe(686);
   }
 });
 
@@ -97,6 +97,6 @@ test("Soul Dew boosts special attack and special defense", () => {
   const dragonClaw = new Move({ name: "Dragon Claw", gen });
   const latiasDamage = advCalculate(latias, latios, dragonClaw, field);
   const latiosDamage = advCalculate(latios, latias, dragonClaw, field);
-  expect(Math.max(...latiasDamage)).toEqual(278);
-  expect(Math.max(...latiosDamage)).toEqual(272);
+  expect(Math.max(...latiasDamage)).toBe(278);
+  expect(Math.max(...latiosDamage)).toBe(272);
 });
