@@ -7,15 +7,15 @@
       <h1 class='navbar-brand mb-0'>sulcalc</h1>
       <ul class='navbar-nav mr-auto'>
         <li
-          v-for='{href, label} in links'
-          :key='href'
+          v-for='{url, label} in links'
+          :key='url'
           class='nav-item'
           >
-          <a :href='href' class='nav-link'>{{ label }}</a>
+          <a :href='url' class='nav-link'>{{ label }}</a>
         </li>
       </ul>
     </nav>
-    <sulcalc/>
+    <sulcalc class='app-container'/>
   </div>
 </template>
 
@@ -31,11 +31,11 @@ export default {
     links() {
       return [
         {
-          href: bugs.url,
+          url: bugs.url,
           label: "Report a bug"
         },
         {
-          href: repository.url,
+          url: repository.url,
           label: "GitHub"
         }
       ];
@@ -43,3 +43,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.app-container {
+  min-width: 95rem;
+}
+</style>
