@@ -27,6 +27,9 @@ test("#constructor()", () => {
 
   const move3 = new Move({ id: "payday" });
   expect(move3.id).toEqual("payday");
+
+  const move4 = new Move({ id: "Bullet Seed", numberOfHits: 4 });
+  expect(move4.numberOfHits).toEqual(4);
 });
 
 test("#name", () => {

@@ -50,6 +50,17 @@ test("releasedPokes()", () => {
   }
 });
 
+test("pokeType1()", () => {
+  expect(info.pokeType1("snorlax", Gens.SM)).toEqual(Types.NORMAL);
+  expect(info.pokeType1("not a pokemon id", Gens.SM)).toEqual(Types.CURSE);
+});
+
+test("pokeType2()", () => {
+  expect(info.pokeType2("snorlax", Gens.SM)).toEqual(Types.CURSE);
+  expect(info.pokeType2("dragonite", Gens.SM)).toEqual(Types.FLYING);
+  expect(info.pokeType2("not a pokemon id", Gens.SM)).toEqual(Types.CURSE);
+});
+
 test("releasedMoves()", () => {
   for (const gen of Object.values(Gens)) {
     expect(info.releasedMoves(gen)).toMatchSnapshot();
