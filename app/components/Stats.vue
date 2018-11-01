@@ -10,7 +10,7 @@
     <div
       v-for='[stat, statName] in stats'
       :key='stat'
-      class='row align-items-center no-gutters'
+      class='form-row align-items-center'
       >
 
       <div class='col-2'>

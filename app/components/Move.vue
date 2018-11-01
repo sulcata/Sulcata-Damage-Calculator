@@ -1,6 +1,6 @@
 <template>
   <div class='container-fluid'>
-    <div class='row align-items-center'>
+    <div class='form-row align-items-center'>
 
       <div class='col-6'>
         <!-- Move Selection -->

@@ -299,7 +299,7 @@ export default {
         { value: 2, label: "2" },
         { value: 3, label: "3 Spikes" }
       ],
-      centeredRowClasses: ["row", "justify-content-center", "no-gutters"]
+      centeredRowClasses: ["form-row", "justify-content-center"]
     };
   },
   computed: {

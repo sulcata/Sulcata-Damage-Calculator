@@ -40,7 +40,7 @@
 
     <div class='mt-1'>
       <div class='container-fluid p-0'>
-        <div class='row'>
+        <div class='form-row'>
           <div class='col'>
             <status :status='pokemon.status' @input='updateStatus'/>
           </div>
