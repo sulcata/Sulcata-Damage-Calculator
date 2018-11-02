@@ -18,7 +18,7 @@
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "jest --coverage",
     "lint": "eslint '**/*.{js,vue}' && npm run style -- --list-different",
-    "style": "prettier '**/*.{js,json,md,vue,yml,yaml}' --ignore-path .eslintignore",
+    "style": "prettier '**/*.{js,json,md,scss,vue,yml,yaml}' --ignore-path .eslintignore",
     "style:fix": "npm run style -- --write",
     "setup": "npm run setup:db && npm run setup:stats && npm run setup:setdex",
     "setup:db": "babel-node scripts/db",
@@ -29,7 +29,7 @@
     "*.{js,vue}": [
       "eslint"
     ],
-    "*.{js,json,md,vue,yml,yaml}": [
+    "*.{js,json,md,scss,vue,yml,yaml}": [
       "prettier --write --ignore-path .eslintignore",
       "git add"
     ]
@@ -74,7 +74,10 @@
     "jest": "^23.6.0",
     "lint-staged": "^8.0.4",
     "mini-css-extract-plugin": "^0.4.4",
+    "node-sass": "^4.9.4",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
     "prettier": "^1.14.3",
+    "sass-loader": "^7.1.0",
     "script-ext-html-webpack-plugin": "^2.1.0",
     "terser-webpack-plugin": "^1.1.0",
     "vue-jest": "^3.0.0",

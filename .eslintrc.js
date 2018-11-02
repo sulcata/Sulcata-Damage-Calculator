@@ -45,7 +45,7 @@ module.exports = {
     "import/no-named-as-default": "error",
     "import/no-named-as-default-member": "error",
     "import/no-named-default": "error",
-    "import/no-unassigned-import": ["error", { allow: ["**/*.css"] }],
+    "import/no-unassigned-import": ["error", { allow: ["**/*.{css,scss}"] }],
     "import/no-webpack-loader-syntax": "error",
     "import/order": ["error", { "newlines-between": "never" }],
     "import/unambiguous": "error",

@@ -4,6 +4,7 @@ const VueLoaderPlugin = require("vue-loader/lib/plugin");
 const HtmlPlugin = require("html-webpack-plugin");
 const ScriptExtHtmlPlugin = require("script-ext-html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
@@ -39,8 +40,19 @@ module.exports = env => ({
         loader: "vue-loader"
       },
       {
+        test: /\.scss$/,
+        use: [
+          env.production ? MiniCssExtractPlugin.loader : "vue-style-loader",
+          "css-loader",
+          "sass-loader"
+        ]
+      },
+      {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader"]
+        use: [
+          env.production ? MiniCssExtractPlugin.loader : "vue-style-loader",
+          "css-loader"
+        ]
       }
     ]
   },
@@ -102,6 +114,7 @@ module.exports = env => ({
   plugins: [
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" }),
+    new OptimizeCssAssetsPlugin(),
     new HtmlPlugin({
       template: path.join(__dirname, "../app/index.html"),
       inject: "head"

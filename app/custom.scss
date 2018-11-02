@@ -1,0 +1,166 @@
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins";
+
+.multiselect__spinner {
+  background: $input-bg;
+}
+
+.multiselect__spinner:before,
+.multiselect__spinner:after {
+  border-color: $input-border-color transparent transparent;
+}
+
+.multiselect {
+  color: $input-color;
+}
+
+.multiselect__input,
+.multiselect__single {
+  font-family: $font-family-sans-serif;
+  font-size: $font-size-base;
+  background: $input-bg;
+}
+
+.multiselect__input::placeholder {
+  color: $input-placeholder-color;
+}
+
+.multiselect__input:hover,
+.multiselect__single:hover {
+  border-color: $input-border-color;
+}
+
+.multiselect__input:focus,
+.multiselect__single:focus {
+  border-color: $input-focus-border-color;
+}
+
+.multiselect__tags {
+  font-size: $font-size-sm;
+  border-color: $input-border-color;
+  background: $input-bg;
+}
+
+.multiselect__tag {
+  color: $input-bg;
+  background: $input-border-color;
+}
+
+.multiselect__tag-icon {
+  font-weight: $font-weight-bold;
+}
+
+.multiselect__tag-icon:after {
+  font-size: $font-size-sm;
+  color: $input-color;
+}
+
+.multiselect__tag-icon:focus,
+.multiselect__tag-icon:hover {
+  background: $input-bg;
+}
+
+.multiselect__tag-icon:focus:after,
+.multiselect__tag-icon:hover:after {
+  color: $input-bg;
+}
+
+.multiselect__current {
+  border-color: $input-border-color;
+}
+
+.multiselect__select:before {
+  color: $input-color;
+  border-color: $input-border-color transparent transparent transparent;
+}
+
+.multiselect__placeholder {
+  color: $input-placeholder-color;
+}
+
+.multiselect__content-wrapper {
+  background: $input-bg;
+  border-color: $input-border-color;
+}
+
+.multiselect--above .multiselect__content-wrapper {
+  border-top-color: $input-border-color;
+}
+
+.multiselect__option:after {
+  font-size: $font-size-sm;
+}
+
+.multiselect__option--highlight {
+  background: $custom-control-indicator-active-bg;
+  color: $custom-control-indicator-active-color;
+}
+
+.multiselect__option--highlight:after {
+  background: $custom-control-indicator-active-bg;
+  color: $custom-control-indicator-active-color;
+}
+
+.multiselect__option--selected {
+  font-weight: $font-weight-bold;
+  background: $custom-control-indicator-checked-bg;
+  color: $custom-control-indicator-checked-color;
+}
+
+.multiselect__option--selected:after {
+  color: $custom-control-indicator-active-color;
+}
+
+.multiselect__option--selected.multiselect__option--highlight {
+  background: $custom-control-indicator-checked-bg;
+  color: $custom-control-indicator-checked-color;
+}
+
+.multiselect__option--selected.multiselect__option--highlight:after {
+  background: $custom-control-indicator-checked-bg;
+  color: $custom-control-indicator-checked-color;
+}
+
+.multiselect--disabled {
+  background: $custom-control-indicator-disabled-bg;
+}
+
+.multiselect--disabled .multiselect__current,
+.multiselect--disabled .multiselect__select {
+  background: $custom-control-indicator-disabled-bg;
+  color: $custom-control-label-disabled-color;
+}
+
+.multiselect__option--disabled {
+  background: $custom-control-indicator-disabled-bg !important;
+  color: $custom-control-label-disabled-color !important;
+}
+
+.multiselect__option--group {
+  background: $custom-control-indicator-active-bg;
+  color: $custom-control-indicator-active-color;
+}
+
+.multiselect__option--group.multiselect__option--highlight {
+  background: $custom-control-indicator-active-bg;
+  color: $custom-control-indicator-active-color;
+}
+
+.multiselect__option--group.multiselect__option--highlight:after {
+  background: $custom-control-indicator-active-bg;
+}
+
+.multiselect__option--disabled.multiselect__option--highlight {
+  background: $custom-control-indicator-active-bg;
+}
+
+.multiselect__option--group-selected.multiselect__option--highlight {
+  background: $custom-control-indicator-active-bg;
+  color: $custom-control-indicator-active-color;
+}
+
+.multiselect__option--group-selected.multiselect__option--highlight:after {
+  background: $custom-control-indicator-active-bg;
+  color: $custom-control-indicator-active-color;
+}
