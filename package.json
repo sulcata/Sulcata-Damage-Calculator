@@ -39,6 +39,10 @@
       "pre-commit": "lint-staged"
     }
   },
+  "sideEffects": [
+    "*.{css,scss}",
+    "./app/index.js"
+  ],
   "dependencies": {
     "big-integer": "^1.6.36",
     "bootstrap": "^4.1.3",
