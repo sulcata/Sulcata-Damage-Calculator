@@ -32,7 +32,7 @@ beforeEach(() => {
   });
 });
 
-it("reportOptions computed property returns a list of reports labeled by move name", () => {
+test("reportOptions computed property returns a list of reports labeled by move name", () => {
   const wrapper = shallowMount(ReportSelector, {
     localVue,
     store,

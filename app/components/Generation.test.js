@@ -21,14 +21,14 @@ beforeEach(() => {
   });
 });
 
-it("maps store gen to computed property", () => {
+test("maps store gen to computed property", () => {
   const wrapper = shallowMount(Generation, { localVue, store });
   expect(wrapper.vm.gen).toBe(Gens.ADV);
   store.commit("changeGen", Gens.GSC);
   expect(wrapper.vm.gen).toBe(Gens.GSC);
 });
 
-it("supplies a list of generation values and labels to choose from", () => {
+test("supplies a list of generation values and labels to choose from", () => {
   const wrapper = shallowMount(Generation, { localVue, store });
   const selector = wrapper.find(ButtonRadioGroup);
   expect(selector.props().value).toBe(Gens.ADV);

@@ -45,7 +45,7 @@ beforeEach(() => {
   });
 });
 
-it("emits a Pokemon on updates", () => {
+test("emits a Pokemon on updates", () => {
   const wrapper = shallowMount(SetSelector, {
     localVue,
     store,

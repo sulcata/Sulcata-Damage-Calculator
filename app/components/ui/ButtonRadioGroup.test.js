@@ -15,7 +15,7 @@ beforeEach(() => {
   });
 });
 
-it("emits a toggled value when changed", () => {
+test("emits a toggled value when changed", () => {
   const buttons = wrapper.findAll("button");
   buttons.at(0).trigger("click");
   wrapper.setProps({ value: 1 });
@@ -26,7 +26,7 @@ it("emits a toggled value when changed", () => {
   expect(wrapper.emitted().input[1]).toEqual([NaN]);
 });
 
-it("allows a default value", () => {
+test("allows a default value", () => {
   wrapper.setProps({ value: 42, defaultValue: 42 });
   const buttons = wrapper.findAll("button");
   buttons.at(3).trigger("click");
@@ -37,7 +37,7 @@ it("allows a default value", () => {
   expect(wrapper.emitted().input[1]).toEqual([42]);
 });
 
-it("customizes display", () => {
+test("customizes display", () => {
   const buttons = wrapper.findAll("button");
 
   expect(wrapper.classes()).toContain("btn-group");

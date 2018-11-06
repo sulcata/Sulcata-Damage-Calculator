@@ -2,7 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import Nature from "./Nature.vue";
 import { Natures } from "sulcalc";
 
-it("supplies a list of nature values and labels to choose from", () => {
+test("supplies a list of nature values and labels to choose from", () => {
   const wrapper = shallowMount(Nature, {
     propsData: { nature: Natures.HARDY }
   });
@@ -14,7 +14,7 @@ it("supplies a list of nature values and labels to choose from", () => {
   }
 });
 
-it("selects the nature when not selected, otherwise it selects nothing", () => {
+test("selects the nature when not selected, otherwise it selects nothing", () => {
   const wrapper = shallowMount(Nature, {
     propsData: { nature: Natures.HARDY }
   });
@@ -26,7 +26,7 @@ it("selects the nature when not selected, otherwise it selects nothing", () => {
   });
 });
 
-it("emits the new nature", () => {
+test("emits the new nature", () => {
   const wrapper = shallowMount(Nature, {
     propsData: { nature: Natures.HARDY }
   });

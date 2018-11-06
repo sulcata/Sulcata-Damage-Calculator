@@ -45,13 +45,13 @@ beforeEach(() => {
   });
 });
 
-it("aligns attacker left and defender right", () => {
+test("aligns attacker left and defender right", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.pokeAlign("attacker")).toBe("align-left");
   expect(wrapper.vm.pokeAlign("defender")).toBe("align-right");
 });
 
-it("weathers computed property returns non-harsh weathers", () => {
+test("weathers computed property returns non-harsh weathers", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.weathers).toEqual(
     expect.arrayContaining([
@@ -73,7 +73,7 @@ it("weathers computed property returns non-harsh weathers", () => {
   expect(wrapper.vm.weathers).toHaveLength(3);
 });
 
-it("weathers computed property returns non-harsh weather options", () => {
+test("weathers computed property returns non-harsh weather options", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.weathers).toEqual(
     expect.arrayContaining([
@@ -95,7 +95,7 @@ it("weathers computed property returns non-harsh weather options", () => {
   expect(wrapper.vm.weathers).toHaveLength(3);
 });
 
-it("terrains computed property returns possible terrain options", () => {
+test("terrains computed property returns possible terrain options", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.terrains).toEqual(
     expect.arrayContaining([

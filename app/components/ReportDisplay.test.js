@@ -38,7 +38,7 @@ beforeEach(() => {
   });
 });
 
-it("summary computed property returns the summary or an empty string", () => {
+test("summary computed property returns the summary or an empty string", () => {
   const wrapper = shallowMount(ReportDisplay, { localVue, store });
   expect(wrapper.vm.summary).toBe("");
   store.commit("_setSelectedReport", {
@@ -47,7 +47,7 @@ it("summary computed property returns the summary or an empty string", () => {
   expect(wrapper.vm.summary).toBe("a summary");
 });
 
-it("damageRoll computed property prints a readable damage roll", () => {
+test("damageRoll computed property prints a readable damage roll", () => {
   const wrapper = shallowMount(ReportDisplay, { localVue, store });
 
   expect(wrapper.vm.damageRoll).toBe("");
@@ -68,7 +68,7 @@ it("damageRoll computed property prints a readable damage roll", () => {
   expect(wrapper.vm.damageRoll).toBe("(1:21, 2:3, 4:1, 5:15)");
 });
 
-it("fractionalChances computed property prints a list of fractions", () => {
+test("fractionalChances computed property prints a list of fractions", () => {
   const wrapper = shallowMount(ReportDisplay, { localVue, store });
   expect(wrapper.vm.fractionalChances).toBe("");
   store.commit("_setSelectedReport", {
@@ -79,7 +79,7 @@ it("fractionalChances computed property prints a list of fractions", () => {
   expect(wrapper.vm.fractionalChances).toBe("1 / 2, 3 / 4, 5 / 6, 3 / 99");
 });
 
-it("setHp commits setAttacker and setDefender mutations", () => {
+test("setHp commits setAttacker and setDefender mutations", () => {
   const wrapper = shallowMount(ReportDisplay, { localVue, store });
 
   wrapper.vm.setHp();

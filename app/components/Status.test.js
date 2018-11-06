@@ -2,7 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import Status from "./Status.vue";
 import { Statuses } from "sulcalc";
 
-it("supplies a list of status values and labels to choose from", () => {
+test("supplies a list of status values and labels to choose from", () => {
   const wrapper = shallowMount(Status, {
     propsData: { status: Statuses.NO_STATUS }
   });
@@ -14,7 +14,7 @@ it("supplies a list of status values and labels to choose from", () => {
   }
 });
 
-it("selects the status if one exists, otherwise it selects nothing", () => {
+test("selects the status if one exists, otherwise it selects nothing", () => {
   const wrapper = shallowMount(Status, {
     propsData: { status: Statuses.NO_STATUS }
   });
@@ -26,7 +26,7 @@ it("selects the status if one exists, otherwise it selects nothing", () => {
   });
 });
 
-it("emits the new status", () => {
+test("emits the new status", () => {
   const wrapper = shallowMount(Status, {
     propsData: { status: Statuses.NO_STATUS }
   });

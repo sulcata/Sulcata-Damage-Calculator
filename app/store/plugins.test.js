@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 describe("persistencePlugin()", () => {
-  it("returns a function that subscribes to a store and replaces the state", () => {
+  test("returns a function that subscribes to a store and replaces the state", () => {
     const installPlugin = persistencePlugin();
     expect(installPlugin).toEqual(expect.any(Function));
     installPlugin(store);

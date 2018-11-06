@@ -13,7 +13,7 @@ beforeEach(() => {
   });
 });
 
-it("supplies a list of ability values and labels to choose from", () => {
+test("supplies a list of ability values and labels to choose from", () => {
   const wrapper = shallowMount(AbilityComponent, {
     localVue,
     store,
@@ -27,7 +27,7 @@ it("supplies a list of ability values and labels to choose from", () => {
   }
 });
 
-it("selects the ability if it's not selected, otherwise it selects nothing", () => {
+test("selects the ability if it's not selected, otherwise it selects nothing", () => {
   const wrapper = shallowMount(AbilityComponent, {
     localVue,
     store,
@@ -41,7 +41,7 @@ it("selects the ability if it's not selected, otherwise it selects nothing", () 
   });
 });
 
-it("emits the new ability", () => {
+test("emits the new ability", () => {
   const wrapper = shallowMount(AbilityComponent, {
     localVue,
     store,

@@ -13,7 +13,7 @@ beforeEach(() => {
   });
 });
 
-it("supplies a list of item values and labels to choose from", () => {
+test("supplies a list of item values and labels to choose from", () => {
   const wrapper = shallowMount(ItemComponent, {
     localVue,
     store,
@@ -27,7 +27,7 @@ it("supplies a list of item values and labels to choose from", () => {
   }
 });
 
-it("selects the item if it's not selected, otherwise it selects nothing", () => {
+test("selects the item if it's not selected, otherwise it selects nothing", () => {
   const wrapper = shallowMount(ItemComponent, {
     localVue,
     store,
@@ -41,7 +41,7 @@ it("selects the item if it's not selected, otherwise it selects nothing", () => 
   });
 });
 
-it("emits the new item", () => {
+test("emits the new item", () => {
   const wrapper = shallowMount(ItemComponent, {
     localVue,
     store,

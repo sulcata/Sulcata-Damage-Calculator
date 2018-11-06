@@ -1,6 +1,6 @@
 import * as getters from "./getters";
 
-it("reports()", () => {
+test("reports()", () => {
   expect(
     getters.reports(null, {
       attackerReports: [1, 3, 5, 7],

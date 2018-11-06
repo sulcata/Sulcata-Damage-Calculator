@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import ButtonCheckbox from "./ButtonCheckbox.vue";
 
-it("emits a toggled state when clicked", () => {
+test("emits a toggled state when clicked", () => {
   const wrapper = shallowMount(ButtonCheckbox);
   wrapper.trigger("click");
   wrapper.setProps({ value: true });
@@ -11,14 +11,14 @@ it("emits a toggled state when clicked", () => {
   expect(wrapper.emitted().input[1]).toEqual([false]);
 });
 
-it("toggles display when active", () => {
+test("toggles display when active", () => {
   const wrapper = shallowMount(ButtonCheckbox);
   expect(wrapper.classes()).not.toContain("active");
   wrapper.setProps({ value: true });
   expect(wrapper.classes()).toContain("active");
 });
 
-it("customizes display", () => {
+test("customizes display", () => {
   const wrapper = shallowMount(ButtonCheckbox);
 
   expect(wrapper.classes()).toContain("btn");

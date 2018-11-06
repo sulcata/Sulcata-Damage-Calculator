@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import IntegerInput from "./IntegerInput.vue";
 
-it("emits the validated input on changes", () => {
+test("emits the validated input on changes", () => {
   const wrapper = shallowMount(IntegerInput);
   wrapper.element.value = "5";
   wrapper.trigger("change");
@@ -12,7 +12,7 @@ it("emits the validated input on changes", () => {
   expect(wrapper.emitted().input[1]).toEqual([0]);
 });
 
-it("allows a default, min, and max value", () => {
+test("allows a default, min, and max value", () => {
   const wrapper = shallowMount(IntegerInput, {
     propsData: {
       defaultValue: 42,
@@ -34,21 +34,21 @@ it("allows a default, min, and max value", () => {
   expect(wrapper.emitted().input[3]).toEqual([350]);
 });
 
-it("allows custom step size", () => {
+test("allows custom step size", () => {
   const wrapper = shallowMount(IntegerInput, {
     propsData: { step: 2 }
   });
   expect(wrapper.attributes().step).toBe("2");
 });
 
-it("can be disabled", () => {
+test("can be disabled", () => {
   const wrapper = shallowMount(IntegerInput);
   expect(wrapper.attributes().disabled).toBeUndefined();
   wrapper.setProps({ disabled: true });
   expect(wrapper.attributes().disabled).toBe("disabled");
 });
 
-it("customizes display", () => {
+test("customizes display", () => {
   const wrapper = shallowMount(IntegerInput);
 
   expect(wrapper.classes()).toContain("form-control");

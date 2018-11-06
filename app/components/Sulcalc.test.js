@@ -32,7 +32,7 @@ beforeEach(() => {
   });
 });
 
-it("supplies props from Vuex store to each child component", () => {
+test("supplies props from Vuex store to each child component", () => {
   const wrapper = shallowMount(Sulcalc, { localVue, store });
   const pokemon = wrapper.findAll(PokemonComponent);
   expect(pokemon.at(0).props().pokemon).toBe(store.state.attacker);
@@ -43,7 +43,7 @@ it("supplies props from Vuex store to each child component", () => {
   expect(selectors.at(1).props().reports).toBe(store.getters.defenderReports);
 });
 
-it("creates a report display only when a report is selected", () => {
+test("creates a report display only when a report is selected", () => {
   const wrapper = shallowMount(Sulcalc, { localVue, store });
   expect(wrapper.find(ReportDisplay).exists()).toBe(false);
   store.commit("setReport", {});

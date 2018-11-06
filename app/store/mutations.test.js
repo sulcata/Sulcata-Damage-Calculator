@@ -1,7 +1,7 @@
 import { get, set } from "lodash";
 import * as mutations from "./mutations";
 
-it("toggle* mutations switch boolean values of state", () => {
+test("toggle*() mutations switch boolean values of state", () => {
   const mutationPairs = [
     ["enabledSets.smogon", mutations.toggleSmogonSets],
     ["enabledSets.pokemonPerfect", mutations.togglePokemonPerfectSets],

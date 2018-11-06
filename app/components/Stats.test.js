@@ -2,7 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import StatsComponent from "./Stats.vue";
 import { Gens, Stats, Pokemon } from "sulcalc";
 
-it("calculates the maximum IV", () => {
+test("calculates the maximum IV", () => {
   const wrapper = shallowMount(StatsComponent, {
     propsData: { pokemon: new Pokemon({ gen: Gens.ORAS }) }
   });
@@ -11,7 +11,7 @@ it("calculates the maximum IV", () => {
   expect(wrapper.vm.maxIv).toBe(15);
 });
 
-it("calculates the default EV", () => {
+test("calculates the default EV", () => {
   const wrapper = shallowMount(StatsComponent, {
     propsData: { pokemon: new Pokemon({ gen: Gens.ORAS }) }
   });
@@ -20,7 +20,7 @@ it("calculates the default EV", () => {
   expect(wrapper.vm.defaultEv).toBe(252);
 });
 
-it("generates labels for stat boost levels", () => {
+test("generates labels for stat boost levels", () => {
   const wrapper = shallowMount(StatsComponent, {
     propsData: { pokemon: new Pokemon({ gen: Gens.ORAS }) }
   });
@@ -29,7 +29,7 @@ it("generates labels for stat boost levels", () => {
   expect(wrapper.vm.statBoost(2)).toBe("+2");
 });
 
-it("creates a list of stat values and labels", () => {
+test("creates a list of stat values and labels", () => {
   const wrapper = shallowMount(StatsComponent, {
     propsData: { pokemon: new Pokemon({ gen: Gens.ORAS }) }
   });
