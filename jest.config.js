@@ -1,9 +1,24 @@
 "use strict";
 
+const moduleFileExtensions = ["js", "jsx", "json", "ts", "tsx", "vue"];
+
+const moduleNameMapper = {
+  "^sulcalc$": "<rootDir>/src/index",
+  "^sulcalc/(.*)$": "<rootDir>/src/$1",
+  "^package$": "<rootDir>/package.json"
+};
+
+const testMatch = "**/*.(spec|test).{js,jsx,ts,tsx}";
+
+const transform = {
+  "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+  "^.+\\.vue$": "<rootDir>/node_modules/vue-jest"
+};
+
 module.exports = {
   collectCoverageFrom: [
-    "<rootDir>/app/**/*.{js,vue}",
-    "<rootDir>/src/**/*.{js,vue}",
+    "<rootDir>/app/**/*.{js,jsx,ts,tsx,vue}",
+    "<rootDir>/src/**/*.{js,jsx,ts,tsx,vue}",
     "!**/node_modules/**",
     "!**/dist/**",
     "!**/*.test.*"
@@ -25,27 +40,18 @@ module.exports = {
     {
       displayName: "sulcalc",
       testEnvironment: "node",
-      testMatch: ["<rootDir>/src/**/*.(spec|test).js?(x)"],
-      moduleNameMapper: {
-        "^sulcalc$": "<rootDir>/src/index",
-        "^sulcalc/(.*)$": "<rootDir>/src/$1",
-        "^package$": "<rootDir>/package.json"
-      }
+      testMatch: [`<rootDir>/src/${testMatch}`],
+      moduleFileExtensions,
+      moduleNameMapper,
+      transform
     },
     {
       displayName: "app",
       testEnvironment: "jsdom",
-      testMatch: ["<rootDir>/app/**/*.(spec|test).js?(x)"],
-      moduleFileExtensions: ["js", "json", "vue"],
-      moduleNameMapper: {
-        "^sulcalc$": "<rootDir>/src/index",
-        "^sulcalc/(.*)$": "<rootDir>/src/$1",
-        "^package$": "<rootDir>/package.json"
-      },
-      transform: {
-        "^.+\\.js$": "<rootDir>/node_modules/babel-jest",
-        "^.+\\.vue$": "<rootDir>/node_modules/vue-jest"
-      }
+      testMatch: [`<rootDir>/app/${testMatch}`],
+      moduleFileExtensions,
+      moduleNameMapper,
+      transform
     }
   ]
 };
