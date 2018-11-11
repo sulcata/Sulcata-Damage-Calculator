@@ -18,7 +18,7 @@
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "jest --coverage",
     "lint": "eslint '**/*.{js,vue}' && npm run style -- --list-different",
-    "style": "prettier --jsx-single-quote '**/*.{js,json,html,md,scss,vue,yml,yaml}' --ignore-path .eslintignore",
+    "style": "prettier '**/*.{js,json,html,md,scss,vue,yml,yaml}' --ignore-path .eslintignore",
     "style:fix": "npm run style -- --write",
     "setup": "npm run setup:db && npm run setup:stats && npm run setup:setdex",
     "setup:db": "babel-node scripts/db",
