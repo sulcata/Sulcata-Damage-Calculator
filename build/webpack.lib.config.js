@@ -10,11 +10,14 @@ module.exports = {
     library: "sulcalc",
     libraryTarget: "umd"
   },
+  resolve: {
+    extensions: [".js", ".json", ".ts"]
+  },
   module: {
     strictExportPresence: true,
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|ts)$/,
         type: "javascript/esm",
         loader: "babel-loader",
         exclude: /(node_modules|dist)\//,

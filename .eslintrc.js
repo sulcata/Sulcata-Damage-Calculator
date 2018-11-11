@@ -1,10 +1,10 @@
 "use strict";
 
-const src = "src/**/*.js";
-const app = "app/**/*.{js,vue}";
-const test = "**/*.test.{js,vue}";
-const mocks = "**/__mocks__/**/*.js";
-const scripts = "scripts/**/*.js";
+const src = "src/**/*.{js,ts}";
+const app = "app/**/*.{js,ts,vue}";
+const test = "**/*.test.{js,ts,vue}";
+const mocks = "**/__mocks__/**/*.{js,ts}";
+const scripts = "scripts/**/*.{js,ts}";
 
 module.exports = {
   root: true,

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "lib": ["esnext"],
+    "moduleResolution": "node",
+    "noEmit": true,
+    "paths": {
+      "sulcalc/*": ["src/*"],
+      "package": ["package.json"]
+    },
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "target": "esnext"
+  },
+  "include": ["**/*.ts"]
+}

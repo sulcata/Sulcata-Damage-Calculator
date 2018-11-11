@@ -23,5 +23,14 @@ module.exports = function(api) {
     !api.env("webpack") && "babel-plugin-dynamic-import-node"
   ].filter(Boolean);
 
-  return { presets, plugins };
+  return {
+    overrides: [
+      { test: "**/*.js", presets, plugins },
+      {
+        test: "**/*.ts",
+        presets: [...presets, "@babel/preset-typescript"],
+        plugins
+      }
+    ]
+  };
 };
