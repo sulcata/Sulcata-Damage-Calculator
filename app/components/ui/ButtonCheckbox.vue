@@ -1,11 +1,5 @@
 <template>
-  <button
-    type='button'
-    :class='classes'
-    @click='toggle'
-    >
-    <slot></slot>
-  </button>
+  <button type="button" :class="classes" @click="toggle"><slot></slot></button>
 </template>
 
 <script>

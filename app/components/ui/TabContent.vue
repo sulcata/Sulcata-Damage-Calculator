@@ -1,26 +1,26 @@
 <template>
   <div>
-    <ul class='nav nav-tabs' role='tablist'>
+    <ul class="nav nav-tabs" role="tablist">
       <li
-        v-for='tab in tabs'
-        :key='tab'
-        role='presentation'
-        class='nav-item nav-link clickable-control'
-        :class='{active: isActive(tab)}'
-        @click='selectTab(tab)'
-        >
+        v-for="tab in tabs"
+        :key="tab"
+        role="presentation"
+        class="nav-item nav-link clickable-control"
+        :class="{ active: isActive(tab) }"
+        @click="selectTab(tab);"
+      >
         {{ tab }}
       </li>
     </ul>
 
-    <div class='tab-content'>
+    <div class="tab-content">
       <div
-        v-for='tab in tabs'
-        :key='tab'
-        class='tab-pane'
-        :class='{active: isActive(tab)}'
-        >
-        <slot :name='tab'></slot>
+        v-for="tab in tabs"
+        :key="tab"
+        class="tab-pane"
+        :class="{ active: isActive(tab) }"
+      >
+        <slot :name="tab"></slot>
       </div>
     </div>
   </div>

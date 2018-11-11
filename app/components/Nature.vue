@@ -1,13 +1,13 @@
 <template>
-    <multiselect
-      track-by='value'
-      label='label'
-      :show-labels='false'
-      placeholder='Nature'
-      :value='valueObj'
-      :options='natures'
-      @input='updateNature'
-      />
+  <multiselect
+    track-by="value"
+    label="label"
+    :show-labels="false"
+    placeholder="Nature"
+    :value="valueObj"
+    :options="natures"
+    @input="updateNature"
+  />
 </template>
 
 <script>

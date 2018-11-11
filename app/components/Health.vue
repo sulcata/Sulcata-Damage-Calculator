@@ -2,18 +2,18 @@
   <div>
     <label>HP</label>
     <input
-      :value='actualHealth'
-      class='form-control small-fixed-width'
-      @change='updateHealth'
-      >
+      :value="actualHealth"
+      class="form-control small-fixed-width"
+      @change="updateHealth"
+    />
     /{{ totalHp }} (
     <integer-input
-      :min='1'
-      :max='100'
-      :value='percentHealth'
-      class='small-fixed-width'
-      @input='updatePercent'
-      />
+      :min="1"
+      :max="100"
+      :value="percentHealth"
+      class="small-fixed-width"
+      @input="updatePercent"
+    />
     %)
   </div>
 </template>

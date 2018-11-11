@@ -1,10 +1,10 @@
 <template>
   <button-radio-group
-      :value='selectedReport'
-      :options='reportOptions'
-      layout='vertical'
-      @input='report => setReport({report})'
-      />
+    :value="selectedReport"
+    :options="reportOptions"
+    layout="vertical"
+    @input="report => setReport({ report })"
+  />
 </template>
 
 <script>

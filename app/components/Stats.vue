@@ -1,79 +1,74 @@
 <template>
-  <div class='container-fluid'>
-    <div class='row no-gutters'>
-      <strong class='col-3 offset-2 text-center'>IVs</strong>
-      <strong class='col-3 text-center'>EVs</strong>
-      <strong class='col-2'></strong>
-      <strong class='col-2'></strong>
+  <div class="container-fluid">
+    <div class="row no-gutters">
+      <strong class="col-3 offset-2 text-center">IVs</strong>
+      <strong class="col-3 text-center">EVs</strong>
+      <strong class="col-2"></strong> <strong class="col-2"></strong>
     </div>
 
     <div
-      v-for='[stat, statName] in stats'
-      :key='stat'
-      class='form-row align-items-center'
-      >
+      v-for="[stat, statName] in stats"
+      :key="stat"
+      class="form-row align-items-center"
+    >
+      <div class="col-2">{{ statName }}</div>
 
-      <div class='col-2'>
-        {{ statName }}
-      </div>
-
-      <div class='col-3'>
+      <div class="col-3">
         <integer-input
-          :value='computedIv(stat)'
-          :min='0'
-          :max='maxIv'
-          :disabled='isIvDisabled(stat)'
-          @input='iv => updateIv(stat, iv)'
-          />
+          :value="computedIv(stat)"
+          :min="0"
+          :max="maxIv"
+          :disabled="isIvDisabled(stat)"
+          @input="iv => updateIv(stat, iv)"
+        />
       </div>
 
-      <div class='col-3'>
+      <div class="col-3">
         <integer-input
-          :value='computedEv(stat)'
-          :min='0'
-          :max='252'
-          :step='4'
-          :disabled='isEvDisabled(stat)'
-          @input='ev => updateEv(stat, ev)'
-          />
+          :value="computedEv(stat)"
+          :min="0"
+          :max="252"
+          :step="4"
+          :disabled="isEvDisabled(stat)"
+          @input="ev => updateEv(stat, ev)"
+        />
       </div>
 
-      <div class='col-2 text-center'>{{ pokemon.boostedStat(stat) }}</div>
+      <div class="col-2 text-center">{{ pokemon.boostedStat(stat) }}</div>
 
-      <div class='col-2 text-center'>
+      <div class="col-2 text-center">
         <div
-          v-if='stat === Stats.HP'
-          role='group'
-          class='btn-group btn-group-sm d-flex'
-          >
+          v-if="stat === Stats.HP"
+          role="group"
+          class="btn-group btn-group-sm d-flex"
+        >
           <button
-            type='button'
-            class='btn btn-outline-primary w-100'
-            @click='() => boostAll(1)'
-            >
+            type="button"
+            class="btn btn-outline-primary w-100"
+            @click="() => boostAll(1)"
+          >
             +1
           </button>
           <button
-            type='button'
-            class='btn btn-outline-primary w-100'
-            @click='() => boostAll(-1)'
-            >
+            type="button"
+            class="btn btn-outline-primary w-100"
+            @click="() => boostAll(-1)"
+          >
             -1
           </button>
         </div>
 
         <select
           v-else
-          :value='pokemon.boosts[stat]'
-          class='form-control'
-          @change='event => updateBoost(stat, event)'
-          >
-          <option v-for='n in 13' :key='n' :value='7 - n'>
-              {{ statBoost(7 - n) }}
+          :value="pokemon.boosts[stat]"
+          class="form-control"
+          @change="event => updateBoost(stat, event)"
+        >
+          <option v-for="n in 13" :key="n" :value="7 - n">
+            {{ statBoost(7 - n) }}
           </option>
         </select>
       </div>
-
     </div>
   </div>
 </template>

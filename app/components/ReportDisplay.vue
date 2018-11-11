@@ -1,13 +1,12 @@
 <template>
   <div>
-    <strong>{{ summary }}</strong>
-    <br>
+    <strong>{{ summary }}</strong> <br />
     <small>{{ damageRoll }}</small>
-    <button type='button' class='btn btn-sm btn-light' @click='setHp'>
+    <button type="button" class="btn btn-sm btn-light" @click="setHp">
       set hp
     </button>
-    <br>
-    <small v-if='fractions'>{{ fractionalChances }}</small>
+    <br />
+    <small v-if="fractions">{{ fractionalChances }}</small>
   </div>
 </template>
 

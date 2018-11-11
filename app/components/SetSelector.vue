@@ -1,17 +1,17 @@
 <template>
   <multiselect
-    track-by='set'
-    label='pokemonName'
-    group-values='sets'
-    group-label='pokemonName'
-    :show-labels='false'
-    placeholder='Pokemon'
-    :options='sets'
-    :value='pokemon.set'
-    @input='updatePokemon'
-    >
-    <template slot='option' slot-scope='props'>
-      <span v-if='props.option.$isLabel'>{{ props.option.$groupLabel }}</span>
+    track-by="set"
+    label="pokemonName"
+    group-values="sets"
+    group-label="pokemonName"
+    :show-labels="false"
+    placeholder="Pokemon"
+    :options="sets"
+    :value="pokemon.set"
+    @input="updatePokemon"
+  >
+    <template slot="option" slot-scope="props">
+      <span v-if="props.option.$isLabel">{{ props.option.$groupLabel }}</span>
       <span v-else>{{ props.option.setName }}</span>
     </template>
   </multiselect>

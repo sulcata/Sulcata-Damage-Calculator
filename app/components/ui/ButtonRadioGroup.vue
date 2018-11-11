@@ -1,12 +1,12 @@
 <template>
-  <div role='group' :class='groupClasses'>
+  <div role="group" :class="groupClasses">
     <button
-      v-for='(option, index) in options'
-      :key='index'
-      type='button'
-      :class='buttonClasses(option)'
-      @click='select(option)'
-      >
+      v-for="(option, index) in options"
+      :key="index"
+      type="button"
+      :class="buttonClasses(option)"
+      @click="select(option);"
+    >
       {{ option[label] }}
     </button>
   </div>

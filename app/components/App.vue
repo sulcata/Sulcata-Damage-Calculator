@@ -1,23 +1,16 @@
 <template>
-  <div class='mb-4'>
+  <div class="mb-4">
     <header>
-      <nav
-        class='navbar navbar-expand navbar-dark bg-dark'
-        role='navigation'
-        >
-        <h1 class='navbar-brand mb-0'>sulcalc</h1>
-        <ul class='navbar-nav mr-auto'>
-          <li
-            v-for='{url, label} in links'
-            :key='url'
-            class='nav-item'
-            >
-            <a :href='url' class='nav-link'>{{ label }}</a>
+      <nav class="navbar navbar-expand navbar-dark bg-dark" role="navigation">
+        <h1 class="navbar-brand mb-0">sulcalc</h1>
+        <ul class="navbar-nav mr-auto">
+          <li v-for="{ url, label } in links" :key="url" class="nav-item">
+            <a :href="url" class="nav-link">{{ label }}</a>
           </li>
         </ul>
       </nav>
     </header>
-    <sulcalc class='app-container'/>
+    <sulcalc class="app-container" />
   </div>
 </template>
 

@@ -1,182 +1,181 @@
 <template>
-  <div class='container-fluid'>
-    <div class='form-row align-items-center'>
-
-      <div class='col-6'>
+  <div class="container-fluid">
+    <div class="form-row align-items-center">
+      <div class="col-6">
         <!-- Move Selection -->
         <multiselect
-          track-by='value'
-          label='label'
-          :show-labels='false'
-          placeholder='Move'
-          :value='valueObj'
-          :options='moves'
-          @input='updateMove'
-          />
+          track-by="value"
+          label="label"
+          :show-labels="false"
+          placeholder="Move"
+          :value="valueObj"
+          :options="moves"
+          @input="updateMove"
+        />
       </div>
 
-      <div class='col-auto'>
+      <div class="col-auto">
         <!-- Critical Hit -->
         <button-checkbox
-          :value='move.critical'
-          size='small'
-          type='secondary'
-          @input='updateCritical'
-          >
+          :value="move.critical"
+          size="small"
+          type="secondary"
+          @input="updateCritical"
+        >
           Crit
         </button-checkbox>
 
         <!-- Z-Move -->
         <button-checkbox
-          v-if='gen >= Gens.SM'
-          :value='move.zMove'
-          size='small'
-          type='secondary'
-          @input='updateZMove'
-          >
+          v-if="gen >= Gens.SM"
+          :value="move.zMove"
+          size="small"
+          type="secondary"
+          @input="updateZMove"
+        >
           Z-Move
         </button-checkbox>
       </div>
 
-      <div class='col'>
+      <div class="col">
         <!-- Multihit -->
         <select
-          v-if='numberOfHitsInput'
-          :value='move.numberOfHits'
-          class='form-control form-control-sm'
-          @input='updateNumberOfHits'
-          >
+          v-if="numberOfHitsInput"
+          :value="move.numberOfHits"
+          class="form-control form-control-sm"
+          @input="updateNumberOfHits"
+        >
           <option
-            v-for='{value, label} in multiHitOptions'
-            :key='value'
-            :value='value'
-            >
+            v-for="{ value, label } in multiHitOptions"
+            :key="value"
+            :value="value"
+          >
             {{ label }}
           </option>
         </select>
 
         <!-- Return / Frustration -->
         <integer-input
-          v-else-if='move.usesHappiness()'
-          :min='0'
-          :max='255'
-          :value='happiness'
-          size='small'
-          @input='updateHappiness'
-          />
+          v-else-if="move.usesHappiness()"
+          :min="0"
+          :max="255"
+          :value="happiness"
+          size="small"
+          @input="updateHappiness"
+        />
 
         <!-- Fury Cutter -->
         <select
-          v-else-if='move.name === "Fury Cutter"'
-          :value='move.furyCutter'
-          class='form-control form-control-sm'
-          @input='updateFuryCutter'
-          >
+          v-else-if="move.name === 'Fury Cutter'"
+          :value="move.furyCutter"
+          class="form-control form-control-sm"
+          @input="updateFuryCutter"
+        >
           <option
-            v-for='{value, label} in furyCutterOptions'
-            :key='value'
-            :value='value'
-            >
+            v-for="{ value, label } in furyCutterOptions"
+            :key="value"
+            :value="value"
+          >
             {{ label }}
           </option>
         </select>
 
         <!-- Fury Cutter -->
         <select
-          v-else-if='move.name === "Present"'
-          :value='move.present'
-          class='form-control form-control-sm'
-          @input='updatePresent'
-          >
-          <option :value='-1'>--</option>
-          <option :value='0'>Heal</option>
-          <option :value='1'>40 BP</option>
-          <option :value='2'>80 BP</option>
-          <option :value='3'>120 BP</option>
+          v-else-if="move.name === 'Present'"
+          :value="move.present"
+          class="form-control form-control-sm"
+          @input="updatePresent"
+        >
+          <option :value="-1">--</option>
+          <option :value="0">Heal</option>
+          <option :value="1">40 BP</option>
+          <option :value="2">80 BP</option>
+          <option :value="3">120 BP</option>
         </select>
 
         <!-- Echoed Voice -->
         <select
-          v-else-if='move.name === "Echoed Voice"'
-          :value='move.echoedVoice'
-          class='form-control form-control-sm'
-          @input='updateEchoedVoice'
-          >
+          v-else-if="move.name === 'Echoed Voice'"
+          :value="move.echoedVoice"
+          class="form-control form-control-sm"
+          @input="updateEchoedVoice"
+        >
           <option
-            v-for='{value, label} in echoedVoiceOptions'
-            :key='value'
-            :value='value'
-            >
+            v-for="{ value, label } in echoedVoiceOptions"
+            :key="value"
+            :value="value"
+          >
             {{ label }}
           </option>
         </select>
 
         <!-- Round -->
         <button-checkbox
-          v-else-if='move.name === "Round"'
-          :value='move.roundBoost'
-          size='small'
-          type='secondary'
-          @input='updateRoundBoost'
-          >
+          v-else-if="move.name === 'Round'"
+          :value="move.roundBoost"
+          size="small"
+          type="secondary"
+          @input="updateRoundBoost"
+        >
           Round
         </button-checkbox>
 
         <!-- Trump Card -->
         <select
-          v-else-if='move.name === "Trump Card"'
-          :value='move.trumpPP'
-          class='form-control form-control-sm'
-          @input='updateTrumpPP'
-          >
-          <option value='4'>4+ PP after use</option>
-          <option value='3'>3 PP after use</option>
-          <option value='2'>2 PP after use</option>
-          <option value='1'>1 PP after use</option>
-          <option value='0'>0 PP after use</option>
+          v-else-if="move.name === 'Trump Card'"
+          :value="move.trumpPP"
+          class="form-control form-control-sm"
+          @input="updateTrumpPP"
+        >
+          <option value="4">4+ PP after use</option>
+          <option value="3">3 PP after use</option>
+          <option value="2">2 PP after use</option>
+          <option value="1">1 PP after use</option>
+          <option value="0">0 PP after use</option>
         </select>
 
         <!-- Minimize -->
         <button-checkbox
-          v-else-if='move.boostedByMinimize()'
-          :value='move.minimize'
-          size='small'
-          type='secondary'
-          @input='updateMinimize'
-          >
+          v-else-if="move.boostedByMinimize()"
+          :value="move.minimize"
+          size="small"
+          type="secondary"
+          @input="updateMinimize"
+        >
           Minimize
         </button-checkbox>
 
         <!-- Dig -->
         <button-checkbox
-          v-else-if='move.boostedByDig()'
-          :value='move.dig'
-          size='small'
-          type='secondary'
-          @input='updateDig'
-          >
+          v-else-if="move.boostedByDig()"
+          :value="move.dig"
+          size="small"
+          type="secondary"
+          @input="updateDig"
+        >
           Dig
         </button-checkbox>
 
         <!-- Dive -->
         <button-checkbox
-          v-else-if='move.boostedByDive()'
-          :value='move.dive'
-          size='small'
-          type='secondary'
-          @input='updateDive'
-          >
+          v-else-if="move.boostedByDive()"
+          :value="move.dive"
+          size="small"
+          type="secondary"
+          @input="updateDive"
+        >
           Dive
         </button-checkbox>
 
         <!-- Fly / Bounce -->
         <button-checkbox
-          v-else-if='move.boostedByFly()'
-          :value='move.fly'
-          size='small'
-          type='secondary'
-          @input='updateFly'
-          >
+          v-else-if="move.boostedByFly()"
+          :value="move.fly"
+          size="small"
+          type="secondary"
+          @input="updateFly"
+        >
           Fly / Bounce
         </button-checkbox>
       </div>

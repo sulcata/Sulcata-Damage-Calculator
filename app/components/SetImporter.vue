@@ -1,17 +1,17 @@
 <template>
   <div>
     <textarea
-      v-model='importText'
-      class='form-control text-monospace'
-      style='resize: vertical;'
-      rows='10'
+      v-model="importText"
+      class="form-control text-monospace"
+      style="resize: vertical;"
+      rows="10"
     ></textarea>
-    <div class='text-center mt-3'>
+    <div class="text-center mt-3">
       <button
-        type='button'
-        class='btn btn-primary'
-        @click='importPokemon({importText, gen})'
-        >
+        type="button"
+        class="btn btn-primary"
+        @click="importPokemon({ importText, gen });"
+      >
         Import
       </button>
     </div>

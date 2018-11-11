@@ -1,51 +1,37 @@
 <template>
-  <div class='container'>
-    <div class='row justify-content-center mt-3'>
-      <div class='col-auto'>
-        <generation/>
-      </div>
+  <div class="container">
+    <div class="row justify-content-center mt-3">
+      <div class="col-auto"><generation /></div>
     </div>
 
-    <div class='row mt-3'>
-      <div class='col-4'>
-        <report-selector :reports='attackerReports'/>
-      </div>
-      <div class='col-4'>
-        <report-selector :reports='defenderReports'/>
-      </div>
+    <div class="row mt-3">
+      <div class="col-4"><report-selector :reports="attackerReports" /></div>
+      <div class="col-4"><report-selector :reports="defenderReports" /></div>
     </div>
 
-    <div v-if='isReportSelected' class='row mt-3'>
-      <div class='col'>
-        <report-display/>
-      </div>
+    <div v-if="isReportSelected" class="row mt-3">
+      <div class="col"><report-display /></div>
     </div>
 
-    <div class='row mt-3'>
-      <div class='col'>
+    <div class="row mt-3">
+      <div class="col">
         <pokemon
-          :pokemon='attacker'
-          @input='pokemon => setAttacker({pokemon})'
-          />
+          :pokemon="attacker"
+          @input="pokemon => setAttacker({ pokemon })"
+        />
       </div>
-      <div class='col-4'>
-        <tab-content :tabs='["General", "Import Team", "More Options"]'>
-          <div slot='General' class='mt-3'>
-            <field/>
-          </div>
-          <div slot='Import Team' class='mt-3'>
-            <set-importer/>
-          </div>
-          <div slot='More Options' class='mt-3'>
-            <sulcalc-options/>
-          </div>
+      <div class="col-4">
+        <tab-content :tabs="['General', 'Import Team', 'More Options']">
+          <div slot="General" class="mt-3"><field /></div>
+          <div slot="Import Team" class="mt-3"><set-importer /></div>
+          <div slot="More Options" class="mt-3"><sulcalc-options /></div>
         </tab-content>
       </div>
-      <div class='col'>
+      <div class="col">
         <pokemon
-          :pokemon='defender'
-          @input='pokemon => setDefender({pokemon})'
-          />
+          :pokemon="defender"
+          @input="pokemon => setDefender({ pokemon })"
+        />
       </div>
     </div>
   </div>

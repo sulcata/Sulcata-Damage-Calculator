@@ -1,15 +1,15 @@
 <template>
   <input
-    type='number'
-    :min='min'
-    :max='max'
-    :step='step'
-    :value='value'
-    :disabled='disabled'
-    class='form-control'
-    :class='sizeClass'
-    @change='updateValue'
-    >
+    type="number"
+    :min="min"
+    :max="max"
+    :step="step"
+    :value="value"
+    :disabled="disabled"
+    class="form-control"
+    :class="sizeClass"
+    @change="updateValue"
+  />
 </template>
 
 <script>

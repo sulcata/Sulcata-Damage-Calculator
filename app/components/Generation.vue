@@ -1,10 +1,10 @@
 <template>
   <button-radio-group
-    :value='gen'
-    :options='gens'
-    type='secondary'
-    @input='gen => changeGen({gen})'
-    />
+    :value="gen"
+    :options="gens"
+    type="secondary"
+    @input="gen => changeGen({ gen })"
+  />
 </template>
 
 <script>

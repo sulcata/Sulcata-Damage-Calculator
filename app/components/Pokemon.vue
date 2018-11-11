@@ -1,57 +1,55 @@
 <template>
   <div>
-    <set-selector :pokemon='pokemon' @input='updateNewPokemon'/>
+    <set-selector :pokemon="pokemon" @input="updateNewPokemon" />
 
-    <div v-show='pokemon.gen >= Gens.GSC' class='mt-1'>
-      <item :item='pokemon.item' @input='updateItem'/>
+    <div v-show="pokemon.gen >= Gens.GSC" class="mt-1">
+      <item :item="pokemon.item" @input="updateItem" />
     </div>
 
-    <div v-show='pokemon.gen >= Gens.ADV' class='mt-1'>
-      <ability :ability='pokemon.ability' @input='updateAbility'/>
+    <div v-show="pokemon.gen >= Gens.ADV" class="mt-1">
+      <ability :ability="pokemon.ability" @input="updateAbility" />
     </div>
 
-    <div v-show='pokemon.gen >= Gens.ADV' class='mt-1'>
-      <nature :nature='pokemon.nature' @input='updateNature'/>
+    <div v-show="pokemon.gen >= Gens.ADV" class="mt-1">
+      <nature :nature="pokemon.nature" @input="updateNature" />
     </div>
 
-    <div class='mt-1'>
+    <div class="mt-1">
       <strong>Level: </strong>
       <integer-input
-        :min='1'
-        :max='100'
-        :value='pokemon.level'
-        class='small-fixed-width'
-        @input='updateLevel'
-        />
+        :min="1"
+        :max="100"
+        :value="pokemon.level"
+        class="small-fixed-width"
+        @input="updateLevel"
+      />
     </div>
 
-    <div class='mt-1'>
-      <stats :pokemon='pokemon' @input='updatePokemon'/>
-    </div>
+    <div class="mt-1"><stats :pokemon="pokemon" @input="updatePokemon" /></div>
 
-    <div v-for='i in pokemon.moves.length' :key='i' class='mt-1'>
+    <div v-for="i in pokemon.moves.length" :key="i" class="mt-1">
       <move
-        :move='pokemon.moves[i - 1]'
-        :happiness='pokemon.happiness'
-        @input='move => updateMove(i - 1, move)'
-        @input-happiness='updateHappiness'
-        />
+        :move="pokemon.moves[i - 1]"
+        :happiness="pokemon.happiness"
+        @input="move => updateMove(i - 1, move)"
+        @input-happiness="updateHappiness"
+      />
     </div>
 
-    <div class='mt-1'>
-      <div class='container-fluid p-0'>
-        <div class='form-row'>
-          <div class='col'>
-            <status :status='pokemon.status' @input='updateStatus'/>
+    <div class="mt-1">
+      <div class="container-fluid p-0">
+        <div class="form-row">
+          <div class="col">
+            <status :status="pokemon.status" @input="updateStatus" />
           </div>
-          <div class='col-auto'>
+          <div class="col-auto">
             <health
-              :total-hp='pokemon.stat(Stats.HP)'
-              :current-hp='pokemon.currentHp'
-              :current-hp-range='pokemon.currentHpRange'
-              :current-hp-range-berry='pokemon.currentHpRangeBerry'
-              @input='updateHealth'
-              />
+              :total-hp="pokemon.stat(Stats.HP)"
+              :current-hp="pokemon.currentHp"
+              :current-hp-range="pokemon.currentHpRange"
+              :current-hp-range-berry="pokemon.currentHpRangeBerry"
+              @input="updateHealth"
+            />
           </div>
         </div>
       </div>
