@@ -6,6 +6,7 @@ const ScriptExtHtmlPlugin = require("script-ext-html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
+const WorkboxPlugin = require("workbox-webpack-plugin");
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const setdexRegex = /[\\/]dist[\\/]setdex[\\/].*?\.(js|json)$/;
@@ -120,6 +121,12 @@ module.exports = env => ({
       inject: "head"
     }),
     new ScriptExtHtmlPlugin({ defaultAttribute: "defer" }),
+    new WorkboxPlugin.GenerateSW({
+      cacheId: "sulcalc",
+      swDest: "service-worker.js",
+      importWorkboxFrom: "local",
+      offlineGoogleAnalytics: false
+    }),
     new BundleAnalyzerPlugin({
       analyzerMode: env.production ? "disabled" : "server",
       analyzerHost: "localhost",
