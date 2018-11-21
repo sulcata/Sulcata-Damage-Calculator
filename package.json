@@ -36,7 +36,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && jest -o",
+      "pre-push": "npm run setup && npm run lint && npm test"
     }
   },
   "dependencies": {
