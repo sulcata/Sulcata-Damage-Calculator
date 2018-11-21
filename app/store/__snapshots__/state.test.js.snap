@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`equals expected state structure 1`] = `
+Object {
+  "attacker": null,
+  "defender": null,
+  "enabledSets": Object {
+    "custom": true,
+    "pokemonPerfect": false,
+    "smogon": true,
+    "usage": true,
+  },
+  "field": null,
+  "fractions": false,
+  "gen": 7,
+  "longRolls": false,
+  "overrideReport": null,
+}
+`;
