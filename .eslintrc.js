@@ -117,6 +117,7 @@ module.exports = {
     "no-unneeded-ternary": ["error", { defaultAssignment: false }],
     "no-unsafe-negation": "error",
     "no-unused-expressions": "error",
+    "no-unused-vars": ["error", { ignoreRestSiblings: true }],
     "no-use-before-define": ["error", "nofunc"],
     "no-useless-call": "error",
     "no-useless-concat": "error",
