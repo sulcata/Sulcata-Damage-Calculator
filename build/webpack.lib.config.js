@@ -28,6 +28,7 @@ module.exports = {
     minimizer: [
       new TerserPlugin({
         sourceMap: true,
+        parallel: true,
         terserOptions: { ecma: 8 }
       })
     ]

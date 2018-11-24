@@ -108,6 +108,7 @@ module.exports = env => ({
     minimizer: [
       new TerserPlugin({
         sourceMap: !env.production,
+        parallel: true,
         terserOptions: { ecma: 8 }
       })
     ]
