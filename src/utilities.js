@@ -114,7 +114,7 @@ export const Terrains = {
 };
 
 export const roundHalfToZero = n =>
-  Math.trunc(n) + Math.sign(n) * (Math.abs(n - Math.trunc(n)) > 0.5);
+  Math.trunc(n) + (n % 1 > 0.5) - (n % 1 < -0.5);
 
 export const chainMod = (modifier1, modifier2) =>
   (modifier1 * modifier2 + 0x800) >> 12;
