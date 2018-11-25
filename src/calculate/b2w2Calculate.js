@@ -3,6 +3,7 @@ import {
   Types,
   damageVariation,
   applyMod,
+  applyModAll,
   chainMod
 } from "../utilities";
 import moveInfo from "./moveInfo";
@@ -270,9 +271,9 @@ export default (attacker, defender, move, field) => {
 
   if (attacker.stab(moveType)) {
     if (attacker.ability.name === "Adaptability") {
-      damages = applyMod(0x2000, damages);
+      damages = applyModAll(0x2000, damages);
     } else {
-      damages = applyMod(0x1800, damages);
+      damages = applyModAll(0x1800, damages);
     }
   }
 
@@ -357,7 +358,7 @@ export default (attacker, defender, move, field) => {
     finalMod = chainMod(0x2000, finalMod);
   }
 
-  damages = applyMod(finalMod, damages);
+  damages = applyModAll(finalMod, damages);
 
   return damages;
 };

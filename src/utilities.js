@@ -120,9 +120,10 @@ export const chainMod = (modifier1, modifier2) =>
   (modifier1 * modifier2 + 0x800) >> 12;
 
 export const applyMod = (modifier, value) =>
-  Array.isArray(value)
-    ? value.map(v => roundHalfToZero((v * modifier) / 0x1000))
-    : roundHalfToZero((value * modifier) / 0x1000);
+  roundHalfToZero((value * modifier) / 0x1000);
+
+export const applyModAll = (modifier, values) =>
+  values.map(v => applyMod(modifier, v));
 
 export function damageVariation(baseDamage, min, max) {
   const damages = [];
