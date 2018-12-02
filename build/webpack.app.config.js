@@ -7,7 +7,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 const setdexRegex = /[\\/]dist[\\/]setdex[\\/].*?\.(js|json)$/;
 const libRegex = /[\\/]node_modules[\\/](lodash|big-integer|bootstrap|vue|vuex|vue-multiselect)[\\/]/;
@@ -127,12 +126,6 @@ module.exports = env => ({
       swDest: "service-worker.js",
       importWorkboxFrom: "local",
       offlineGoogleAnalytics: false
-    }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: env.production ? "disabled" : "server",
-      analyzerHost: "localhost",
-      defaultSizes: "gzip",
-      openAnalyzer: false
     })
   ]
 });

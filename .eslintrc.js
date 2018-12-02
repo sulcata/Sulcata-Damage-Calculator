@@ -17,7 +17,7 @@ module.exports = {
     es6: true,
     node: true
   },
-  plugins: ["babel", "import", "promise", "vue"],
+  plugins: ["babel", "import", "vue"],
   settings: {
     "import/resolver": {
       webpack: {
@@ -29,7 +29,6 @@ module.exports = {
   extends: [
     "eslint:recommended",
     "plugin:import/errors",
-    "plugin:promise/recommended",
     "plugin:vue/recommended"
   ],
   rules: {
@@ -49,14 +48,6 @@ module.exports = {
     "import/no-webpack-loader-syntax": "error",
     "import/order": ["error", { "newlines-between": "never" }],
     "import/unambiguous": "error",
-
-    "promise/no-callback-in-promise": "error",
-    "promise/no-nesting": "error",
-    "promise/no-promise-in-callback": "error",
-    "promise/no-return-in-finally": "error",
-    "promise/prefer-await-to-callbacks": "error",
-    "promise/prefer-await-to-then": "error",
-    "promise/valid-params": "error",
 
     "vue/html-closing-bracket-newline": "off",
     "vue/html-closing-bracket-spacing": "off",
