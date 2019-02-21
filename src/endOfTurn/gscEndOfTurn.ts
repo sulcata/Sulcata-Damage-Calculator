@@ -1,5 +1,5 @@
-import Pokemon from "../Pokemon";
 import Field from "../Field";
+import Pokemon from "../Pokemon";
 import { Stat } from "../utilities";
 
 export default (defender: Pokemon, field: Field) => {

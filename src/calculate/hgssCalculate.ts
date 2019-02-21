@@ -1,7 +1,7 @@
-import Pokemon from "../Pokemon";
-import Move from "../Move";
 import Field from "../Field";
-import { Stat, Type, damageVariation } from "../utilities";
+import Move from "../Move";
+import Pokemon from "../Pokemon";
+import { damageVariation, Stat, Type } from "../utilities";
 import moveInfo from "./moveInfo";
 
 export default (

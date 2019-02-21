@@ -1,8 +1,8 @@
-import advCalculate from "./advCalculate";
-import Pokemon from "../Pokemon";
-import Move from "../Move";
 import Field from "../Field";
+import Move from "../Move";
+import Pokemon from "../Pokemon";
 import { Generation, Nature } from "../utilities";
+import advCalculate from "./advCalculate";
 
 const gen = Generation.ADV;
 

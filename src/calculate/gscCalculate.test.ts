@@ -1,8 +1,8 @@
-import gscCalculate from "./gscCalculate";
-import Pokemon from "../Pokemon";
-import Move from "../Move";
 import Field from "../Field";
+import Move from "../Move";
+import Pokemon from "../Pokemon";
 import { Generation, Stat, Status, Weather } from "../utilities";
+import gscCalculate from "./gscCalculate";
 
 const gen = Generation.GSC;
 

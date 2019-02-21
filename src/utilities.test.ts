@@ -1,4 +1,4 @@
-import { roundHalfToZero, chainMod, applyMod, applyModAll } from "./utilities";
+import { applyMod, applyModAll, chainMod, roundHalfToZero } from "./utilities";
 
 test.each([[2.4, 2], [2.5, 2], [2.6, 3], [-1.4, -1], [-1.5, -1], [-1.6, -2]])(
   "roundHalfToZero(%p)",

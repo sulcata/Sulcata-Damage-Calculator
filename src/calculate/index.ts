@@ -1,15 +1,15 @@
 import { flowRight } from "lodash";
+import Field from "../Field";
+import Move from "../Move";
 import Multiset from "../Multiset";
 import Pokemon from "../Pokemon";
-import Move from "../Move";
-import Field from "../Field";
 import { Generation, Stat } from "../utilities";
-import rbyCalculate from "./rbyCalculate";
-import gscCalculate from "./gscCalculate";
 import advCalculate from "./advCalculate";
-import hgssCalculate from "./hgssCalculate";
 import b2w2Calculate from "./b2w2Calculate";
+import gscCalculate from "./gscCalculate";
+import hgssCalculate from "./hgssCalculate";
 import orasCalculate from "./orasCalculate";
+import rbyCalculate from "./rbyCalculate";
 import smCalculate from "./smCalculate";
 
 const add = (a: number, b: number) => a + b;

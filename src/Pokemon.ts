@@ -1,41 +1,41 @@
 import { clamp } from "lodash";
-import Multiset from "./Multiset";
 import Ability, { AbilityOptions } from "./Ability";
-import Item, { ItemOptions } from "./Item";
-import Move, { MoveOptions } from "./Move";
 import Field from "./Field";
 import {
-  Generation,
-  Gender,
-  Nature,
-  Stat,
-  Status,
-  Type,
-  StatList,
-  BoostList,
-  BaseStat,
-  maxGen,
-  roundHalfToZero
-} from "./utilities";
-import {
-  typeName,
-  pokemonId,
-  pokemonName,
-  natureName,
-  natureId,
-  natureStats,
-  moveId,
-  moveName,
-  natureMultiplier,
   baseStats,
-  pokeType1,
-  pokeType2,
-  weight,
   hasEvolution,
   hasPreEvolution,
+  isMega,
+  moveId,
+  moveName,
+  natureId,
+  natureMultiplier,
+  natureName,
+  natureStats,
+  pokemonId,
+  pokemonName,
+  pokeType1,
+  pokeType2,
   requiredItemForPoke,
-  isMega
+  typeName,
+  weight
 } from "./info";
+import Item, { ItemOptions } from "./Item";
+import Move, { MoveOptions } from "./Move";
+import Multiset from "./Multiset";
+import {
+  BaseStat,
+  BoostList,
+  Gender,
+  Generation,
+  maxGen,
+  Nature,
+  roundHalfToZero,
+  Stat,
+  StatList,
+  Status,
+  Type
+} from "./utilities";
 
 const statNames = ["HP", "Atk", "Def", "SpA", "SpD", "Spe"];
 const genderShorthands = ["", "(M)", "(F)", ""];

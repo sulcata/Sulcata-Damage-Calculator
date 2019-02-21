@@ -1,14 +1,14 @@
+import { NoMoveError, NoPokemonError } from "./errors";
 import sulcalc from "./sulcalc";
 import {
   Generation,
   generations,
+  maxGen,
   Nature,
   Status,
   Terrain,
-  Weather,
-  maxGen
+  Weather
 } from "./utilities";
-import { NoPokemonError, NoMoveError } from "./errors";
 
 test("sanity check", () => {
   for (const gen of generations) {

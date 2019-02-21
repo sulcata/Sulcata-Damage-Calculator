@@ -1,12 +1,12 @@
-import Pokemon from "../Pokemon";
 import Field from "../Field";
+import Pokemon from "../Pokemon";
 import { Generation } from "../utilities";
-import rbyEndOfTurn from "./rbyEndOfTurn";
-import gscEndOfTurn from "./gscEndOfTurn";
 import advEndOfTurn from "./advEndOfTurn";
-import hgssEndOfTurn from "./hgssEndOfTurn";
 import b2w2EndOfTurn from "./b2w2EndOfTurn";
+import gscEndOfTurn from "./gscEndOfTurn";
+import hgssEndOfTurn from "./hgssEndOfTurn";
 import orasEndOfTurn from "./orasEndOfTurn";
+import rbyEndOfTurn from "./rbyEndOfTurn";
 import smEndOfTurn from "./smEndOfTurn";
 
 export interface IEndOfTurnEffects {

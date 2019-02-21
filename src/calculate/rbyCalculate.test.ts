@@ -1,8 +1,8 @@
-import rbyCalculate from "./rbyCalculate";
-import Pokemon from "../Pokemon";
-import Move from "../Move";
 import Field from "../Field";
+import Move from "../Move";
+import Pokemon from "../Pokemon";
 import { Generation, Status } from "../utilities";
+import rbyCalculate from "./rbyCalculate";
 
 const gen = Generation.RBY;
 

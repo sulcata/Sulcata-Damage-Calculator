@@ -1,14 +1,14 @@
 import Move from "./Move";
 import Pokemon from "./Pokemon";
 import {
+  BoostList,
   DamageClass,
   Generation,
-  BoostList,
+  maxGen,
   StatList,
   Type,
   types,
-  Weather,
-  maxGen
+  Weather
 } from "./utilities";
 
 const defaultMove = new Move();

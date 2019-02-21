@@ -8,7 +8,6 @@ rules:
   no-submodule-imports: false
   object-literal-sort-keys: false
   one-variable-per-declaration: false
-  ordered-imports: false
   trailing-comma: false
   array-type:
     - true
@@ -16,7 +15,6 @@ rules:
   curly:
     - true
     - ignore-same-line
-  # completed-docs: true
   deprecation: true
   file-name-casing: true
   match-default-export-name: true

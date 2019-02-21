@@ -1,8 +1,8 @@
-import b2w2Calculate from "./b2w2Calculate";
-import Pokemon from "../Pokemon";
-import Move from "../Move";
 import Field from "../Field";
+import Move from "../Move";
+import Pokemon from "../Pokemon";
 import { Generation, Nature } from "../utilities";
+import b2w2Calculate from "./b2w2Calculate";
 
 const gen = Generation.B2W2;
 

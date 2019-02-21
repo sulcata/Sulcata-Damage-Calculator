@@ -1,40 +1,40 @@
 import { clamp } from "lodash";
 import {
-  Generation,
-  DamageClass,
-  Stat,
-  BaseStat,
-  Type,
-  Weather,
-  StatList,
-  BoostList,
-  maxGen
-} from "./utilities";
-import {
+  hasBiteFlag,
+  hasBulletFlag,
+  hasContactFlag,
+  hasPowderFlag,
+  hasPulseFlag,
+  hasPunchFlag,
+  hasSecondaryEffect,
+  hasSoundFlag,
+  hitsMultipleTargets,
+  isOhkoMove,
+  maxHits,
+  minHits,
+  moveDamageClass,
   moveId,
+  moveIgnoresAbilities,
   moveName,
   movePower,
-  moveDamageClass,
   moveType,
   priority,
-  requiresRecharge,
-  moveIgnoresAbilities,
   recoil,
-  hasPunchFlag,
-  hasContactFlag,
-  hasSoundFlag,
-  hasPowderFlag,
-  hasBiteFlag,
-  hasPulseFlag,
-  hasBulletFlag,
-  hasSecondaryEffect,
-  minHits,
-  maxHits,
-  hitsMultipleTargets,
-  zMovePower,
-  isOhkoMove
+  requiresRecharge,
+  zMovePower
 } from "./info";
 import Pokemon from "./Pokemon";
+import {
+  BaseStat,
+  BoostList,
+  DamageClass,
+  Generation,
+  maxGen,
+  Stat,
+  StatList,
+  Type,
+  Weather
+} from "./utilities";
 
 const zMoves: { [key in Type]?: string } = {
   [Type.NORMAL]: "Breakneck Blitz",

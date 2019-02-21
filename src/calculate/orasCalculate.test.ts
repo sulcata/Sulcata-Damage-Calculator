@@ -1,8 +1,8 @@
-import orasCalculate from "./orasCalculate";
-import Pokemon from "../Pokemon";
-import Move from "../Move";
 import Field from "../Field";
+import Move from "../Move";
+import Pokemon from "../Pokemon";
 import { Generation, Nature } from "../utilities";
+import orasCalculate from "./orasCalculate";
 
 const gen = Generation.ORAS;
 

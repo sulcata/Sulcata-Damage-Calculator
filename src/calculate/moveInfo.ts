@@ -1,23 +1,23 @@
-import Pokemon from "../Pokemon";
-import Move from "../Move";
 import Field from "../Field";
 import {
-  roundHalfToZero,
+  effectiveness,
+  isAdamantType,
+  isGriseousType,
+  isLustrousType,
+  isSandForceType,
+  isSoulDewType
+} from "../info";
+import Move from "../Move";
+import Pokemon from "../Pokemon";
+import {
   applyMod,
   chainMod,
   Generation,
+  roundHalfToZero,
   Stat,
   Status,
   Type
 } from "../utilities";
-import {
-  effectiveness,
-  isSandForceType,
-  isLustrousType,
-  isAdamantType,
-  isGriseousType,
-  isSoulDewType
-} from "../info";
 
 type BaseMoveInfo =
   | { type: Type; power: number; fail?: false }

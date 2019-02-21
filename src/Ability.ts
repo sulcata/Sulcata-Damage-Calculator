@@ -1,4 +1,3 @@
-import { maxGen, Generation, Type } from "./utilities";
 import {
   abilityId,
   abilityIgnoresAbilities,
@@ -9,6 +8,7 @@ import {
   normalToType,
   pinchType
 } from "./info";
+import { Generation, maxGen, Type } from "./utilities";
 
 export type AbilityOptions = Partial<Ability> & { name?: string };
 

@@ -1,13 +1,13 @@
-import Pokemon, { PokemonOptions } from "./Pokemon";
-import Move, { MoveOptions } from "./Move";
-import Field, { FieldOptions } from "./Field";
-import Multiset from "./Multiset";
-import { Generation, Stat, Status, Type, Weather } from "./utilities";
-import { isPhysicalType, natureMultiplier, effectiveness } from "./info";
-import { NoPokemonError, NoMoveError } from "./errors";
+import * as bigInt from "big-integer";
 import calculate from "./calculate";
 import endOfTurn from "./endOfTurn";
-import * as bigInt from "big-integer";
+import { NoMoveError, NoPokemonError } from "./errors";
+import Field, { FieldOptions } from "./Field";
+import { effectiveness, isPhysicalType, natureMultiplier } from "./info";
+import Move, { MoveOptions } from "./Move";
+import Multiset from "./Multiset";
+import Pokemon, { PokemonOptions } from "./Pokemon";
+import { Generation, Stat, Status, Type, Weather } from "./utilities";
 
 const weatherMessages: { [key in Weather]: string } = {
   [Weather.CLEAR]: "",

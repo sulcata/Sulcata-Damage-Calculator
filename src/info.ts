@@ -1,15 +1,15 @@
 /* tslint:disable:no-unsafe-any */
-import { castArray, has, get, defaultTo } from "lodash";
+import { castArray, defaultTo, get, has } from "lodash";
 import db from "../dist/db";
 import {
-  Generation,
-  Type,
-  types,
   DamageClass,
+  Generation,
+  maxGen,
   Nature,
   Stat,
   StatList,
-  maxGen
+  Type,
+  types
 } from "./utilities";
 
 // istanbul ignore else

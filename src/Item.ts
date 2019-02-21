@@ -1,21 +1,21 @@
-import { Generation, maxGen, Type } from "./utilities";
 import {
-  itemId,
-  itemName,
-  naturalGiftPower,
-  naturalGiftType,
-  flingPower,
-  itemBoostedType,
   berryTypeResist,
+  flingPower,
   gemType,
-  memoryType,
   isBerry,
   isHeavy,
   isPlate,
-  zMoveTransformsTo,
+  itemBoostedType,
+  itemId,
+  itemName,
+  megaStone,
+  memoryType,
+  naturalGiftPower,
+  naturalGiftType,
   zMoveTransformsFrom,
-  megaStone
+  zMoveTransformsTo
 } from "./info";
+import { Generation, maxGen, Type } from "./utilities";
 
 const flavorBerries = new Set([
   "Figy Berry",

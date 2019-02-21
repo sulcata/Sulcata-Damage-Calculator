@@ -1,8 +1,8 @@
 /* tslint:disable:no-unbound-method */
-import Pokemon from "../Pokemon";
 import Field from "../Field";
-import gscEndOfTurn from "./gscEndOfTurn";
+import Pokemon from "../Pokemon";
 import { Stat } from "../utilities";
+import gscEndOfTurn from "./gscEndOfTurn";
 
 jest.mock("../Pokemon", () => {
   class PokemonMock {

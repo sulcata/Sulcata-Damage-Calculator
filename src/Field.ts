@@ -1,4 +1,4 @@
-import { Generation, Terrain, Weather, maxGen } from "./utilities";
+import { Generation, maxGen, Terrain, Weather } from "./utilities";
 
 export type FieldOptions = Partial<Field>;
 
