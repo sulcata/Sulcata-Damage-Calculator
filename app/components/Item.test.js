@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
 import { install as vuexInstall, Store } from "vuex";
 import ItemComponent from "./Item.vue";
-import { Gens, Item } from "sulcalc";
+import { Generation, Item } from "sulcalc";
 
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
@@ -9,7 +9,7 @@ localVue.use(vuexInstall);
 let store;
 beforeEach(() => {
   store = new Store({
-    state: { gen: Gens.ORAS }
+    state: { gen: Generation.ORAS }
   });
 });
 
@@ -55,18 +55,18 @@ test("emits the new item", () => {
   expect(item1).toBeInstanceOf(Item);
   expect(item1).toMatchObject({
     id: "noitem",
-    gen: Gens.ORAS
+    gen: Generation.ORAS
   });
   const [item2] = wrapper.emitted().input[1];
   expect(item2).toBeInstanceOf(Item);
   expect(item2).toMatchObject({
     id: "noitem",
-    gen: Gens.ORAS
+    gen: Generation.ORAS
   });
   const [item3] = wrapper.emitted().input[2];
   expect(item3).toBeInstanceOf(Item);
   expect(item3).toMatchObject({
     id: "choicescarf",
-    gen: Gens.ORAS
+    gen: Generation.ORAS
   });
 });

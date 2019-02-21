@@ -28,8 +28,8 @@ export function selectedReport(state, getters) {
     return state.overrideReport;
   }
   return getters.reports.reduce((report1, report2) => {
-    const chances1 = report1.roundedChances ?? [];
-    const chances2 = report2.roundedChances ?? [];
+    const chances1 = report1.roundedChances || [];
+    const chances2 = report2.roundedChances || [];
     for (const [chance1 = 0, chance2 = 0] of zip(chances1, chances2)) {
       if (chance1 > chance2) return report1;
       if (chance2 > chance1) return report2;

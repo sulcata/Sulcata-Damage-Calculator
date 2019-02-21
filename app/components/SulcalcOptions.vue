@@ -5,7 +5,7 @@
         :value="enabledSets.smogon"
         size="small"
         type="secondary"
-        @input="toggleSmogonSets();"
+        @input="toggleSmogonSets()"
       >
         Smogon Sets
       </button-checkbox>
@@ -13,7 +13,7 @@
         :value="enabledSets.pokemonPerfect"
         size="small"
         type="secondary"
-        @input="togglePokemonPerfectSets();"
+        @input="togglePokemonPerfectSets()"
       >
         Pokemon Perfect Sets
       </button-checkbox>
@@ -21,7 +21,7 @@
         :value="enabledSets.usage"
         size="small"
         type="secondary"
-        @input="toggleUsageSets();"
+        @input="toggleUsageSets()"
       >
         Usage Sets
       </button-checkbox>
@@ -29,7 +29,7 @@
         :value="enabledSets.custom"
         size="small"
         type="secondary"
-        @input="toggleCustomSets();"
+        @input="toggleCustomSets()"
       >
         Custom Sets
       </button-checkbox>
@@ -40,7 +40,7 @@
         :value="fractions"
         size="small"
         type="secondary"
-        @input="toggleFractions();"
+        @input="toggleFractions()"
       >
         Show Fractions
       </button-checkbox>
@@ -48,7 +48,7 @@
         :value="longRolls"
         size="small"
         type="secondary"
-        @input="toggleLongRolls();"
+        @input="toggleLongRolls()"
       >
         Show Long Damage Rolls
       </button-checkbox>

@@ -5,7 +5,7 @@
       :key="index"
       type="button"
       :class="buttonClasses(option)"
-      @click="select(option);"
+      @click="select(option)"
     >
       {{ option[label] }}
     </button>

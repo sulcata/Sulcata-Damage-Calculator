@@ -38,7 +38,7 @@
 
       <div class="col-2 text-center">
         <div
-          v-if="stat === Stats.HP"
+          v-if="stat === Stat.HP"
           role="group"
           class="btn-group btn-group-sm d-flex"
         >
@@ -76,7 +76,7 @@
 <script>
 import { clamp } from "lodash";
 import IntegerInput from "./ui/IntegerInput.vue";
-import { Pokemon, Gens, Stats } from "sulcalc";
+import { Pokemon, Generation, Stat } from "sulcalc";
 
 export default {
   components: {
@@ -93,33 +93,33 @@ export default {
     }
   },
   data() {
-    return { Stats };
+    return { Stat };
   },
   computed: {
     stats() {
-      if (this.pokemon.gen >= Gens.GSC) {
+      if (this.pokemon.gen >= Generation.GSC) {
         return [
-          [Stats.HP, "HP"],
-          [Stats.ATK, "Atk"],
-          [Stats.DEF, "Def"],
-          [Stats.SATK, "SpAtk"],
-          [Stats.SDEF, "SpDef"],
-          [Stats.SPD, "Spe"]
+          [Stat.HP, "HP"],
+          [Stat.ATK, "Atk"],
+          [Stat.DEF, "Def"],
+          [Stat.SATK, "SpAtk"],
+          [Stat.SDEF, "SpDef"],
+          [Stat.SPD, "Spe"]
         ];
       }
       return [
-        [Stats.HP, "HP"],
-        [Stats.ATK, "Atk"],
-        [Stats.DEF, "Def"],
-        [Stats.SPC, "Spc"],
-        [Stats.SPD, "Spe"]
+        [Stat.HP, "HP"],
+        [Stat.ATK, "Atk"],
+        [Stat.DEF, "Def"],
+        [Stat.SPC, "Spc"],
+        [Stat.SPD, "Spe"]
       ];
     },
     maxIv() {
-      return this.pokemon.gen >= Gens.ADV ? 31 : 15;
+      return this.pokemon.gen >= Generation.ADV ? 31 : 15;
     },
     defaultEv() {
-      return this.pokemon.gen >= Gens.ADV ? 0 : 252;
+      return this.pokemon.gen >= Generation.ADV ? 0 : 252;
     }
   },
   methods: {
@@ -134,7 +134,7 @@ export default {
     },
     boostAll(amount) {
       const boosts = this.pokemon.boosts.slice(0);
-      const stats = [Stats.ATK, Stats.DEF, Stats.SATK, Stats.SDEF, Stats.SPD];
+      const stats = [Stat.ATK, Stat.DEF, Stat.SATK, Stat.SDEF, Stat.SPD];
       for (const stat of stats) {
         boosts[stat] = clamp(boosts[stat] + amount, -6, 6);
       }
@@ -143,7 +143,7 @@ export default {
     updateIv(stat, iv) {
       const ivs = this.pokemon.ivs.slice(0);
       ivs[stat] = iv;
-      if (stat === Stats.HP || this.pokemon.gen <= Gens.GSC) {
+      if (stat === Stat.HP || this.pokemon.gen <= Generation.GSC) {
         this.$emit(
           "input",
           new Pokemon({
@@ -161,7 +161,7 @@ export default {
     updateEv(stat, ev) {
       const evs = this.pokemon.evs.slice(0);
       evs[stat] = ev;
-      if (stat === Stats.HP) {
+      if (stat === Stat.HP) {
         this.$emit(
           "input",
           new Pokemon({
@@ -183,27 +183,27 @@ export default {
     },
     isIvDisabled(stat) {
       return (
-        this.pokemon.gen <= Gens.GSC &&
-        (stat === Stats.HP || stat === Stats.SDEF)
+        this.pokemon.gen <= Generation.GSC &&
+        (stat === Stat.HP || stat === Stat.SDEF)
       );
     },
     isEvDisabled(stat) {
-      return this.pokemon.gen <= Gens.GSC && stat === Stats.SDEF;
+      return this.pokemon.gen <= Generation.GSC && stat === Stat.SDEF;
     },
     computedIv(stat) {
-      if (this.pokemon.gen <= Gens.GSC) {
-        if (stat === Stats.HP) {
+      if (this.pokemon.gen <= Generation.GSC) {
+        if (stat === Stat.HP) {
           return Pokemon.calcHealthDv(this.pokemon.ivs);
         }
-        if (stat === Stats.SDEF) {
-          return this.pokemon.ivs[Stats.SPC];
+        if (stat === Stat.SDEF) {
+          return this.pokemon.ivs[Stat.SPC];
         }
       }
       return this.pokemon.ivs[stat];
     },
     computedEv(stat) {
-      if (this.pokemon.gen <= Gens.GSC && stat === Stats.SDEF) {
-        return this.pokemon.evs[Stats.SPC];
+      if (this.pokemon.gen <= Generation.GSC && stat === Stat.SDEF) {
+        return this.pokemon.evs[Stat.SPC];
       }
       return this.pokemon.evs[stat];
     }

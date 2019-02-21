@@ -1,18 +1,18 @@
 import path from "path";
 import fs from "fs-extra";
 import _ from "lodash/fp";
-import { info, Move, Stats, Pokemon, Gens } from "../src";
+import { info, Move, Stat, Pokemon, Generation } from "../src";
 
 const mapValuesUncapped = _.mapValues.convert({ cap: false });
 
 const minifySet = _.curry((set, pokemonId, gen) => {
   const statMatches = {
-    hp: Stats.HP,
-    at: Stats.ATK,
-    df: Stats.DEF,
-    sa: Stats.SATK,
-    sd: Stats.SDEF,
-    sp: Stats.SPD
+    hp: Stat.HP,
+    at: Stat.ATK,
+    df: Stat.DEF,
+    sa: Stat.SATK,
+    sd: Stat.SDEF,
+    sp: Stat.SPD
   };
 
   const pokemon = new Pokemon({
@@ -22,7 +22,7 @@ const minifySet = _.curry((set, pokemonId, gen) => {
     item: set.item
   });
 
-  pokemon.nature = info.natureId(set.nature ?? "");
+  pokemon.nature = info.natureId(set.nature !== undefined ? set.nature : "");
 
   pokemon.moves = _.map(move => new Move({ name: move, gen }), set.moves);
 
@@ -57,43 +57,43 @@ const setdex = async () => {
   const outDir = path.join(__dirname, "../dist/setdex");
   await fs.mkdirs(outDir);
   const files = [
-    ["setdex_rby", Gens.RBY],
-    ["setdex_gsc", Gens.GSC],
-    ["setdex_rse", Gens.ADV],
-    ["setdex_dpp", Gens.HGSS],
-    ["setdex_bw", Gens.B2W2],
-    ["setdex_xy", Gens.ORAS],
-    ["setdex_sm", Gens.SM],
-    ["setdex_rby_pp", Gens.RBY],
-    ["setdex_xy_pp", Gens.ORAS]
+    ["setdex_rby", Generation.RBY],
+    ["setdex_gsc", Generation.GSC],
+    ["setdex_rse", Generation.ADV],
+    ["setdex_dpp", Generation.HGSS],
+    ["setdex_bw", Generation.B2W2],
+    ["setdex_xy", Generation.ORAS],
+    ["setdex_sm", Generation.SM],
+    ["setdex_rby_pp", Generation.RBY],
+    ["setdex_xy_pp", Generation.ORAS]
   ].map(async ([file, gen]) => {
     const setdexData = (await import(path.join(inDir, file + ".js"))).default;
     const minifiedSetdex = minifySetdex(setdexData, gen);
     await fs.writeFile(
-      path.join(outDir, file + ".js"),
+      path.join(outDir, file + ".ts"),
       `export default ${JSON.stringify(minifiedSetdex)}`
     );
   });
   await Promise.all([
     ...files,
     fs.writeFile(
-      path.join(outDir, "smogon.js"),
+      path.join(outDir, "smogon.ts"),
       `
-        import rby from "./setdex_rby.js"
-        import gsc from "./setdex_gsc.js"
-        import adv from "./setdex_rse.js"
-        import hgss from "./setdex_dpp.js"
-        import b2w2 from "./setdex_bw.js"
-        import oras from "./setdex_xy.js"
-        import sm from "./setdex_sm.js"
+        import rby from "./setdex_rby.ts"
+        import gsc from "./setdex_gsc.ts"
+        import adv from "./setdex_rse.ts"
+        import hgss from "./setdex_dpp.ts"
+        import b2w2 from "./setdex_bw.ts"
+        import oras from "./setdex_xy.ts"
+        import sm from "./setdex_sm.ts"
         export default [{}, rby, gsc, adv, hgss, b2w2, oras, sm]
       `
     ),
     fs.writeFile(
-      path.join(outDir, "pokemonPerfect.js"),
+      path.join(outDir, "pokemonPerfect.ts"),
       `
-        import rby from "./setdex_rby_pp.js"
-        import oras from "./setdex_xy_pp.js"
+        import rby from "./setdex_rby_pp.ts"
+        import oras from "./setdex_xy_pp.ts"
         export default [{}, rby, {}, {}, {}, {}, oras, {}]
       `
     )

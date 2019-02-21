@@ -12,25 +12,19 @@ module.exports = function(api) {
         shippedProposals: true,
         useBuiltIns: "usage"
       }
-    ]
+    ],
+    "@babel/preset-typescript"
   ];
 
   const plugins = [
-    ["@babel/plugin-proposal-nullish-coalescing-operator", { loose: true }],
-    "@babel/plugin-proposal-export-default-from",
-    "@babel/plugin-proposal-export-namespace-from",
     "lodash",
-    !api.env("webpack") && "babel-plugin-dynamic-import-node"
-  ].filter(Boolean);
+    "@babel/plugin-proposal-class-properties"
+    // "@babel/plugin-proposal-decorators"
+  ];
 
-  return {
-    overrides: [
-      { test: "**/*.js", presets, plugins },
-      {
-        test: "**/*.ts",
-        presets: [...presets, "@babel/preset-typescript"],
-        plugins
-      }
-    ]
-  };
+  if (!api.env("webpack")) {
+    plugins.push("babel-plugin-dynamic-import-node");
+  }
+
+  return { presets, plugins };
 };

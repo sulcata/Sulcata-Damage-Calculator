@@ -1,19 +1,19 @@
 import path from "path";
 import fs from "fs-extra";
-import { info, Ability, Gens, Item, Move, Pokemon } from "../src";
+import { info, Ability, Generation, Item, Move, Pokemon } from "../src";
 
 const inDir = path.join(__dirname, "data/stats");
 const outDir = path.join(__dirname, "../dist");
 const setdexOutDir = path.join(outDir, "setdex");
 
 const statsFiles = [
-  [Gens.RBY, "gen1ou-1760.json"],
-  [Gens.GSC, "gen2ou-1760.json"],
-  [Gens.ADV, "gen3ou-1760.json"],
-  [Gens.HGSS, "gen4ou-1760.json"],
-  [Gens.B2W2, "gen5ou-1760.json"],
-  [Gens.ORAS, "gen6ou-1760.json"],
-  [Gens.SM, "gen7ou-1825.json"]
+  [Generation.RBY, "gen1ou-1760.json"],
+  [Generation.GSC, "gen2ou-1760.json"],
+  [Generation.ADV, "gen3ou-1760.json"],
+  [Generation.HGSS, "gen4ou-1760.json"],
+  [Generation.B2W2, "gen5ou-1760.json"],
+  [Generation.ORAS, "gen6ou-1760.json"],
+  [Generation.SM, "gen7ou-1825.json"]
 ];
 
 async function getSetdexAndUsage(gen, file) {
@@ -95,11 +95,11 @@ async function stats() {
   const usage = [{}, ...setdexAndUsage.map(data => data.usage)];
   await Promise.all([
     fs.outputFile(
-      path.join(outDir, "usage.js"),
+      path.join(outDir, "usage.ts"),
       `export default ${JSON.stringify(usage)}`
     ),
     fs.outputFile(
-      path.join(setdexOutDir, "usage.js"),
+      path.join(setdexOutDir, "usage.ts"),
       `export default ${JSON.stringify(setdex)}`
     )
   ]);

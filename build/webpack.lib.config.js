@@ -18,7 +18,6 @@ module.exports = {
     rules: [
       {
         test: /\.(js|ts)$/,
-        type: "javascript/esm",
         loader: "babel-loader",
         exclude: /(node_modules|dist)\//,
         options: { envName: "webpack" }

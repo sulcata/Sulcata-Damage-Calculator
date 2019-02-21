@@ -27,7 +27,7 @@
 
         <!-- Z-Move -->
         <button-checkbox
-          v-if="gen >= Gens.SM"
+          v-if="gen >= Generation.SM"
           :value="move.zMove"
           size="small"
           type="secondary"
@@ -185,12 +185,10 @@
 
 <script>
 import { mapState } from "vuex";
-import VueMultiselect from "vue-multiselect";
+import { Multiselect } from "vue-multiselect";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import IntegerInput from "./ui/IntegerInput.vue";
-import { Move, Gens, info } from "sulcalc";
-
-const { Multiselect } = VueMultiselect;
+import { Move, Generation, info } from "sulcalc";
 
 export default {
   components: {
@@ -216,7 +214,7 @@ export default {
     }
   },
   data() {
-    return { Gens };
+    return { Generation };
   },
   computed: {
     ...mapState(["gen"]),
@@ -246,8 +244,8 @@ export default {
       return options;
     },
     furyCutterOptions() {
-      if (this.gen >= Gens.ORAS) return ordinalHitOptions(3);
-      if (this.gen >= Gens.B2W2) return ordinalHitOptions(4);
+      if (this.gen >= Generation.ORAS) return ordinalHitOptions(3);
+      if (this.gen >= Generation.B2W2) return ordinalHitOptions(4);
       return ordinalHitOptions(5);
     },
     echoedVoiceOptions() {

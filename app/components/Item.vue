@@ -12,10 +12,8 @@
 
 <script>
 import { mapState } from "vuex";
-import VueMultiselect from "vue-multiselect";
+import { Multiselect } from "vue-multiselect";
 import { Item, info } from "sulcalc";
-
-const { Multiselect } = VueMultiselect;
 
 export default {
   components: {

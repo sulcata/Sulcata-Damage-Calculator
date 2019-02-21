@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import _ from "lodash/fp";
-import { maxGen, Gens, Types } from "../src/utilities";
+import { maxGen, Generation, Type } from "../src/utilities";
 import { ignorableAbilities, requiredItems } from "./db-extras";
 
 const inDir = path.join(__dirname, "data/ps-data");
@@ -11,8 +11,9 @@ const nameToId = name => name.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
 
 function processType(typeString) {
   const normalized = typeString.toUpperCase();
-  if (["???", "CURSE"].includes(normalized)) return Types.CURSE;
-  return Types[normalized] ?? Types.CURSE;
+  if (["???", "CURSE"].includes(normalized)) return Type.CURSE;
+  const type = Type[normalized];
+  return type !== undefined ? type : Type.CURSE;
 }
 
 const processAbilityInfo = _.curry((gen, abilityInfo) => {
@@ -23,15 +24,15 @@ const processAbilityInfo = _.curry((gen, abilityInfo) => {
     if (abilityInfo.gen) {
       gen = abilityInfo.gen;
     } else if (num >= 192) {
-      gen = Gens.SM;
+      gen = Generation.SM;
     } else if (num >= 165) {
-      gen = Gens.ORAS;
+      gen = Generation.ORAS;
     } else if (num >= 124) {
-      gen = Gens.B2W2;
+      gen = Generation.B2W2;
     } else if (num >= 77) {
-      gen = Gens.HGSS;
+      gen = Generation.HGSS;
     } else if (num >= 1) {
-      gen = Gens.ADV;
+      gen = Generation.ADV;
     }
     result.a = gen;
   }
@@ -41,7 +42,7 @@ const processAbilityInfo = _.curry((gen, abilityInfo) => {
   if (immunityTypeCheck !== null) {
     result.d = processType(immunityTypeCheck[1]);
   } else if (/immune to Ground/i.test(abilityInfo.desc)) {
-    result.d = Types.GROUND;
+    result.d = Type.GROUND;
   } else if (/redirects that move/i.test(abilityInfo.desc)) {
     result.d = -1;
   }
@@ -68,15 +69,15 @@ const processItemInfo = _.curry((gen, itemInfo) => {
     if (itemInfo.gen) {
       gen = itemInfo.gen;
     } else if (num >= 689) {
-      gen = Gens.SM;
+      gen = Generation.SM;
     } else if (num >= 577) {
-      gen = Gens.ORAS;
+      gen = Generation.ORAS;
     } else if (num >= 537) {
-      gen = Gens.B2W2;
+      gen = Generation.B2W2;
     } else if (num >= 377) {
-      gen = Gens.HGSS;
+      gen = Generation.HGSS;
     } else {
-      gen = Gens.ADV;
+      gen = Generation.ADV;
     }
     result.a = gen;
   }
@@ -124,19 +125,19 @@ const processMoveInfo = _.curry((gen, moveInfo) => {
     if (moveInfo.gen) {
       gen = moveInfo.gen;
     } else if (num >= 622) {
-      gen = Gens.SM;
+      gen = Generation.SM;
     } else if (num >= 560) {
-      gen = Gens.ORAS;
+      gen = Generation.ORAS;
     } else if (num >= 468) {
-      gen = Gens.B2W2;
+      gen = Generation.B2W2;
     } else if (num >= 355) {
-      gen = Gens.HGSS;
+      gen = Generation.HGSS;
     } else if (num >= 252) {
-      gen = Gens.ADV;
+      gen = Generation.ADV;
     } else if (num >= 166) {
-      gen = Gens.GSC;
+      gen = Generation.GSC;
     } else if (num >= 1) {
-      gen = Gens.RBY;
+      gen = Generation.RBY;
     }
     result.a = gen;
   }
@@ -229,22 +230,22 @@ const processPokeInfo = _.curry((gen, pokeInfo) => {
     if (pokeInfo.gen) {
       gen = pokeInfo.gen;
     } else if (num >= 722 || forme === "Alola") {
-      gen = Gens.SM;
+      gen = Generation.SM;
     } else if (
       num >= 650 ||
       ["Mega", "Mega-X", "Mega-Y", "Primal"].includes(forme)
     ) {
-      gen = Gens.ORAS;
+      gen = Generation.ORAS;
     } else if (num >= 494) {
-      gen = Gens.B2W2;
+      gen = Generation.B2W2;
     } else if (num >= 387) {
-      gen = Gens.HGSS;
+      gen = Generation.HGSS;
     } else if (num >= 252) {
-      gen = Gens.ADV;
+      gen = Generation.ADV;
     } else if (num >= 152) {
-      gen = Gens.GSC;
+      gen = Generation.GSC;
     } else if (num >= 1) {
-      gen = Gens.RBY;
+      gen = Generation.RBY;
     }
     result.a = gen;
   }
@@ -281,7 +282,7 @@ const processTypechart = _.flow(
       _.reject(
         _.flow(
           _.get(0),
-          _.eq(String(Types.CURSE))
+          _.eq(String(Type.CURSE))
         )
       ),
       _.fromPairs,
@@ -301,12 +302,12 @@ function processCategory(categoryString) {
 
 function processStats(stats) {
   return [
-    stats.hp ?? 0,
-    stats.atk ?? 0,
-    stats.def ?? 0,
-    stats.spa ?? 0,
-    stats.spd ?? 0,
-    stats.spe ?? 0
+    stats.hp || 0,
+    stats.atk || 0,
+    stats.def || 0,
+    stats.spa || 0,
+    stats.spd || 0,
+    stats.spe || 0
   ];
 }
 
@@ -381,7 +382,7 @@ async function db() {
   const genObject = _.zipObject(genList, infoList);
   await fs.mkdirs(outDir);
   await fs.writeFile(
-    path.join(outDir, "db.js"),
+    path.join(outDir, "db.ts"),
     `export default ${JSON.stringify(genObject)}`
   );
 }

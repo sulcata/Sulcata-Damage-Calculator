@@ -2,15 +2,15 @@
   <div>
     <set-selector :pokemon="pokemon" @input="updateNewPokemon" />
 
-    <div v-show="pokemon.gen >= Gens.GSC" class="mt-1">
+    <div v-show="pokemon.gen >= Generation.GSC" class="mt-1">
       <item :item="pokemon.item" @input="updateItem" />
     </div>
 
-    <div v-show="pokemon.gen >= Gens.ADV" class="mt-1">
+    <div v-show="pokemon.gen >= Generation.ADV" class="mt-1">
       <ability :ability="pokemon.ability" @input="updateAbility" />
     </div>
 
-    <div v-show="pokemon.gen >= Gens.ADV" class="mt-1">
+    <div v-show="pokemon.gen >= Generation.ADV" class="mt-1">
       <nature :nature="pokemon.nature" @input="updateNature" />
     </div>
 
@@ -44,7 +44,7 @@
           </div>
           <div class="col-auto">
             <health
-              :total-hp="pokemon.stat(Stats.HP)"
+              :total-hp="pokemon.stat(Stat.HP)"
               :current-hp="pokemon.currentHp"
               :current-hp-range="pokemon.currentHpRange"
               :current-hp-range-berry="pokemon.currentHpRangeBerry"
@@ -67,7 +67,7 @@ import StatusComponent from "./Status.vue";
 import StatsComponent from "./Stats.vue";
 import Health from "./Health.vue";
 import IntegerInput from "./ui/IntegerInput.vue";
-import { Gens, Stats, Pokemon, Move } from "sulcalc";
+import { Generation, Stat, Pokemon, Move } from "sulcalc";
 
 export default {
   components: {
@@ -92,7 +92,7 @@ export default {
     }
   },
   data() {
-    return { Gens, Stats };
+    return { Generation, Stat };
   },
   methods: {
     updatePokemon(pokemon) {
@@ -144,7 +144,7 @@ function suggestedMoveChanges(move) {
   }
   if (
     move.isHiddenPower() &&
-    move.gen < Gens.SM &&
+    move.gen < Generation.SM &&
     move.type() !== Move.hiddenPowerType(move.user.ivs, move.gen)
   ) {
     suggestions.ivs = Move.hiddenPowers(move.type(), move.gen)[0];

@@ -29,7 +29,6 @@ module.exports = env => ({
     rules: [
       {
         test: /\.(js|ts)$/,
-        type: "javascript/esm",
         loader: "babel-loader",
         exclude: file =>
           /[\\/](node_modules|dist)[\\/]/.test(file) &&

@@ -1,6 +1,6 @@
 "use strict";
 
-const moduleFileExtensions = ["js", "json", "ts", "vue"];
+const moduleFileExtensions = ["js", "jsx", "json", "ts", "tsx", "vue"];
 
 const moduleNameMapper = {
   "^sulcalc$": "<rootDir>/src/index",
@@ -8,10 +8,10 @@ const moduleNameMapper = {
   "^package$": "<rootDir>/package.json"
 };
 
-const testMatch = "**/*.(spec|test).{js,ts}";
+const testMatch = "**/?(*.)+(spec|test).{js,ts}";
 
 const transform = {
-  "^.+\\.(js|ts)$": "<rootDir>/node_modules/babel-jest",
+  "^.+\\.(js|ts)x?$": "<rootDir>/node_modules/babel-jest",
   "^.+\\.vue$": "<rootDir>/node_modules/vue-jest"
 };
 

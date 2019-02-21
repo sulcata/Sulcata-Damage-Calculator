@@ -57,10 +57,13 @@ test("damageRoll computed property prints a readable damage roll", () => {
   });
   expect(wrapper.vm.damageRoll).toBe("(1, 2, 3, 4, 4, 5)");
 
+  const set = new Multiset();
+  set.add(1, 21);
+  set.add(2, 3);
+  set.add(4, 1);
+  set.add(5, 15);
   store.commit("_setSelectedReport", {
-    report: {
-      damage: new Multiset(new Map([[1, 21], [2, 3], [4, 1], [5, 15]]))
-    }
+    report: { damage: set }
   });
   expect(wrapper.vm.damageRoll).toBe("");
 
