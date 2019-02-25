@@ -7,28 +7,28 @@ A Pokemon damage calculator.
 ## Usage
 
 ```js
-import { sulcalc, Field, Gens, Move, Pokemon, Weathers } from "sulcalc";
+import { sulcalc, Field, Generation, Move, Pokemon, Weather } from "sulcalc";
 
 const attacker = new Pokemon({
   name: "Moltres",
   item: "Charcoal",
-  gen: Gens.GSC
+  gen: Generation.GSC
 });
 
 const defender = new Pokemon({
   name: "Snorlax",
   item: "Leftovers",
-  gen: Gens.GSC
+  gen: Generation.GSC
 });
 
 const move = new Move({
   name: "Fire Blast",
-  gen: Gens.GSC
+  gen: Generation.GSC
 });
 
 const field = new Field({
-  weather: Weathers.SUN,
-  gen: Gens.GSC
+  weather: Weather.SUN,
+  gen: Generation.GSC
 });
 
 sulcalc(attacker, defender, move, field).summary;
@@ -38,12 +38,26 @@ sulcalc(attacker, defender, move, field).summary;
 ## Installing Dependencies and Setup
 
 1.  Install [Node.js](https://nodejs.org/) if you haven't done so already.
-2.  Run `npm install` in the root directory of the repository.
+2.  Run `npm ci` in the root directory of the repository.
 3.  Be sure to run `npm run setup` before running other tasks.
 
 ## Running
 
-`npm start` to start a local server that will serve the app.
+- `npm run start` to start a local server that will serve the app.
+- After a while it will finish building and provide a link in the console.
+
+## Building
+
+- `npm run build:app` to build the web app.
+- `npm run build:lib` to bundle just the API together.
+- All builds are put in the `/dist` folder.
+
+## Linting and Testing
+
+- `npm run test` to run the unit tests.
+- `npm run lint` to run TSLint and Prettier.
+- `npm run style:fix` to autoformat with Prettier.
+- These should all be run automatically before commits.
 
 ## Issues
 
