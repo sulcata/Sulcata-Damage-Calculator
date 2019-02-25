@@ -8,7 +8,7 @@ module.exports = {
     filename: "sulcalc.js",
     path: path.join(__dirname, "../dist/sulcalc"),
     library: "sulcalc",
-    libraryTarget: "umd"
+    libraryTarget: "commonjs2"
   },
   resolve: {
     extensions: [".js", ".json", ".ts"]

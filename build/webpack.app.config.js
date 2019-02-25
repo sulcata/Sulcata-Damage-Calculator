@@ -114,18 +114,20 @@ module.exports = env => ({
   },
   plugins: [
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" }),
-    new OptimizeCssAssetsPlugin(),
+    env.production &&
+      new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" }),
+    env.production && new OptimizeCssAssetsPlugin(),
     new HtmlPlugin({
       template: path.join(__dirname, "../app/index.html"),
       inject: "head"
     }),
     new ScriptExtHtmlPlugin({ defaultAttribute: "defer" }),
-    new WorkboxPlugin.GenerateSW({
-      cacheId: "sulcalc",
-      swDest: "service-worker.js",
-      importWorkboxFrom: "local",
-      offlineGoogleAnalytics: false
-    })
-  ]
+    env.production &&
+      new WorkboxPlugin.GenerateSW({
+        cacheId: "sulcalc",
+        swDest: "service-worker.js",
+        importWorkboxFrom: "local",
+        offlineGoogleAnalytics: false
+      })
+  ].filter(Boolean)
 });
