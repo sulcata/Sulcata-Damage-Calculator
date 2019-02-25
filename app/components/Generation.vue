@@ -10,7 +10,7 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
-import { Gens, maxGen, info } from "sulcalc";
+import { generations, maxGen, info } from "sulcalc";
 
 export default {
   components: {
@@ -19,11 +19,7 @@ export default {
   computed: {
     ...mapState(["gen"]),
     gens() {
-      const options = [];
-      for (let value = Gens.RBY; value <= maxGen; value++) {
-        options.push({ value, label: info.genName(value) });
-      }
-      return options;
+      return generations.map(value => ({ value, label: info.genName(value) }));
     }
   },
   methods: {

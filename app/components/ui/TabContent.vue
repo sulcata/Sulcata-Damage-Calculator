@@ -7,7 +7,7 @@
         role="presentation"
         class="nav-item nav-link clickable-control"
         :class="{ active: isActive(tab) }"
-        @click="selectTab(tab);"
+        @click="selectTab(tab)"
       >
         {{ tab }}
       </li>

@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from "@vue/test-utils";
 import { install as vuexInstall, Store } from "vuex";
 import FieldComponent from "./Field.vue";
-import { Gens, Terrains, Weathers, Field, Pokemon } from "sulcalc";
+import { Generation, Terrain, Weather, Field, Pokemon } from "sulcalc";
 
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
@@ -36,7 +36,7 @@ beforeEach(() => {
   };
   store = new Store({
     state: {
-      gen: Gens.SM,
+      gen: Generation.SM,
       field: new Field(),
       attacker: new Pokemon(),
       defender: new Pokemon()
@@ -55,19 +55,19 @@ test("weathers computed property returns non-harsh weathers", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.weathers).toEqual(
     expect.arrayContaining([
-      { value: Weathers.SUN, label: expect.any(String) },
-      { value: Weathers.RAIN, label: expect.any(String) },
-      { value: Weathers.SAND, label: expect.any(String) },
-      { value: Weathers.HAIL, label: expect.any(String) }
+      { value: Weather.SUN, label: expect.any(String) },
+      { value: Weather.RAIN, label: expect.any(String) },
+      { value: Weather.SAND, label: expect.any(String) },
+      { value: Weather.HAIL, label: expect.any(String) }
     ])
   );
   expect(wrapper.vm.weathers).toHaveLength(4);
-  store.commit("_setGen", { gen: Gens.GSC });
+  store.commit("_setGen", { gen: Generation.GSC });
   expect(wrapper.vm.weathers).toEqual(
     expect.arrayContaining([
-      { value: Weathers.SUN, label: expect.any(String) },
-      { value: Weathers.RAIN, label: expect.any(String) },
-      { value: Weathers.SAND, label: expect.any(String) }
+      { value: Weather.SUN, label: expect.any(String) },
+      { value: Weather.RAIN, label: expect.any(String) },
+      { value: Weather.SAND, label: expect.any(String) }
     ])
   );
   expect(wrapper.vm.weathers).toHaveLength(3);
@@ -77,19 +77,19 @@ test("weathers computed property returns non-harsh weather options", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.weathers).toEqual(
     expect.arrayContaining([
-      { value: Weathers.SUN, label: expect.any(String) },
-      { value: Weathers.RAIN, label: expect.any(String) },
-      { value: Weathers.SAND, label: expect.any(String) },
-      { value: Weathers.HAIL, label: expect.any(String) }
+      { value: Weather.SUN, label: expect.any(String) },
+      { value: Weather.RAIN, label: expect.any(String) },
+      { value: Weather.SAND, label: expect.any(String) },
+      { value: Weather.HAIL, label: expect.any(String) }
     ])
   );
   expect(wrapper.vm.weathers).toHaveLength(4);
-  store.commit("_setGen", { gen: Gens.GSC });
+  store.commit("_setGen", { gen: Generation.GSC });
   expect(wrapper.vm.weathers).toEqual(
     expect.arrayContaining([
-      { value: Weathers.SUN, label: expect.any(String) },
-      { value: Weathers.RAIN, label: expect.any(String) },
-      { value: Weathers.SAND, label: expect.any(String) }
+      { value: Weather.SUN, label: expect.any(String) },
+      { value: Weather.RAIN, label: expect.any(String) },
+      { value: Weather.SAND, label: expect.any(String) }
     ])
   );
   expect(wrapper.vm.weathers).toHaveLength(3);
@@ -99,19 +99,19 @@ test("terrains computed property returns possible terrain options", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.terrains).toEqual(
     expect.arrayContaining([
-      { value: Terrains.GRASSY_TERRAIN, label: expect.any(String) },
-      { value: Terrains.MISTY_TERRAIN, label: expect.any(String) },
-      { value: Terrains.ELECTRIC_TERRAIN, label: expect.any(String) },
-      { value: Terrains.PSYCHIC_TERRAIN, label: expect.any(String) }
+      { value: Terrain.GRASSY_TERRAIN, label: expect.any(String) },
+      { value: Terrain.MISTY_TERRAIN, label: expect.any(String) },
+      { value: Terrain.ELECTRIC_TERRAIN, label: expect.any(String) },
+      { value: Terrain.PSYCHIC_TERRAIN, label: expect.any(String) }
     ])
   );
   expect(wrapper.vm.terrains).toHaveLength(4);
-  store.commit("_setGen", { gen: Gens.ORAS });
+  store.commit("_setGen", { gen: Generation.ORAS });
   expect(wrapper.vm.terrains).toEqual(
     expect.arrayContaining([
-      { value: Terrains.GRASSY_TERRAIN, label: expect.any(String) },
-      { value: Terrains.MISTY_TERRAIN, label: expect.any(String) },
-      { value: Terrains.ELECTRIC_TERRAIN, label: expect.any(String) }
+      { value: Terrain.GRASSY_TERRAIN, label: expect.any(String) },
+      { value: Terrain.MISTY_TERRAIN, label: expect.any(String) },
+      { value: Terrain.ELECTRIC_TERRAIN, label: expect.any(String) }
     ])
   );
   expect(wrapper.vm.terrains).toHaveLength(3);

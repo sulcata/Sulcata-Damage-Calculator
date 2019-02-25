@@ -7,9 +7,8 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
-const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
-const setdexRegex = /[\\/]dist[\\/]setdex[\\/].*?\.(js|json)$/;
+const setdexRegex = /[\\/]dist[\\/]setdex[\\/].*?\.(js|json,ts)$/;
 const libRegex = /[\\/]node_modules[\\/](lodash|big-integer|bootstrap|vue|vuex|vue-multiselect)[\\/]/;
 
 module.exports = env => ({
@@ -23,17 +22,17 @@ module.exports = env => ({
       sulcalc: path.join(__dirname, "../src"),
       package: path.join(__dirname, "../package.json")
     },
-    extensions: [".js", ".json", ".vue"]
+    extensions: [".js", ".json", ".ts", ".vue"]
   },
   module: {
     strictExportPresence: true,
     rules: [
       {
-        test: /\.js$/,
-        type: "javascript/esm",
+        test: /\.(js|ts)$/,
         loader: "babel-loader",
         exclude: file =>
-          /[\\/](node_modules|dist)[\\/]/.test(file) && !/\.vue\.js/.test(file),
+          /[\\/](node_modules|dist)[\\/]/.test(file) &&
+          !/\.vue\.(js|ts)/.test(file),
         options: { envName: "webpack" }
       },
       {
@@ -108,30 +107,27 @@ module.exports = env => ({
     minimizer: [
       new TerserPlugin({
         sourceMap: !env.production,
+        parallel: true,
         terserOptions: { ecma: 8 }
       })
     ]
   },
   plugins: [
     new VueLoaderPlugin(),
-    new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" }),
-    new OptimizeCssAssetsPlugin(),
+    env.production &&
+      new MiniCssExtractPlugin({ filename: "[name].[contenthash:8].css" }),
+    env.production && new OptimizeCssAssetsPlugin(),
     new HtmlPlugin({
       template: path.join(__dirname, "../app/index.html"),
       inject: "head"
     }),
     new ScriptExtHtmlPlugin({ defaultAttribute: "defer" }),
-    new WorkboxPlugin.GenerateSW({
-      cacheId: "sulcalc",
-      swDest: "service-worker.js",
-      importWorkboxFrom: "local",
-      offlineGoogleAnalytics: false
-    }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: env.production ? "disabled" : "server",
-      analyzerHost: "localhost",
-      defaultSizes: "gzip",
-      openAnalyzer: false
-    })
-  ]
+    env.production &&
+      new WorkboxPlugin.GenerateSW({
+        cacheId: "sulcalc",
+        swDest: "service-worker.js",
+        importWorkboxFrom: "local",
+        offlineGoogleAnalytics: false
+      })
+  ].filter(Boolean)
 });

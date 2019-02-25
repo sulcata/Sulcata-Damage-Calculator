@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
 import { install as vuexInstall, Store } from "vuex";
 import SetSelector from "./SetSelector.vue";
-import { Gens, Pokemon } from "sulcalc";
+import { Generation, Pokemon } from "sulcalc";
 
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
@@ -10,7 +10,7 @@ let store;
 beforeEach(() => {
   store = new Store({
     state: {
-      gen: Gens.GSC
+      gen: Generation.GSC
     },
     getters: {
       sets: jest.fn().mockReturnValue([
@@ -54,7 +54,7 @@ test("emits a Pokemon on updates", () => {
   wrapper.vm.updatePokemon({
     pokemonId: "snorlax",
     set: {},
-    gen: Gens.GSC
+    gen: Generation.GSC
   });
   expect(wrapper.emitted().input).toHaveLength(1);
   const [emittedPokemon] = wrapper.emitted().input[0];
@@ -64,6 +64,6 @@ test("emits a Pokemon on updates", () => {
     evs: Array(6).fill(252),
     ivs: Array(6).fill(15),
     set: {},
-    gen: Gens.GSC
+    gen: Generation.GSC
   });
 });

@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
 import { install as vuexInstall, Store } from "vuex";
 import AbilityComponent from "./Ability.vue";
-import { Gens, Ability } from "sulcalc";
+import { Generation, Ability } from "sulcalc";
 
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
@@ -9,7 +9,7 @@ localVue.use(vuexInstall);
 let store;
 beforeEach(() => {
   store = new Store({
-    state: { gen: Gens.ORAS }
+    state: { gen: Generation.ORAS }
   });
 });
 
@@ -55,18 +55,18 @@ test("emits the new ability", () => {
   expect(ability1).toBeInstanceOf(Ability);
   expect(ability1).toMatchObject({
     id: "noability",
-    gen: Gens.ORAS
+    gen: Generation.ORAS
   });
   const [ability2] = wrapper.emitted().input[1];
   expect(ability2).toBeInstanceOf(Ability);
   expect(ability2).toMatchObject({
     id: "noability",
-    gen: Gens.ORAS
+    gen: Generation.ORAS
   });
   const [ability3] = wrapper.emitted().input[2];
   expect(ability3).toBeInstanceOf(Ability);
   expect(ability3).toMatchObject({
     id: "guts",
-    gen: Gens.ORAS
+    gen: Generation.ORAS
   });
 });

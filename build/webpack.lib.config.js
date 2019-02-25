@@ -8,14 +8,16 @@ module.exports = {
     filename: "sulcalc.js",
     path: path.join(__dirname, "../dist/sulcalc"),
     library: "sulcalc",
-    libraryTarget: "umd"
+    libraryTarget: "commonjs2"
+  },
+  resolve: {
+    extensions: [".js", ".json", ".ts"]
   },
   module: {
     strictExportPresence: true,
     rules: [
       {
-        test: /\.js$/,
-        type: "javascript/esm",
+        test: /\.(js|ts)$/,
         loader: "babel-loader",
         exclude: /(node_modules|dist)\//,
         options: { envName: "webpack" }
@@ -28,6 +30,7 @@ module.exports = {
     minimizer: [
       new TerserPlugin({
         sourceMap: true,
+        parallel: true,
         terserOptions: { ecma: 8 }
       })
     ]

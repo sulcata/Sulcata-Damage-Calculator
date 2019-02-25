@@ -11,10 +11,8 @@
 </template>
 
 <script>
-import VueMultiselect from "vue-multiselect";
-import { Natures, info } from "sulcalc";
-
-const { Multiselect } = VueMultiselect;
+import { Multiselect } from "vue-multiselect";
+import { Nature, natures, info } from "sulcalc";
 
 export default {
   components: {
@@ -29,25 +27,25 @@ export default {
       required: true,
       type: Number,
       validator(value) {
-        return Object.values(Natures).includes(value);
+        return natures.includes(value);
       }
     }
   },
   computed: {
     natures() {
-      return Object.values(Natures)
+      return natures
         .map(id => ({ value: id, label: info.natureName(id) }))
         .sort((a, b) => a.label.localeCompare(b.label));
     },
     valueObj() {
-      return this.nature === Natures.HARDY
+      return this.nature === Nature.HARDY
         ? null
         : { value: this.nature, label: info.natureName(this.nature) };
     }
   },
   methods: {
     updateNature(event) {
-      this.$emit("input", event ? event.value : Natures.HARDY);
+      this.$emit("input", event ? event.value : Nature.HARDY);
     }
   }
 };

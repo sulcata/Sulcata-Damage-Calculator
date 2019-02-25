@@ -11,28 +11,17 @@
 </template>
 
 <script>
-import VueMultiselect from "vue-multiselect";
-import { Statuses } from "sulcalc";
-
-const { Multiselect } = VueMultiselect;
+import { Multiselect } from "vue-multiselect";
+import { Status, statuses } from "sulcalc";
 
 const statusNames = {
-  [Statuses.POISONED]: "Poisoned",
-  [Statuses.BADLY_POISONED]: "Badly Poisoned",
-  [Statuses.BURNED]: "Burned",
-  [Statuses.PARALYZED]: "Paralyzed",
-  [Statuses.ASLEEP]: "Asleep",
-  [Statuses.FROZEN]: "Frozen"
+  [Status.POISONED]: "Poisoned",
+  [Status.BADLY_POISONED]: "Badly Poisoned",
+  [Status.BURNED]: "Burned",
+  [Status.PARALYZED]: "Paralyzed",
+  [Status.ASLEEP]: "Asleep",
+  [Status.FROZEN]: "Frozen"
 };
-
-const statusList = [
-  Statuses.POISONED,
-  Statuses.BADLY_POISONED,
-  Statuses.BURNED,
-  Statuses.PARALYZED,
-  Statuses.ASLEEP,
-  Statuses.FROZEN
-];
 
 export default {
   components: {
@@ -47,26 +36,26 @@ export default {
       required: true,
       type: Number,
       validator(value) {
-        return Object.values(Statuses).includes(value);
+        return statuses.includes(value);
       }
     }
   },
   computed: {
     statuses() {
-      return statusList.map(status => ({
+      return statuses.slice(1).map(status => ({
         value: status,
         label: statusNames[status]
       }));
     },
     valueObj() {
-      return this.status === Statuses.NO_STATUS
+      return this.status === Status.NO_STATUS
         ? null
         : { value: this.status, label: statusNames[this.status] };
     }
   },
   methods: {
     updateStatus(event) {
-      this.$emit("input", event ? event.value : Statuses.NO_STATUS);
+      this.$emit("input", event ? event.value : Status.NO_STATUS);
     }
   }
 };

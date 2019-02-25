@@ -8,17 +8,17 @@ const moduleNameMapper = {
   "^package$": "<rootDir>/package.json"
 };
 
-const testMatch = "**/*.(spec|test).{js,jsx,ts,tsx}";
+const testMatch = "**/?(*.)+(spec|test).{js,ts}";
 
 const transform = {
-  "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+  "^.+\\.(js|ts)x?$": "<rootDir>/node_modules/babel-jest",
   "^.+\\.vue$": "<rootDir>/node_modules/vue-jest"
 };
 
 module.exports = {
   collectCoverageFrom: [
-    "<rootDir>/app/**/*.{js,jsx,ts,tsx,vue}",
-    "<rootDir>/src/**/*.{js,jsx,ts,tsx,vue}",
+    "<rootDir>/app/**/*.{js,ts,vue}",
+    "<rootDir>/src/**/*.{js,ts,vue}",
     "!**/node_modules/**",
     "!**/dist/**",
     "!**/*.test.*"
