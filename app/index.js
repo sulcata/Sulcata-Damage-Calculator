@@ -6,14 +6,13 @@ import { install as vuexInstall, Store } from "vuex";
 import App from "./components/App.vue";
 import store from "./store";
 
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
   const registerServiceWorker = () => {
     // this gets written directly to dist/app by workbox
     // you'd think it would integrate with webpack better
     navigator.serviceWorker.register("service-worker.js");
   };
-  const options = { once: true };
-  window.addEventListener("load", registerServiceWorker, options);
+  window.addEventListener("load", registerServiceWorker, { once: true });
 }
 
 Vue.use(vuexInstall);
