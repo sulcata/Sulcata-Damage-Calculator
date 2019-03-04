@@ -149,9 +149,9 @@ export default {
           new Pokemon({
             ...this.pokemon,
             ivs,
-            currentHp: null,
-            currentHpRange: null,
-            currentHpRangeBerry: null
+            currentHp: undefined,
+            currentHpRange: undefined,
+            currentHpRangeBerry: undefined
           })
         );
       } else {
@@ -167,9 +167,9 @@ export default {
           new Pokemon({
             ...this.pokemon,
             evs,
-            currentHp: null,
-            currentHpRange: null,
-            currentHpRangeBerry: null
+            currentHp: undefined,
+            currentHpRange: undefined,
+            currentHpRangeBerry: undefined
           })
         );
       } else {

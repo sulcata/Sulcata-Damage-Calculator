@@ -51,10 +51,12 @@ test("emits a Pokemon on updates", () => {
     store,
     propsData: { pokemon: new Pokemon() }
   });
+  const gen = Generation.GSC;
+
   wrapper.vm.updatePokemon({
     pokemonId: "snorlax",
     set: {},
-    gen: Generation.GSC
+    gen
   });
   expect(wrapper.emitted().input).toHaveLength(1);
   const [emittedPokemon] = wrapper.emitted().input[0];
@@ -64,6 +66,21 @@ test("emits a Pokemon on updates", () => {
     evs: Array(6).fill(252),
     ivs: Array(6).fill(15),
     set: {},
-    gen: Generation.GSC
+    gen
   });
+});
+
+test("resets when a Pokemon is unselected", () => {
+  const wrapper = shallowMount(SetSelector, {
+    localVue,
+    store,
+    propsData: { pokemon: new Pokemon() }
+  });
+  const gen = Generation.GSC;
+
+  wrapper.vm.updatePokemon(null);
+  expect(wrapper.emitted().input).toHaveLength(1);
+  const [emittedPokemon] = wrapper.emitted().input[0];
+  expect(emittedPokemon).toBeInstanceOf(Pokemon);
+  expect(emittedPokemon.name).toBe("(No Pokemon)");
 });

@@ -9,7 +9,7 @@ export default {
     pokemonPerfect,
     usage,
     custom: Array(maxGen + 1)
-      .fill(null)
+      .fill(undefined)
       .map(() => ({}))
   },
   enabledSets: {
@@ -21,8 +21,8 @@ export default {
   longRolls: false,
   fractions: false,
   gen: maxGen,
-  attacker: null,
-  defender: null,
-  field: null,
-  overrideReport: null
+  attacker: undefined,
+  defender: undefined,
+  field: undefined,
+  overrideReport: undefined
 };

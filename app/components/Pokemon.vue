@@ -148,6 +148,8 @@ function suggestedMoveChanges(move) {
     move.type() !== Move.hiddenPowerType(move.user.ivs, move.gen)
   ) {
     suggestions.ivs = Move.hiddenPowers(move.type(), move.gen)[0];
+    suggestions.currentHp = undefined;
+    suggestions.currentHpRange = undefined;
   }
   return suggestions;
 }

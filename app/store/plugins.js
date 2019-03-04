@@ -18,7 +18,7 @@ export function persistencePlugin({
     for (const paths of Object.values(saveOn)) {
       for (const path of castArray(paths)) {
         const storedValue = storage.getItem(prefixKey(path));
-        if (storedValue !== null) {
+        if (storedValue) {
           const parsedValue = JSON.parse(storedValue);
           set(water, path, parsedValue);
         }

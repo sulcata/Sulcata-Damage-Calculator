@@ -38,12 +38,14 @@ export default {
   },
   methods: {
     updatePokemon(event) {
-      const pokemon = Pokemon.fromSet({
-        id: event.pokemonId,
-        set: event.set,
-        gen: this.gen
-      });
-      pokemon.set = event;
+      const pokemon = event
+        ? Pokemon.fromSet({
+            id: event.pokemonId,
+            set: event.set,
+            gen: this.gen
+          })
+        : new Pokemon({ gen: this.gen });
+      pokemon.set = event || undefined;
       this.$emit("input", pokemon);
     }
   }

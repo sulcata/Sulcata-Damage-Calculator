@@ -262,6 +262,11 @@ test(".average()", () => {
   expect(Multiset.average(zeroSet)).toBe(0);
 });
 
+test(".fromEntries()", () => {
+  const set = Multiset.fromEntries([[1, 2], [2, 2], [3, 1], [4, 1], [2, 5]]);
+  expect(set.toString()).toBe("1:2, 2:7, 3:1, 4:1");
+});
+
 test(".weightedUnion()", () => {
   expect(
     Multiset.weightedUnion([set1, set2, set1, set2], [2, 1, 0]).toString()

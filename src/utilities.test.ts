@@ -1,4 +1,10 @@
-import { applyMod, applyModAll, chainMod, roundHalfToZero } from "./utilities";
+import {
+  applyMod,
+  applyModAll,
+  chainMod,
+  hasOwn,
+  roundHalfToZero
+} from "./utilities";
 
 test.each([[2.4, 2], [2.5, 2], [2.6, 3], [-1.4, -1], [-1.5, -1], [-1.6, -2]])(
   "roundHalfToZero(%p)",
@@ -32,3 +38,11 @@ test.each([[0x1800, [], []], [0x1800, [5], [7]], [0x1800, [2, 5], [3, 7]]])(
     expect(applyModAll(modifier, values)).toEqual(expected);
   }
 );
+
+test.each([
+  [{}, "hasOwnProperty", false],
+  [{ hasOwnProperty: 1 }, "hasOwnProperty", true],
+  [Object.create(null), "hasOwnProperty", false]
+])("hasOwn(%p, %p)", (object, property, expected) => {
+  expect(hasOwn(object, property)).toBe(expected);
+});

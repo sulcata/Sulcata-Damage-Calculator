@@ -58,41 +58,32 @@ export default {
   methods: {
     updateHealth(event) {
       const normalized = event.target.value.replace(/\s/g, "");
-      let newHealth;
-      if (damageListRegex.test(normalized)) {
-        newHealth = parseHealthList(normalized, 0, this.totalHp);
-      } else {
-        newHealth = new Multiset([this.totalHp]);
-      }
+      const health = damageListRegex.test(normalized)
+        ? parseHealthList(normalized)
+        : new Multiset([this.totalHp]);
       this.$emit("input", {
-        currentHp: Multiset.average(newHealth, 0),
-        currentHpRange: newHealth,
-        currentHpRangeBerry: new Multiset()
+        currentHpRange: health.map(value => clamp(value, 0, this.totalHp))
       });
     },
     updatePercent(percent) {
       const [minHp, maxHp] = minMaxHp(this.totalHp, percent);
-      const newHealth = new Multiset();
+      const health = new Multiset();
       for (let hp = minHp; hp <= maxHp; hp++) {
-        newHealth.add(hp);
+        health.add(hp);
       }
-      this.$emit("input", {
-        currentHp: Multiset.average(newHealth, 0),
-        currentHpRange: newHealth,
-        currentHpRangeBerry: new Multiset()
-      });
+      this.$emit("input", { currentHpRange: health });
     }
   }
 };
 
-function parseItem(item, min, max) {
+function parseItem(item) {
   const [health, multiplicity = 1] = item.split(":");
-  return [clamp(Number(health), min, max), multiplicity];
+  return [Number(health), multiplicity];
 }
 
 function parseHealthList(list, min, max) {
-  const pairs = list.split(",").map(item => parseItem(item, min, max));
-  return new Multiset(new Map(pairs));
+  const pairs = list.split(",").map(parseItem);
+  return Multiset.fromEntries(pairs);
 }
 
 function minMaxHp(totalHp, percent) {

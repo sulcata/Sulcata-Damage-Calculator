@@ -28,6 +28,7 @@ import {
   BoostList,
   Gender,
   Generation,
+  hasOwn,
   maxGen,
   Nature,
   roundHalfToZero,
@@ -278,10 +279,10 @@ export default class Pokemon {
     this.beatUpStats = beatUpStats ? beatUpStats.slice(0) : [0];
     this.beatUpLevels = beatUpLevels ? beatUpLevels.slice(0) : [1];
 
-    if (_status !== undefined) {
-      this._status = _status;
-    } else if (status !== undefined) {
+    if (status !== undefined && hasOwn(pokemon, "status")) {
       this._status = status;
+    } else if (_status !== undefined) {
+      this._status = _status;
     }
 
     this.ability =
@@ -307,20 +308,32 @@ export default class Pokemon {
       ? (overrideTypes.slice(0) as OverrideTypes)
       : [-1, -1];
 
-    const hp = this.stat(Stat.HP);
-    if (_currentHp !== undefined) {
-      this._currentHp = _currentHp;
-    } else if (currentHp !== undefined) {
+    if (currentHp !== undefined && hasOwn(pokemon, "currentHp")) {
       this._currentHp = currentHp;
+      this._currentHpRange = new Multiset([currentHp]);
+      this._currentHpRangeBerry = new Multiset();
+    } else if (currentHpRange && hasOwn(pokemon, "currentHpRange")) {
+      this._currentHpRange = new Multiset(currentHpRange);
+      this._currentHpRangeBerry =
+        currentHpRangeBerry && hasOwn(pokemon, "currentHpRangeBerry")
+          ? new Multiset(currentHpRangeBerry)
+          : new Multiset();
+      const combined = this._currentHpRange.union(this._currentHpRangeBerry);
+      this._currentHp = Multiset.average(combined, 0);
+    } else if (
+      currentHp !== undefined &&
+      currentHpRange !== undefined &&
+      currentHpRangeBerry !== undefined
+    ) {
+      this._currentHp = currentHp;
+      this._currentHpRange = currentHpRange;
+      this._currentHpRangeBerry = currentHpRangeBerry;
     } else {
-      this._currentHp = hp;
+      const maxHp = this.stat(Stat.HP);
+      this._currentHp = maxHp;
+      this._currentHpRange = new Multiset([maxHp]);
+      this._currentHpRangeBerry = new Multiset();
     }
-    this._currentHpRange = new Multiset(
-      currentHpRange || _currentHpRange || [hp]
-    );
-    this._currentHpRangeBerry = new Multiset(
-      currentHpRangeBerry || _currentHpRangeBerry || []
-    );
   }
 
   public toImportable(options: { natureInfo?: boolean } = {}): string {

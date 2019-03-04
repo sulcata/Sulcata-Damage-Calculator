@@ -175,7 +175,7 @@ export default class Multiset<T> {
   }
 
   public reduce<U>(
-    callbackFn: (acc: U, value: T, weight: bigInt.BigInteger) => U,
+    callbackFn: (acc: U, value: T, multiplicity: bigInt.BigInteger) => U,
     initialValue: U
   ): U {
     let total = initialValue;
@@ -276,6 +276,14 @@ export default class Multiset<T> {
       .divide(size)
       .valueOf();
     return (Math.round(quotient / 10) * 10) / exp;
+  }
+
+  public static fromEntries<T>(iterable: [T, bigInt.BigNumber][]): Multiset<T> {
+    const set = new Multiset<T>();
+    for (const entry of iterable) {
+      set.add(...entry);
+    }
+    return set;
   }
 
   public static weightedUnion<T>(

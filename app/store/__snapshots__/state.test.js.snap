@@ -2,18 +2,18 @@
 
 exports[`equals expected state structure 1`] = `
 Object {
-  "attacker": null,
-  "defender": null,
+  "attacker": undefined,
+  "defender": undefined,
   "enabledSets": Object {
     "custom": true,
     "pokemonPerfect": false,
     "smogon": true,
     "usage": true,
   },
-  "field": null,
+  "field": undefined,
   "fractions": false,
   "gen": 7,
   "longRolls": false,
-  "overrideReport": null,
+  "overrideReport": undefined,
 }
 `;
