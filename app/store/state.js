@@ -24,5 +24,6 @@ export default {
   attacker: undefined,
   defender: undefined,
   field: undefined,
-  overrideReport: undefined
+  reportOverrideIndex: -1,
+  reportStick: false
 };

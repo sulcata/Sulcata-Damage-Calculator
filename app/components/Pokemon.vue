@@ -104,6 +104,7 @@ export default {
         ...pokemon.moves.map(move => suggestedMoveChanges(move))
       );
       this.$emit("input", new Pokemon({ ...pokemon, ...suggestions }));
+      this.$emit("new-pokemon");
     },
     updateItem(item) {
       this.$emit("input", new Pokemon({ ...this.pokemon, item }));

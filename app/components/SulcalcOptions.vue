@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapActions } from "vuex";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 
 export default {
@@ -68,7 +68,7 @@ export default {
     ...mapState(["fractions", "longRolls", "enabledSets"])
   },
   methods: {
-    ...mapMutations([
+    ...mapActions([
       "toggleSmogonSets",
       "togglePokemonPerfectSets",
       "toggleUsageSets",

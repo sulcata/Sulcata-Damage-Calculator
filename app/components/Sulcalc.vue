@@ -5,8 +5,12 @@
     </div>
 
     <div class="row mt-3">
-      <div class="col-4"><report-selector :reports="attackerReports" /></div>
-      <div class="col-4"><report-selector :reports="defenderReports" /></div>
+      <div class="col-4">
+        <report-selector :reports="indexedAttackerReports" />
+      </div>
+      <div class="col-4">
+        <report-selector :reports="indexedDefenderReports" />
+      </div>
     </div>
 
     <div v-if="isReportSelected" class="row mt-3">
@@ -18,6 +22,7 @@
         <pokemon
           :pokemon="attacker"
           @input="pokemon => setAttacker({ pokemon })"
+          @new-pokemon="unsetAttackerReport"
         />
       </div>
       <div class="col-4">
@@ -31,6 +36,7 @@
         <pokemon
           :pokemon="defender"
           @input="pokemon => setDefender({ pokemon })"
+          @new-pokemon="unsetDefenderReport"
         />
       </div>
     </div>
@@ -38,7 +44,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 import Pokemon from "./Pokemon.vue";
 import Field from "./Field.vue";
 import SetImporter from "./SetImporter.vue";
@@ -61,10 +67,34 @@ export default {
   },
   computed: {
     ...mapState(["attacker", "defender"]),
-    ...mapGetters(["attackerReports", "defenderReports", "isReportSelected"])
+    ...mapGetters([
+      "attackerReports",
+      "defenderReports",
+      "isReportSelected",
+      "isReportOverrideForAttacker",
+      "isReportOverrideForDefender"
+    ]),
+    indexedAttackerReports() {
+      const reports = this.attackerReports;
+      return reports.map((report, index) => ({ report, index }));
+    },
+    indexedDefenderReports() {
+      const reports = this.defenderReports;
+      return reports.map((report, index) => ({ report, index: index + 4 }));
+    }
   },
   methods: {
-    ...mapMutations(["setAttacker", "setDefender"])
+    ...mapActions(["setAttacker", "setDefender", "unsetReport"]),
+    unsetAttackerReport() {
+      if (this.isReportOverrideForAttacker) {
+        this.unsetReport();
+      }
+    },
+    unsetDefenderReport() {
+      if (this.isReportOverrideForDefender) {
+        this.unsetReport();
+      }
+    }
   }
 };
 </script>

@@ -1,51 +1,46 @@
 import Vue from "vue";
 import { Pokemon, Field } from "sulcalc";
 
-export function importPokemon(state, { importText, gen }) {
-  const importedPokemon = importText
-    .trim()
-    .replace("\r", "")
-    .split("\n\n")
-    .map(importText => Pokemon.fromImportable(importText, gen));
-  const custom = state.sets.custom[gen];
-  for (const pokemon of importedPokemon) {
-    Vue.set(custom, pokemon.id, { "Custom Set": pokemon.toSet() });
-  }
+export function addCustomPokemonSet(state, { pokemon }) {
+  Vue.set(state.sets.custom[pokemon.gen], pokemon.id, {
+    "Custom Set": pokemon.toSet()
+  });
 }
 
-export function toggleSmogonSets(state) {
-  state.enabledSets.smogon = !state.enabledSets.smogon;
+export function setSmogonSets(state, { active }) {
+  state.enabledSets.smogon = active;
 }
 
-export function togglePokemonPerfectSets(state) {
-  state.enabledSets.pokemonPerfect = !state.enabledSets.pokemonPerfect;
+export function setPokemonPerfectSets(state, { active }) {
+  state.enabledSets.pokemonPerfect = active;
 }
 
-export function toggleUsageSets(state) {
-  state.enabledSets.usage = !state.enabledSets.usage;
+export function setUsageSets(state, { active }) {
+  state.enabledSets.usage = active;
 }
 
-export function toggleCustomSets(state) {
-  state.enabledSets.custom = !state.enabledSets.custom;
+export function setCustomSets(state, { active }) {
+  state.enabledSets.custom = active;
 }
 
-export function toggleLongRolls(state) {
-  state.longRolls = !state.longRolls;
+export function setLongRolls(state, { active }) {
+  state.longRolls = active;
 }
 
-export function toggleFractions(state) {
-  state.fractions = !state.fractions;
+export function setFractions(state, { active }) {
+  state.fractions = active;
 }
 
-export function changeGen(state, { gen }) {
+export function setGen(state, { gen }) {
   state.gen = gen;
-  state.attacker = new Pokemon({ gen });
-  state.defender = new Pokemon({ gen });
-  state.field = new Field({ gen });
 }
 
-export function setReport(state, { report }) {
-  state.overrideReport = report;
+export function setReportOverrideIndex(state, { index }) {
+  state.reportOverrideIndex = index;
+}
+
+export function setReportStick(state, { active }) {
+  state.reportStick = active;
 }
 
 export function setAttacker(state, { pokemon }) {
@@ -56,40 +51,44 @@ export function setDefender(state, { pokemon }) {
   state.defender = pokemon;
 }
 
-export function toggleMultiBattle(state) {
-  state.field.multiBattle = !state.field.multiBattle;
+export function setField(state, { field }) {
+  state.field = field;
 }
 
-export function toggleInvertedBattle(state) {
-  state.field.invertedBattle = !state.field.invertedBattle;
+export function setMultiBattle(state, { active }) {
+  state.field.multiBattle = active;
 }
 
-export function toggleWaterSport(state) {
-  state.field.waterSport = !state.field.waterSport;
+export function setInvertedBattle(state, { active }) {
+  state.field.invertedBattle = active;
 }
 
-export function toggleMudSport(state) {
-  state.field.mudSport = !state.field.mudSport;
+export function setWaterSport(state, { active }) {
+  state.field.waterSport = active;
 }
 
-export function toggleGravity(state) {
-  state.field.gravity = !state.field.gravity;
+export function setMudSport(state, { active }) {
+  state.field.mudSport = active;
 }
 
-export function toggleFairyAura(state) {
-  state.field.fairyAura = !state.field.fairyAura;
+export function setGravity(state, { active }) {
+  state.field.gravity = active;
 }
 
-export function toggleDarkAura(state) {
-  state.field.darkAura = !state.field.darkAura;
+export function setFairyAura(state, { active }) {
+  state.field.fairyAura = active;
 }
 
-export function toggleAuraBreak(state) {
-  state.field.auraBreak = !state.field.auraBreak;
+export function setDarkAura(state, { active }) {
+  state.field.darkAura = active;
 }
 
-export function toggleIonDeluge(state) {
-  state.field.ionDeluge = !state.field.ionDeluge;
+export function setAuraBreak(state, { active }) {
+  state.field.auraBreak = active;
+}
+
+export function setIonDeluge(state, { active }) {
+  state.field.ionDeluge = active;
 }
 
 export function setWeather(state, { weather }) {
@@ -100,39 +99,39 @@ export function setTerrain(state, { terrain }) {
   state.field.terrain = terrain;
 }
 
-export function toggleStealthRock(state, { side }) {
+export function setStealthRock(state, { side, active }) {
   validateSide(side);
-  state[side].stealthRock = !state[side].stealthRock;
+  state[side].stealthRock = active;
 }
 
-export function toggleReflect(state, { side }) {
+export function setReflect(state, { side, active }) {
   validateSide(side);
-  state[side].reflect = !state[side].reflect;
+  state[side].reflect = active;
 }
 
-export function toggleLightScreen(state, { side }) {
+export function setLightScreen(state, { side, active }) {
   validateSide(side);
-  state[side].lightScreen = !state[side].lightScreen;
+  state[side].lightScreen = active;
 }
 
-export function toggleForesight(state, { side }) {
+export function setForesight(state, { side, active }) {
   validateSide(side);
-  state[side].foresight = !state[side].foresight;
+  state[side].foresight = active;
 }
 
-export function toggleFriendGuard(state, { side }) {
+export function setFriendGuard(state, { side, active }) {
   validateSide(side);
-  state[side].friendGuard = !state[side].friendGuard;
+  state[side].friendGuard = active;
 }
 
-export function toggleAuroraVeil(state, { side }) {
+export function setAuroraVeil(state, { side, active }) {
   validateSide(side);
-  state[side].auroraVeil = !state[side].auroraVeil;
+  state[side].auroraVeil = active;
 }
 
-export function toggleBattery(state, { side }) {
+export function setBattery(state, { side, active }) {
   validateSide(side);
-  state[side].battery = !state[side].battery;
+  state[side].battery = active;
 }
 
 export function setSpikes(state, { side, spikes }) {

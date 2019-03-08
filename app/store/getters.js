@@ -23,11 +23,11 @@ export function sets(state) {
   return groups;
 }
 
-export function selectedReport(state, getters) {
-  if (getters.reports.includes(state.overrideReport)) {
-    return state.overrideReport;
+export function selectedReportIndex(state, getters) {
+  if (getters.reports[state.reportOverrideIndex] !== undefined) {
+    return state.reportOverrideIndex;
   }
-  return getters.reports.reduce((report1, report2) => {
+  const report = getters.reports.reduce((report1, report2) => {
     const chances1 = report1.roundedChances || [];
     const chances2 = report2.roundedChances || [];
     for (const [chance1 = 0, chance2 = 0] of zip(chances1, chances2)) {
@@ -39,6 +39,11 @@ export function selectedReport(state, getters) {
     if (report2.damage.max() > report1.damage.max()) return report2;
     return report1;
   }, {});
+  return getters.reports.indexOf(report);
+}
+
+export function selectedReport(state, getters) {
+  return getters.reports[getters.selectedReportIndex] || {};
 }
 
 export const reports = (state, getters) => [
@@ -54,6 +59,12 @@ export const defenderReports = state =>
 
 export const isReportSelected = (state, getters) =>
   Boolean(getters.selectedReport.summary);
+
+export const isReportOverrideForAttacker = state =>
+  state.reportOverrideIndex >= 0 && state.reportOverrideIndex < 4;
+
+export const isReportOverrideForDefender = state =>
+  state.reportOverrideIndex >= 4 && state.reportOverrideIndex < 8;
 
 function getReportList(attacker, defender, field) {
   const reports = [];

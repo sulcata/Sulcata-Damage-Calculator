@@ -1,7 +1,7 @@
 <template>
   <div>
     <textarea
-      v-model="importText"
+      v-model="importable"
       class="form-control text-monospace"
       style="resize: vertical;"
       rows="10"
@@ -10,7 +10,7 @@
       <button
         type="button"
         class="btn btn-primary"
-        @click="importPokemon({ importText, gen })"
+        @click="importPokemon({ importable })"
       >
         Import
       </button>
@@ -19,17 +19,14 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapActions } from "vuex";
 
 export default {
   data() {
-    return { importText: "" };
-  },
-  computed: {
-    ...mapState(["gen"])
+    return { importable: "" };
   },
   methods: {
-    ...mapMutations(["importPokemon"])
+    ...mapActions(["importPokemon"])
   }
 };
 </script>

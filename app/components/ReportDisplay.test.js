@@ -6,11 +6,9 @@ import { Multiset } from "sulcalc";
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
 
-let store, mutations;
+let store, mutations, actions;
 beforeEach(() => {
   mutations = {
-    setAttacker: jest.fn(),
-    setDefender: jest.fn(),
     _setSelectedReport(state, { report }) {
       state._selectedReport = report;
     },
@@ -20,6 +18,10 @@ beforeEach(() => {
     _toggleLongRolls(state) {
       state.longRolls = !state.longRolls;
     }
+  };
+  actions = {
+    setAttacker: jest.fn(),
+    setDefender: jest.fn()
   };
   store = new Store({
     state: {
@@ -34,7 +36,8 @@ beforeEach(() => {
       attackerReports: state => state._attackerReports,
       defenderReports: state => state._defenderReports
     },
-    mutations
+    mutations,
+    actions
   });
 });
 
@@ -82,7 +85,7 @@ test("fractionalChances computed property prints a list of fractions", () => {
   expect(wrapper.vm.fractionalChances).toBe("1 / 2, 3 / 4, 5 / 6, 3 / 99");
 });
 
-test("setHp commits setAttacker and setDefender mutations", () => {
+test("setHp dispatches setAttacker and setDefender actions", () => {
   const wrapper = shallowMount(ReportDisplay, { localVue, store });
 
   wrapper.vm.setHp();
@@ -97,8 +100,8 @@ test("setHp commits setAttacker and setDefender mutations", () => {
   });
   wrapper.vm.setHp();
 
-  expect(mutations.setAttacker.mock.calls).toHaveLength(1);
-  expect(mutations.setAttacker.mock.calls[0][1]).toEqual({ pokemon: "D" });
-  expect(mutations.setDefender.mock.calls).toHaveLength(1);
-  expect(mutations.setDefender.mock.calls[0][1]).toEqual({ pokemon: "B" });
+  expect(actions.setAttacker.mock.calls).toHaveLength(1);
+  expect(actions.setAttacker.mock.calls[0][1]).toEqual({ pokemon: "D" });
+  expect(actions.setDefender.mock.calls).toHaveLength(1);
+  expect(actions.setDefender.mock.calls[0][1]).toEqual({ pokemon: "B" });
 });

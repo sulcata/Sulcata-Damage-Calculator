@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
   computed: {
@@ -35,7 +35,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["setAttacker", "setDefender"]),
+    ...mapActions(["setAttacker", "setDefender"]),
     setHp() {
       const report = this.selectedReport;
       const pokemon = this.selectedReport.defender;

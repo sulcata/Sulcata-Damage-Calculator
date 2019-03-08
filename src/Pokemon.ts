@@ -326,8 +326,8 @@ export default class Pokemon {
       currentHpRangeBerry !== undefined
     ) {
       this._currentHp = currentHp;
-      this._currentHpRange = currentHpRange;
-      this._currentHpRangeBerry = currentHpRangeBerry;
+      this._currentHpRange = new Multiset(currentHpRange);
+      this._currentHpRangeBerry = new Multiset(currentHpRangeBerry);
     } else {
       const maxHp = this.stat(Stat.HP);
       this._currentHp = maxHp;

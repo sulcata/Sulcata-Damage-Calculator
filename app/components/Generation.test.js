@@ -14,8 +14,13 @@ beforeEach(() => {
       gen: Generation.ADV
     },
     mutations: {
-      changeGen(state, gen) {
+      setGen(state, { gen }) {
         state.gen = gen;
+      }
+    },
+    actions: {
+      changeGen({ commit }, { gen }) {
+        commit("setGen", { gen });
       }
     }
   });
@@ -24,7 +29,7 @@ beforeEach(() => {
 test("maps store gen to computed property", () => {
   const wrapper = shallowMount(GenerationComponent, { localVue, store });
   expect(wrapper.vm.gen).toBe(Generation.ADV);
-  store.commit("changeGen", Generation.GSC);
+  store.commit("setGen", { gen: Generation.GSC });
   expect(wrapper.vm.gen).toBe(Generation.GSC);
 });
 

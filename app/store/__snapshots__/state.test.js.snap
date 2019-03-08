@@ -14,6 +14,7 @@ Object {
   "fractions": false,
   "gen": 7,
   "longRolls": false,
-  "overrideReport": undefined,
+  "reportOverrideIndex": -1,
+  "reportStick": false,
 }
 `;

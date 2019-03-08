@@ -1,6 +1,7 @@
 import state from "./state";
 import * as mutations from "./mutations";
 import * as getters from "./getters";
+import * as actions from "./actions";
 import { persistencePlugin } from "./plugins";
 
 export default {
@@ -8,20 +9,21 @@ export default {
   state,
   mutations,
   getters,
+  actions,
   plugins: [
     persistencePlugin({
       prefix: "sulcalc",
       saveOn: {
-        changeGen: "gen",
-        importPokemon: "sets.custom",
-        toggleSmogonSets: "enabledSets.smogon",
-        togglePokemonPerfectSets: "enabledSets.pokemonPerfect",
-        toggleCustomSets: "enabledSets.custom",
-        toggleLongRolls: "longRolls",
-        toggleFractions: "fractions"
+        setGen: "gen",
+        addCustomPokemonSet: "sets.custom",
+        setSmogonSets: "enabledSets.smogon",
+        setPokemonPerfectSets: "enabledSets.pokemonPerfect",
+        setCustomSets: "enabledSets.custom",
+        setLongRolls: "longRolls",
+        setFractions: "fractions"
       },
       onLoad(store) {
-        store.commit("changeGen", { gen: store.state.gen });
+        store.dispatch("changeGen", { gen: store.state.gen });
       }
     })
   ]

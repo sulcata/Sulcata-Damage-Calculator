@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapActions } from "vuex";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
 import { generations, maxGen, info } from "sulcalc";
 
@@ -23,7 +23,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["changeGen"])
+    ...mapActions(["changeGen"])
   }
 };
 </script>

@@ -5,43 +5,73 @@ import ReportSelector from "./ReportSelector.vue";
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
 
-let store, mutations, reports;
-beforeEach(() => {
-  mutations = {
-    setReport: jest.fn()
-  };
-  reports = [
-    {
-      move: { name: "Fire Blast" }
-    },
-    {
-      move: { name: "Surf" }
-    },
-    {
-      move: { name: "Fusion Bolt" }
-    },
-    {
-      move: { name: "Bounce" }
+const reports = [
+  {
+    index: 0,
+    report: {
+      move: { name: "Fire Blast" },
+      minPercent: 91.1,
+      maxPercent: 95.5
     }
-  ];
-  store = new Store({
-    getters: {
-      selectedReport: jest.fn().mockReturnValue(reports[0])
-    },
-    mutations
-  });
-});
+  },
+  {
+    index: 1,
+    report: {
+      move: { name: "Surf" },
+      minPercent: 20.1,
+      maxPercent: 25.3
+    }
+  },
+  {
+    index: 2,
+    report: {
+      move: { name: "Fusion Bolt" }
+    }
+  },
+  {
+    index: 3,
+    report: {
+      move: { name: "Bounce" },
+      minPercent: 30.2,
+      maxPercent: 37.8
+    }
+  }
+];
 
-test("reportOptions computed property returns a list of reports labeled by move name", () => {
+test("highlights the selected report", () => {
   const wrapper = shallowMount(ReportSelector, {
     localVue,
-    store,
+    store: new Store({
+      state: {
+        reportStick: false
+      },
+      getters: {
+        selectedReportIndex: jest.fn().mockReturnValue(0)
+      },
+      actions: {
+        selectReport: jest.fn()
+      }
+    }),
     propsData: { reports }
   });
-  expect(wrapper.vm.reportOptions).toEqual([
-    { value: reports[0], label: "Fire Blast" },
-    { value: reports[1], label: "Surf" },
-    { value: reports[2], label: "Fusion Bolt" },
-    { value: reports[3], label: "Bounce" }
-  ]);
+  expect(wrapper.html()).toMatchSnapshot();
+});
+
+test("shows the report is stickied", () => {
+  const wrapper = shallowMount(ReportSelector, {
+    localVue,
+    store: new Store({
+      state: {
+        reportStick: true
+      },
+      getters: {
+        selectedReportIndex: jest.fn().mockReturnValue(1)
+      },
+      actions: {
+        selectReport: jest.fn()
+      }
+    }),
+    propsData: { reports }
+  });
+  expect(wrapper.html()).toMatchSnapshot();
 });

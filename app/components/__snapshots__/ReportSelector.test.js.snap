@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`highlights the selected report 1`] = `
+"<div class=\\"row\\"><div role=\\"group\\" class=\\"col-6 btn-group-vertical\\"><button type=\\"button\\" class=\\"btn btn-primary active\\">
+      Fire Blast
+    </button><button type=\\"button\\" class=\\"btn btn-primary\\">
+      Surf
+    </button><button type=\\"button\\" class=\\"btn btn-primary\\">
+      Fusion Bolt
+    </button><button type=\\"button\\" class=\\"btn btn-primary\\">
+      Bounce
+    </button></div> <div role=\\"group\\" class=\\"col-6\\"><div class=\\"row py-2\\">
+      91.1% - 95.5%
+    </div><div class=\\"row py-2\\">
+      20.1% - 25.3%
+    </div><div class=\\"row py-2\\">
+      0% - 0%
+    </div><div class=\\"row py-2\\">
+      30.2% - 37.8%
+    </div></div></div>"
+`;
+
+exports[`shows the report is stickied 1`] = `
+"<div class=\\"row\\"><div role=\\"group\\" class=\\"col-6 btn-group-vertical\\"><button type=\\"button\\" class=\\"btn btn-primary\\">
+      Fire Blast
+    </button><button type=\\"button\\" class=\\"btn btn-secondary active\\">
+      Surf
+    </button><button type=\\"button\\" class=\\"btn btn-primary\\">
+      Fusion Bolt
+    </button><button type=\\"button\\" class=\\"btn btn-primary\\">
+      Bounce
+    </button></div> <div role=\\"group\\" class=\\"col-6\\"><div class=\\"row py-2\\">
+      91.1% - 95.5%
+    </div><div class=\\"row py-2\\">
+      20.1% - 25.3%
+    </div><div class=\\"row py-2\\">
+      0% - 0%
+    </div><div class=\\"row py-2\\">
+      30.2% - 37.8%
+    </div></div></div>"
+`;

@@ -41,8 +41,7 @@ test.each([[0x1800, [], []], [0x1800, [5], [7]], [0x1800, [2, 5], [3, 7]]])(
 
 test.each([
   [{}, "hasOwnProperty", false],
-  [{ hasOwnProperty: 1 }, "hasOwnProperty", true],
-  [Object.create(null), "hasOwnProperty", false]
-])("hasOwn(%p, %p)", (object, property, expected) => {
+  [{ hasOwnProperty: 1 }, "hasOwnProperty", true]
+])("hasOwn(%p, %p)", (object: object, property: string, expected: boolean) => {
   expect(hasOwn(object, property)).toBe(expected);
 });

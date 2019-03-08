@@ -6,9 +6,14 @@ import { Generation, Terrain, Weather, Field, Pokemon } from "sulcalc";
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
 
-let store, mutations;
+let store, mutations, actions;
 beforeEach(() => {
   mutations = {
+    _setGen(state, { gen }) {
+      state.gen = gen;
+    }
+  };
+  actions = {
     toggleMultiBattle: jest.fn(),
     toggleInvertedBattle: jest.fn(),
     toggleWaterSport: jest.fn(),
@@ -29,10 +34,7 @@ beforeEach(() => {
     toggleFriendGuard: jest.fn(),
     toggleAuroraVeil: jest.fn(),
     toggleBattery: jest.fn(),
-    setSpikes: jest.fn(),
-    _setGen(state, { gen }) {
-      state.gen = gen;
-    }
+    setSpikes: jest.fn()
   };
   store = new Store({
     state: {
@@ -41,7 +43,8 @@ beforeEach(() => {
       attacker: new Pokemon(),
       defender: new Pokemon()
     },
-    mutations
+    mutations,
+    actions
   });
 });
 
