@@ -556,7 +556,7 @@ test("Light Screen", () => {
   ).toMatch(/^Alakazam .+ Jynx behind Light Screen/);
 });
 
-test("Light Screen", () => {
+test("Reflect", () => {
   const gen = Generation.RBY;
   expect(
     sulcalc(
