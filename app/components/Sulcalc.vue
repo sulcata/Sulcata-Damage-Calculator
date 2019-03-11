@@ -85,14 +85,14 @@ export default {
   },
   methods: {
     ...mapActions(["setAttacker", "setDefender", "unsetReport"]),
-    unsetAttackerReport() {
+    async unsetAttackerReport() {
       if (this.isReportOverrideForAttacker) {
-        this.unsetReport();
+        await this.unsetReport();
       }
     },
-    unsetDefenderReport() {
+    async unsetDefenderReport() {
       if (this.isReportOverrideForDefender) {
-        this.unsetReport();
+        await this.unsetReport();
       }
     }
   }

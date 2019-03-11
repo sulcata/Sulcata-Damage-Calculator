@@ -16,7 +16,7 @@ import { mapState, mapGetters, mapActions } from "vuex";
 export default {
   computed: {
     ...mapState(["fractions", "longRolls"]),
-    ...mapGetters(["selectedReport", "attackerReports", "defenderReports"]),
+    ...mapGetters(["selectedReport"]),
     summary() {
       return this.selectedReport.summary || "";
     },
@@ -35,16 +35,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setAttacker", "setDefender"]),
-    setHp() {
-      const report = this.selectedReport;
-      const pokemon = this.selectedReport.defender;
-      if (this.attackerReports.includes(report)) {
-        this.setDefender({ pokemon });
-      } else if (this.defenderReports.includes(report)) {
-        this.setAttacker({ pokemon });
-      }
-    }
+    ...mapActions(["setHp"])
   }
 };
 </script>

@@ -60,6 +60,12 @@ export const defenderReports = state =>
 export const isReportSelected = (state, getters) =>
   Boolean(getters.selectedReport.summary);
 
+export const isAttackerReportSelected = (state, getters) =>
+  getters.selectedReportIndex >= 0 && getters.selectedReportIndex < 4;
+
+export const isDefenderReportSelected = (state, getters) =>
+  getters.selectedReportIndex >= 4 && getters.selectedReportIndex < 8;
+
 export const isReportOverrideForAttacker = state =>
   state.reportOverrideIndex >= 0 && state.reportOverrideIndex < 4;
 

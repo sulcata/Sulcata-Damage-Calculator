@@ -26,39 +26,59 @@ beforeEach(() => {
   megaSwampert = new Pokemon({ name: "Swampert-Mega" });
 });
 
-test("#constructor()", () => {
-  const snorlax = new Pokemon({ name: "Snorlax" });
-  expect(snorlax).toMatchObject({
-    id: "snorlax",
-    evs: [0, 0, 0, 0, 0, 0],
-    ivs: [31, 31, 31, 31, 31, 31]
+describe("#constructor()", () => {
+  test("current gen has correct default settings", () => {
+    const snorlax = new Pokemon({ name: "Snorlax" });
+    expect(snorlax).toMatchObject({
+      id: "snorlax",
+      evs: [0, 0, 0, 0, 0, 0],
+      ivs: [31, 31, 31, 31, 31, 31]
+    });
   });
 
-  const gscSnorlax = new Pokemon({ id: "snorlax", gen: Generation.GSC });
-  expect(gscSnorlax).toMatchObject({
-    id: "snorlax",
-    evs: [252, 252, 252, 252, 252, 252],
-    ivs: [15, 15, 15, 15, 15, 15]
+  test("old gens have correct default settings", () => {
+    const snorlax = new Pokemon({ id: "snorlax", gen: Generation.GSC });
+    expect(snorlax).toMatchObject({
+      id: "snorlax",
+      evs: [252, 252, 252, 252, 252, 252],
+      ivs: [15, 15, 15, 15, 15, 15]
+    });
   });
 
-  const smeargle = new Pokemon({
-    name: "Smeargle",
-    moves: [{ name: "Ice Beam" }, {}, {}, {}],
-    item: { name: "Leftovers" },
-    status: Status.BURNED
-  });
-  expect(smeargle).toMatchObject({
-    moves: [
-      { id: "icebeam" },
-      { id: "nomove" },
-      { id: "nomove" },
-      { id: "nomove" }
-    ],
-    item: { id: "leftovers" }
+  test("complex constructor cases with moves, item, and status", () => {
+    const smeargle = new Pokemon({
+      name: "Smeargle",
+      moves: [{ name: "Ice Beam" }, {}, {}, {}],
+      item: { name: "Leftovers" },
+      status: Status.BURNED
+    });
+    expect(smeargle).toMatchObject({
+      moves: [
+        { id: "icebeam" },
+        { id: "nomove" },
+        { id: "nomove" },
+        { id: "nomove" }
+      ],
+      item: { id: "leftovers" }
+    });
+    const smeargle2 = new Pokemon(smeargle);
+    expect(smeargle2.status).toBe(Status.BURNED);
   });
 
-  const smeargle2 = new Pokemon(smeargle);
-  expect(smeargle2.status).toBe(Status.BURNED);
+  test("avoid own property issues with getters and spread operator", () => {
+    const proto = {
+      name: "Smeargle",
+      currentHp: 100,
+      status: Status.BURNED
+    };
+    const smeargle = new Pokemon(proto);
+    const smeargleCopy = new Pokemon({ ...smeargle });
+    expect(smeargleCopy).toMatchObject({
+      name: "Smeargle",
+      currentHp: 100,
+      status: Status.BURNED
+    });
+  });
 });
 
 describe(".fromImportable()", () => {

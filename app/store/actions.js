@@ -69,6 +69,15 @@ export function setDefender({ commit }, { pokemon }) {
   commit("setDefender", { pokemon });
 }
 
+export function setHp({ commit, getters }) {
+  const pokemon = getters.selectedReport.defender;
+  if (getters.isAttackerReportSelected) {
+    commit("setDefender", { pokemon });
+  } else if (getters.isDefenderReportSelected) {
+    commit("setAttacker", { pokemon });
+  }
+}
+
 export function toggleMultiBattle({ commit, state }) {
   commit("setMultiBattle", { active: !state.field.multiBattle });
 }

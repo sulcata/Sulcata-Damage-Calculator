@@ -6,38 +6,30 @@ import { Multiset } from "sulcalc";
 const localVue = createLocalVue();
 localVue.use(vuexInstall);
 
-let store, mutations, actions;
+let store, setHp;
 beforeEach(() => {
-  mutations = {
-    _setSelectedReport(state, { report }) {
-      state._selectedReport = report;
-    },
-    _toggleFractions(state) {
-      state.fractions = !state.fractions;
-    },
-    _toggleLongRolls(state) {
-      state.longRolls = !state.longRolls;
-    }
-  };
-  actions = {
-    setAttacker: jest.fn(),
-    setDefender: jest.fn()
-  };
+  setHp = jest.fn();
   store = new Store({
     state: {
       fractions: false,
       longRolls: false,
-      _selectedReport: {},
-      _attackerReports: [{ attacker: "A", defender: "B" }, {}, {}, {}],
-      _defenderReports: [{ attacker: "C", defender: "D" }, {}, {}, {}]
+      _selectedReport: {}
     },
     getters: {
-      selectedReport: state => state._selectedReport,
-      attackerReports: state => state._attackerReports,
-      defenderReports: state => state._defenderReports
+      selectedReport: state => state._selectedReport
     },
-    mutations,
-    actions
+    mutations: {
+      _setSelectedReport(state, { report }) {
+        state._selectedReport = report;
+      },
+      _toggleFractions(state) {
+        state.fractions = !state.fractions;
+      },
+      _toggleLongRolls(state) {
+        state.longRolls = !state.longRolls;
+      }
+    },
+    actions: { setHp }
   });
 });
 
@@ -83,25 +75,4 @@ test("fractionalChances computed property prints a list of fractions", () => {
     }
   });
   expect(wrapper.vm.fractionalChances).toBe("1 / 2, 3 / 4, 5 / 6, 3 / 99");
-});
-
-test("setHp dispatches setAttacker and setDefender actions", () => {
-  const wrapper = shallowMount(ReportDisplay, { localVue, store });
-
-  wrapper.vm.setHp();
-
-  store.commit("_setSelectedReport", {
-    report: store.state._attackerReports[0]
-  });
-  wrapper.vm.setHp();
-
-  store.commit("_setSelectedReport", {
-    report: store.state._defenderReports[0]
-  });
-  wrapper.vm.setHp();
-
-  expect(actions.setAttacker.mock.calls).toHaveLength(1);
-  expect(actions.setAttacker.mock.calls[0][1]).toEqual({ pokemon: "D" });
-  expect(actions.setDefender.mock.calls).toHaveLength(1);
-  expect(actions.setDefender.mock.calls[0][1]).toEqual({ pokemon: "B" });
 });

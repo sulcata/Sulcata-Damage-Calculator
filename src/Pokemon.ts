@@ -321,13 +321,13 @@ export default class Pokemon {
       const combined = this._currentHpRange.union(this._currentHpRangeBerry);
       this._currentHp = Multiset.average(combined, 0);
     } else if (
-      currentHp !== undefined &&
-      currentHpRange !== undefined &&
-      currentHpRangeBerry !== undefined
+      _currentHp !== undefined &&
+      _currentHpRange !== undefined &&
+      _currentHpRangeBerry !== undefined
     ) {
-      this._currentHp = currentHp;
-      this._currentHpRange = new Multiset(currentHpRange);
-      this._currentHpRangeBerry = new Multiset(currentHpRangeBerry);
+      this._currentHp = _currentHp;
+      this._currentHpRange = new Multiset(_currentHpRange);
+      this._currentHpRangeBerry = new Multiset(_currentHpRangeBerry);
     } else {
       const maxHp = this.stat(Stat.HP);
       this._currentHp = maxHp;
