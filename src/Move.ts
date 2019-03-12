@@ -482,7 +482,7 @@ export default class Move {
     attackerSpeed: number,
     defenderSpeed: number
   ): number {
-    const s = attackerSpeed / Math.max(1, defenderSpeed);
+    const s = Math.floor(attackerSpeed / Math.max(1, defenderSpeed));
     if (s >= 4) return 150;
     if (s >= 3) return 120;
     if (s >= 2) return 80;
