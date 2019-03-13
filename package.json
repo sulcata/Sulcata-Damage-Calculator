@@ -10,7 +10,7 @@
     "url": "https://github.com/sulcata/sulcalc"
   },
   "bugs": {
-    "url": "https://github.com/sulcata/sulcalc/issues"
+    "url": "https://www.smogon.com/forums/threads/sulcalc-another-pokemon-damage-calc.3618965/"
   },
   "scripts": {
     "start": "webpack-dev-server --config build/webpack.app.config.js --env.development",
