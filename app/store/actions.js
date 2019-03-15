@@ -114,11 +114,11 @@ export function toggleIonDeluge({ commit, state }) {
   commit("setIonDeluge", { active: !state.field.ionDeluge });
 }
 
-export function setWeather(state, { weather }) {
+export function setWeather({ commit }, { weather }) {
   commit("setWeather", { weather });
 }
 
-export function setTerrain(state, { terrain }) {
+export function setTerrain({ commit }, { terrain }) {
   commit("setTerrain", { terrain });
 }
 
@@ -150,6 +150,6 @@ export function toggleBattery({ commit, state }, { side }) {
   commit("setBattery", { active: !state[side].battery });
 }
 
-export function setSpikes(state, { side, spikes }) {
+export function setSpikes({ commit }, { side, spikes }) {
   commit("setSpikes", { side, spikes });
 }

@@ -127,7 +127,9 @@ module.exports = env => ({
         cacheId: "sulcalc",
         swDest: "service-worker.js",
         importWorkboxFrom: "local",
-        offlineGoogleAnalytics: false
+        offlineGoogleAnalytics: false,
+        cleanupOutdatedCaches: true,
+        dontCacheBustURLsMatching: /\.\p{ASCII_Hex_Digit}{8}\./u
       })
   ].filter(Boolean)
 });
