@@ -17,6 +17,9 @@ rules:
     - ignore-same-line
   deprecation: true
   file-name-casing: true
+  interface-name:
+    - true
+    - never-prefix
   match-default-export-name: true
   member-ordering:
     - true
@@ -25,6 +28,9 @@ rules:
   no-dynamic-delete: true
   no-floating-promises: true
   no-for-in-array: true
+  no-implicit-dependencies:
+    - true
+    - - sulcalc
   no-inferred-empty-object-type: true
   no-invalid-this: true
   no-null-keyword: true

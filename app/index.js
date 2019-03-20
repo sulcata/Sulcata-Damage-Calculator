@@ -10,7 +10,9 @@ if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
   const registerServiceWorker = () => {
     // this gets written directly to dist/app by workbox
     // you'd think it would integrate with webpack better
-    navigator.serviceWorker.register("service-worker.js");
+    navigator.serviceWorker.register("service-worker.js").catch(error => {
+      console.error(error);
+    });
   };
   window.addEventListener("load", registerServiceWorker, { once: true });
 }

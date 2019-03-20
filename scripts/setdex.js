@@ -79,22 +79,38 @@ const setdex = async () => {
     fs.writeFile(
       path.join(outDir, "smogon.ts"),
       `
-        import rby from "./setdex_rby.ts"
-        import gsc from "./setdex_gsc.ts"
-        import adv from "./setdex_rse.ts"
-        import hgss from "./setdex_dpp.ts"
-        import b2w2 from "./setdex_bw.ts"
-        import oras from "./setdex_xy.ts"
-        import sm from "./setdex_sm.ts"
-        export default [{}, rby, gsc, adv, hgss, b2w2, oras, sm]
+        import rby from "./setdex_rby"
+        import gsc from "./setdex_gsc"
+        import adv from "./setdex_rse"
+        import hgss from "./setdex_dpp"
+        import b2w2 from "./setdex_bw"
+        import oras from "./setdex_xy"
+        import sm from "./setdex_sm"
+        export default {
+          1: rby,
+          2: gsc,
+          3: adv,
+          4: hgss,
+          5: b2w2,
+          6: oras,
+          7: sm
+        }
       `
     ),
     fs.writeFile(
       path.join(outDir, "pokemonPerfect.ts"),
       `
-        import rby from "./setdex_rby_pp.ts"
-        import oras from "./setdex_xy_pp.ts"
-        export default [{}, rby, {}, {}, {}, {}, oras, {}]
+        import rby from "./setdex_rby_pp"
+        import oras from "./setdex_xy_pp"
+        export default {
+          1: rby,
+          2: {},
+          3: {},
+          4: {},
+          5: {},
+          6: oras,
+          7: {}
+        }
       `
     )
   ]);

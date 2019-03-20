@@ -9,7 +9,7 @@ import orasEndOfTurn from "./orasEndOfTurn";
 import rbyEndOfTurn from "./rbyEndOfTurn";
 import smEndOfTurn from "./smEndOfTurn";
 
-export interface IEndOfTurnEffects {
+export interface EndOfTurnEffects {
   values: (number | "toxic")[];
   messages: string[];
 }
@@ -18,7 +18,7 @@ export default function endOfTurn(
   attacker: Pokemon,
   defender: Pokemon,
   field: Field
-): IEndOfTurnEffects {
+): EndOfTurnEffects {
   switch (field.gen) {
     case Generation.RBY:
       return rbyEndOfTurn(defender);

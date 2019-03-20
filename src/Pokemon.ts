@@ -134,7 +134,7 @@ function printEv(stat: BaseStat, ev: number, evs: StatList, gen: Generation) {
     : `${ev} ${statNames[stat]}`;
 }
 
-export interface IPokemonSet {
+export interface PokemonSet {
   e?: StatList;
   d?: StatList;
   m?: [string, string, string, string];
@@ -156,7 +156,7 @@ export type AbilityInitializer = Ability | AbilityOptions | string;
 export type ItemInitializer = Item | ItemOptions | string;
 export type OverrideTypes = [Type | -1, Type | -1];
 // God Bless TypeScript's Turing complete type system
-interface IAddedOptions {
+interface AddedOptions {
   status?: Status;
   ability?: AbilityInitializer;
   item?: ItemInitializer;
@@ -166,9 +166,9 @@ interface IAddedOptions {
   currentHpRangeBerry?: Multiset<number> | number[];
 }
 export type PokemonOptions = Partial<
-  Pick<Pokemon, Exclude<keyof Pokemon, keyof IAddedOptions>>
+  Pick<Pokemon, Exclude<keyof Pokemon, keyof AddedOptions>>
 > &
-  IAddedOptions;
+  AddedOptions;
 
 export default class Pokemon {
   public gen: Generation = maxGen;
@@ -220,7 +220,7 @@ export default class Pokemon {
   public auroraVeil: boolean = false;
   public grounded: boolean = false;
   public ungrounded: boolean = false;
-  public set: IPokemonSet | undefined;
+  public set: PokemonSet | undefined;
   public _status: Status = Status.NO_STATUS;
   public _currentHp: number;
   public _currentHpRange: Multiset<number>;
@@ -403,8 +403,8 @@ export default class Pokemon {
     return importable.join("\n");
   }
 
-  public toSet(): IPokemonSet {
-    const set: IPokemonSet = {
+  public toSet(): PokemonSet {
+    const set: PokemonSet = {
       m: this.moves.map(move => move.id) as [string, string, string, string]
     };
     const defaultEv = this.gen >= Generation.ADV ? 0 : 252;
@@ -923,7 +923,7 @@ export default class Pokemon {
     gen,
     id
   }: {
-    set: IPokemonSet;
+    set: PokemonSet;
     gen: Generation;
     id: string;
   }): Pokemon {

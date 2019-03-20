@@ -6,6 +6,7 @@ import {
   Generation,
   maxGen,
   Nature,
+  OneOrMany,
   Stat,
   StatList,
   Type,
@@ -345,7 +346,7 @@ export const isSoulDewType = (type: Type): boolean =>
 export const isSandForceType = (type: Type): boolean =>
   type === Type.GROUND || type === Type.ROCK || type === Type.STEEL;
 
-export interface ITypeEffectivenessOptions {
+export interface TypeEffectivenessOptions {
   gen: Generation;
   immunity?: Type;
   inverted?: boolean;
@@ -359,7 +360,7 @@ export interface ITypeEffectivenessOptions {
 const singleTypeEffectiveness = (
   aType: Type,
   dType: Type,
-  options: ITypeEffectivenessOptions
+  options: TypeEffectivenessOptions
 ): number => {
   const e = getInfo(options.gen, ["typechart", dType, aType], 2);
 
@@ -385,9 +386,9 @@ const singleTypeEffectiveness = (
 };
 
 export const effectiveness = (
-  attackingType: Type | Type[],
-  defendingType: Type | Type[],
-  options: ITypeEffectivenessOptions = { gen: maxGen }
+  attackingType: OneOrMany<Type>,
+  defendingType: OneOrMany<Type>,
+  options: TypeEffectivenessOptions = { gen: maxGen }
 ): [number, number] => {
   const attackingTypes = castArray(attackingType);
   let defendingTypes = castArray(defendingType);

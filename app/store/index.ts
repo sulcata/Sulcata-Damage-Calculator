@@ -1,17 +1,18 @@
-import state from "./state";
-import * as mutations from "./mutations";
-import * as getters from "./getters";
+import { Store, StoreOptions } from "vuex";
 import * as actions from "./actions";
+import * as getters from "./getters";
+import * as mutations from "./mutations";
 import { persistencePlugin } from "./plugins";
+import state, { State } from "./state";
 
-export default {
+const store: StoreOptions<State> = {
   strict: process.env.NODE_ENV !== "production",
   state,
   mutations,
   getters,
   actions,
   plugins: [
-    persistencePlugin({
+    persistencePlugin<State>({
       prefix: "sulcalc",
       saveOn: {
         setGen: "gen",
@@ -22,9 +23,11 @@ export default {
         setLongRolls: "longRolls",
         setFractions: "fractions"
       },
-      onLoad(store) {
-        store.dispatch("changeGen", { gen: store.state.gen });
+      async onLoad(store: Store<State>) {
+        await store.dispatch("changeGen", { gen: store.state.gen });
       }
     })
   ]
 };
+
+export default store;

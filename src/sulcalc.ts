@@ -30,6 +30,8 @@ const statusMessages: { [key in Status]: string } = {
   [Status.FROZEN]: "frozen"
 };
 
+export type SulcalcReport = ReturnType<typeof sulcalc>;
+
 export default function sulcalc(
   attackerOptions: Pokemon | PokemonOptions,
   defenderOptions: Pokemon | PokemonOptions,

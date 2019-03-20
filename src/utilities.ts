@@ -1,3 +1,5 @@
+export type OneOrMany<T> = T | T[];
+
 export enum Generation {
   RBY = 1,
   GSC,

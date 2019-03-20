@@ -1,5 +1,6 @@
 import path from "path";
 import fs from "fs-extra";
+import _ from "lodash";
 import { info, Ability, Generation, Item, Move, Pokemon } from "../src";
 
 const inDir = path.join(__dirname, "data/stats");
@@ -27,7 +28,7 @@ async function getSetdexAndUsage(gen, file) {
       usage[pokemon.id] = pokeInfo["usage"];
     }
   }
-  return { setdex, usage };
+  return { gen, setdex, usage };
 }
 
 function getUsagePoke(pokeId, pokeInfo, gen) {
@@ -91,8 +92,10 @@ async function stats() {
   const setdexAndUsage = await Promise.all(
     statsFiles.map(entry => getSetdexAndUsage(...entry))
   );
-  const setdex = [{}, ...setdexAndUsage.map(data => data.setdex)];
-  const usage = [{}, ...setdexAndUsage.map(data => data.usage)];
+  const usagePairs = setdexAndUsage.map(data => [data.gen, data.usage]);
+  const setdexPairs = setdexAndUsage.map(data => [data.gen, data.setdex]);
+  const usage = _.fromPairs(usagePairs);
+  const setdex = _.fromPairs(setdexPairs);
   await Promise.all([
     fs.outputFile(
       path.join(outDir, "usage.ts"),
