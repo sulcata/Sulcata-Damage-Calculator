@@ -10,7 +10,8 @@ module.exports = function(api) {
         },
         modules: api.env("webpack") ? false : "commonjs",
         shippedProposals: true,
-        useBuiltIns: "usage"
+        useBuiltIns: "usage",
+        corejs: 3
       }
     ],
     "@babel/preset-typescript"

@@ -109,7 +109,10 @@ export function setDefender({ commit }: Context, { pokemon }: PokemonPayload) {
 }
 
 export function setHp({ commit, getters }: Context) {
-  const pokemon: Pokemon = getters.selectedReport.defender!;
+  if (getters.selectedReport.defender === undefined) {
+    throw new Error("A valid report must be selected");
+  }
+  const pokemon = getters.selectedReport.defender;
   if (getters.isAttackerReportSelected) {
     commit("setDefender", { pokemon });
   } else if (getters.isDefenderReportSelected) {
@@ -165,49 +168,49 @@ export function toggleStealthRock(
   { commit, state }: Context,
   { side }: SidePayload
 ) {
-  commit("setStealthRock", { active: !state[side].stealthRock });
+  commit("setStealthRock", { side, active: !state[side].stealthRock });
 }
 
 export function toggleReflect(
   { commit, state }: Context,
   { side }: SidePayload
 ) {
-  commit("setReflect", { active: !state[side].reflect });
+  commit("setReflect", { side, active: !state[side].reflect });
 }
 
 export function toggleLightScreen(
   { commit, state }: Context,
   { side }: SidePayload
 ) {
-  commit("setLightScreen", { active: !state[side].lightScreen });
+  commit("setLightScreen", { side, active: !state[side].lightScreen });
 }
 
 export function toggleForesight(
   { commit, state }: Context,
   { side }: SidePayload
 ) {
-  commit("setForesight", { active: !state[side].foresight });
+  commit("setForesight", { side, active: !state[side].foresight });
 }
 
 export function toggleFriendGuard(
   { commit, state }: Context,
   { side }: SidePayload
 ) {
-  commit("setFriendGuard", { active: !state[side].friendGuard });
+  commit("setFriendGuard", { side, active: !state[side].friendGuard });
 }
 
 export function toggleAuroraVeil(
   { commit, state }: Context,
   { side }: SidePayload
 ) {
-  commit("setAuroraVeil", { active: !state[side].auroraVeil });
+  commit("setAuroraVeil", { side, active: !state[side].auroraVeil });
 }
 
 export function toggleBattery(
   { commit, state }: Context,
   { side }: SidePayload
 ) {
-  commit("setBattery", { active: !state[side].battery });
+  commit("setBattery", { side, active: !state[side].battery });
 }
 
 export function setSpikes(

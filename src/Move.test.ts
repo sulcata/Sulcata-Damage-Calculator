@@ -608,7 +608,8 @@ test(".hiddenPowerType()", () => {
   );
 });
 
-test.each([
+test.each<[number, number, number]>([
+  // prettier-ignore
   [1, 100, 200],
   [4, 100, 200],
   [5, 100, 150],
@@ -621,11 +622,12 @@ test.each([
   [68, 100, 40],
   [69, 100, 20],
   [100, 100, 20]
-])(".flail(%p, %p)", (currentHp: number, maxHp: number, expected: number) => {
+])(".flail(%p, %p)", (currentHp, maxHp, expected) => {
   expect(Move.flail(currentHp, maxHp, Generation.B2W2)).toBe(expected);
 });
 
-test.each([
+test.each<[number, number, number]>([
+  // prettier-ignore
   [1, 100, 200],
   [3, 100, 200],
   [4, 100, 150],
@@ -638,19 +640,22 @@ test.each([
   [67, 100, 40],
   [68, 100, 20],
   [100, 100, 20]
-])(
-  ".flail(%p, %p, Generation.HGSS)",
-  (currentHp: number, maxHp: number, expected: number) => {
-    expect(Move.flail(currentHp, maxHp, Generation.HGSS)).toBe(expected);
-  }
-);
+])(".flail(%p, %p, Generation.HGSS)", (currentHp, maxHp, expected) => {
+  expect(Move.flail(currentHp, maxHp, Generation.HGSS)).toBe(expected);
+});
 
-test.each([[4, 10], [5, 30], [6, 50], [7, 70], [8, 90], [9, 110], [10, 150]])(
-  ".magnitude(%p)",
-  (magnitude: number, expected: number) => {
-    expect(Move.magnitude(magnitude)).toBe(expected);
-  }
-);
+test.each<[number, number]>([
+  // prettier-ignore
+  [4, 10],
+  [5, 30],
+  [6, 50],
+  [7, 70],
+  [8, 90],
+  [9, 110],
+  [10, 150]
+])(".magnitude(%p)", (magnitude, expected) => {
+  expect(Move.magnitude(magnitude)).toBe(expected);
+});
 
 test(".weatherBall()", () => {
   expect(Move.weatherBall(Weather.CLEAR)).toBe(Type.NORMAL);
@@ -663,14 +668,21 @@ test(".weatherBall()", () => {
   expect(Move.weatherBall(Weather.STRONG_WINDS)).toBe(Type.NORMAL);
 });
 
-test.each([[0, 200], [1, 80], [2, 60], [3, 50], [4, 40], [5, 40], [6, 40]])(
-  ".trumpCard(%p)",
-  (ppLeft: number, expected: number) => {
-    expect(Move.trumpCard(ppLeft)).toBe(expected);
-  }
-);
+test.each<[number, number]>([
+  // prettier-ignore
+  [0, 200],
+  [1, 80],
+  [2, 60],
+  [3, 50],
+  [4, 40],
+  [5, 40],
+  [6, 40]
+])(".trumpCard(%p)", (ppLeft, expected) => {
+  expect(Move.trumpCard(ppLeft)).toBe(expected);
+});
 
-test.each([
+test.each<[number, number, number]>([
+  // prettier-ignore
   [100, 20000, 40],
   [100, 101, 40],
   [100, 100, 60],
@@ -682,12 +694,9 @@ test.each([
   [100, 25, 150],
   [100, 1, 150],
   [100, 0, 150]
-])(
-  ".electroBall(%p, %p)",
-  (userSpeed: number, targetSpeed: number, expected: number) => {
-    expect(Move.electroBall(userSpeed, targetSpeed)).toBe(expected);
-  }
-);
+])(".electroBall(%p, %p)", (userSpeed, targetSpeed, expected) => {
+  expect(Move.electroBall(userSpeed, targetSpeed)).toBe(expected);
+});
 
 test(".gyroBall()", () => {
   expect(Move.gyroBall(0, 100)).toBe(150);
@@ -701,7 +710,8 @@ test(".gyroBall()", () => {
   expect(Move.gyroBall(2500, 100)).toBe(1);
 });
 
-test.each([
+test.each<[number, number]>([
+  // prettier-ignore
   [200000, 120],
   [2000, 120],
   [1999, 100],
@@ -715,11 +725,12 @@ test.each([
   [99, 20],
   [1, 20],
   [0, 20]
-])(".grassKnot(%p)", (targetWeight: number, expected: number) => {
+])(".grassKnot(%p)", (targetWeight, expected) => {
   expect(Move.grassKnot(targetWeight)).toBe(expected);
 });
 
-test.each([
+test.each<[number, number, number]>([
+  // prettier-ignore
   [100, 1, 120],
   [100, 20, 120],
   [100, 21, 100],
@@ -730,52 +741,62 @@ test.each([
   [100, 50, 60],
   [100, 51, 40],
   [100, 100, 40]
-])(
-  ".heavySlam(%p, %p)",
-  (userWeight: number, targetWeight: number, expected: number) => {
-    expect(Move.heavySlam(userWeight, targetWeight)).toBe(expected);
-  }
-);
+])(".heavySlam(%p, %p)", (userWeight, targetWeight, expected) => {
+  expect(Move.heavySlam(userWeight, targetWeight)).toBe(expected);
+});
 
-test.each([
+test.each<[BoostList, number]>([
+  // prettier-ignore
   [[NaN, 0, 0, 0, 0, 0, 0, 0], 60],
   [[NaN, -3, 0, 0, 0, 0, -5, 0], 60],
   [[NaN, 1, 0, 0, 0, 0, 0, 0], 80],
   [[NaN, 0, 0, 0, 0, 0, 1, 1], 100],
   [[NaN, 1, 0, 0, 0, 0, 2, 0], 120],
   [[NaN, 0, 0, 0, 0, -3, 3, 0], 120]
-])(".punishment(%p)", (statBoosts: BoostList, expected: number) => {
+])(".punishment(%p)", (statBoosts, expected) => {
   expect(Move.punishment(statBoosts)).toBe(expected);
 });
 
-test.each([
+test.each<[BoostList, number]>([
+  // prettier-ignore
   [[NaN, 0, 0, 0, 0, 0, 0, 0], 20],
   [[NaN, -3, 0, 0, 0, 0, -5, 0], 20],
   [[NaN, 1, 0, 0, 0, 0, 0, 0], 40],
   [[NaN, 0, 0, 0, 0, 0, 1, 1], 60],
   [[NaN, 1, 0, 0, 0, 0, 2, 0], 80],
   [[NaN, 6, 6, 6, 6, 6, 6, 6], 860]
-])(".storedPower(%p)", (statBoosts: BoostList, expected: number) => {
+])(".storedPower(%p)", (statBoosts, expected) => {
   expect(Move.storedPower(statBoosts)).toBe(expected);
 });
 
-test.each([[0, 102], [5, 100], [250, 2], [251, 1], [255, 1]])(
-  ".frustration(%p)",
-  (happiness: number, expected: number) => {
-    expect(Move.frustration(happiness)).toBe(expected);
-  }
-);
+test.each<[number, number]>([
+  // prettier-ignore
+  [0, 102],
+  [5, 100],
+  [250, 2],
+  [251, 1],
+  [255, 1]
+])(".frustration(%p)", (happiness, expected) => {
+  expect(Move.frustration(happiness)).toBe(expected);
+});
 
-test.each([[255, 102], [250, 100], [5, 2], [2, 1], [0, 1]])(
-  ".return(%p)",
-  (happiness: number, expected: number) => {
-    expect(Move.return(happiness)).toBe(expected);
-  }
-);
+test.each<[number, number]>([
+  // prettier-ignore
+  [255, 102],
+  [250, 100],
+  [5, 2],
+  [2, 1],
+  [0, 1]
+])(".return(%p)", (happiness, expected) => {
+  expect(Move.return(happiness)).toBe(expected);
+});
 
-test.each([[100, 100, 150], [1, 300, 1], [1, 2, 75], [1, 3, 50]])(
-  ".eruption(%p, %p)",
-  (currentHp: number, maxHp: number, expected: number) => {
-    expect(Move.eruption(currentHp, maxHp)).toBe(expected);
-  }
-);
+test.each<[number, number, number]>([
+  // prettier-ignore
+  [100, 100, 150],
+  [1, 300, 1],
+  [1, 2, 75],
+  [1, 3, 50]
+])(".eruption(%p, %p)", (currentHp, maxHp, expected) => {
+  expect(Move.eruption(currentHp, maxHp)).toBe(expected);
+});

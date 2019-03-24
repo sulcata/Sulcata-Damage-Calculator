@@ -1,11 +1,11 @@
-import { Field, Generation, maxGen, Pokemon, PokemonSet } from "sulcalc";
+import { Field, Generation, maxGen, Pokemon } from "sulcalc";
 import pokemonPerfect from "../../dist/setdex/pokemonPerfect";
 import smogon from "../../dist/setdex/smogon";
 import usage from "../../dist/setdex/usage";
 
 export interface GenSetdex {
   [pokeId: string]: {
-    [setName: string]: PokemonSet;
+    [setName: string]: ReturnType<Pokemon["toSet"]>;
   };
 }
 
@@ -35,7 +35,7 @@ export interface State {
   [key: string]: unknown;
 }
 
-const state: State = {
+export default (): State => ({
   sets: {
     smogon: (smogon as unknown) as Setdex,
     pokemonPerfect: (pokemonPerfect as unknown) as Setdex,
@@ -64,6 +64,4 @@ const state: State = {
   field: new Field(),
   reportOverrideIndex: -1,
   reportStick: false
-};
-
-export { state as default };
+});

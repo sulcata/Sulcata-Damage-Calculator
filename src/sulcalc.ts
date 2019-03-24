@@ -334,7 +334,8 @@ export default function sulcalc(
         displayChances.push(`guaranteed ${nhko}`);
       }
       break;
-    } else if (!fractionalChance[0].isZero()) {
+    }
+    if (!fractionalChance[0].isZero()) {
       const c = Math.round(chances.roundedChances[i] * 1000) / 10;
       if (c === 100) {
         displayChances.push(`almost guaranteed ${nhko}`);

@@ -1317,12 +1317,13 @@ test("#lightBallBoosted()", () => {
   expect(pichuWithLightBall.lightBallBoosted()).toBe(false);
 });
 
-test.each([
+test.each<[StatList, number]>([
+  // prettier-ignore
   [[NaN, 15, 15, 15, 15, 15], 15],
   [[NaN, 15, 14, 15, 15, 15], 11],
   [[NaN, 15, 9, 8, 8, 15], 14],
   [[NaN, 1, 15, 5, 5, 4], 13],
   [[NaN, 0, 2, 4, 4, 8], 0]
-])(".calcHealthDv(%p)", (dvs: StatList, expected: number) => {
+])(".calcHealthDv(%p)", (dvs, expected) => {
   expect(Pokemon.calcHealthDv(dvs)).toBe(expected);
 });

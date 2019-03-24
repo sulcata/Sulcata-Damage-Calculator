@@ -34,77 +34,87 @@ jest.mock("../Field", () => {
   return FieldMock;
 });
 
-let defender: Pokemon | undefined;
-let field: Field | undefined;
-beforeEach(() => {
-  defender = new Pokemon();
-  defender.stat = jest.fn().mockReturnValue(70);
-  defender.hurtBySandstorm = () => true;
-  field = new Field();
-});
-
 test("produces no effects with no statuses", () => {
-  const { values, messages } = gscEndOfTurn(defender!, field!);
+  const defender = new Pokemon();
+  const field = new Field();
+  const { values, messages } = gscEndOfTurn(defender, field);
   expect(values).toEqual([]);
   expect(messages).toEqual([]);
 });
 
 test("burn inflicts 1/8 max hp", () => {
-  defender!.isBurned = () => true;
-  const { values, messages } = gscEndOfTurn(defender!, field!);
+  const defender = new Pokemon();
+  defender.stat = jest.fn().mockReturnValue(70);
+  defender.isBurned = () => true;
+  const field = new Field();
+  const { values, messages } = gscEndOfTurn(defender, field);
   expect(values).toEqual([Math.trunc(-70 / 8)]);
   expect(messages).toEqual(["Burn"]);
-  expect(defender!.stat).toHaveBeenCalledWith(Stat.HP);
+  expect(defender.stat).toHaveBeenCalledWith(Stat.HP);
 });
 
 test("poison inflicts 1/8 max hp", () => {
-  defender!.isPoisoned = () => true;
-  const { values, messages } = gscEndOfTurn(defender!, field!);
+  const defender = new Pokemon();
+  defender.stat = jest.fn().mockReturnValue(70);
+  defender.isPoisoned = () => true;
+  const field = new Field();
+  const { values, messages } = gscEndOfTurn(defender, field);
   expect(values).toEqual([Math.trunc(-70 / 8)]);
   expect(messages).toEqual(["Poison"]);
-  expect(defender!.stat).toHaveBeenCalledWith(Stat.HP);
+  expect(defender.stat).toHaveBeenCalledWith(Stat.HP);
 });
 
 test("toxic inflicts increasing damage", () => {
-  defender!.isBadlyPoisoned = () => true;
-  const { values, messages } = gscEndOfTurn(defender!, field!);
+  const defender = new Pokemon();
+  defender.isBadlyPoisoned = () => true;
+  const field = new Field();
+  const { values, messages } = gscEndOfTurn(defender, field);
   expect(values).toEqual(["toxic"]);
   expect(messages).toEqual(["Toxic"]);
 });
 
 describe("sandstorm", () => {
-  beforeEach(() => {
-    field!.sand = () => true;
-  });
-
   test("inflicts 1/8 max hp", () => {
-    const { values, messages } = gscEndOfTurn(defender!, field!);
+    const defender = new Pokemon();
+    defender.stat = jest.fn().mockReturnValue(70);
+    defender.hurtBySandstorm = () => true;
+    const field = new Field();
+    field.sand = () => true;
+    const { values, messages } = gscEndOfTurn(defender, field);
     expect(values).toEqual([Math.trunc(-70 / 8)]);
     expect(messages).toEqual(["Sandstorm"]);
-    expect(defender!.stat).toHaveBeenCalledWith(Stat.HP);
+    expect(defender.stat).toHaveBeenCalledWith(Stat.HP);
   });
 
   test("does not inflict damage to sandstorm immune", () => {
-    defender!.hurtBySandstorm = () => false;
-    const { values, messages } = gscEndOfTurn(defender!, field!);
+    const defender = new Pokemon();
+    defender.hurtBySandstorm = () => false;
+    const field = new Field();
+    field.sand = () => true;
+    const { values, messages } = gscEndOfTurn(defender, field);
     expect(values).toEqual([]);
     expect(messages).toEqual([]);
   });
 });
 
 test("leftovers restores 1/16 max hp", () => {
-  defender!.item.name = "Leftovers";
-  const { values, messages } = gscEndOfTurn(defender!, field!);
+  const defender = new Pokemon();
+  defender.stat = jest.fn().mockReturnValue(70);
+  defender.item.name = "Leftovers";
+  const field = new Field();
+  const { values, messages } = gscEndOfTurn(defender, field);
   expect(values).toEqual([Math.trunc(70 / 16)]);
   expect(messages).toEqual(["Leftovers"]);
-  expect(defender!.stat).toHaveBeenCalledWith(Stat.HP);
+  expect(defender.stat).toHaveBeenCalledWith(Stat.HP);
 });
 
 test("orders conditions correctly", () => {
-  defender!.item.name = "Leftovers";
-  defender!.isBurned = () => true;
-  defender!.hurtBySandstorm = () => true;
-  field!.sand = () => true;
-  const { messages } = gscEndOfTurn(defender!, field!);
+  const defender = new Pokemon();
+  defender.item.name = "Leftovers";
+  defender.isBurned = () => true;
+  defender.hurtBySandstorm = () => true;
+  const field = new Field();
+  field.sand = () => true;
+  const { messages } = gscEndOfTurn(defender, field);
   expect(messages).toEqual(["Burn", "Sandstorm", "Leftovers"]);
 });

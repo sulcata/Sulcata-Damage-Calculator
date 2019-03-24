@@ -1,4 +1,5 @@
 import { get, set } from "lodash";
+import { Generation } from "sulcalc";
 import * as actions from "./actions";
 
 test("toggle*() actions commit inverted boolean values", () => {
@@ -49,9 +50,23 @@ test("toggle*() actions commit inverted boolean values", () => {
         const commit = jest.fn();
         action({ commit, state }, { side });
         expect(commit).toHaveBeenCalledWith(`set${name}`, {
-          active: !booleanValue
+          active: !booleanValue,
+          side
         });
       }
     }
   }
+});
+
+test("changeGen calls appropriate mutations", () => {
+  const commit = jest.fn();
+  const gen = Generation.GSC;
+  actions.changeGen({ commit }, { gen });
+  const { calls } = commit.mock;
+  expect(calls[0][0]).toBe("setGen");
+  expect(calls[1][0]).toBe("setAttacker");
+  expect(calls[2][0]).toBe("setDefender");
+  expect(calls[3][0]).toBe("setField");
+  expect(calls[4][0]).toBe("setReportStick");
+  expect(calls[5][0]).toBe("setReportOverrideIndex");
 });

@@ -6,11 +6,6 @@ import advCalculate from "./advCalculate";
 
 const gen = Generation.ADV;
 
-let field: Field | undefined;
-beforeEach(() => {
-  field = new Field({ gen });
-});
-
 test("sanity check", () => {
   const aerodactyl = new Pokemon({
     name: "Aerodactyl",
@@ -26,7 +21,8 @@ test("sanity check", () => {
     gen
   });
   const rockSlide = new Move({ name: "Rock Slide", gen });
-  const damage = advCalculate(aerodactyl, skarmory, rockSlide, field!);
+  const field = new Field({ gen });
+  const damage = advCalculate(aerodactyl, skarmory, rockSlide, field);
   expect(Math.max(...damage)).toBe(127);
 });
 
@@ -42,7 +38,8 @@ test("ensure proper stats are used", () => {
     gen
   });
   const psychic = new Move({ name: "Psychic", gen });
-  const damage = advCalculate(celebi, dugtrio, psychic, field!);
+  const field = new Field({ gen });
+  const damage = advCalculate(celebi, dugtrio, psychic, field);
   expect(Math.max(...damage)).toBe(213);
 });
 
@@ -54,7 +51,8 @@ test("minimize boost", () => {
     minimize: true,
     gen
   });
-  const damage = advCalculate(snorlax, blissey, stomp, field!);
+  const field = new Field({ gen });
+  const damage = advCalculate(snorlax, blissey, stomp, field);
   expect(Math.max(...damage)).toBe(753);
 });
 
@@ -72,9 +70,10 @@ test("Pure Power and Huge Power boost attack", () => {
     gen
   });
   const brickBreak = new Move({ name: "Brick Break", gen });
+  const field = new Field({ gen });
   for (const ability of ["Huge Power", "Pure Power"]) {
     medicham.ability.name = ability;
-    const damage = advCalculate(medicham, snorlax, brickBreak, field!);
+    const damage = advCalculate(medicham, snorlax, brickBreak, field);
     expect(Math.max(...damage)).toBe(686);
   }
 });
@@ -95,8 +94,9 @@ test("Soul Dew boosts special attack and special defense", () => {
     gen
   });
   const dragonClaw = new Move({ name: "Dragon Claw", gen });
-  const latiasDamage = advCalculate(latias, latios, dragonClaw, field!);
-  const latiosDamage = advCalculate(latios, latias, dragonClaw, field!);
+  const field = new Field({ gen });
+  const latiasDamage = advCalculate(latias, latios, dragonClaw, field);
+  const latiosDamage = advCalculate(latios, latias, dragonClaw, field);
   expect(Math.max(...latiasDamage)).toBe(278);
   expect(Math.max(...latiosDamage)).toBe(272);
 });
@@ -109,6 +109,7 @@ test("Deep Sea Tooth boosts Clamperl's special attack", () => {
   });
   const abra = new Pokemon({ name: "Abra", gen });
   const surf = new Move({ name: "Surf", gen });
-  const damage = advCalculate(clamperl, abra, surf, field!);
+  const field = new Field({ gen });
+  const damage = advCalculate(clamperl, abra, surf, field);
   expect(Math.max(...damage)).toBe(304);
 });

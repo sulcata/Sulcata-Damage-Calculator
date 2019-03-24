@@ -1,6 +1,8 @@
 import { zip } from "lodash";
-import { Field, info, Pokemon, sulcalc, SulcalcReport } from "sulcalc";
+import { Field, info, Pokemon, sulcalc } from "sulcalc";
 import { SetdexName, State } from "./state";
+
+type PartialReport = Partial<ReturnType<typeof sulcalc>>;
 
 export interface Getters {
   readonly sets: ReturnType<typeof sets>;
@@ -50,7 +52,7 @@ export function selectedReportIndex(state: State, getters: Getters): number {
   if (state.reportOverrideIndex >= 0 && state.reportOverrideIndex < 8) {
     return state.reportOverrideIndex;
   }
-  const emptyReport: Partial<SulcalcReport> = {};
+  const emptyReport: PartialReport = {};
   const report = getters.reports.reduce((report1, report2) => {
     const chances1 = report1.roundedChances || [];
     const chances2 = report2.roundedChances || [];
@@ -66,10 +68,7 @@ export function selectedReportIndex(state: State, getters: Getters): number {
   return getters.reports.indexOf(report);
 }
 
-export function selectedReport(
-  _state: State,
-  getters: Getters
-): Partial<SulcalcReport> {
+export function selectedReport(_state: State, getters: Getters): PartialReport {
   return getters.reports[getters.selectedReportIndex] || {};
 }
 
@@ -109,7 +108,7 @@ function getReportList(
   attacker: Pokemon,
   defender: Pokemon,
   field: Field
-): Partial<SulcalcReport>[] {
+): PartialReport[] {
   const reports = [];
   for (const move of attacker.moves) {
     try {

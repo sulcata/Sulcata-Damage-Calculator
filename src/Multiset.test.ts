@@ -1,6 +1,9 @@
 import * as bigInt from "big-integer";
 import Multiset from "./Multiset";
 
+const eq = (a: bigInt.BigInteger | undefined, b: bigInt.BigNumber) =>
+  a && a.eq(b);
+
 let arr1: number[] = [];
 let arr2: number[] = [];
 let emptySet: Multiset<number> = new Multiset();
@@ -16,10 +19,10 @@ beforeEach(() => {
 
 test("#constructor()", () => {
   function checker(set: Multiset<number>) {
-    expect(set.get(-2)!.eq(1)).toBe(true);
-    expect(set.get(1)!.eq(1)).toBe(true);
-    expect(set.get(2)!.eq(1)).toBe(true);
-    expect(set.get(3)!.eq(2)).toBe(true);
+    expect(eq(set.get(-2), 1)).toBe(true);
+    expect(eq(set.get(1), 1)).toBe(true);
+    expect(eq(set.get(2), 1)).toBe(true);
+    expect(eq(set.get(3), 2)).toBe(true);
   }
 
   checker(new Multiset([1, 2, 3, 3, -2]));
@@ -34,11 +37,11 @@ test("#add()", () => {
   set.add(2, 1);
   set.add(3, 1337);
   expect(set.add(4, 3).add(5, 0)).toBe(set);
-  expect(set.get(1)!.eq(1)).toBe(true);
-  expect(set.get(2)!.eq(2)).toBe(true);
-  expect(set.get(3)!.eq(1337)).toBe(true);
-  expect(set.get(4)!.eq(3)).toBe(true);
-  expect(set.get(5)!.eq(0)).toBe(true);
+  expect(eq(set.get(1), 1)).toBe(true);
+  expect(eq(set.get(2), 2)).toBe(true);
+  expect(eq(set.get(3), 1337)).toBe(true);
+  expect(eq(set.get(4), 3)).toBe(true);
+  expect(eq(set.get(5), 0)).toBe(true);
 });
 
 test("#delete()", () => {
@@ -58,10 +61,10 @@ test("#has()", () => {
 
 test("#get()", () => {
   expect(set1.get(Math.PI)).toBeUndefined();
-  expect(set1.get(1)!.eq(2)).toBe(true);
-  expect(set1.get(2)!.eq(2)).toBe(true);
-  expect(set1.get(3)!.eq(2)).toBe(true);
-  expect(set1.get(4)!.eq(1)).toBe(true);
+  expect(eq(set1.get(1), 2)).toBe(true);
+  expect(eq(set1.get(2), 2)).toBe(true);
+  expect(eq(set1.get(3), 2)).toBe(true);
+  expect(eq(set1.get(4), 1)).toBe(true);
 });
 
 test("#size", () => {

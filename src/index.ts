@@ -1,12 +1,12 @@
 import * as info from "./info";
 
 export { info };
-export { default as sulcalc, SulcalcReport } from "./sulcalc";
+export { default as sulcalc } from "./sulcalc";
 export { default as Multiset } from "./Multiset";
-export { default as Pokemon, PokemonOptions, PokemonSet } from "./Pokemon";
-export { default as Ability, AbilityOptions } from "./Ability";
-export { default as Item, ItemOptions } from "./Item";
-export { default as Move, MoveOptions } from "./Move";
-export { default as Field, FieldOptions } from "./Field";
+export { default as Pokemon } from "./Pokemon";
+export { default as Ability } from "./Ability";
+export { default as Item } from "./Item";
+export { default as Move } from "./Move";
+export { default as Field } from "./Field";
 export * from "./errors";
 export * from "./utilities";

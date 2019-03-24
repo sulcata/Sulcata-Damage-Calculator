@@ -134,7 +134,7 @@ function printEv(stat: BaseStat, ev: number, evs: StatList, gen: Generation) {
     : `${ev} ${statNames[stat]}`;
 }
 
-export interface PokemonSet {
+interface PokemonSet {
   e?: StatList;
   d?: StatList;
   m?: [string, string, string, string];

@@ -1,23 +1,26 @@
 import * as info from "./info";
 import { Generation, generations, Nature, Stat, Type } from "./utilities";
 
-test.each([[Nature.HARDY, "Hardy"], [Nature.ADAMANT, "Adamant"]])(
-  "natureName(%p)",
-  (natureId: Nature, expected: string) => {
-    expect(info.natureName(natureId)).toBe(expected);
-  }
-);
+test.each<[Nature, string]>([
+  // prettier-ignore
+  [Nature.HARDY, "Hardy"],
+  [Nature.ADAMANT, "Adamant"]
+])("natureName(%p)", (natureId, expected) => {
+  expect(info.natureName(natureId)).toBe(expected);
+});
 
-test.each([
+test.each<[string, Nature]>([
+  // prettier-ignore
   ["  adamant ", Nature.ADAMANT],
   ["Hardy", Nature.HARDY],
   ["  HAsTy", Nature.HASTY],
   ["toString", Nature.HARDY]
-])("natureId(%p)", (natureName: string, expected: Nature) => {
+])("natureId(%p)", (natureName, expected) => {
   expect(info.natureId(natureName)).toBe(expected);
 });
 
-test.each([
+test.each<[Generation, string]>([
+  // prettier-ignore
   [Generation.RBY, "RBY"],
   [Generation.GSC, "GSC"],
   [Generation.ADV, "ADV"],
@@ -25,11 +28,12 @@ test.each([
   [Generation.B2W2, "B2W2"],
   [Generation.ORAS, "ORAS"],
   [Generation.SM, "SM"]
-])("genName(%p)", (gen: Generation, expected: string) => {
+])("genName(%p)", (gen, expected) => {
   expect(info.genName(gen)).toBe(expected);
 });
 
-test.each([
+test.each<[Nature, Stat, number]>([
+  // prettier-ignore
   [Nature.ADAMANT, Stat.HP, 0],
   [Nature.ADAMANT, Stat.ATK, 1],
   [Nature.ADAMANT, Stat.DEF, 0],
@@ -42,52 +46,52 @@ test.each([
   [Nature.HARDY, Stat.SATK, 0],
   [Nature.HARDY, Stat.SDEF, 0],
   [Nature.HARDY, Stat.SPD, 0]
-])(
-  "natureMultiplier(%p, %p)",
-  (nature: Nature, stat: Stat, expected: number) => {
-    expect(info.natureMultiplier(nature, stat)).toBe(expected);
-  }
-);
+])("natureMultiplier(%p, %p)", (nature, stat, expected) => {
+  expect(info.natureMultiplier(nature, stat)).toBe(expected);
+});
 
-test.each([[Nature.ADAMANT, [Stat.ATK, Stat.SATK]], [Nature.HARDY, [-1, -1]]])(
-  "natureStats(%p)",
-  (nature: Nature, expected: [Stat, Stat] | [-1, -1]) => {
-    expect(info.natureStats(nature)).toEqual(expected);
-  }
-);
+test.each<[Nature, [Stat, Stat] | [-1, -1]]>([
+  // prettier-ignore
+  [Nature.ADAMANT, [Stat.ATK, Stat.SATK]],
+  [Nature.HARDY, [-1, -1]]
+])("natureStats(%p)", (nature, expected) => {
+  expect(info.natureStats(nature)).toEqual(expected);
+});
 
-test.each(generations)("releasedPokes(%p)", (gen: Generation) => {
+test.each(generations)("releasedPokes(%p)", gen => {
   expect(info.releasedPokes(gen)).toMatchSnapshot();
 });
 
-test.each([
+test.each<[string, Generation, Type]>([
+  // prettier-ignore
   ["snorlax", Generation.SM, Type.NORMAL],
   ["not a pokemon id", Generation.SM, Type.CURSE]
-])("pokeType1(%p, %p)", (pokeId: string, gen: Generation, expected: Type) => {
+])("pokeType1(%p, %p)", (pokeId, gen, expected) => {
   expect(info.pokeType1(pokeId, gen)).toBe(expected);
 });
 
-test.each([
+test.each<[string, Generation, Type]>([
+  // prettier-ignore
   ["snorlax", Generation.SM, Type.CURSE],
   ["dragonite", Generation.SM, Type.FLYING],
   ["not a pokemon id", Generation.SM, Type.CURSE]
-])("pokeType2(%p, %p)", (pokeId: string, gen: Generation, expected: Type) => {
+])("pokeType2(%p, %p)", (pokeId, gen, expected) => {
   expect(info.pokeType2(pokeId, gen)).toBe(expected);
 });
 
-test.each(generations)("releasedMoves(%p)", (gen: Generation) => {
+test.each(generations)("releasedMoves(%p)", gen => {
   expect(info.releasedMoves(gen)).toMatchSnapshot();
 });
 
-test.each(generations)("releasedItems(%p)", (gen: Generation) => {
+test.each(generations)("releasedItems(%p)", gen => {
   expect(info.releasedItems(gen)).toMatchSnapshot();
 });
 
-test.each(generations)("releasedAbilities(%p)", (gen: Generation) => {
+test.each(generations)("releasedAbilities(%p)", gen => {
   expect(info.releasedAbilities(gen)).toMatchSnapshot();
 });
 
-test.each(generations)("types(%p)", (gen: Generation) => {
+test.each(generations)("types(%p)", gen => {
   expect(info.typesForGen(gen)).toMatchSnapshot();
 });
 
