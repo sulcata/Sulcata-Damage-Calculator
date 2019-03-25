@@ -17,8 +17,9 @@
     "build:app": "webpack --config build/webpack.app.config.js --env.production",
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "jest --coverage",
-    "lint": "tsc && tslint -p . && npm run style -- --list-different",
-    "lint:fix": "tslint -p . --fix && npm run style -- --write",
+    "lint": "tsc && npm run tslint && npm run style -- --list-different",
+    "lint:fix": "npm run tslint -- --fix  && npm run style -- --write",
+    "tslint": "tslint -p . -e 'dist/**/*'",
     "style": "prettier '**/*.{js,json,html,md,scss,ts,vue,yml,yaml}'",
     "setup": "npm run setup:db && npm run setup:stats && npm run setup:setdex",
     "setup:db": "babel-node scripts/db --extensions '.js,.ts'",
@@ -33,7 +34,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && tsc && tslint -p . && jest -o",
+      "pre-commit": "lint-staged && tsc && npm run tslint && jest -o",
       "pre-push": "npm run setup && npm test"
     }
   },

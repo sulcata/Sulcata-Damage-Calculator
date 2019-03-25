@@ -18,5 +18,5 @@
     "target": "esnext"
   },
   "include": ["**/*.ts"],
-  "exclude": ["**/dist/*", "**/data/*", "**/coverage/*"]
+  "exclude": ["**/dist/**/*", "**/data/**/*", "**/coverage/**/*"]
 }
