@@ -1,5 +1,5 @@
 import * as info from "./info";
-import { Generation, generations, Nature, Stat, Type } from "./utilities";
+import { Generation, Nature, Stat, Type, generations } from "./utilities";
 
 test.each<[Nature, string]>([
   // prettier-ignore

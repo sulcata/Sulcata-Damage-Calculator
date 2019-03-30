@@ -1,12 +1,12 @@
 export class NoPokemonError extends RangeError {
-  constructor() {
+  public constructor() {
     super("Pokemon cannot be (No Pokemon)");
     this.name = "NoPokemonError";
   }
 }
 
 export class NoMoveError extends RangeError {
-  constructor() {
+  public constructor() {
     super("Move cannot be (No Move)");
     this.name = "NoMoveError";
   }

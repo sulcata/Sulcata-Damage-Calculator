@@ -8,7 +8,7 @@ import {
   normalToType,
   pinchType
 } from "./info";
-import { Generation, maxGen, Type } from "./utilities";
+import { Generation, Type, maxGen } from "./utilities";
 
 export type AbilityOptions = Partial<Ability> & { name?: string };
 
@@ -17,7 +17,7 @@ export default class Ability {
   public id: string = "noability";
   public disabled: boolean = false;
 
-  constructor(ability: Ability | AbilityOptions = {}) {
+  public constructor(ability: Ability | AbilityOptions = {}) {
     const { id, name, ...rest } = ability;
     Object.assign(this, rest);
     if (typeof id === "string") {

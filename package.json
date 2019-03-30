@@ -17,25 +17,29 @@
     "build:app": "webpack --config build/webpack.app.config.js --env.production",
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "jest --coverage",
-    "lint": "tsc && npm run tslint && npm run style -- --list-different",
-    "lint:fix": "npm run tslint -- --fix  && npm run style -- --write",
-    "tslint": "tslint -p . -e 'dist/**/*'",
-    "style": "prettier '**/*.{js,json,html,md,scss,ts,vue,yml,yaml}'",
+    "lint": "tsc && eslint '**/*.ts' && npm run style -- --check",
+    "lint:fix": "eslint '**/*.ts' --fix  && npm run style -- --write",
+    "style": "prettier '**/*.{html,js,json,jsx,md,scss,ts,tsx,vue,yml,yaml}' --ignore-path .eslintignore",
     "setup": "npm run setup:db && npm run setup:stats && npm run setup:setdex",
     "setup:db": "babel-node scripts/db --extensions '.js,.ts'",
     "setup:stats": "babel-node scripts/stats --extensions '.js,.ts'",
     "setup:setdex": "babel-node scripts/setdex --extensions '.js,.ts'"
   },
   "lint-staged": {
-    "*.{js,json,html,md,scss,ts,vue,yml,yaml}": [
-      "prettier --write",
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write --ignore-path .eslintignore",
+      "git add"
+    ],
+    "*.{html,js,json,jsx,md,scss,vue,yml,yaml}": [
+      "prettier --write --ignore-path .eslintignore",
       "git add"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && tsc && npm run tslint && jest -o",
-      "pre-push": "npm run setup && npm test"
+      "pre-commit": "lint-staged && tsc && jest -o",
+      "pre-push": "npm run setup && npm run lint && npm test"
     }
   },
   "dependencies": {
@@ -57,6 +61,8 @@
     "@types/fs-extra": "^5.0.5",
     "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.122",
+    "@typescript-eslint/eslint-plugin": "^1.5.0",
+    "@typescript-eslint/parser": "^1.5.0",
     "@vue/test-utils": "^1.0.0-beta.29",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^24.5.0",
@@ -64,6 +70,9 @@
     "babel-plugin-dynamic-import-node": "^2.2.0",
     "babel-plugin-lodash": "^3.3.4",
     "css-loader": "^2.1.1",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-promise": "^4.0.1",
     "fs-extra": "^7.0.1",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^1.3.1",
@@ -76,9 +85,7 @@
     "sass-loader": "^7.1.0",
     "script-ext-html-webpack-plugin": "^2.1.3",
     "terser-webpack-plugin": "^1.2.3",
-    "tslint": "^5.14.0",
-    "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.3.4000",
+    "typescript": "^3.4.1",
     "vue-jest": "^3.0.4",
     "vue-loader": "^15.7.0",
     "vue-template-compiler": "^2.6.10",

@@ -29,11 +29,11 @@ import {
   BoostList,
   DamageClass,
   Generation,
-  maxGen,
   Stat,
   StatList,
   Type,
-  Weather
+  Weather,
+  maxGen
 } from "./utilities";
 
 const zMoves: { [key in Type]?: string } = {
@@ -105,7 +105,7 @@ export default class Move {
   public trumpPP: number = 5;
   public present: number = -1;
 
-  constructor(move: Move | MoveOptions = {}) {
+  public constructor(move: Move | MoveOptions = {}) {
     const { id, name, numberOfHits, ...rest } = move;
     Object.assign(this, rest);
 

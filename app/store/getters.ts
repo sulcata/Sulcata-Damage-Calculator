@@ -1,30 +1,8 @@
 import { zip } from "lodash";
-import { Field, info, Pokemon, sulcalc } from "sulcalc";
+import { Field, Pokemon, info, sulcalc } from "sulcalc";
 import { SetdexName, State } from "./state";
 
 type PartialReport = Partial<ReturnType<typeof sulcalc>>;
-
-export interface Getters {
-  readonly sets: ReturnType<typeof sets>;
-  readonly selectedReportIndex: ReturnType<typeof selectedReportIndex>;
-  readonly selectedReport: ReturnType<typeof selectedReport>;
-  readonly reports: ReturnType<typeof reports>;
-  readonly attackerReports: ReturnType<typeof attackerReports>;
-  readonly defenderReports: ReturnType<typeof defenderReports>;
-  readonly isReportSelected: ReturnType<typeof isReportSelected>;
-  readonly isAttackerReportSelected: ReturnType<
-    typeof isAttackerReportSelected
-  >;
-  readonly isDefenderReportSelected: ReturnType<
-    typeof isDefenderReportSelected
-  >;
-  readonly isReportOverrideForAttacker: ReturnType<
-    typeof isReportOverrideForAttacker
-  >;
-  readonly isReportOverrideForDefender: ReturnType<
-    typeof isReportOverrideForDefender
-  >;
-}
 
 export function sets(state: State) {
   const setdexList = [];
@@ -118,4 +96,26 @@ function getReportList(
     }
   }
   return reports;
+}
+
+export interface Getters {
+  readonly sets: ReturnType<typeof sets>;
+  readonly selectedReportIndex: ReturnType<typeof selectedReportIndex>;
+  readonly selectedReport: ReturnType<typeof selectedReport>;
+  readonly reports: ReturnType<typeof reports>;
+  readonly attackerReports: ReturnType<typeof attackerReports>;
+  readonly defenderReports: ReturnType<typeof defenderReports>;
+  readonly isReportSelected: ReturnType<typeof isReportSelected>;
+  readonly isAttackerReportSelected: ReturnType<
+    typeof isAttackerReportSelected
+  >;
+  readonly isDefenderReportSelected: ReturnType<
+    typeof isDefenderReportSelected
+  >;
+  readonly isReportOverrideForAttacker: ReturnType<
+    typeof isReportOverrideForAttacker
+  >;
+  readonly isReportOverrideForDefender: ReturnType<
+    typeof isReportOverrideForDefender
+  >;
 }

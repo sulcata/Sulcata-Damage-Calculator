@@ -1,5 +1,5 @@
 import Item from "./Item";
-import { Generation, maxGen, Type } from "./utilities";
+import { Generation, Type, maxGen } from "./utilities";
 
 const placeholderItem = new Item();
 let noItem = placeholderItem;

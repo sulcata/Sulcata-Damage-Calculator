@@ -1,4 +1,4 @@
-import { Field, Generation, maxGen, Pokemon } from "sulcalc";
+import { Field, Generation, Pokemon, maxGen } from "sulcalc";
 import pokemonPerfect from "../../dist/setdex/pokemonPerfect";
 import smogon from "../../dist/setdex/smogon";
 import usage from "../../dist/setdex/usage";

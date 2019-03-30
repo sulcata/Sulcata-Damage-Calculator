@@ -1,4 +1,3 @@
-/* tslint:disable:no-unbound-method */
 import Pokemon from "../Pokemon";
 import { Stat } from "../utilities";
 import rbyEndOfTurn from "./rbyEndOfTurn";

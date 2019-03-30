@@ -1,15 +1,14 @@
-/* tslint:disable:no-unsafe-any */
 import { castArray, defaultTo, get, has } from "lodash";
 import db from "../dist/db";
 import {
   DamageClass,
   Generation,
-  maxGen,
   Nature,
   OneOrMany,
   Stat,
   StatList,
   Type,
+  maxGen,
   types
 } from "./utilities";
 
@@ -39,7 +38,7 @@ function getInfo<T>(
 }
 
 const makeNameToId = (objectName: string, defaultId: string) => (
-  name: any
+  name: unknown
 ): string => {
   if (typeof name !== "string") return defaultId;
   const id = name.replace(/[^A-Za-z0-9]/g, "").toLowerCase();

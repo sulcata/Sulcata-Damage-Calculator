@@ -15,7 +15,7 @@ import {
   zMoveTransformsFrom,
   zMoveTransformsTo
 } from "./info";
-import { Generation, maxGen, Type } from "./utilities";
+import { Generation, Type, maxGen } from "./utilities";
 
 const flavorBerries = new Set([
   "Figy Berry",
@@ -33,7 +33,7 @@ export default class Item {
   public used: boolean = false;
   public disabled: boolean = false;
 
-  constructor(item: Item | ItemOptions = {}) {
+  public constructor(item: Item | ItemOptions = {}) {
     const { id, name, ...rest } = item;
     Object.assign(this, rest);
     if (typeof id === "string") {

@@ -2,12 +2,12 @@ import Field from "../Field";
 import Move from "../Move";
 import Pokemon from "../Pokemon";
 import {
+  Stat,
+  Type,
   applyMod,
   applyModAll,
   chainMod,
-  damageVariation,
-  Stat,
-  Type
+  damageVariation
 } from "../utilities";
 import moveInfo from "./moveInfo";
 

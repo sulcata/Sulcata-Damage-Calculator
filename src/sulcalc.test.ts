@@ -2,12 +2,12 @@ import { NoMoveError, NoPokemonError } from "./errors";
 import sulcalc from "./sulcalc";
 import {
   Generation,
-  generations,
-  maxGen,
   Nature,
   Status,
   Terrain,
-  Weather
+  Weather,
+  generations,
+  maxGen
 } from "./utilities";
 
 test("sanity check", () => {

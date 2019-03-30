@@ -2,7 +2,7 @@ import Field from "../Field";
 import { isPhysicalType } from "../info";
 import Move from "../Move";
 import Pokemon from "../Pokemon";
-import { damageVariation, needsScaling, scaleStat, Stat } from "../utilities";
+import { Stat, damageVariation, needsScaling, scaleStat } from "../utilities";
 import moveInfo from "./moveInfo";
 
 export default (
