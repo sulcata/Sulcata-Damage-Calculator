@@ -8,9 +8,9 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
-import { generations, maxGen, info } from "sulcalc";
+import { generations, info } from "sulcalc";
 
 export default {
   components: {

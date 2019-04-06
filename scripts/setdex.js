@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import _ from "lodash/fp";
-import { info, Move, Stat, Pokemon, Generation } from "../src";
+import { Generation, Move, Pokemon, Stat, info } from "../src";
 
 const mapValuesUncapped = _.mapValues.convert({ cap: false });
 
@@ -22,7 +22,7 @@ const minifySet = _.curry((set, pokemonId, gen) => {
     item: set.item
   });
 
-  pokemon.nature = info.natureId(set.nature !== undefined ? set.nature : "");
+  pokemon.nature = info.natureId(set.nature === undefined ? "" : set.nature);
 
   pokemon.moves = _.map(move => new Move({ name: move, gen }), set.moves);
 

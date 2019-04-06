@@ -12,7 +12,7 @@
 
 <script>
 import { Multiselect } from "vue-multiselect";
-import { Nature, natures, info } from "sulcalc";
+import { Nature, info, natures } from "sulcalc";
 
 export default {
   components: {

@@ -67,7 +67,7 @@ import StatusComponent from "./Status.vue";
 import StatsComponent from "./Stats.vue";
 import Health from "./Health.vue";
 import IntegerInput from "./ui/IntegerInput.vue";
-import { Generation, Stat, Pokemon, Move } from "sulcalc";
+import { Generation, Move, Pokemon, Stat } from "sulcalc";
 
 export default {
   components: {

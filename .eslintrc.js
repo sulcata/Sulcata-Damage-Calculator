@@ -1,30 +1,26 @@
 "use strict";
 
-const src = "src/**/*.ts";
-const app = "app/**/*.ts";
-const scripts = "scripts/**/*.ts";
-const typescript = "**/*.ts";
-const javascript = "**/*.js";
+const tsRecommended = require("@typescript-eslint/eslint-plugin/dist/configs/recommended");
+const tsPrettier = require("eslint-config-prettier/@typescript-eslint");
 
 module.exports = {
   root: true,
-  parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: "./tsconfig.json",
-    tsconfigRootDir: "."
+    parser: "@typescript-eslint/parser",
+    ecmaVersion: 2019,
+    sourceType: "script"
   },
   env: {
     es6: true,
     node: true
   },
-  plugins: ["@typescript-eslint", "promise"],
-  settings: {},
+  plugins: ["promise", "vue"],
   extends: [
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
+    "plugin:vue/recommended",
     "plugin:promise/recommended",
-    "prettier",
-    "prettier/@typescript-eslint"
+    "prettier/vue",
+    "prettier"
   ],
   rules: {
     "promise/no-callback-in-promise": "error",
@@ -103,42 +99,72 @@ module.exports = {
     "require-await": "error",
     "sort-imports": ["error", { ignoreDeclarationSort: true }],
     strict: "error",
-    "symbol-description": "error",
-
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/member-ordering": [
-      "error",
-      {
-        default: ["field", "constructor", "instance-method", "static-method"]
-      }
-    ],
-    "@typescript-eslint/no-extraneous-class": "error",
-    "@typescript-eslint/no-for-in-array": "error",
-    "@typescript-eslint/no-this-alias": [
-      "error",
-      {
-        allowDestructuring: true,
-        allowedNames: ["self"]
-      }
-    ],
-    "@typescript-eslint/no-unnecessary-qualifier": "error",
-    "@typescript-eslint/no-unnecessary-type-assertion": "error",
-    "@typescript-eslint/no-use-before-define": ["error", "nofunc"],
-    "@typescript-eslint/no-useless-constructor": "error",
-    "@typescript-eslint/prefer-function-type": "error",
-    "@typescript-eslint/unified-signatures": "error"
+    "symbol-description": "error"
   },
   overrides: [
     {
-      files: ["**/*.test.ts"],
+      // typescript
+      files: "**/*.ts",
+      parserOptions: {
+        project: "./tsconfig.json",
+        tsconfigRootDir: "."
+      },
+      plugins: ["@typescript-eslint"],
+      rules: {
+        ...tsRecommended.rules,
+        ...tsPrettier.rules,
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/member-ordering": [
+          "error",
+          {
+            default: [
+              "field",
+              "constructor",
+              "instance-method",
+              "static-method"
+            ]
+          }
+        ],
+        "@typescript-eslint/no-extraneous-class": "error",
+        "@typescript-eslint/no-for-in-array": "error",
+        "@typescript-eslint/no-this-alias": [
+          "error",
+          {
+            allowDestructuring: true,
+            allowedNames: ["self"]
+          }
+        ],
+        "@typescript-eslint/no-unnecessary-qualifier": "error",
+        "@typescript-eslint/no-unnecessary-type-assertion": "error",
+        "@typescript-eslint/no-use-before-define": ["error", "nofunc"],
+        "@typescript-eslint/no-useless-constructor": "error",
+        "@typescript-eslint/prefer-function-type": "error",
+        "@typescript-eslint/unified-signatures": "error"
+      }
+    },
+    {
+      // module parsing goal
+      files: "{app,scripts,src}/**/*",
+      parserOptions: { sourceType: "module" }
+    },
+    {
+      // jest unit tests
+      files: "**/*.test.*",
       env: { jest: true }
     },
     {
-      files: ["app/**/*.ts"],
+      // browser globals
+      files: "app/**/*",
       env: { browser: true }
     },
     {
-      files: ["{src,app}/**/*.ts"],
+      // console access
+      files: "scripts/**/*",
+      rules: { "no-console": "off" }
+    },
+    {
+      // not node.js, but needs access to process
+      files: "{app,src}/**/*",
       env: { node: false },
       globals: { process: false }
     }

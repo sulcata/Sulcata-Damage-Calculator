@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import Pokemon from "./Pokemon.vue";
 import Field from "./Field.vue";
 import SetImporter from "./SetImporter.vue";

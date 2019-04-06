@@ -76,7 +76,7 @@
 <script>
 import { clamp } from "lodash";
 import IntegerInput from "./ui/IntegerInput.vue";
-import { Pokemon, Generation, Stat } from "sulcalc";
+import { Generation, Pokemon, Stat } from "sulcalc";
 
 export default {
   components: {

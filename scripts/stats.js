@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import _ from "lodash";
-import { info, Ability, Generation, Item, Move, Pokemon } from "../src";
+import { Ability, Generation, Item, Move, Pokemon, info } from "../src";
 
 const inDir = path.join(__dirname, "data/stats");
 const outDir = path.join(__dirname, "../dist");

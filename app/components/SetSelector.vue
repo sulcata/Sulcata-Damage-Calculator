@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import { Multiselect } from "vue-multiselect";
 import { Pokemon } from "sulcalc";
 
