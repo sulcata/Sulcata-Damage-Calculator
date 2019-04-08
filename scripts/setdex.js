@@ -67,10 +67,10 @@ const setdex = async () => {
     ["setdex_rby_pp", Generation.RBY],
     ["setdex_xy_pp", Generation.ORAS]
   ].map(async ([file, gen]) => {
-    const setdexData = (await import(path.join(inDir, file + ".js"))).default;
+    const setdexData = (await import(path.join(inDir, `${file}.js`))).default;
     const minifiedSetdex = minifySetdex(setdexData, gen);
     await fs.writeFile(
-      path.join(outDir, file + ".ts"),
+      path.join(outDir, `${file}.ts`),
       `export default ${JSON.stringify(minifiedSetdex)}`
     );
   });

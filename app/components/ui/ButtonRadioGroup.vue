@@ -14,6 +14,7 @@
 
 <script>
 import { eq } from "lodash";
+import { hasOwn } from "sulcalc";
 
 const sizeClasses = {
   small: "btn-group-sm",
@@ -60,14 +61,14 @@ export default {
       type: String,
       default: "medium",
       validator(value) {
-        return sizeClasses.hasOwnProperty(value);
+        return hasOwn(sizeClasses, value);
       }
     },
     type: {
       type: String,
       default: "primary",
       validator(value) {
-        return typeClasses.hasOwnProperty(value);
+        return hasOwn(typeClasses, value);
       }
     },
     outline: {
@@ -109,7 +110,7 @@ export default {
       return {
         btn: true,
         active: this.isSelected(option),
-        ["btn" + outline + typeClasses[this.type]]: true
+        [`btn${outline}${typeClasses[this.type]}`]: true
       };
     }
   }

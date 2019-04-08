@@ -1,5 +1,5 @@
 import { at, castArray, merge, set, zip } from "lodash";
-import { OneOrMany } from "sulcalc";
+import { OneOrMany, hasOwn } from "sulcalc";
 import { Store } from "vuex";
 
 export function persistencePlugin<State extends object>({
@@ -36,7 +36,7 @@ export function persistencePlugin<State extends object>({
     if (onLoad) await onLoad(store);
 
     store.subscribe(({ type }, state) => {
-      if (saveOn.hasOwnProperty(type)) {
+      if (hasOwn(saveOn, type)) {
         const paths = castArray(saveOn[type]);
         for (const [path, value] of zip(paths, at(state, paths))) {
           if (path === undefined) continue;

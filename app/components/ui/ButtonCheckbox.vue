@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import { hasOwn } from "sulcalc";
+
 const sizeClasses = {
   small: "btn-sm",
   medium: "",
@@ -31,14 +33,14 @@ export default {
       type: String,
       default: "medium",
       validator(value) {
-        return sizeClasses.hasOwnProperty(value);
+        return hasOwn(sizeClasses, value);
       }
     },
     type: {
       type: String,
       default: "primary",
       validator(value) {
-        return typeClasses.hasOwnProperty(value);
+        return hasOwn(typeClasses, value);
       }
     },
     outline: {
@@ -53,7 +55,7 @@ export default {
         btn: true,
         active: this.value,
         [sizeClasses[this.size]]: true,
-        ["btn" + outline + typeClasses[this.type]]: true
+        [`btn${outline}${typeClasses[this.type]}`]: true
       };
     }
   },

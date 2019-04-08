@@ -14,6 +14,7 @@
 
 <script>
 import { clamp } from "lodash";
+import { hasOwn } from "sulcalc";
 
 const sizeClasses = {
   small: "form-control-sm",
@@ -60,7 +61,7 @@ export default {
       type: String,
       default: "medium",
       validator(value) {
-        return sizeClasses.hasOwnProperty(value);
+        return hasOwn(sizeClasses, value);
       }
     },
     disabled: {
