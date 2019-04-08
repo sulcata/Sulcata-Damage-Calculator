@@ -188,7 +188,7 @@ import { mapState } from "vuex";
 import { Multiselect } from "vue-multiselect";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import IntegerInput from "./ui/IntegerInput.vue";
-import { Move, Generation, info } from "sulcalc";
+import { Generation, Move, info } from "sulcalc";
 
 export default {
   components: {

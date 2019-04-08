@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
-import { install as vuexInstall, Store } from "vuex";
+import { Store, install as vuexInstall } from "vuex";
 import ReportSelector from "./ReportSelector.vue";
 
 const localVue = createLocalVue();

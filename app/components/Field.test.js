@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from "@vue/test-utils";
-import { install as vuexInstall, Store } from "vuex";
+import { Store, install as vuexInstall } from "vuex";
 import FieldComponent from "./Field.vue";
-import { Generation, Terrain, Weather, Field, Pokemon } from "sulcalc";
+import { Field, Generation, Pokemon, Terrain, Weather } from "sulcalc";
 
 const localVue = createLocalVue();
 localVue.use(vuexInstall);

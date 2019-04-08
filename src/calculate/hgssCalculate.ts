@@ -1,7 +1,7 @@
 import Field from "../Field";
 import Move from "../Move";
 import Pokemon from "../Pokemon";
-import { damageVariation, Stat, Type } from "../utilities";
+import { Stat, Type, damageVariation } from "../utilities";
 import moveInfo from "./moveInfo";
 
 export default (

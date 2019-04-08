@@ -4,11 +4,11 @@ import {
   BoostList,
   DamageClass,
   Generation,
-  maxGen,
   StatList,
   Type,
-  types,
-  Weather
+  Weather,
+  maxGen,
+  types
 } from "./utilities";
 
 const defaultMove = new Move();

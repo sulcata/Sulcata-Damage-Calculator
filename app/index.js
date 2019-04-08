@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "vue-multiselect/dist/vue-multiselect.min.css";
 import "./custom.scss";
 import Vue from "vue";
-import { install as vuexInstall, Store } from "vuex";
+import { Store, install as vuexInstall } from "vuex";
 import App from "./components/App.vue";
 import store from "./store";
 
@@ -11,6 +11,7 @@ if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
     // this gets written directly to dist/app by workbox
     // you'd think it would integrate with webpack better
     navigator.serviceWorker.register("service-worker.js").catch(error => {
+      /* eslint-disable-next-line no-console */
       console.error(error);
     });
   };

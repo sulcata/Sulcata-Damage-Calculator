@@ -1,6 +1,6 @@
 import { shallowMount } from "@vue/test-utils";
 import StatsComponent from "./Stats.vue";
-import { Generation, Stat, Pokemon } from "sulcalc";
+import { Generation, Pokemon, Stat } from "sulcalc";
 
 test("calculates the maximum IV", () => {
   const wrapper = shallowMount(StatsComponent, {

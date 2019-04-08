@@ -1,5 +1,5 @@
 import Ability from "./Ability";
-import { Generation, maxGen, Type } from "./utilities";
+import { Generation, Type, maxGen } from "./utilities";
 
 const placeholderAbility = new Ability();
 let noAbility = placeholderAbility;

@@ -13,7 +13,7 @@ type CombineFn<T, U, V> = (a: T, b: U) => V;
 export default class Multiset<T> {
   private readonly data: Map<T, bigInt.BigInteger>;
 
-  constructor(iterable: Multiset<T> | T[] = []) {
+  public constructor(iterable: Multiset<T> | T[] = []) {
     if (iterable instanceof Multiset) {
       this.data = new Map(iterable.data);
     } else {

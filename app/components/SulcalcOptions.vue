@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from "vuex";
+import { mapActions, mapState } from "vuex";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 
 export default {

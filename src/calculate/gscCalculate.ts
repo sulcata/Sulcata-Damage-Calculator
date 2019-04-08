@@ -3,11 +3,11 @@ import { isPhysicalType, isSpecialType } from "../info";
 import Move from "../Move";
 import Pokemon from "../Pokemon";
 import {
+  Stat,
+  Type,
   damageVariation,
   needsScaling,
-  scaleStat,
-  Stat,
-  Type
+  scaleStat
 } from "../utilities";
 import moveInfo from "./moveInfo";
 

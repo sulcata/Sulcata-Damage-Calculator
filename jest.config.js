@@ -1,6 +1,6 @@
 "use strict";
 
-const moduleFileExtensions = ["js", "jsx", "json", "ts", "tsx", "vue"];
+const moduleFileExtensions = ["js", "json", "ts", "vue"];
 
 const moduleNameMapper = {
   "^sulcalc$": "<rootDir>/src/index",

@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import _ from "lodash/fp";
-import { maxGen, Generation, Type } from "../src/utilities";
+import { Generation, Type, maxGen } from "../src/utilities";
 import { ignorableAbilities, requiredItems } from "./db-extras";
 
 const inDir = path.join(__dirname, "data/ps-data");
@@ -13,7 +13,7 @@ function processType(typeString) {
   const normalized = typeString.toUpperCase();
   if (["???", "CURSE"].includes(normalized)) return Type.CURSE;
   const type = Type[normalized];
-  return type !== undefined ? type : Type.CURSE;
+  return type === undefined ? Type.CURSE : type;
 }
 
 const processAbilityInfo = _.curry((gen, abilityInfo) => {

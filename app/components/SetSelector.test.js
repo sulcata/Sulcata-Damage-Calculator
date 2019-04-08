@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from "@vue/test-utils";
-import { install as vuexInstall, Store } from "vuex";
+import { Store, install as vuexInstall } from "vuex";
 import SetSelector from "./SetSelector.vue";
 import { Generation, Pokemon } from "sulcalc";
 
@@ -76,7 +76,6 @@ test("resets when a Pokemon is unselected", () => {
     store,
     propsData: { pokemon: new Pokemon() }
   });
-  const gen = Generation.GSC;
 
   wrapper.vm.updatePokemon(null);
   expect(wrapper.emitted().input).toHaveLength(1);

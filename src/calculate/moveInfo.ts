@@ -10,13 +10,13 @@ import {
 import Move from "../Move";
 import Pokemon from "../Pokemon";
 import {
-  applyMod,
-  chainMod,
   Generation,
-  roundHalfToZero,
   Stat,
   Status,
-  Type
+  Type,
+  applyMod,
+  chainMod,
+  roundHalfToZero
 } from "../utilities";
 
 type BaseMoveInfo =

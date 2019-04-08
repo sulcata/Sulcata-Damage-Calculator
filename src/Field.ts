@@ -1,4 +1,4 @@
-import { Generation, maxGen, Terrain, Weather } from "./utilities";
+import { Generation, Terrain, Weather, maxGen } from "./utilities";
 
 export type FieldOptions = Partial<Field>;
 
@@ -19,7 +19,7 @@ export default class Field {
   public auraBreak: boolean = false;
   public ionDeluge: boolean = false;
 
-  constructor(field: Field | FieldOptions = {}) {
+  public constructor(field: Field | FieldOptions = {}) {
     Object.assign(this, field);
   }
 

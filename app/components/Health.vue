@@ -81,7 +81,7 @@ function parseItem(item) {
   return [Number(health), multiplicity];
 }
 
-function parseHealthList(list, min, max) {
+function parseHealthList(list) {
   const pairs = list.split(",").map(parseItem);
   return Multiset.fromEntries(pairs);
 }

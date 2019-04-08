@@ -1,4 +1,4 @@
-import { get, set } from "lodash";
+import { set } from "lodash";
 import { Generation } from "sulcalc";
 import * as actions from "./actions";
 

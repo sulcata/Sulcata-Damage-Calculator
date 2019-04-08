@@ -12,10 +12,10 @@ import {
   natureMultiplier,
   natureName,
   natureStats,
-  pokemonId,
-  pokemonName,
   pokeType1,
   pokeType2,
+  pokemonId,
+  pokemonName,
   requiredItemForPoke,
   typeName,
   weight
@@ -28,14 +28,14 @@ import {
   BoostList,
   Gender,
   Generation,
-  hasOwn,
-  maxGen,
   Nature,
-  roundHalfToZero,
   Stat,
   StatList,
   Status,
-  Type
+  Type,
+  hasOwn,
+  maxGen,
+  roundHalfToZero
 } from "./utilities";
 
 const statNames = ["HP", "Atk", "Def", "SpA", "SpD", "Spe"];
@@ -134,6 +134,52 @@ function printEv(stat: BaseStat, ev: number, evs: StatList, gen: Generation) {
     : `${ev} ${statNames[stat]}`;
 }
 
+interface PokemonIdentifierInfo {
+  name: string;
+  nickname: string;
+  gender: Gender;
+}
+
+function parseIdentifier(identifier: string): PokemonIdentifierInfo {
+  const parensRegex = /\((.*?)\)/g;
+
+  const firstParens = parensRegex.exec(identifier);
+  if (!firstParens) {
+    return {
+      name: identifier.replace("*", ""),
+      nickname: "",
+      gender: Gender.NO_GENDER
+    };
+  }
+
+  const secondParens = parensRegex.exec(identifier);
+
+  if (secondParens) {
+    const genderIndex = genderShorthands.indexOf(secondParens[0].toUpperCase());
+    return {
+      name: firstParens[1],
+      nickname: identifier.slice(0, firstParens.index).trim(),
+      gender: genderIndex > -1 ? genderIndex : Gender.NO_GENDER
+    };
+  }
+
+  const genderIndex = genderShorthands.indexOf(firstParens[0].toUpperCase());
+  if (genderIndex > -1) {
+    const match = /.*?(?=\()/.exec(identifier);
+    return {
+      name: match ? match[0] : "",
+      nickname: "",
+      gender: genderIndex
+    };
+  }
+
+  return {
+    name: firstParens[1],
+    nickname: identifier.slice(0, firstParens.index).trim(),
+    gender: Gender.NO_GENDER
+  };
+}
+
 interface PokemonSet {
   e?: StatList;
   d?: StatList;
@@ -226,7 +272,7 @@ export default class Pokemon {
   public _currentHpRange: Multiset<number>;
   public _currentHpRangeBerry: Multiset<number>;
 
-  constructor(pokemon: Pokemon | PokemonOptions = {}) {
+  public constructor(pokemon: Pokemon | PokemonOptions = {}) {
     const {
       id,
       name,
@@ -838,29 +884,10 @@ export default class Pokemon {
 
     const [identifier, item] = lines[0].split("@");
 
-    const parensRegex = /\((.*?)\)/g;
-    const firstParens = parensRegex.exec(identifier);
-    if (firstParens) {
-      const secondParens = parensRegex.exec(identifier);
-      if (secondParens) {
-        poke.name = firstParens[1];
-        poke.nickname = identifier.slice(0, firstParens.index).trim();
-        poke.gender = genderShorthands.indexOf(secondParens[0].toUpperCase());
-      } else {
-        const gender = genderShorthands.indexOf(firstParens[0].toUpperCase());
-        if (gender > -1) {
-          const match = /.*?(?=\()/.exec(identifier);
-          if (match) poke.name = match[0];
-          poke.gender = gender;
-        } else {
-          poke.name = firstParens[1];
-          poke.nickname = identifier.slice(0, firstParens.index).trim();
-          poke.gender = Gender.NO_GENDER;
-        }
-      }
-    } else {
-      poke.name = identifier.replace("*", "");
-    }
+    const identifierInfo = parseIdentifier(identifier);
+    poke.name = identifierInfo.name;
+    poke.nickname = identifierInfo.nickname;
+    poke.gender = identifierInfo.gender;
 
     if (gen >= Generation.GSC && item) {
       poke.item.name = item;

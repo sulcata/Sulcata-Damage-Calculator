@@ -20,13 +20,9 @@
 </template>
 
 <script>
-import { mapGetters, mapActions, mapState } from "vuex";
-import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
+import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
-  components: {
-    ButtonRadioGroup
-  },
   props: {
     reports: {
       required: true,

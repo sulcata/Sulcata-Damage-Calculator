@@ -1,4 +1,3 @@
-/* tslint:disable:no-unbound-method */
 import Field from "../Field";
 import Pokemon from "../Pokemon";
 import { Stat } from "../utilities";
