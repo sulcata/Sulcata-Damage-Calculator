@@ -8,7 +8,7 @@ const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 
-const setdexRegex = /[\\/]dist[\\/]setdex[\\/].*?\.(js|json,ts)$/;
+const setdexRegex = /[\\/]dist[\\/]setdex[\\/].*?\.(js|json|ts)$/;
 const libRegex = /[\\/]node_modules[\\/](lodash|big-integer|bootstrap|vue|vuex|vue-multiselect)[\\/]/;
 
 module.exports = env => ({
@@ -30,10 +30,10 @@ module.exports = env => ({
       {
         test: /\.(js|ts)$/,
         loader: "babel-loader",
-        exclude: file =>
-          /[\\/](node_modules|dist)[\\/]/.test(file) &&
-          !/\.vue\.(js|ts)/.test(file),
-        options: { envName: "webpack" }
+        exclude: /node_modules/,
+        options: {
+          envName: "webpack"
+        }
       },
       {
         test: /\.vue$/,
@@ -99,7 +99,7 @@ module.exports = env => ({
           priority: -10
         },
         webpack: {
-          test: /[\\/]node_modules[\\/]/,
+          test: /node_modules/,
           priority: -15
         }
       }
