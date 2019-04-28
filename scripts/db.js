@@ -224,6 +224,13 @@ function processStatus(statusString) {
 
 const processPokeInfo = _.curry((gen, pokeInfo) => {
   const result = {};
+  if (
+    pokeInfo.forme &&
+    pokeInfo.forme !== "Alola" &&
+    pokeInfo.baseSpecies === "Pikachu"
+  ) {
+    return undefined;
+  }
   if (pokeInfo.num || pokeInfo.gen) {
     let gen;
     const { num, forme } = pokeInfo;
