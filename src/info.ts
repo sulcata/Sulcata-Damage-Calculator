@@ -1,4 +1,4 @@
-import { castArray, defaultTo, get, has } from "lodash";
+import { castArray, defaultTo, get, has, memoize } from "lodash";
 import db from "../dist/db";
 import {
   DamageClass,
@@ -123,10 +123,12 @@ export const pokemonName = (pokeId: string): string =>
 export const pokemonId = makeNameToId("pokedex", "nopokemon");
 export const isPokeReleased = (pokeId: string, gen: Generation): boolean =>
   gen >= getInfo(maxGen, ["pokedex", pokeId, "a"]);
-export const releasedPokes = (gen: Generation): string[] =>
-  Object.keys(getInfo(maxGen, ["pokedex"], {}))
-    .filter(pokeId => isPokeReleased(pokeId, gen))
-    .sort();
+export const releasedPokes = memoize(
+  (gen: Generation): string[] =>
+    Object.keys(getInfo(maxGen, ["pokedex"], {}))
+      .filter(pokeId => isPokeReleased(pokeId, gen))
+      .sort()
+);
 export const baseStats = (pokeId: string, gen: Generation): StatList =>
   getInfo(gen, ["pokedex", pokeId, "c"]);
 export const weight = (pokeId: string, gen: Generation): number =>
@@ -159,10 +161,12 @@ export const movePower = (moveId: string, gen: Generation): number =>
   getInfo(gen, ["moves", moveId, "c"], 0);
 export const isMoveReleased = (moveId: string, gen: Generation): boolean =>
   gen >= getInfo(maxGen, ["moves", moveId, "a"]);
-export const releasedMoves = (gen: Generation): string[] =>
-  Object.keys(getInfo(maxGen, ["moves"], {}))
-    .filter(moveId => isMoveReleased(moveId, gen))
-    .sort();
+export const releasedMoves = memoize(
+  (gen: Generation): Readonly<string[]> =>
+    Object.keys(getInfo(maxGen, ["moves"], {}))
+      .filter(moveId => isMoveReleased(moveId, gen))
+      .sort()
+);
 export const moveType = (moveId: string, gen: Generation): Type =>
   getInfo(gen, ["moves", moveId, "d"], Type.CURSE);
 export const moveDamageClass = (moveId: string, gen: Generation): DamageClass =>
@@ -232,10 +236,12 @@ export const megaStone = (itemId: string, gen: Generation): string =>
   getInfo(gen, ["items", itemId, "e"], "nopokemon");
 export const memoryType = (itemId: string, gen: Generation): Type =>
   getInfo(gen, ["items", itemId, "i"], Type.NORMAL);
-export const releasedItems = (gen: Generation): string[] =>
-  Object.keys(getInfo(maxGen, ["items"], {}))
-    .filter(itemId => isItemReleased(itemId, gen))
-    .sort();
+export const releasedItems = memoize(
+  (gen: Generation): Readonly<string[]> =>
+    Object.keys(getInfo(maxGen, ["items"], {}))
+      .filter(itemId => isItemReleased(itemId, gen))
+      .sort()
+);
 export const zMoveTransformsTo = (
   itemId: string,
   gen: Generation
@@ -257,10 +263,12 @@ export const isAbilityReleased = (
   abilityId: string,
   gen: Generation
 ): boolean => gen >= getInfo(maxGen, ["abilities", abilityId, "a"]);
-export const releasedAbilities = (gen: Generation): string[] =>
-  Object.keys(getInfo(maxGen, ["abilities"], {}))
-    .filter(abilityId => isAbilityReleased(abilityId, gen))
-    .sort();
+export const releasedAbilities = memoize(
+  (gen: Generation): Readonly<string[]> =>
+    Object.keys(getInfo(maxGen, ["abilities"], {}))
+      .filter(abilityId => isAbilityReleased(abilityId, gen))
+      .sort()
+);
 export const immunityType = (abilityId: string, gen: Generation): Type =>
   getInfo(gen, ["abilities", abilityId, "d"], -1);
 export const pinchType = (abilityId: string, gen: Generation): Type =>
@@ -320,12 +328,14 @@ const namesToTypes: { [key: string]: Type } = {
 export const typeName = (type: Type): string => typesToNames[type];
 export const typeId = (type: string): Type =>
   defaultTo(namesToTypes[type.trim().toLowerCase()], Type.CURSE);
-export const typesForGen = (gen: Generation): Type[] =>
-  types
-    .filter(type => gen < Generation.GSC && type !== Type.STEEL)
-    .filter(type => gen < Generation.GSC && type !== Type.DARK)
-    .filter(type => gen < Generation.ORAS && type !== Type.FAIRY)
-    .sort((a, b) => a - b);
+export const typesForGen = memoize(
+  (gen: Generation): Readonly<Type[]> =>
+    types
+      .filter(type => gen < Generation.GSC && type !== Type.STEEL)
+      .filter(type => gen < Generation.GSC && type !== Type.DARK)
+      .filter(type => gen < Generation.ORAS && type !== Type.FAIRY)
+      .sort((a, b) => a - b)
+);
 export const typeDamageClass = (type: Type): DamageClass =>
   type >= Type.FIRE && type <= Type.DARK
     ? DamageClass.SPECIAL
