@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`sets() 1`] = `
+Array [
+  Object {
+    "pokemonId": "abomasnow",
+    "pokemonName": "Abomasnow",
+    "sets": Array [
+      Object {
+        "pokemonId": "abomasnow",
+        "pokemonName": "Abomasnow",
+        "set": Object {
+          "set": "abomasnow 1",
+        },
+        "setName": "abomasnow 1",
+      },
+      Object {
+        "pokemonId": "abomasnow",
+        "pokemonName": "Abomasnow",
+        "set": Object {
+          "set": "abomasnow 2",
+        },
+        "setName": "abomasnow 2",
+      },
+      Object {
+        "pokemonId": "abomasnow",
+        "pokemonName": "Abomasnow",
+        "set": Object {},
+        "setName": "Blank Set",
+      },
+    ],
+  },
+  Object {
+    "pokemonId": "abra",
+    "pokemonName": "Abra",
+    "sets": Array [
+      Object {
+        "pokemonId": "abra",
+        "pokemonName": "Abra",
+        "set": Object {
+          "set": "abra 1",
+        },
+        "setName": "abra 1",
+      },
+      Object {
+        "pokemonId": "abra",
+        "pokemonName": "Abra",
+        "set": Object {},
+        "setName": "Blank Set",
+      },
+    ],
+  },
+  Object {
+    "pokemonId": "snorlax",
+    "pokemonName": "Snorlax",
+    "sets": Array [
+      Object {
+        "pokemonId": "snorlax",
+        "pokemonName": "Snorlax",
+        "set": Object {
+          "set": "snorlax 1",
+        },
+        "setName": "snorlax 1",
+      },
+      Object {
+        "pokemonId": "snorlax",
+        "pokemonName": "Snorlax",
+        "set": Object {},
+        "setName": "Blank Set",
+      },
+    ],
+  },
+]
+`;
+
+exports[`sets() 2`] = `
+Array [
+  Object {
+    "pokemonId": "abomasnow",
+    "pokemonName": "Abomasnow",
+    "sets": Array [
+      Object {
+        "pokemonId": "abomasnow",
+        "pokemonName": "Abomasnow",
+        "set": Object {
+          "set": "abomasnow 1",
+        },
+        "setName": "abomasnow 1",
+      },
+      Object {
+        "pokemonId": "abomasnow",
+        "pokemonName": "Abomasnow",
+        "set": Object {
+          "set": "abomasnow 2",
+        },
+        "setName": "abomasnow 2",
+      },
+      Object {
+        "pokemonId": "abomasnow",
+        "pokemonName": "Abomasnow",
+        "set": Object {},
+        "setName": "Blank Set",
+      },
+    ],
+  },
+  Object {
+    "pokemonId": "snorlax",
+    "pokemonName": "Snorlax",
+    "sets": Array [
+      Object {
+        "pokemonId": "snorlax",
+        "pokemonName": "Snorlax",
+        "set": Object {
+          "set": "snorlax 1",
+        },
+        "setName": "snorlax 1",
+      },
+      Object {
+        "pokemonId": "snorlax",
+        "pokemonName": "Snorlax",
+        "set": Object {},
+        "setName": "Blank Set",
+      },
+    ],
+  },
+  Object {
+    "pokemonId": "abra",
+    "pokemonName": "Abra",
+    "sets": Array [
+      Object {
+        "pokemonId": "abra",
+        "pokemonName": "Abra",
+        "set": Object {
+          "set": "abra 1",
+        },
+        "setName": "abra 1",
+      },
+      Object {
+        "pokemonId": "abra",
+        "pokemonName": "Abra",
+        "set": Object {},
+        "setName": "Blank Set",
+      },
+    ],
+  },
+]
+`;

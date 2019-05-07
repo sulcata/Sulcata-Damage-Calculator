@@ -58,6 +58,7 @@ export default (): State => ({
   },
   longRolls: false,
   fractions: false,
+  sortByUsage: false,
   gen: maxGen,
   attacker: new Pokemon(),
   defender: new Pokemon(),
