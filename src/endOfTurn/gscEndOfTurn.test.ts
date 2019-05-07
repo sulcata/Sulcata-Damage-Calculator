@@ -73,7 +73,7 @@ test("toxic inflicts increasing damage", () => {
 });
 
 describe("sandstorm", () => {
-  test("inflicts 1/8 max hp", () => {
+  it("inflicts 1/8 max hp", () => {
     const defender = new Pokemon();
     defender.stat = jest.fn().mockReturnValue(70);
     defender.hurtBySandstorm = () => true;
@@ -85,7 +85,7 @@ describe("sandstorm", () => {
     expect(defender.stat).toHaveBeenCalledWith(Stat.HP);
   });
 
-  test("does not inflict damage to sandstorm immune", () => {
+  it("does not inflict damage to sandstorm immune", () => {
     const defender = new Pokemon();
     defender.hurtBySandstorm = () => false;
     const field = new Field();

@@ -12,8 +12,6 @@ exports[`Greninja-Ash Water Shuriken 1`] = `"252 SpA Choice Specs Greninja-Ash W
 
 exports[`Levitate immunity to Ground moves 1`] = `"252+ Atk Choice Band Zygarde Earthquake vs. 248 HP / 200+ Def Levitate Rotom-Wash: 0 (0%) -- this might take a while..."`;
 
-exports[`Light Screen 1`] = `"252+ SpA Choice Specs Heatran Fire Blast vs. 252 HP / 156+ SpD Klefki behind Light Screen: 256 - 303 (80.5 - 95.3%) -- guaranteed 2HKO"`;
-
 exports[`Present GSC 1`] = `"Blissey Present vs. Raikou: -95 - 399 (-24.8 - 104.2%) -- 2.9% chance to OHKO, 30.3% chance to 2HKO, 61.9% chance to 3HKO, 81.9% chance to 4HKO, 91.3% chance to 5HKO, 95.6% chance to 6HKO, 97.7% chance to 7HKO, 98.8% chance to 8HKO, 99.4% chance to 9HKO"`;
 
 exports[`Present GSC 2`] = `"Blissey Present vs. Raikou: -95 (-24.8%) -- this might take a while..."`;
@@ -45,8 +43,6 @@ exports[`Present GSC 14`] = `"Blissey Present vs. Zapdos: 43 - 51 (11.2 - 13.3%)
 exports[`Present GSC 15`] = `"Blissey Present vs. Zapdos: 63 - 75 (16.4 - 19.6%) -- almost guaranteed 6HKO"`;
 
 exports[`Psyshock 1`] = `"252 SpA Life Orb Latios Psyshock vs. 252 HP / 252+ Def Eviolite Chansey: 226 - 266 (32.1 - 37.8%) -- 93.8% chance to 3HKO"`;
-
-exports[`Reflect 1`] = `"0 SpA Ferrothorn Fire Blast vs. 4 HP / 0 SpD Starmie: 28 - 33 (10.7 - 12.6%) -- negligible chance to 8HKO, 98.7% chance to 9HKO"`;
 
 exports[`Skill Link 1`] = `"252+ Atk Skill Link Cloyster Icicle Spear [5 hits] vs. 248 HP / 200+ Def Rotom-Wash: 65 - 80 (21.5 - 26.4%) -- negligible chance to 4HKO"`;
 

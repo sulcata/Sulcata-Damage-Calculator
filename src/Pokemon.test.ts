@@ -27,7 +27,7 @@ beforeEach(() => {
 });
 
 describe("#constructor()", () => {
-  test("current gen has correct default settings", () => {
+  it("has correct defaults for current gens", () => {
     const snorlax = new Pokemon({ name: "Snorlax" });
     expect(snorlax).toMatchObject({
       id: "snorlax",
@@ -36,7 +36,7 @@ describe("#constructor()", () => {
     });
   });
 
-  test("old gens have correct default settings", () => {
+  it("has correct defaults for old gens", () => {
     const snorlax = new Pokemon({ id: "snorlax", gen: Generation.GSC });
     expect(snorlax).toMatchObject({
       id: "snorlax",
@@ -45,7 +45,7 @@ describe("#constructor()", () => {
     });
   });
 
-  test("complex constructor cases with moves, item, and status", () => {
+  it("constructs moves, items, and abilities as necessary", () => {
     const smeargle = new Pokemon({
       name: "Smeargle",
       moves: [{ name: "Ice Beam" }, {}, {}, {}],
@@ -65,7 +65,7 @@ describe("#constructor()", () => {
     expect(smeargle2.status).toBe(Status.BURNED);
   });
 
-  test("avoid own property issues with getters and spread operator", () => {
+  it("avoid own property issues with getters and spread operator", () => {
     const proto = {
       name: "Smeargle",
       currentHp: 100,
@@ -82,7 +82,7 @@ describe("#constructor()", () => {
 });
 
 describe(".fromImportable()", () => {
-  test("handles simple importables", () => {
+  it("handles simple importables", () => {
     const gen = Generation.ORAS;
     const arceusGround = Pokemon.fromImportable(
       `Arceus-Ground (M) @ Earth Plate
@@ -115,7 +115,7 @@ describe(".fromImportable()", () => {
     });
   });
 
-  test("handles LC importables", () => {
+  it("handles LC importables", () => {
     const chinchou = Pokemon.fromImportable(
       `sparkle (Chinchou) (F) @ Choice Scarf
       Ability: Volt Absorb
@@ -135,7 +135,7 @@ describe(".fromImportable()", () => {
     });
   });
 
-  test("handles GSC importables", () => {
+  it("handles GSC importables", () => {
     const gen = Generation.GSC;
     const snorlax = Pokemon.fromImportable(
       `zorofat (Snorlax) @ Leftovers
@@ -162,7 +162,7 @@ describe(".fromImportable()", () => {
     });
   });
 
-  test("accounts for different IVs for Hidden Power", () => {
+  it("accounts for different IVs for Hidden Power", () => {
     const landorusTherian = Pokemon.fromImportable(
       `Landorus-Therian
       IVs: 30 Spd
@@ -172,7 +172,7 @@ describe(".fromImportable()", () => {
     expect(landorusTherian.ivs).toEqual([31, 31, 31, 31, 31, 30]);
   });
 
-  test("sets happiness to 255 for Return, 0 otherwise", () => {
+  it("sets happiness to 255 for Return, 0 otherwise", () => {
     const returnSnorlax = Pokemon.fromImportable(
       `Snorlax
       - Return`,
@@ -188,7 +188,7 @@ describe(".fromImportable()", () => {
     expect(snorlax.happiness).toBe(0);
   });
 
-  test("puts (No Move) last", () => {
+  it("puts (No Move) last", () => {
     const landorusTherian = Pokemon.fromImportable(
       `Landorus-Therian
       - Hidden Power [Ice]
@@ -205,7 +205,7 @@ describe(".fromImportable()", () => {
     ]);
   });
 
-  test("ignores invalid properties", () => {
+  it("ignores invalid properties", () => {
     expect(() =>
       Pokemon.fromImportable(
         `sparkle (Chinchou) (F) @ Choice Scarf
@@ -223,7 +223,7 @@ describe(".fromImportable()", () => {
     ).not.toThrow();
   });
 
-  test("ignores invalid lines", () => {
+  it("ignores invalid lines", () => {
     expect(() =>
       Pokemon.fromImportable(
         `sparkle (Chinchou) (F) @ Choice Scarf
@@ -241,7 +241,7 @@ describe(".fromImportable()", () => {
     ).not.toThrow();
   });
 
-  test("clamps and gives default values for invalid EVs", () => {
+  it("clamps and gives default values for invalid EVs", () => {
     expect(
       Pokemon.fromImportable(
         `sparkle (Chinchou) (F) @ Choice Scarf
@@ -275,7 +275,7 @@ describe(".fromImportable()", () => {
     });
   });
 
-  test("clamps and gives default values for invalid IVs", () => {
+  it("clamps and gives default values for invalid IVs", () => {
     expect(
       Pokemon.fromImportable(
         `Arceus-Ground (M) @ Earth Plate
@@ -308,7 +308,7 @@ describe(".fromImportable()", () => {
     });
   });
 
-  test("clamps and gives default value for an invalid level", () => {
+  it("clamps and gives default value for an invalid level", () => {
     expect(
       Pokemon.fromImportable(
         `Snorlax
@@ -334,7 +334,7 @@ describe(".fromImportable()", () => {
     ).toMatchObject({ level: 100 });
   });
 
-  test("records nickname if available", () => {
+  it("records nickname if available", () => {
     expect(
       Pokemon.fromImportable(`  zorofat   (Snorlax)`, Generation.SM)
     ).toMatchObject({
@@ -360,7 +360,7 @@ describe(".fromImportable()", () => {
 });
 
 describe("#toImportable()", () => {
-  test("handles simple sets", () => {
+  it("handles simple sets", () => {
     const snorlax = new Pokemon({
       name: "Snorlax",
       gender: Gender.MALE,
@@ -384,7 +384,7 @@ describe("#toImportable()", () => {
     expect(bronzong.toImportable()).toMatchSnapshot();
   });
 
-  test("handles sets with less than 4 moves", () => {
+  it("handles sets with less than 4 moves", () => {
     const crobat = new Pokemon({
       name: "Crobat",
       gender: Gender.FEMALE,
@@ -397,7 +397,7 @@ describe("#toImportable()", () => {
     expect(crobat.toImportable()).toMatchSnapshot();
   });
 
-  test("optionally adds nature info", () => {
+  it("optionally adds nature info", () => {
     const munchlax = new Pokemon({
       name: "Munchlax",
       gender: Gender.MALE,
@@ -408,7 +408,7 @@ describe("#toImportable()", () => {
     expect(munchlax.toImportable({ natureInfo: true })).toMatchSnapshot();
   });
 
-  test("handles LC sets", () => {
+  it("handles LC sets", () => {
     const porygon = new Pokemon({
       name: "Porygon",
       item: "Eviolite",
@@ -420,7 +420,7 @@ describe("#toImportable()", () => {
     expect(porygon.toImportable()).toMatchSnapshot();
   });
 
-  test("handles GSC sets", () => {
+  it("handles GSC sets", () => {
     const zapdos = new Pokemon({
       name: "Zapdos",
       item: "Leftovers",
@@ -435,7 +435,7 @@ describe("#toImportable()", () => {
     expect(zapdos.toImportable()).toMatchSnapshot();
   });
 
-  test("handles RBY sets", () => {
+  it("handles RBY sets", () => {
     const tauros = new Pokemon({
       name: "Tauros",
       moves: ["Body Slam", "Hyper Beam", "Earthquake", "Blizzard"],

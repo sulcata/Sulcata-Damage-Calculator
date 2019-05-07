@@ -76,7 +76,7 @@ test("#name", () => {
 });
 
 describe("#power()", () => {
-  test("basic tests", () => {
+  it("returns base power for regular moves", () => {
     const leer = new Move({ name: "Leer" });
     expect(noMove.power()).toBe(0);
     expect(leer.power()).toBe(0);
@@ -84,14 +84,14 @@ describe("#power()", () => {
     expect(tackle.power()).toBe(40);
   });
 
-  test("gen changes", () => {
+  it("accounts for generational differences", () => {
     tackle.gen = 6;
     expect(tackle.power()).toBe(50);
     tackle.gen = 4;
     expect(tackle.power()).toBe(35);
   });
 
-  test("Z-Moves", () => {
+  it("accounts for z-moves", () => {
     const doubleEdge = new Move({ name: "Double-Edge", zMove: true });
     expect(doubleEdge.power()).toBe(190);
 

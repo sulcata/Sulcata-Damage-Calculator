@@ -46,7 +46,7 @@ test("set*() mutations set boolean values of state", () => {
       expect(get(state, sidedProperty)).toBe(false);
       expect(() => {
         mutation(state, { side: "absolutely not a side", active: true });
-      }).toThrowError();
+      }).toThrow();
     }
   }
 });
