@@ -127,7 +127,7 @@ test("isSandForceType()", () => {
 });
 
 describe("effectiveness()", () => {
-  test("Foresight and Scrappy ignore Ghost immunities", () => {
+  it("ignores Ghost-based immunities for Foresight and Scrappy", () => {
     expect(
       info.effectiveness(Type.NORMAL, Type.GHOST, { gen: Generation.SM })
     ).toEqual([0, 1]);
@@ -145,7 +145,7 @@ describe("effectiveness()", () => {
     ).toEqual([1, 1]);
   });
 
-  test("Grounded Pokemon are stripped of Flying-type", () => {
+  it("strips grounded Pokemon of Flying-type", () => {
     expect(
       info.effectiveness(Type.ICE, [Type.WATER, Type.FLYING], {
         gen: Generation.SM,
@@ -154,7 +154,7 @@ describe("effectiveness()", () => {
     ).toEqual([1, 2]);
   });
 
-  test("Freeze-Dry is always super effective on Water", () => {
+  it("is super effective on Water for Freeze-Dry", () => {
     expect(
       info.effectiveness(Type.ICE, [Type.WATER, Type.FLYING], {
         gen: Generation.SM,
@@ -177,7 +177,7 @@ describe("effectiveness()", () => {
     ).toEqual([1, 1]);
   });
 
-  test("Strong Winds reduce damage taken by Flying-types", () => {
+  it("reduces damage taken by Flying-types for Strong Winds", () => {
     expect(
       info.effectiveness(Type.ICE, [Type.DRAGON, Type.FLYING], {
         gen: Generation.SM,
@@ -186,7 +186,7 @@ describe("effectiveness()", () => {
     ).toEqual([2, 1]);
   });
 
-  test("Inverted Battles invert type effectiveness", () => {
+  it("inverts type effectiveness for Inverted Battles", () => {
     expect(
       info.effectiveness(Type.NORMAL, [Type.GHOST, Type.ROCK], {
         gen: Generation.B2W2,
@@ -207,7 +207,7 @@ describe("effectiveness()", () => {
     ).toEqual([1, 2]);
   });
 
-  test("Type effectiveness changes across generations", () => {
+  it("accounts for generational differences", () => {
     expect(
       info.effectiveness(Type.ICE, [Type.WATER, Type.FLYING], {
         gen: Generation.SM
@@ -229,7 +229,7 @@ describe("effectiveness()", () => {
     ).toEqual([1, 2]);
   });
 
-  test("Generation defaults to most recent", () => {
+  it("defaults to the most recent generation", () => {
     expect(info.effectiveness(Type.ICE, Type.FIRE)).toEqual([1, 2]);
   });
 });
