@@ -75,6 +75,10 @@ export function toggleFractions({ commit, state }: Context) {
   commit("setFractions", { active: !state.fractions });
 }
 
+export function toggleSortByUsage({ commit, state }: Context) {
+  commit("setSortByUsage", { active: !state.sortByUsage });
+}
+
 export function changeGen({ commit }: Context, { gen }: GenPayload) {
   const genObj = { gen };
   commit("setGen", genObj);

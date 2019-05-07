@@ -52,6 +52,14 @@
       >
         Show Long Damage Rolls
       </button-checkbox>
+      <button-checkbox
+        :value="sortByUsage"
+        size="small"
+        type="secondary"
+        @input="toggleSortByUsage()"
+      >
+        Sort By Usage
+      </button-checkbox>
     </div>
   </div>
 </template>
@@ -65,7 +73,7 @@ export default {
     ButtonCheckbox
   },
   computed: {
-    ...mapState(["fractions", "longRolls", "enabledSets"])
+    ...mapState(["fractions", "longRolls", "sortByUsage", "enabledSets"])
   },
   methods: {
     ...mapActions([
@@ -74,7 +82,8 @@ export default {
       "toggleUsageSets",
       "toggleCustomSets",
       "toggleFractions",
-      "toggleLongRolls"
+      "toggleLongRolls",
+      "toggleSortByUsage"
     ])
   }
 };

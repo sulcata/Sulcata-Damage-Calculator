@@ -60,6 +60,10 @@ export function setFractions(state: State, { active }: ActivePayload) {
   state.fractions = active;
 }
 
+export function setSortByUsage(state: State, { active }: ActivePayload) {
+  state.sortByUsage = active;
+}
+
 export function setGen(state: State, { gen }: GenPayload) {
   state.gen = gen;
 }

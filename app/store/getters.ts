@@ -1,27 +1,39 @@
 import { zip } from "lodash";
 import { Field, Pokemon, info, sulcalc } from "sulcalc";
 import { SetdexName, State } from "./state";
+import usage from "../../dist/usage";
 
 type PartialReport = Partial<ReturnType<typeof sulcalc>>;
+interface UsageToType {
+  [pokemonId: string]: number | undefined;
+}
 
 export function sets(state: State) {
+  const { enabledSets, gen, sets, sortByUsage } = state;
   const setdexList = [];
-  for (const [name, setdex] of Object.entries(state.sets)) {
-    if (state.enabledSets[name as SetdexName]) {
-      setdexList.push(setdex[state.gen]);
+  for (const [name, setdex] of Object.entries(sets)) {
+    if (enabledSets[name as SetdexName]) {
+      setdexList.push(setdex[gen]);
     }
   }
   const groups = [];
-  for (const pokemonId of info.releasedPokes(state.gen)) {
+  for (const pokemonId of info.releasedPokes(gen)) {
     const pokemonName = info.pokemonName(pokemonId);
-    const sets = [];
+    const pokemonSets = [];
     for (const { [pokemonId]: setList = {} } of setdexList) {
       for (const [setName, set] of Object.entries(setList)) {
-        sets.push({ pokemonId, pokemonName, setName, set });
+        pokemonSets.push({ pokemonId, pokemonName, setName, set });
       }
     }
-    sets.push({ pokemonId, pokemonName, setName: "Blank Set", set: {} });
-    groups.push({ pokemonId, pokemonName, sets });
+    pokemonSets.push({ pokemonId, pokemonName, setName: "Blank Set", set: {} });
+    groups.push({ pokemonId, pokemonName, sets: pokemonSets });
+  }
+  if (sortByUsage) {
+    const genUsage = (usage[gen] as unknown) as UsageToType;
+    groups.sort(
+      ({ pokemonId: a }, { pokemonId: b }) =>
+        (genUsage[b] || 0) - (genUsage[a] || 0)
+    );
   }
   return groups;
 }
