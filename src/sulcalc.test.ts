@@ -79,51 +79,6 @@ test("negligible chance to KO", () => {
   expect(summary).toMatchSnapshot();
 });
 
-test("Light Screen", () => {
-  const gen = maxGen;
-  const { summary } = sulcalc(
-    {
-      name: "Heatran",
-      item: "Choice Specs",
-      nature: Nature.MODEST,
-      evs: [4, 0, 0, 252, 0, 252],
-      gen
-    },
-    {
-      name: "Klefki",
-      nature: Nature.CALM,
-      evs: [252, 0, 100, 0, 156, 0],
-      lightScreen: true,
-      gen
-    },
-    { name: "Fire Blast", gen },
-    { gen }
-  );
-  expect(summary).toMatchSnapshot();
-});
-
-test("Reflect", () => {
-  const gen = maxGen;
-  const { summary } = sulcalc(
-    {
-      name: "Ferrothorn",
-      nature: Nature.RELAXED,
-      evs: [252, 40, 100, 0, 0, 0],
-      gen
-    },
-    {
-      name: "Starmie",
-      nature: Nature.TIMID,
-      evs: [4, 0, 0, 252, 0, 252],
-      reflect: true,
-      gen
-    },
-    { name: "Fire Blast", gen },
-    { gen }
-  );
-  expect(summary).toMatchSnapshot();
-});
-
 test("Psyshock", () => {
   const gen = maxGen;
   const { summary } = sulcalc(
@@ -182,7 +137,7 @@ test("Explosion", () => {
     { name: "Explosion", gen },
     { gen }
   );
-  expect(roundedChances.length).toBe(1);
+  expect(roundedChances).toHaveLength(1);
   const { summary } = sulcalc(
     { name: "Snorlax", gen },
     { name: "Skarmory", gen },
@@ -489,7 +444,7 @@ test("Berry damage", () => {
   expect(chancesWithBerry[2]).toBe(1);
 });
 
-describe("Toxic damage", () => {
+describe("toxic damage", () => {
   const gen = Generation.B2W2;
   const { roundedChances } = sulcalc(
     { name: "Pichu", gen },
@@ -500,7 +455,7 @@ describe("Toxic damage", () => {
   expect(roundedChances).toEqual([0, 0, 0, 0, 0, 1]);
 });
 
-describe("Stealth Rock damage", () => {
+describe("stealth rock damage", () => {
   const gen = Generation.B2W2;
 
   const { roundedChances: withoutRocks } = sulcalc(

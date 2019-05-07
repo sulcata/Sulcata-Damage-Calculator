@@ -14,15 +14,28 @@ module.exports = {
     es6: true,
     node: true
   },
-  plugins: ["promise", "vue"],
+  plugins: ["jest", "promise", "vue"],
   extends: [
     "eslint:recommended",
-    "plugin:vue/recommended",
+    "plugin:jest/recommended",
+    "plugin:jest/style",
     "plugin:promise/recommended",
+    "plugin:vue/recommended",
     "prettier/vue",
     "prettier"
   ],
   rules: {
+    "jest/consistent-test-it": "error",
+    "jest/expect-expect": "error",
+    "jest/lowercase-name": ["error", { ignore: ["test"] }],
+    "jest/no-alias-methods": "error",
+    "jest/no-disabled-tests": "error",
+    "jest/no-empty-title": "error",
+    "jest/no-jasmine-globals": "error",
+    "jest/no-mocks-import": "error",
+    "jest/no-test-return-statement": "error",
+    "jest/no-truthy-falsy": "error",
+
     "promise/no-callback-in-promise": "error",
     "promise/no-nesting": "error",
     "promise/no-promise-in-callback": "error",

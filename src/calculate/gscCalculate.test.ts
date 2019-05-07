@@ -11,7 +11,7 @@ beforeEach(() => {
   field = new Field({ gen });
 });
 
-describe("crit mechanics", () => {
+describe("crit", () => {
   let machamp = new Pokemon();
   let starmie = new Pokemon();
   let crossChopCrit = new Move();
@@ -25,13 +25,13 @@ describe("crit mechanics", () => {
     });
   });
 
-  test("doubles damage", () => {
+  it("doubles damage", () => {
     const damage = gscCalculate(machamp, starmie, crossChopCrit, field);
     expect(damage).toHaveLength(39);
     expect(Math.max(...damage)).toBe(168);
   });
 
-  test("only ignores modifiers if boosts are the same or worse", () => {
+  it("ignores modifiers only if boosts are the same or worse", () => {
     machamp.boosts[Stat.ATK] = 6;
     starmie.boosts[Stat.DEF] = 5;
     let damage = gscCalculate(machamp, starmie, crossChopCrit, field);
@@ -51,7 +51,7 @@ describe("crit mechanics", () => {
     expect(Math.max(...damage)).toBe(168);
   });
 
-  test("ignoring includes Reflect", () => {
+  it("ignores Reflect", () => {
     starmie.reflect = true;
 
     let damage = gscCalculate(machamp, starmie, crossChopCrit, field);
@@ -64,7 +64,7 @@ describe("crit mechanics", () => {
     expect(Math.max(...damage)).toBe(127);
   });
 
-  test("ignoring includes Light Screen", () => {
+  it("ignores Light Screen", () => {
     starmie.lightScreen = true;
     const thunderCrit = new Move({
       name: "Thunder",
@@ -82,7 +82,7 @@ describe("crit mechanics", () => {
     expect(Math.max(...damage)).toBe(256);
   });
 
-  test("ignoring includes Burn", () => {
+  it("ignores Burn", () => {
     machamp.status = Status.BURNED;
 
     let damage = gscCalculate(machamp, starmie, crossChopCrit, field);
@@ -96,7 +96,7 @@ describe("crit mechanics", () => {
   });
 });
 
-describe("weather mechanics", () => {
+describe("weather", () => {
   let rain = new Field();
   let sand = new Field();
   let sun = new Field();
@@ -106,7 +106,7 @@ describe("weather mechanics", () => {
     sun = new Field({ weather: Weather.SUN, gen });
   });
 
-  test("Solar Beam is reduced by rain", () => {
+  it("reduces Solar Beam damage in rain", () => {
     const houndoom = new Pokemon({ name: "Houndoom", gen });
     const cloyster = new Pokemon({ name: "Cloyster", gen });
     const solarBeam = new Move({ name: "Solar Beam", gen });
@@ -124,7 +124,7 @@ describe("weather mechanics", () => {
     expect(Math.max(...rainDamage)).toBe(170);
   });
 
-  test("Rain and Sun affect Fire-type and Water-type damage", () => {
+  it("reduces Fire-type and Water-type damage in Rain and Sun", () => {
     const moltres = new Pokemon({ name: "Moltres", gen });
     const suicune = new Pokemon({ name: "Suicune", gen });
     const fireBlast = new Move({ name: "Fire Blast", gen });
