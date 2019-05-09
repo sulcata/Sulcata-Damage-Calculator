@@ -6,8 +6,11 @@
     placeholder="Item"
     :value="valueObj"
     :options="items"
+    :options-limit="20"
     @input="updateItem"
-  />
+  >
+    <span slot="noResult">No Item found.</span>
+  </multiselect>
 </template>
 
 <script>

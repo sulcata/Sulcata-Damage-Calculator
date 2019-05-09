@@ -7,7 +7,9 @@
     :value="valueObj"
     :options="natures"
     @input="updateNature"
-  />
+  >
+    <span slot="noResult">No Nature found.</span>
+  </multiselect>
 </template>
 
 <script>
