@@ -10,8 +10,11 @@
           placeholder="Move"
           :value="valueObj"
           :options="moves"
+          :options-limit="20"
           @input="updateMove"
-        />
+        >
+          <span slot="noResult">No Move found.</span>
+        </multiselect>
       </div>
 
       <div class="col-auto">

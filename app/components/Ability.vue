@@ -6,8 +6,11 @@
     placeholder="Ability"
     :value="valueObj"
     :options="abilities"
+    :options-limit="20"
     @input="updateAbility"
-  />
+  >
+    <span slot="noResult">No Ability found.</span>
+  </multiselect>
 </template>
 
 <script>

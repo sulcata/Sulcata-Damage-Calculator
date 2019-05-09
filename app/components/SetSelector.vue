@@ -6,10 +6,12 @@
     group-label="pokemonName"
     :show-labels="false"
     placeholder="Pokemon"
-    :options="sets"
     :value="pokemon.set"
+    :options="sets"
+    :options-limit="20"
     @input="updatePokemon"
   >
+    <span slot="noResult">No Pokemon found.</span>
     <template slot="option" slot-scope="props">
       <span v-if="props.option.$isLabel">{{ props.option.$groupLabel }}</span>
       <span v-else>{{ props.option.setName }}</span>
