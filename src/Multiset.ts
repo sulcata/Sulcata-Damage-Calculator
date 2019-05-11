@@ -101,7 +101,7 @@ export default class Multiset<T> {
 
   public map<U>(callbackFn: MapFn<T, U>): Multiset<U> {
     let skipValue = false;
-    function skip() {
+    function skip(): void {
       skipValue = true;
     }
     const mapped = new Multiset<U>();

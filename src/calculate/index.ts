@@ -12,7 +12,7 @@ import orasCalculate from "./orasCalculate";
 import rbyCalculate from "./rbyCalculate";
 import smCalculate from "./smCalculate";
 
-const add = (a: number, b: number) => a + b;
+const add = (a: number, b: number): number => a + b;
 
 const calculateFns: {
   [key in Generation]: (

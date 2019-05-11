@@ -7,7 +7,11 @@
     :value="valueObj"
     :options="statuses"
     @input="updateStatus"
-  />
+  >
+    <template slot="noResult">
+      No Status found.
+    </template>
+  </multiselect>
 </template>
 
 <script>

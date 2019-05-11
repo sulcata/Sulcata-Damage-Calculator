@@ -264,5 +264,5 @@ export const needsScaling = (...stats: number[]): boolean =>
 export const scaleStat = (stat: number, bits: number = 2): number =>
   (stat >> bits) & 0xff;
 
-export const hasOwn = (obj: object, key: string) =>
+export const hasOwn = (obj: object, key: string): boolean =>
   Object.prototype.hasOwnProperty.call(obj, key);

@@ -55,7 +55,7 @@ const statMatches = new Map<string, BaseStat>([
   ["Spc", Stat.SPC]
 ]);
 
-function parseMove(poke: Pokemon, move: Move, name: string) {
+function parseMove(poke: Pokemon, move: Move, name: string): void {
   move.name = moveName(moveId(name));
   if (move.isHiddenPower()) {
     const type = move.type();
@@ -98,7 +98,12 @@ const calcHealthDv = (ivs: StatList): number =>
   ((ivs[Stat.SPD] & 1) << 1) |
   (ivs[Stat.SPC] & 1);
 
-function printIv(stat: BaseStat, iv: number, ivs: StatList, gen: Generation) {
+function printIv(
+  stat: BaseStat,
+  iv: number,
+  ivs: StatList,
+  gen: Generation
+): string {
   if (gen >= Generation.ADV) {
     return iv < 31 ? `${iv} ${statNames[stat]}` : "";
   }
@@ -117,7 +122,12 @@ function printIv(stat: BaseStat, iv: number, ivs: StatList, gen: Generation) {
     : `${iv} ${statNames[stat]}`;
 }
 
-function printEv(stat: BaseStat, ev: number, evs: StatList, gen: Generation) {
+function printEv(
+  stat: BaseStat,
+  ev: number,
+  evs: StatList,
+  gen: Generation
+): string {
   if (gen >= Generation.ADV) {
     return ev > 0 ? `${ev} ${statNames[stat]}` : "";
   }

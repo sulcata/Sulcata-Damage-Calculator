@@ -3,9 +3,10 @@ import pokemonPerfect from "../../dist/setdex/pokemonPerfect";
 import smogon from "../../dist/setdex/smogon";
 import usage from "../../dist/setdex/usage";
 
+type Set = ReturnType<Pokemon["toSet"]>;
 export interface GenSetdex {
   [pokeId: string]: {
-    [setName: string]: ReturnType<Pokemon["toSet"]>;
+    [setName: string]: Set;
   };
 }
 
