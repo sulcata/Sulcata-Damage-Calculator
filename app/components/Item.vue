@@ -9,7 +9,9 @@
     :options-limit="20"
     @input="updateItem"
   >
-    <span slot="noResult">No Item found.</span>
+    <template slot="noResult">
+      No Item found.
+    </template>
   </multiselect>
 </template>
 

@@ -8,7 +8,9 @@
     :options="natures"
     @input="updateNature"
   >
-    <span slot="noResult">No Nature found.</span>
+    <template slot="noResult">
+      No Nature found.
+    </template>
   </multiselect>
 </template>
 

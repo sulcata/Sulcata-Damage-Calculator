@@ -8,7 +8,18 @@ interface UsageToType {
   [pokemonId: string]: number | undefined;
 }
 
-export function sets(state: State) {
+interface Set {
+  pokemonId: string;
+  pokemonName: string;
+  setName: string;
+  set: ReturnType<Pokemon["toSet"]>;
+}
+interface SetGroup {
+  pokemonId: string;
+  pokemonName: string;
+  sets: Set[];
+}
+export function sets(state: State): SetGroup[] {
   const { enabledSets, gen, sets, sortByUsage } = state;
   const setdexList = [];
   for (const [name, setdex] of Object.entries(sets)) {
@@ -62,15 +73,15 @@ export function selectedReport(_state: State, getters: Getters): PartialReport {
   return getters.reports[getters.selectedReportIndex] || {};
 }
 
-export const reports = (_state: State, getters: Getters) => [
+export const reports = (_state: State, getters: Getters): PartialReport[] => [
   ...getters.attackerReports,
   ...getters.defenderReports
 ];
 
-export const attackerReports = (state: State) =>
+export const attackerReports = (state: State): PartialReport[] =>
   getReportList(state.attacker, state.defender, state.field);
 
-export const defenderReports = (state: State) =>
+export const defenderReports = (state: State): PartialReport[] =>
   getReportList(state.defender, state.attacker, state.field);
 
 export const isReportSelected = (_state: State, getters: Getters): boolean =>

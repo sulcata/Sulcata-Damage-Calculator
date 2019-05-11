@@ -24,6 +24,7 @@ if (process.env.NODE_ENV !== "production") {
   })(db);
 }
 
+/* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
 function getInfo<T>(
   gen: Generation,
   path: (number | string)[],
@@ -37,13 +38,16 @@ function getInfo<T>(
   return defaultValue;
 }
 
-const makeNameToId = (objectName: string, defaultId: string) => (
+type NameToId = (name: unknown) => string;
+const makeNameToId = (objectName: string, defaultId: string): NameToId => (
   name: unknown
 ): string => {
   if (typeof name !== "string") return defaultId;
   const id = name.replace(/[^A-Za-z0-9]/g, "").toLowerCase();
   return getInfo(maxGen, [objectName, id]) ? id : defaultId;
 };
+
+const localeCompare = (a: string, b: string): number => a.localeCompare(b);
 
 /* Gen Information */
 export const genName = (gen: Generation): string =>
@@ -127,7 +131,7 @@ export const releasedPokes = memoize(
   (gen: Generation): string[] =>
     Object.keys(getInfo(maxGen, ["pokedex"], {}))
       .filter(pokeId => isPokeReleased(pokeId, gen))
-      .sort()
+      .sort(localeCompare)
 );
 export const baseStats = (pokeId: string, gen: Generation): StatList =>
   getInfo(gen, ["pokedex", pokeId, "c"]);
@@ -165,7 +169,7 @@ export const releasedMoves = memoize(
   (gen: Generation): Readonly<string[]> =>
     Object.keys(getInfo(maxGen, ["moves"], {}))
       .filter(moveId => isMoveReleased(moveId, gen))
-      .sort()
+      .sort(localeCompare)
 );
 export const moveType = (moveId: string, gen: Generation): Type =>
   getInfo(gen, ["moves", moveId, "d"], Type.CURSE);
@@ -240,7 +244,7 @@ export const releasedItems = memoize(
   (gen: Generation): Readonly<string[]> =>
     Object.keys(getInfo(maxGen, ["items"], {}))
       .filter(itemId => isItemReleased(itemId, gen))
-      .sort()
+      .sort(localeCompare)
 );
 export const zMoveTransformsTo = (
   itemId: string,
@@ -267,7 +271,7 @@ export const releasedAbilities = memoize(
   (gen: Generation): Readonly<string[]> =>
     Object.keys(getInfo(maxGen, ["abilities"], {}))
       .filter(abilityId => isAbilityReleased(abilityId, gen))
-      .sort()
+      .sort(localeCompare)
 );
 export const immunityType = (abilityId: string, gen: Generation): Type =>
   getInfo(gen, ["abilities", abilityId, "d"], -1);

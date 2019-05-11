@@ -1,8 +1,8 @@
 import * as bigInt from "big-integer";
 import Multiset from "./Multiset";
 
-const eq = (a: bigInt.BigInteger | undefined, b: bigInt.BigNumber) =>
-  a && a.eq(b);
+const eq = (a: bigInt.BigInteger | undefined, b: bigInt.BigNumber): boolean =>
+  a !== undefined && a.eq(b);
 
 let arr1: number[] = [];
 let arr2: number[] = [];
@@ -18,7 +18,7 @@ beforeEach(() => {
 });
 
 test("#constructor()", () => {
-  function checker(set: Multiset<number>) {
+  function checker(set: Multiset<number>): void {
     expect(eq(set.get(-2), 1)).toBe(true);
     expect(eq(set.get(1), 1)).toBe(true);
     expect(eq(set.get(2), 1)).toBe(true);
@@ -140,8 +140,8 @@ test("#toArray()", () => {
 });
 
 test("#permute()", () => {
-  const add = (a: number, b: number) => a + b;
-  const mult = (a: number, b: number) => a * b;
+  const add = (a: number, b: number): number => a + b;
+  const mult = (a: number, b: number): number => a * b;
   expect(set1.permute(emptySet, add).toString()).toBe("");
   expect(set1.permute(set2, add).toString()).toBe(
     "-1:2, 0:2, 1:2, 2:3, 3:4, 4:6, 5:5, 6:3, 7:1"

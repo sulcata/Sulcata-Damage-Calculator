@@ -13,7 +13,9 @@
           :options-limit="20"
           @input="updateMove"
         >
-          <span slot="noResult">No Move found.</span>
+          <template slot="noResult">
+            No Move found.
+          </template>
         </multiselect>
       </div>
 

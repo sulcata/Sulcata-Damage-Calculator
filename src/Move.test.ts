@@ -378,7 +378,7 @@ test("#boostedByMinimize()", () => {
   const shadowForce = new Move({ name: "Shadow Force" });
   const phantomForce = new Move({ name: "Phantom Force" });
   const heavySlam = new Move({ name: "Heavy Slam" });
-  function changeGen(gen: Generation) {
+  function changeGen(gen: Generation): void {
     stomp.gen = gen;
     astonish.gen = gen;
     extrasensory.gen = gen;
@@ -514,7 +514,7 @@ test("#isExplosion()", () => {
 });
 
 test(".hiddenPowers()", () => {
-  const isMaxIv = (iv: number) => iv === 30 || iv === 31;
+  const isMaxIv = (iv: number): boolean => iv === 30 || iv === 31;
   for (const type of types) {
     for (const ivs of Move.hiddenPowers(type, Generation.B2W2)) {
       expect(ivs.every(isMaxIv)).toBe(true);

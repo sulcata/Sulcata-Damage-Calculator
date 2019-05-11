@@ -2,17 +2,21 @@ import { at, castArray, merge, set, zip } from "lodash";
 import { OneOrMany, hasOwn } from "sulcalc";
 import { Store } from "vuex";
 
+export interface PersistencePluginConfig<State extends object> {
+  saveOn?: { [key: string]: OneOrMany<Extract<keyof State, string>> };
+  prefix?: string;
+  storage?: Storage;
+  onLoad?(store: Store<State>): Promise<void>;
+}
+
+type Plugin<State extends object> = (store: Store<State>) => Promise<void>;
+
 export function persistencePlugin<State extends object>({
   saveOn = {},
   prefix = "",
   storage = window.localStorage,
   onLoad
-}: {
-  saveOn?: { [key: string]: OneOrMany<Extract<keyof State, string>> };
-  prefix?: string;
-  storage?: Storage;
-  onLoad?(store: Store<State>): Promise<void>;
-} = {}) {
+}: PersistencePluginConfig<State> = {}): Plugin<State> {
   function prefixKey(key: string): string {
     if (prefix !== "") {
       return `(${prefix}).${key}`;

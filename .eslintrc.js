@@ -129,7 +129,14 @@ module.exports = {
       rules: {
         ...tsRecommended.rules,
         ...tsPrettier.rules,
-        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/await-thenable": "error",
+        "@typescript-eslint/explicit-function-return-type": [
+          "error",
+          {
+            allowExpressions: true,
+            allowTypedFunctionExpressions: true
+          }
+        ],
         "@typescript-eslint/member-ordering": [
           "error",
           {
@@ -141,6 +148,7 @@ module.exports = {
             ]
           }
         ],
+        "@typescript-eslint/no-explicit-any": "error",
         "@typescript-eslint/no-extraneous-class": "error",
         "@typescript-eslint/no-for-in-array": "error",
         "@typescript-eslint/no-this-alias": [
@@ -150,11 +158,17 @@ module.exports = {
             allowedNames: ["self"]
           }
         ],
+        "@typescript-eslint/no-unused-vars": "error",
         "@typescript-eslint/no-unnecessary-qualifier": "error",
         "@typescript-eslint/no-unnecessary-type-assertion": "error",
         "@typescript-eslint/no-use-before-define": ["error", "nofunc"],
         "@typescript-eslint/no-useless-constructor": "error",
+        "@typescript-eslint/prefer-for-of": "error",
         "@typescript-eslint/prefer-function-type": "error",
+        "@typescript-eslint/prefer-includes": "error",
+        "@typescript-eslint/prefer-string-starts-ends-with": "error",
+        "@typescript-eslint/require-array-sort-compare": "error",
+        "@typescript-eslint/restrict-plus-operands": "error",
         "@typescript-eslint/unified-signatures": "error"
       }
     },

@@ -11,7 +11,9 @@
     :options-limit="20"
     @input="updatePokemon"
   >
-    <span slot="noResult">No Pokemon found.</span>
+    <template slot="noResult">
+      No Pokemon found.
+    </template>
     <template slot="option" slot-scope="props">
       <span v-if="props.option.$isLabel">{{ props.option.$groupLabel }}</span>
       <span v-else>{{ props.option.setName }}</span>

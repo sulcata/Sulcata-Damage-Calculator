@@ -9,7 +9,9 @@
     :options-limit="20"
     @input="updateAbility"
   >
-    <span slot="noResult">No Ability found.</span>
+    <template slot="noResult">
+      No Ability found.
+    </template>
   </multiselect>
 </template>
 

@@ -30,14 +30,27 @@ const statusMessages: { [key in Status]: string } = {
   [Status.FROZEN]: "frozen"
 };
 
-export type SulcalcReport = ReturnType<typeof sulcalc>;
-
+export interface SulcalcReport {
+  summary: string;
+  attacker: Pokemon;
+  defender: Pokemon;
+  move: Move;
+  field: Field;
+  minPercent: number;
+  maxPercent: number;
+  damages: Multiset<number>[];
+  damage: Multiset<number>;
+  effectValues: (number | "toxic")[];
+  effectMessages: string[];
+  fractionalChances: [bigInt.BigInteger, bigInt.BigInteger][];
+  roundedChances: number[];
+}
 export default function sulcalc(
   attackerOptions: Pokemon | PokemonOptions,
   defenderOptions: Pokemon | PokemonOptions,
   moveOptions: Move | MoveOptions,
   fieldOptions: Field | FieldOptions
-) {
+): SulcalcReport {
   const field = new Field(fieldOptions);
   const { gen } = field;
   const attacker = new Pokemon({ ...attackerOptions, gen });
@@ -141,7 +154,7 @@ export default function sulcalc(
   const minPercent = Math.round((dmg[0].min(NaN) / maxHp) * 1000) / 10;
   const maxPercent = Math.round((dmg[0].max(NaN) / maxHp) * 1000) / 10;
 
-  const convertToDamage = (v: number) => Math.max(0, maxHp - v);
+  const convertToDamage = (v: number): number => Math.max(0, maxHp - v);
   let initDmg = defender.currentHpRange.map(convertToDamage);
   let initDmgBerry = defender.currentHpRangeBerry.map(convertToDamage);
 
@@ -380,6 +393,12 @@ export default function sulcalc(
   };
 }
 
+interface ChanceCalculation {
+  fractionalChances: [bigInt.BigInteger, bigInt.BigInteger][];
+  roundedChances: number[];
+  remainingHealth: Multiset<number>;
+  remainingHealthBerry: Multiset<number>;
+}
 function chanceToKo(
   poke: Pokemon,
   damageRanges: Multiset<number>[],
@@ -392,7 +411,7 @@ function chanceToKo(
     toxicCounter?: number;
     maxTurns?: number;
   }
-) {
+): ChanceCalculation {
   const chances: [bigInt.BigInteger, bigInt.BigInteger][] = [];
   const totalHp = poke.stat(Stat.HP);
   const berryHeal = poke.item.berryHeal(totalHp);
@@ -406,9 +425,9 @@ function chanceToKo(
   let remainingHealth = new Multiset<number>();
   let remainingHealthBerry = new Multiset<number>();
 
-  const hasFainted = (damage: number) => damage >= totalHp;
-  const damageToHealth = (damage: number) => totalHp - damage;
-  const applyDamage = (damage: number, newDamage: number) =>
+  const hasFainted = (damage: number): boolean => damage >= totalHp;
+  const damageToHealth = (damage: number): number => totalHp - damage;
+  const applyDamage = (damage: number, newDamage: number): number =>
     damage >= totalHp ? damage : damage + newDamage;
 
   for (let turn = 0, i = 0; turn < maxTurns; turn++) {
@@ -496,7 +515,7 @@ function damageMap(
   v: number,
   w: bigInt.BigInteger,
   skip: () => void
-) {
+): number {
   const { berry, effects, totalHp, toxicCounter } = this;
   let berryUsed = false;
   for (const effect of effects) {

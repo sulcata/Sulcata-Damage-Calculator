@@ -8,7 +8,9 @@
     :options="statuses"
     @input="updateStatus"
   >
-    <span slot="noResult">No Status found.</span>
+    <template slot="noResult">
+      No Status found.
+    </template>
   </multiselect>
 </template>
 
