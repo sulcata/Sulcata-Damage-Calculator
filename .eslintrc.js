@@ -2,6 +2,7 @@
 
 const tsRecommended = require("@typescript-eslint/eslint-plugin/dist/configs/recommended");
 const tsPrettier = require("eslint-config-prettier/@typescript-eslint");
+const jestConfigs = require("eslint-plugin-jest").configs;
 
 module.exports = {
   root: true,
@@ -14,35 +15,17 @@ module.exports = {
     es6: true,
     node: true
   },
-  plugins: ["jest", "promise", "vue"],
+  plugins: ["promise", "vue"],
   extends: [
     "eslint:recommended",
-    "plugin:jest/recommended",
-    "plugin:jest/style",
     "plugin:promise/recommended",
     "plugin:vue/recommended",
     "prettier/vue",
     "prettier"
   ],
   rules: {
-    "jest/consistent-test-it": "error",
-    "jest/expect-expect": "error",
-    "jest/lowercase-name": ["error", { ignore: ["test"] }],
-    "jest/no-alias-methods": "error",
-    "jest/no-disabled-tests": "error",
-    "jest/no-empty-title": "error",
-    "jest/no-jasmine-globals": "error",
-    "jest/no-mocks-import": "error",
-    "jest/no-test-return-statement": "error",
-    "jest/no-truthy-falsy": "error",
-
-    "promise/no-callback-in-promise": "error",
-    "promise/no-nesting": "error",
-    "promise/no-promise-in-callback": "error",
-    "promise/no-return-in-finally": "error",
     "promise/prefer-await-to-callbacks": "error",
     "promise/prefer-await-to-then": "error",
-    "promise/valid-params": "error",
 
     "accessor-pairs": "error",
     "class-methods-use-this": "error",
@@ -180,7 +163,19 @@ module.exports = {
     {
       // jest unit tests
       files: "**/*.test.*",
-      env: { jest: true }
+      env: { jest: true },
+      plugins: ["jest"],
+      rules: {
+        ...jestConfigs.recommended.rules,
+        ...jestConfigs.style.rules,
+        "jest/consistent-test-it": "error",
+        "jest/expect-expect": "error",
+        "jest/lowercase-name": ["error", { ignore: ["test"] }],
+        "jest/no-empty-title": "error",
+        "jest/no-mocks-import": "error",
+        "jest/no-test-return-statement": "error",
+        "jest/no-truthy-falsy": "error"
+      }
     },
     {
       // browser globals

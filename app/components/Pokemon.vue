@@ -19,6 +19,7 @@
       <integer-input
         :min="1"
         :max="100"
+        :max-length="3"
         :value="pokemon.level"
         class="small-fixed-width"
         @input="updateLevel"
@@ -42,12 +43,17 @@
           <div class="col">
             <status :status="pokemon.status" @input="updateStatus" />
           </div>
-          <div class="col-auto">
-            <health
+          <div class="col">
+            <health-exact
+              :total-hp="pokemon.stat(Stat.HP)"
+              :current-hp-range="pokemon.currentHpRange"
+              @input="updateHealth"
+            />
+          </div>
+          <div class="col">
+            <health-percent
               :total-hp="pokemon.stat(Stat.HP)"
               :current-hp="pokemon.currentHp"
-              :current-hp-range="pokemon.currentHpRange"
-              :current-hp-range-berry="pokemon.currentHpRangeBerry"
               @input="updateHealth"
             />
           </div>
@@ -65,7 +71,8 @@ import MoveComponent from "./Move.vue";
 import NatureComponent from "./Nature.vue";
 import StatusComponent from "./Status.vue";
 import StatsComponent from "./Stats.vue";
-import Health from "./Health.vue";
+import HealthExact from "./HealthExact.vue";
+import HealthPercent from "./HealthPercent.vue";
 import IntegerInput from "./ui/IntegerInput.vue";
 import { Generation, Move, Pokemon, Stat } from "sulcalc";
 
@@ -78,7 +85,8 @@ export default {
     Nature: NatureComponent,
     Status: StatusComponent,
     Stats: StatsComponent,
-    Health,
+    HealthExact,
+    HealthPercent,
     IntegerInput
   },
   model: {
@@ -93,6 +101,11 @@ export default {
   },
   data() {
     return { Generation, Stat };
+  },
+  computed: {
+    totalHp() {
+      return this.pokemon.stat(Stat.HP);
+    }
   },
   methods: {
     updatePokemon(pokemon) {
