@@ -34,7 +34,7 @@ const typeClasses = {
   link: "-link"
 };
 
-const noDefaultValue = {};
+const noDefaultValue = { type: "ButtonRadioGroup/noDefaultValue" };
 
 export default {
   props: {

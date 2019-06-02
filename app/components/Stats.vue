@@ -3,7 +3,8 @@
     <div class="row no-gutters">
       <strong class="col-3 offset-2 text-center">IVs</strong>
       <strong class="col-3 text-center">EVs</strong>
-      <strong class="col-2"></strong> <strong class="col-2"></strong>
+      <strong class="col-2"></strong>
+      <strong class="col-2"></strong>
     </div>
 
     <div
@@ -18,6 +19,7 @@
           :value="computedIv(stat)"
           :min="0"
           :max="maxIv"
+          :max-length="2"
           :disabled="isIvDisabled(stat)"
           @input="iv => updateIv(stat, iv)"
         />
@@ -29,12 +31,11 @@
           :min="0"
           :max="252"
           :step="4"
+          :max-length="3"
           :disabled="isEvDisabled(stat)"
           @input="ev => updateEv(stat, ev)"
         />
       </div>
-
-      <div class="col-2 text-center">{{ pokemon.boostedStat(stat) }}</div>
 
       <div class="col-2 text-center">
         <div
@@ -68,6 +69,10 @@
             {{ statBoost(7 - n) }}
           </option>
         </select>
+      </div>
+
+      <div class="col-2 text-center">
+        {{ pokemon.boostedStat(stat) }}
       </div>
     </div>
   </div>

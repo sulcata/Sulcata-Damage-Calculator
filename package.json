@@ -18,9 +18,11 @@
     "build:lib": "webpack --config build/webpack.lib.config.js",
     "test": "npm run test:unit && npm run lint",
     "test:unit": "jest --coverage",
-    "lint": "tsc && eslint '**/*.{js,ts,vue}' && npm run style -- --check",
-    "lint:fix": "eslint '**/*.{js,ts,vue}' --fix  && npm run style -- --write",
-    "style": "prettier '**/*.{html,js,json,md,scss,ts,vue,yml,yaml}' --ignore-path .eslintignore",
+    "lint": "npm run lint:tsc && npm run lint:eslint && npm run lint:style -- --check",
+    "lint:fix": "npm run lint:eslint -- --fix  && npm run style -- --write",
+    "lint:tsc": "tsc",
+    "lint:eslint": "eslint --max-warnings 0 '**/*.{js,ts,vue}'",
+    "lint:style": "prettier '**/*.{html,js,json,md,scss,ts,vue,yml,yaml}' --ignore-path .eslintignore",
     "setup": "npm run setup:db && npm run setup:stats && npm run setup:setdex",
     "setup:db": "babel-node scripts/db --extensions '.js,.ts'",
     "setup:stats": "babel-node scripts/stats --extensions '.js,.ts'",
@@ -28,7 +30,7 @@
   },
   "lint-staged": {
     "*.{js,ts,vue}": [
-      "eslint --fix",
+      "eslint --max-warnings 0 --fix",
       "prettier --write --ignore-path .eslintignore",
       "git add"
     ],
@@ -39,8 +41,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && tsc && jest -o",
-      "pre-push": "npm run setup && npm run lint && npm test"
+      "pre-commit": "lint-staged && tsc && npm run test:unit",
+      "pre-push": "npm run setup && npm run test"
     }
   },
   "dependencies": {
