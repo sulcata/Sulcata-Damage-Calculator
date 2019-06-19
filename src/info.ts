@@ -127,11 +127,10 @@ export const pokemonName = (pokeId: string): string =>
 export const pokemonId = makeNameToId("pokedex", "nopokemon");
 export const isPokeReleased = (pokeId: string, gen: Generation): boolean =>
   gen >= getInfo(maxGen, ["pokedex", pokeId, "a"]);
-export const releasedPokes = memoize(
-  (gen: Generation): string[] =>
-    Object.keys(getInfo(maxGen, ["pokedex"], {}))
-      .filter(pokeId => isPokeReleased(pokeId, gen))
-      .sort(localeCompare)
+export const releasedPokes = memoize((gen: Generation): string[] =>
+  Object.keys(getInfo(maxGen, ["pokedex"], {}))
+    .filter(pokeId => isPokeReleased(pokeId, gen))
+    .sort(localeCompare)
 );
 export const baseStats = (pokeId: string, gen: Generation): StatList =>
   getInfo(gen, ["pokedex", pokeId, "c"]);

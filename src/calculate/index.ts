@@ -20,7 +20,7 @@ const calculateFns: {
     defender: Pokemon,
     move: Move,
     field: Field
-  ) => number[]
+  ) => number[];
 } = {
   [Generation.RBY]: rbyCalculate,
   [Generation.GSC]: gscCalculate,
