@@ -74,6 +74,7 @@ import StatsComponent from "./Stats.vue";
 import HealthExact from "./HealthExact.vue";
 import HealthPercent from "./HealthPercent.vue";
 import IntegerInput from "./ui/IntegerInput.vue";
+import { asThunkObject } from "../utilities";
 import { Generation, Move, Pokemon, Stat } from "sulcalc";
 
 export default {
@@ -99,10 +100,8 @@ export default {
       type: Pokemon
     }
   },
-  data() {
-    return { Generation, Stat };
-  },
   computed: {
+    ...asThunkObject({ Generation, Stat }),
     totalHp() {
       return this.pokemon.stat(Stat.HP);
     }

@@ -10,7 +10,6 @@
     :disabled="disabled"
     class="form-control"
     :class="sizeClass"
-    @keydown="validateValue"
     @change="updateValue"
   />
 </template>
@@ -24,8 +23,6 @@ const sizeClasses = {
   medium: "",
   large: "form-control-lg"
 };
-
-const digits = new Set("0123456789");
 
 const clampAndStep = (value, min, max, step) =>
   Math.trunc(clamp(value, min, max) / step) * step;
@@ -83,18 +80,8 @@ export default {
     }
   },
   methods: {
-    validateValue(event) {
-      const { key, ctrlKey, metaKey, target } = event;
-      if (
-        key.length === 1 &&
-        !ctrlKey &&
-        !metaKey &&
-        (!digits.has(key) || target.value.length >= this.maxLength)
-      ) {
-        event.preventDefault();
-      }
-    },
     updateValue(event) {
+      if (!event.target.value) return;
       const value = clampAndStep(
         Number.parseInt(event.target.value, 10),
         this.min,
@@ -103,8 +90,6 @@ export default {
       );
       if (Number.isSafeInteger(value) && this.value !== value) {
         this.$emit("input", value);
-      } else {
-        this.$forceUpdate();
       }
     }
   }

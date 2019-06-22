@@ -1,40 +1,34 @@
 <template>
-  <div class="container-fluid">
+  <div class="d-flex flex-column align-items-center stack">
     <!-- Battle Mode -->
-    <div v-show="gen >= Generation.ADV" :class="centeredRowClasses">
-      <button-radio-group
-        :value="field.multiBattle"
-        :options="battleModes"
-        size="small"
-        type="secondary"
-        @input="toggleMultiBattle()"
-      />
-    </div>
+    <button-radio-group
+      v-show="gen >= Generation.ADV"
+      :value="field.multiBattle"
+      :options="battleModes"
+      size="small"
+      type="secondary"
+      @input="toggleMultiBattle()"
+    />
 
     <!-- Inverted Battle -->
-    <div
+    <button-checkbox
       v-show="gen === Generation.ORAS"
-      class="mt-1"
-      :class="centeredRowClasses"
+      :value="field.invertedBattle"
+      size="small"
+      type="secondary"
+      @input="toggleInvertedBattle()"
     >
-      <button-checkbox
-        :value="field.invertedBattle"
-        size="small"
-        type="secondary"
-        @input="toggleInvertedBattle()"
-      >
-        Inverted Battle
-      </button-checkbox>
-    </div>
+      Inverted Battle
+    </button-checkbox>
 
     <!-- Weather -->
-    <hr v-show="gen >= Generation.ORAS" class="row" />
     <div
-      v-show="gen >= Generation.GSC"
-      class="mt-1"
-      :class="centeredRowClasses"
+      v-if="gen >= Generation.GSC"
+      class="d-flex flex-column align-items-center w-100"
+      :class="gen >= Generation.ORAS && 'border-top border-bottom p-1'"
     >
       <button-radio-group
+        v-if="gen >= Generation.GSC"
         :value="field.weather"
         :default-value="Weather.CLEAR"
         :options="weathers"
@@ -42,151 +36,116 @@
         type="secondary"
         @input="weather => setWeather({ weather })"
       />
-    </div>
-    <div
-      v-show="gen >= Generation.ORAS"
-      class="mt-1"
-      :class="centeredRowClasses"
-    >
       <button-radio-group
+        v-if="gen >= Generation.ORAS"
         :value="field.weather"
         :default-value="Weather.CLEAR"
         :options="harshWeathers"
         size="small"
         type="secondary"
+        class="mt-1"
         @input="weather => setWeather({ weather })"
       />
     </div>
-    <hr v-show="gen >= Generation.ORAS" class="row" />
 
     <!-- Water Sport / Mud Sport -->
-    <div
-      v-show="gen >= Generation.ADV"
-      class="mt-1"
-      :class="centeredRowClasses"
-    >
-      <div class="col-auto btn-group btn-group-sm">
-        <button-checkbox
-          :value="field.waterSport"
-          type="secondary"
-          @input="toggleWaterSport()"
-        >
-          Water Sport
-        </button-checkbox>
-        <button-checkbox
-          :value="field.mudSport"
-          type="secondary"
-          @input="toggleMudSport()"
-        >
-          Mud Sport
-        </button-checkbox>
-      </div>
+    <div v-show="gen >= Generation.ADV" class="btn-group btn-group-sm">
+      <button-checkbox
+        :value="field.waterSport"
+        type="secondary"
+        @input="toggleWaterSport()"
+      >
+        Water Sport
+      </button-checkbox>
+      <button-checkbox
+        :value="field.mudSport"
+        type="secondary"
+        @input="toggleMudSport()"
+      >
+        Mud Sport
+      </button-checkbox>
     </div>
 
     <!-- Gravity / Magic Room / Wonder Room -->
-    <div
-      v-show="gen >= Generation.HGSS"
-      class="mt-1"
-      :class="centeredRowClasses"
-    >
-      <div class="col-auto btn-group btn-group-sm">
+    <div v-show="gen >= Generation.HGSS" class="btn-group btn-group-sm">
+      <button-checkbox
+        :value="field.gravity"
+        type="secondary"
+        @input="toggleGravity()"
+      >
+        Gravity
+      </button-checkbox>
+      <template v-show="gen >= Generation.B2W2">
         <button-checkbox
-          :value="field.gravity"
+          :value="field.magicRoom"
           type="secondary"
-          @input="toggleGravity()"
+          @input="toggleMagicRoom()"
         >
-          Gravity
+          Magic Room
         </button-checkbox>
-        <template v-show="gen >= Generation.B2W2">
-          <button-checkbox
-            :value="field.magicRoom"
-            type="secondary"
-            @input="toggleMagicRoom()"
-          >
-            Magic Room
-          </button-checkbox>
-          <button-checkbox
-            :value="field.wonderRoom"
-            type="secondary"
-            @input="toggleWonderRoom()"
-          >
-            Wonder Room
-          </button-checkbox>
-        </template>
-      </div>
+        <button-checkbox
+          :value="field.wonderRoom"
+          type="secondary"
+          @input="toggleWonderRoom()"
+        >
+          Wonder Room
+        </button-checkbox>
+      </template>
     </div>
 
     <!-- Terrain -->
-    <div
+    <button-radio-group
       v-show="gen >= Generation.ORAS"
-      class="mt-1"
-      :class="centeredRowClasses"
-    >
-      <button-radio-group
-        :value="field.terrain"
-        :default-value="Terrain.NO_TERRAIN"
-        :options="terrains"
-        size="small"
-        type="secondary"
-        @input="terrain => setTerrain({ terrain })"
-      />
-    </div>
+      :value="field.terrain"
+      :default-value="Terrain.NO_TERRAIN"
+      :options="terrains"
+      size="small"
+      type="secondary"
+      @input="terrain => setTerrain({ terrain })"
+    />
 
     <!-- Fairy Aura / Dark Aura / Aura Break -->
-    <div
-      v-show="gen >= Generation.ORAS"
-      class="mt-1"
-      :class="centeredRowClasses"
-    >
-      <div class="col-auto btn-group btn-group-sm">
-        <button-checkbox
-          :value="field.fairyAura"
-          type="secondary"
-          @input="toggleFairyAura()"
-        >
-          Fairy Aura
-        </button-checkbox>
-        <button-checkbox
-          :value="field.darkAura"
-          type="secondary"
-          @input="toggleDarkAura()"
-        >
-          Dark Aura
-        </button-checkbox>
-        <button-checkbox
-          :value="field.auraBreak"
-          type="secondary"
-          @input="toggleAuraBreak()"
-        >
-          Aura Break
-        </button-checkbox>
-      </div>
+    <div v-show="gen >= Generation.ORAS" class="btn-group btn-group-sm">
+      <button-checkbox
+        :value="field.fairyAura"
+        type="secondary"
+        @input="toggleFairyAura()"
+      >
+        Fairy Aura
+      </button-checkbox>
+      <button-checkbox
+        :value="field.darkAura"
+        type="secondary"
+        @input="toggleDarkAura()"
+      >
+        Dark Aura
+      </button-checkbox>
+      <button-checkbox
+        :value="field.auraBreak"
+        type="secondary"
+        @input="toggleAuraBreak()"
+      >
+        Aura Break
+      </button-checkbox>
     </div>
 
     <!-- Ion Deluge -->
-    <div
+    <button-checkbox
       v-show="gen >= Generation.ORAS"
-      class="mt-1"
-      :class="centeredRowClasses"
+      :value="field.ionDeluge"
+      size="small"
+      type="secondary"
+      @input="toggleIonDeluge()"
     >
-      <div class="col-auto">
-        <button-checkbox
-          :value="field.ionDeluge"
-          size="small"
-          type="secondary"
-          @input="toggleIonDeluge()"
-        >
-          Ion Deluge
-        </button-checkbox>
-      </div>
-    </div>
+      Ion Deluge
+    </button-checkbox>
 
     <!-- attacker / defender -->
-    <div class="mt-1" :class="centeredRowClasses">
+    <div class="d-flex justify-content-between w-100">
       <div
         v-for="(pokemon, side) in { attacker, defender }"
         :key="side"
-        class="col-6"
+        class="d-flex flex-column stack"
       >
         <!-- Stealth Rock -->
         <button-checkbox
@@ -194,8 +153,6 @@
           :value="pokemon.stealthRock"
           size="small"
           type="secondary"
-          class="mt-1"
-          :class="pokeAlign(side)"
           @input="toggleStealthRock({ side })"
         >
           Stealth Rock
@@ -208,8 +165,6 @@
           :options="spikes"
           size="small"
           type="secondary"
-          class="mt-1"
-          :class="pokeAlign(side)"
           @input="spikes => setSpikes({ side, spikes })"
         />
         <button-checkbox
@@ -217,15 +172,13 @@
           :value="Boolean(pokemon.spikes)"
           size="small"
           type="secondary"
-          class="mt-1"
-          :class="pokeAlign(side)"
           @input="spikes => setSpikes({ side, spikes })"
         >
           Spikes
         </button-checkbox>
 
         <!-- Reflect / Light Screen -->
-        <div class="btn-group btn-group-sm mt-1" :class="pokeAlign(side)">
+        <div class="btn-group btn-group-sm">
           <button-checkbox
             :value="pokemon.reflect"
             type="secondary"
@@ -248,8 +201,6 @@
           :value="pokemon.foresight"
           size="small"
           type="secondary"
-          class="mt-1"
-          :class="pokeAlign(side)"
           @input="toggleForesight({ side })"
         >
           Foresight
@@ -261,8 +212,6 @@
           :value="pokemon.friendGuard"
           size="small"
           type="secondary"
-          class="mt-1"
-          :class="pokeAlign(side)"
           @input="toggleFriendGuard({ side })"
         >
           Friend Guard
@@ -274,8 +223,6 @@
           :value="pokemon.auroraVeil"
           size="small"
           type="secondary"
-          class="mt-1"
-          :class="pokeAlign(side)"
           @input="toggleAuroraVeil({ side })"
         >
           Aurora Veil
@@ -287,8 +234,6 @@
           :value="pokemon.battery"
           size="small"
           type="secondary"
-          class="mt-1"
-          :class="pokeAlign(side)"
           @input="toggleBattery({ side })"
         >
           Battery
@@ -302,6 +247,7 @@
 import { mapActions, mapState } from "vuex";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import ButtonRadioGroup from "./ui/ButtonRadioGroup.vue";
+import { asThunkObject } from "../utilities";
 import { Generation, Terrain, Weather } from "sulcalc";
 
 export default {
@@ -309,8 +255,8 @@ export default {
     ButtonCheckbox,
     ButtonRadioGroup
   },
-  data() {
-    return {
+  computed: {
+    ...asThunkObject({
       Generation,
       Terrain,
       Weather,
@@ -328,11 +274,8 @@ export default {
         { value: 1, label: "1" },
         { value: 2, label: "2" },
         { value: 3, label: "3 Spikes" }
-      ],
-      centeredRowClasses: ["form-row", "justify-content-center"]
-    };
-  },
-  computed: {
+      ]
+    }),
     ...mapState(["gen", "field", "attacker", "defender"]),
     weathers() {
       const weathers = [
@@ -354,7 +297,7 @@ export default {
       if (this.gen >= Generation.SM) {
         terrains.push({
           value: Terrain.PSYCHIC_TERRAIN,
-          label: "Psyhic Terrain"
+          label: "Psychic Terrain"
         });
       }
       return terrains;
@@ -383,22 +326,23 @@ export default {
       "toggleAuroraVeil",
       "toggleBattery",
       "setSpikes"
-    ]),
-    pokeAlign(side) {
-      return side === "attacker" ? "align-left" : "align-right";
-    }
+    ])
   }
 };
 </script>
 
-<style scoped>
-.align-left {
-  float: left;
-  clear: left;
-}
+<style lang="scss" scoped>
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+@import "node_modules/bootstrap/scss/mixins";
 
-.align-right {
-  float: right;
-  clear: right;
+.stack {
+  & > * {
+    margin-bottom: map-get($spacers, 1);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 </style>

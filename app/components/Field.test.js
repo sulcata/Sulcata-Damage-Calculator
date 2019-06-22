@@ -48,12 +48,6 @@ beforeEach(() => {
   });
 });
 
-test("aligns attacker left and defender right", () => {
-  const wrapper = mount(FieldComponent, { localVue, store });
-  expect(wrapper.vm.pokeAlign("attacker")).toBe("align-left");
-  expect(wrapper.vm.pokeAlign("defender")).toBe("align-right");
-});
-
 test("weathers computed property returns non-harsh weathers", () => {
   const wrapper = mount(FieldComponent, { localVue, store });
   expect(wrapper.vm.weathers).toEqual(

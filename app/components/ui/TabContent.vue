@@ -1,10 +1,13 @@
 <template>
   <div>
-    <ul class="nav nav-tabs" role="tablist">
+    <ul role="tablist" class="nav nav-tabs">
       <li
-        v-for="tab in tabs"
+        v-for="[tab, tabId, tabContentId] in tabsWithIds"
+        :id="tabId"
         :key="tab"
-        role="presentation"
+        role="tab"
+        :aria-controls="tabContentId"
+        :aria-selected="isActive(tab)"
         class="nav-item nav-link clickable-control"
         :class="{ active: isActive(tab) }"
         @click="selectTab(tab)"
@@ -15,10 +18,13 @@
 
     <div class="tab-content">
       <div
-        v-for="tab in tabs"
+        v-for="[tab, tabId, tabContentId] in tabsWithIds"
+        :id="tabContentId"
         :key="tab"
-        class="tab-pane"
-        :class="{ active: isActive(tab) }"
+        role="tabpanel"
+        :aria-labelledby="tabId"
+        class="tab-pane fade"
+        :class="isActive(tab) ? ['show', 'active'] : []"
       >
         <slot :name="tab"></slot>
       </div>
@@ -29,6 +35,10 @@
 <script>
 export default {
   props: {
+    id: {
+      required: true,
+      type: String
+    },
     tabs: {
       required: true,
       type: Array,
@@ -41,6 +51,16 @@ export default {
     return {
       activeTab: this.tabs[0]
     };
+  },
+  computed: {
+    tabsWithIds() {
+      const { id, tabs } = this;
+      return tabs.map(tab => [
+        tab,
+        `${id}-tab-${tab}`,
+        `${id}-tabpanel-${tab}`
+      ]);
+    }
   },
   methods: {
     selectTab(tab) {

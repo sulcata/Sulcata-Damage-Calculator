@@ -5,7 +5,8 @@ let wrapper;
 beforeEach(() => {
   wrapper = shallowMount(TabContent, {
     propsData: {
-      tabs: ["Tab A", "Tab B", "Tab C"]
+      tabs: ["Tab A", "Tab B", "Tab C"],
+      id: "test-id"
     },
     slots: {
       "Tab A": "<div id='a'></div>",

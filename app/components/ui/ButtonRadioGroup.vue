@@ -1,14 +1,13 @@
 <template>
   <div role="group" :class="groupClasses">
-    <button
+    <label
       v-for="(option, index) in options"
       :key="index"
-      type="button"
       :class="buttonClasses(option)"
-      @click="select(option)"
     >
+      <input type="radio" @click="select(option)" />
       {{ option[label] }}
-    </button>
+    </label>
   </div>
 </template>
 
@@ -88,6 +87,7 @@ export default {
     groupClasses() {
       return {
         "btn-group": this.layout === "horizontal",
+        "btn-group-toggle": true,
         "btn-group-vertical": this.layout === "vertical",
         [sizeClasses[this.size]]: true
       };
@@ -110,9 +110,17 @@ export default {
       return {
         btn: true,
         active: this.isSelected(option),
-        [`btn${outline}${typeClasses[this.type]}`]: true
+        [`btn${outline}${typeClasses[this.type]}`]: true,
+        "clickable-control": true
       };
     }
   }
 };
 </script>
+
+<style scoped>
+.clickable-control {
+  cursor: pointer;
+  user-select: none;
+}
+</style>
