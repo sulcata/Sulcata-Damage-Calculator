@@ -17,19 +17,17 @@ test("emits the validated input on changes", () => {
   expect(wrapper.emitted().input[1]).toEqual([4]);
 });
 
-test("does not emit nor change anything on bad input", () => {
+test("does not emit anything on bad input", () => {
   const wrapper = shallowMount(IntegerInput, {
     propsData: { value: 10 }
   });
   wrapper.element.value = "$";
   wrapper.trigger("change");
   expect(wrapper.emitted().input).toBeUndefined();
-  expect(wrapper.element.value).toBe("10");
 
   wrapper.element.value = `${Number.MAX_VALUE}0`;
   wrapper.trigger("change");
   expect(wrapper.emitted().input).toBeUndefined();
-  expect(wrapper.element.value).toBe("10");
 });
 
 test("allows a min and max value", () => {
@@ -39,6 +37,8 @@ test("allows a min and max value", () => {
       max: 350
     }
   });
+  expect(wrapper.attributes().min).toBe("0");
+  expect(wrapper.attributes().max).toBe("350");
   wrapper.element.value = "5";
   wrapper.trigger("change");
   wrapper.element.value = "43";
@@ -55,6 +55,12 @@ test("allows custom step size", () => {
     propsData: { step: 2 }
   });
   expect(wrapper.attributes().step).toBe("2");
+  wrapper.element.value = "5";
+  wrapper.trigger("change");
+  wrapper.element.value = "44";
+  wrapper.trigger("change");
+  expect(wrapper.emitted().input[0]).toEqual([4]);
+  expect(wrapper.emitted().input[1]).toEqual([44]);
 });
 
 test("can be disabled", () => {
@@ -72,27 +78,4 @@ test("customizes display", () => {
   wrapper.setProps({ size: "large" });
   expect(wrapper.classes()).toContain("form-control");
   expect(wrapper.classes()).toContain("form-control-lg");
-});
-
-test("prevents invalid keydowns", () => {
-  const wrapper = shallowMount(IntegerInput);
-  wrapper.trigger("keydown", { key: "a", preventDefault });
-  expect(preventDefault).toHaveBeenCalledTimes(1);
-});
-
-test("allows valid keydowns", () => {
-  const wrapper = shallowMount(IntegerInput);
-  const validKeys = new Set([
-    "Enter",
-    "Shift",
-    "ArrowLeft",
-    "Backspace",
-    "Delete",
-    ..."0123456789"
-  ]);
-
-  for (const key of validKeys) {
-    wrapper.trigger("keydown", { key, preventDefault });
-    expect(preventDefault).not.toHaveBeenCalled();
-  }
 });

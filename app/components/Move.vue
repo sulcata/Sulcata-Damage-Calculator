@@ -193,6 +193,7 @@ import { mapState } from "vuex";
 import { Multiselect } from "vue-multiselect";
 import ButtonCheckbox from "./ui/ButtonCheckbox.vue";
 import IntegerInput from "./ui/IntegerInput.vue";
+import { asThunkObject } from "../utilities";
 import { Generation, Move, info } from "sulcalc";
 
 export default {
@@ -218,10 +219,8 @@ export default {
       }
     }
   },
-  data() {
-    return { Generation };
-  },
   computed: {
+    ...asThunkObject({ Generation }),
     ...mapState(["gen"]),
     moves() {
       return info
