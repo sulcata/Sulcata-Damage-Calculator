@@ -16,7 +16,7 @@ beforeEach(() => {
 });
 
 test("emits a toggled value when changed", () => {
-  const buttons = wrapper.findAll("button");
+  const buttons = wrapper.findAll("input");
   buttons.at(0).trigger("click");
   wrapper.setProps({ value: 1 });
   buttons.at(0).trigger("click");
@@ -28,7 +28,7 @@ test("emits a toggled value when changed", () => {
 
 test("allows a default value", () => {
   wrapper.setProps({ value: 42, defaultValue: 42 });
-  const buttons = wrapper.findAll("button");
+  const buttons = wrapper.findAll("input");
   buttons.at(3).trigger("click");
   wrapper.setProps({ value: NaN });
   buttons.at(3).trigger("click");
@@ -38,12 +38,8 @@ test("allows a default value", () => {
 });
 
 test("customizes display", () => {
-  const buttons = wrapper.findAll("button");
-
   expect(wrapper.classes()).toContain("btn-group");
   expect(wrapper.attributes().role).toBe("group");
-  expect(buttons.at(0).classes()).toContain("btn");
-  expect(buttons.at(0).classes()).toContain("btn-primary");
 
   wrapper.setProps({
     value: 1,
@@ -54,10 +50,6 @@ test("customizes display", () => {
   });
   expect(wrapper.classes()).toContain("btn-group-vertical");
   expect(wrapper.classes()).toContain("btn-group-lg");
-  expect(buttons.at(0).classes()).toContain("btn");
-  expect(buttons.at(0).classes()).toContain("active");
-  expect(buttons.at(1).classes()).not.toContain("active");
-  expect(buttons.at(0).classes()).toContain("btn-outline-info");
 
   wrapper.setProps({ layout: "verticle" });
   expect(wrapper.classes()).not.toContain("btn-group");

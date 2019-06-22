@@ -81,6 +81,7 @@
 <script>
 import { clamp } from "lodash";
 import IntegerInput from "./ui/IntegerInput.vue";
+import { asThunkObject } from "../utilities";
 import { Generation, Pokemon, Stat } from "sulcalc";
 
 export default {
@@ -97,10 +98,8 @@ export default {
       type: Pokemon
     }
   },
-  data() {
-    return { Stat };
-  },
   computed: {
+    ...asThunkObject({ Stat }),
     stats() {
       if (this.pokemon.gen >= Generation.GSC) {
         return [

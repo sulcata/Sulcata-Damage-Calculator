@@ -26,7 +26,10 @@
         />
       </div>
       <div class="col-4">
-        <tab-content :tabs="['General', 'Import Team', 'More Options']">
+        <tab-content
+          :id="'s-options'"
+          :tabs="['General', 'Import Team', 'More Options']"
+        >
           <div slot="General" class="mt-3"><field /></div>
           <div slot="Import Team" class="mt-3"><set-importer /></div>
           <div slot="More Options" class="mt-3"><sulcalc-options /></div>
