@@ -17,11 +17,7 @@ module.exports = function(api) {
     "@babel/preset-typescript"
   ];
 
-  const plugins = [
-    "lodash",
-    "@babel/plugin-proposal-class-properties"
-    // "@babel/plugin-proposal-decorators"
-  ];
+  const plugins = ["lodash", "@babel/plugin-proposal-class-properties"];
 
   if (!api.env("webpack")) {
     plugins.push("babel-plugin-dynamic-import-node");

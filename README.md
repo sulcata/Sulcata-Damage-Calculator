@@ -37,26 +37,26 @@ sulcalc(attacker, defender, move, field).summary;
 
 ## Installing Dependencies and Setup
 
-1.  Install [Node.js](https://nodejs.org/) if you haven't done so already.
-2.  Run `npm ci` in the root directory of the repository.
-3.  Be sure to run `npm run setup` before running other tasks.
+1.  Install [Node.js](https://nodejs.org/) and [Yarn](https://yarnpkg.com/en/).
+2.  Run `yarn` in the root directory of the repository.
+3.  Be sure to run `yarn setup` before running other tasks.
 
 ## Running
 
-- `npm run start` to start a local server that will serve the app.
+- `yarn start` to start a local server that will serve the app.
 - After a while it will finish building and provide a link in the console.
 
 ## Building
 
-- `npm run build:app` to build the web app.
-- `npm run build:lib` to bundle just the API together.
+- `yarn build:app` to build the web app.
+- `yarn build:lib` to bundle just the API together.
 - All builds are put in the `/dist` folder.
 
 ## Linting and Testing
 
-- `npm run test` to run the unit tests.
-- `npm run lint` to run TSLint and Prettier.
-- `npm run style:fix` to autoformat with Prettier.
+- `yarn test` to run the unit tests.
+- `yarn lint` to run TSLint and Prettier.
+- `yarn style:fix` to autoformat with Prettier.
 - These should all be run automatically before commits.
 
 ## Issues
